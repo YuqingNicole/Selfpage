@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { photographerInfo } from '@/data/photographer';
 import { getFeaturedProjects } from '@/data/projects';
+import { getRecentPosts } from '@/data/blog';
 import { ProjectCard } from '@/components/portfolio/ProjectCard';
+import { BlogCard } from '@/components/blog/BlogCard';
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -14,6 +16,7 @@ import { Link } from 'react-router-dom';
  */
 export default function Home() {
   const featuredProjects = getFeaturedProjects();
+  const recentPosts = getRecentPosts(3);
 
   return (
     <>
@@ -152,6 +155,40 @@ export default function Home() {
                 className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
               >
                 <span>View All Projects</span>
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </ScrollReveal>
+        </section>
+
+        {/* Recent Blog Posts Section */}
+        <section className="py-24 md:py-32 border-t border-border bg-background">
+          <ScrollReveal>
+            <div className="text-center mb-16 space-y-4 px-6">
+              <h2 className="text-4xl md:text-5xl font-light tracking-wide">
+                From the Journal
+              </h2>
+              <p className="text-lg text-muted-foreground font-light tracking-wide">
+                Stories & thoughts from behind the lens
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {recentPosts.map((post, index) => (
+                <BlogCard key={post.id} post={post} index={index} />
+              ))}
+            </div>
+          </div>
+
+          <ScrollReveal delay={0.4}>
+            <div className="flex justify-center mt-16 px-6">
+              <Link
+                to="/blog"
+                className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
+              >
+                <span>Read All Articles</span>
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
