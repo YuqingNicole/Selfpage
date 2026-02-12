@@ -3,7 +3,7 @@
  * Based on SPECIFICATION.md data model requirements
  */
 
-export type ProjectCategory = 'portraits' | 'landscapes' | 'editorial' | 'architecture' | 'documentary';
+export type ProjectCategory = 'portraits' | 'landscapes' | 'editorial' | 'architecture' | 'documentary' | 'product';
 
 export type AspectRatio = 'portrait' | 'landscape' | 'square';
 
@@ -27,6 +27,7 @@ export interface Project {
   camera?: string;
   location?: string;
   slug: string;
+  externalUrl?: string;
 }
 
 export interface PhotographerInfo {

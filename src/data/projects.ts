@@ -1,6 +1,27 @@
 import type { Project } from '@/types';
+import deckcleanerCover from '@/assets/deckcleaner-cover.png';
 
 export const projects: Project[] = [
+  {
+    id: '0',
+    title: 'Deck Cleaner',
+    category: 'product',
+    year: '2025',
+    slug: 'deck-cleaner',
+    coverImage: deckcleanerCover,
+    description: 'A web tool that removes watermarks from NotebookLM Slide Deck PDF files. Features PDF watermark removal, video watermark removal, and PDF to PPTX conversion.',
+    client: 'Personal Project',
+    location: 'Web',
+    externalUrl: 'https://deckcleaner.xyz',
+    images: [
+      {
+        id: '0-1',
+        src: deckcleanerCover,
+        alt: 'Deck Cleaner homepage',
+        aspectRatio: 'landscape'
+      }
+    ]
+  },
   {
     id: '1',
     title: 'Desert Solitude',
