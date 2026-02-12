@@ -39,7 +39,7 @@ export function Footer() {
       ),
     },
     {
-      href: 'https://xhslink.com/m/6JVHDqLozk1',
+      href: 'https://www.xiaohongshu.com/user/profile/5f2b5a16000000000101f51f',
       label: '小红书',
       icon: (
         <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
