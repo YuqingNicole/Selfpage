@@ -2,14 +2,14 @@ import type { PhotographerInfo } from '@/types';
 
 export const photographerInfo: PhotographerInfo = {
   name: 'Nicole Chen',
-  tagline: 'Exploring the Intersection of AI, Creativity & Human Insight',
-  heroIntroduction: 'A digital garden where ideas on technology, design, and the evolving landscape of artificial intelligence take root and grow.',
-  biography: `Nicole is a multidisciplinary thinker and creator who bridges the worlds of technology and human expression. With a background spanning design, photography, and AI research, she brings a unique lens to understanding how emerging technologies reshape the way we create, communicate, and connect.
+  tagline: 'Product Manager · Builder · AI Explorer',
+  heroIntroduction: 'A digital garden where product thinking, hands-on building, and AI-driven creativity converge to shape what comes next.',
+  biography: `Nicole is a product manager and builder who thrives at the intersection of strategy, design, and technology. With experience shipping products from zero to one and a deep curiosity for AI-powered tools, she combines analytical rigor with creative intuition to craft experiences that truly resonate with users.
 
-Her work focuses on the creative possibilities unlocked by artificial intelligence — not as a replacement for human ingenuity, but as a powerful collaborator that amplifies imagination. Through essays, visual experiments, and curated insights, Nicole explores the questions that matter most in this rapidly evolving landscape.`,
-  approach: `My work is guided by curiosity, clarity, and craft. I believe the most meaningful insights emerge at the intersection of disciplines — where technology meets art, where data meets intuition, and where innovation meets empathy.
+Beyond her product work, Nicole is an active builder — prototyping ideas, experimenting with emerging AI capabilities, and turning insights into tangible projects. Through this digital garden, she shares lessons learned from the trenches of product development, reflections on the AI revolution, and the creative experiments that keep her inspired.`,
+  approach: `My work sits at the crossroads of product strategy and hands-on creation. I believe great products are born from deep user empathy, rapid experimentation, and a willingness to build before you have all the answers.
 
-Whether writing about the future of AI-assisted creativity or capturing moments through a lens, I strive to make complex ideas accessible and inspire others to engage thoughtfully with the tools shaping our world.`,
+I'm especially drawn to the ways AI is transforming how we build — from accelerating prototyping to unlocking entirely new product categories. Whether I'm defining a product roadmap or shipping a weekend project, the goal is always the same: create something useful, delightful, and worth sharing.`,
   awards: [
     'Featured Speaker - AI & Creativity Summit 2024',
     'Digital Innovation Award - Creative Tech Awards 2023',
