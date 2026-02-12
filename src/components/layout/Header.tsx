@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, Coffee } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
@@ -7,6 +7,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { photographerInfo } from '@/data/photographer';
+import { useBuyCoffee } from '@/hooks/useBuyCoffee';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -26,6 +27,7 @@ export function Header() {
   const location = useLocation();
   const { isScrolled } = useScrollPosition();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { loading: coffeeLoading, handleBuyCoffee } = useBuyCoffee();
   
   // Header is transparent only on homepage hero when not scrolled
   const isTransparent = location.pathname === '/' && !isScrolled;
@@ -99,7 +101,23 @@ export function Header() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.4 }}
+              className="flex items-center gap-2"
             >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBuyCoffee}
+                disabled={coffeeLoading}
+                className={cn(
+                  'gap-1.5 font-light tracking-wide text-sm',
+                  isTransparent
+                    ? 'text-white hover:bg-white/10 hover:text-white'
+                    : 'text-foreground hover:text-foreground/80'
+                )}
+              >
+                <Coffee className="size-4" />
+                {coffeeLoading ? '...' : 'Buy Me a Coffee'}
+              </Button>
               <ThemeToggle />
             </motion.div>
           </nav>
@@ -133,6 +151,16 @@ export function Header() {
                       {link.name}
                     </Link>
                   ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBuyCoffee}
+                    disabled={coffeeLoading}
+                    className="gap-2 font-light tracking-wide w-fit"
+                  >
+                    <Coffee className="size-4" />
+                    {coffeeLoading ? 'Loading...' : 'Buy Me a Coffee'}
+                  </Button>
                 </nav>
               </SheetContent>
             </Sheet>
