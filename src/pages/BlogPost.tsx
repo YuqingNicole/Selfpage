@@ -1,64 +1,15 @@
-import { useState, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, ExternalLink, Pencil, Trash2, Save } from 'lucide-react';
-import { useBlogPost, useRelatedPosts } from '@/hooks/useBlogPosts';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { useBlogAdmin } from '@/hooks/useBlogAdmin';
+import { ArrowLeft, Calendar, Clock, ExternalLink } from 'lucide-react';
+import { getBlogPostBySlug, getRelatedPosts } from '@/data/blog';
 import { BlogCard } from '@/components/blog/BlogCard';
-import { InlineEditor } from '@/components/blog/InlineEditor';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
-  const { data: post, isLoading } = useBlogPost(slug);
-  const { data: relatedPosts = [] } = useRelatedPosts(slug, post?.category);
-  const { isAdmin, getPassword } = useAdminAuth();
-  const { saving, savePost, deletePost } = useBlogAdmin(getPassword);
-  const navigate = useNavigate();
-  const [editMode, setEditMode] = useState(false);
-  const [edits, setEdits] = useState<Record<string, string>>({});
-
-  const updateField = useCallback((field: string, value: string) => {
-    setEdits((prev) => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleSave = async () => {
-    if (!post) return;
-    try {
-      await savePost({
-        id: post.id,
-        title: edits.title ?? post.title,
-        excerpt: edits.excerpt ?? post.excerpt,
-        content: edits.content ?? post.content,
-        cover_image: edits.coverImage ?? post.coverImage,
-        substack_url: edits.substackUrl ?? post.substackUrl,
-      });
-      setEdits({});
-      setEditMode(false);
-    } catch {
-      // error handled in hook
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!post) return;
-    if (!confirm('确定要删除这篇文章吗？')) return;
-    await deletePost(post.id);
-    navigate('/blog');
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground font-light">Loading...</p>
-      </div>
-    );
-  }
+  const post = slug ? getBlogPostBySlug(slug) : undefined;
 
   if (!post) {
     return (
@@ -86,9 +37,7 @@ export default function BlogPost() {
     day: 'numeric',
   });
 
-  const displayTitle = edits.title ?? post.title;
-  const displayExcerpt = edits.excerpt ?? post.excerpt;
-  const displayContent = edits.content ?? post.content;
+  const relatedPosts = getRelatedPosts(post.slug);
 
   // Simple markdown-like rendering for content
   const renderContent = (content: string) => {
@@ -127,9 +76,9 @@ export default function BlogPost() {
       />
 
       <div className="min-h-screen">
-        {/* Back Link + Admin bar */}
+        {/* Back Link */}
         <div className="px-6 lg:px-8 pt-24 pb-4">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
+          <div className="max-w-3xl mx-auto">
             <Link
               to="/blog"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-light tracking-wide"
@@ -137,30 +86,6 @@ export default function BlogPost() {
               <ArrowLeft className="size-4" />
               Back to Journal
             </Link>
-
-            {isAdmin && (
-              <div className="flex items-center gap-2">
-                {editMode ? (
-                  <>
-                    <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1">
-                      <Save className="size-3" /> {saving ? '保存中...' : '保存'}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => { setEditMode(false); setEdits({}); }}>
-                      取消
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button size="sm" variant="outline" onClick={() => setEditMode(true)} className="gap-1">
-                      <Pencil className="size-3" /> 编辑
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={handleDelete} className="gap-1 text-destructive hover:text-destructive">
-                      <Trash2 className="size-3" /> 删除
-                    </Button>
-                  </>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
@@ -189,21 +114,13 @@ export default function BlogPost() {
                 </span>
               </div>
 
-              <InlineEditor
-                value={displayTitle}
-                onSave={(v) => updateField('title', v)}
-                isEditing={editMode}
-                as="h1"
-                className="text-3xl md:text-4xl lg:text-5xl font-light tracking-wide leading-tight"
-              />
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-wide leading-tight">
+                {post.title}
+              </h1>
 
-              <InlineEditor
-                value={displayExcerpt}
-                onSave={(v) => updateField('excerpt', v)}
-                isEditing={editMode}
-                as="p"
-                className="text-lg md:text-xl text-muted-foreground font-light leading-relaxed"
-              />
+              <p className="text-lg md:text-xl text-muted-foreground font-light leading-relaxed">
+                {post.excerpt}
+              </p>
             </motion.div>
           </div>
         </header>
@@ -229,18 +146,7 @@ export default function BlogPost() {
         {/* Article Content */}
         <article className="px-6 lg:px-8 pb-16">
           <div className="max-w-3xl mx-auto space-y-6">
-            {editMode ? (
-              <InlineEditor
-                value={displayContent}
-                onSave={(v) => updateField('content', v)}
-                isEditing={true}
-                as="textarea"
-                multiline
-                className="text-base md:text-lg font-light leading-relaxed text-muted-foreground font-mono"
-              />
-            ) : (
-              renderContent(displayContent)
-            )}
+            {renderContent(post.content)}
           </div>
         </article>
 
