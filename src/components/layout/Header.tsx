@@ -51,9 +51,9 @@ export function Header() {
             to="/"
             className={cn(
               'text-lg font-light tracking-widest transition-all duration-300',
-              isTransparent
-                ? 'text-white hover:text-white/80'
-                : 'text-foreground hover:text-foreground/80'
+      isTransparent
+          ? 'text-foreground hover:text-foreground/80'
+          : 'text-foreground hover:text-foreground/80'
             )}
           >
             <motion.span
@@ -78,8 +78,8 @@ export function Header() {
                     to={link.path}
                     className={cn(
                       "relative text-lg leading-7 font-light tracking-wide transition-colors duration-300",
-                      isTransparent
-                        ? 'text-white hover:text-white/80'
+                    isTransparent
+                        ? 'text-foreground hover:text-foreground/80'
                         : 'text-foreground hover:text-foreground/80'
                     )}
                   >
@@ -89,7 +89,7 @@ export function Header() {
                         layoutId="activeNav"
                         className={cn(
                           "absolute -bottom-1 left-0 right-0 h-px",
-                          isTransparent ? 'bg-white' : 'bg-foreground'
+                          isTransparent ? 'bg-foreground' : 'bg-foreground'
                         )}
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
@@ -111,7 +111,7 @@ export function Header() {
                 className={cn(
                   'gap-1.5 font-light tracking-wide text-sm',
                   isTransparent
-                    ? 'text-white hover:bg-white/10 hover:text-white'
+                    ? 'text-foreground hover:text-foreground/80'
                     : 'text-foreground hover:text-foreground/80'
                 )}
               >
@@ -132,7 +132,7 @@ export function Header() {
                   size="icon"
                   className={cn(
                     'size-9',
-                    isTransparent && 'text-white hover:bg-white/10'
+                    isTransparent && 'text-foreground'
                   )}
                   aria-label="Open menu"
                 >
