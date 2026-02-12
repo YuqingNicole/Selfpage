@@ -1,4 +1,4 @@
-import { Instagram, Linkedin } from 'lucide-react';
+import { Instagram, Linkedin, MessageCircle } from 'lucide-react';
 import { photographerInfo } from '@/data/photographer';
 import { Separator } from '@/components/ui/separator';
 
@@ -65,6 +65,15 @@ export function Footer() {
                 </svg>
               </a>
             )}
+            <a
+              href="https://discord.gg/tqE5Tbcz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Discord"
+            >
+              <MessageCircle className="size-5" />
+            </a>
           </div>
         </div>
       </div>
