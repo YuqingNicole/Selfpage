@@ -8,11 +8,11 @@ import type { BlogCategory } from '@/types/blog';
 
 const categories: { label: string; value: string }[] = [
   { label: 'All', value: 'all' },
-  { label: 'Photography', value: 'photography' },
-  { label: 'Travel', value: 'travel' },
-  { label: 'Gear', value: 'gear' },
-  { label: 'Tutorials', value: 'tutorials' },
-  { label: 'Personal', value: 'personal' },
+  { label: 'AI', value: 'ai' },
+  { label: 'Product', value: 'product' },
+  { label: 'Startup', value: 'startup' },
+  { label: 'Thinking', value: 'thinking' },
+  { label: 'Dev', value: 'dev' },
 ];
 
 export default function Blog() {
@@ -24,8 +24,8 @@ export default function Blog() {
   return (
     <>
       <SEOHead
-        title="Blog"
-        description="Thoughts on photography, travel, gear, and the creative process. Stories from behind the lens."
+        title="Blog - Nicole's Garden"
+        description="分享AI时代的思考，有关产品、创投以及各种人生进化路上的故事。"
       />
 
       <div className="min-h-screen">
@@ -38,10 +38,10 @@ export default function Blog() {
               transition={{ duration: 0.4 }}
             >
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-wide mb-4">
-                Journal
+                🟣 Nicole's Garden
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground font-light tracking-wide">
-                Stories, thoughts & lessons from behind the lens
+                分享AI时代的思考，有关产品、创投以及各种人生进化路上的故事
               </p>
             </motion.div>
           </div>

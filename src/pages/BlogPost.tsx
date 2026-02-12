@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, ExternalLink } from 'lucide-react';
 import { getBlogPostBySlug, getRelatedPosts } from '@/data/blog';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -150,9 +150,9 @@ export default function BlogPost() {
           </div>
         </article>
 
-        {/* Tags */}
+        {/* Tags & Substack Link */}
         <div className="px-6 lg:px-8 pb-12">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
                 <span
@@ -163,6 +163,17 @@ export default function BlogPost() {
                 </span>
               ))}
             </div>
+            {post.substackUrl && (
+              <a
+                href={post.substackUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-light tracking-wide"
+              >
+                Read on Substack
+                <ExternalLink className="size-3.5" />
+              </a>
+            )}
           </div>
         </div>
 

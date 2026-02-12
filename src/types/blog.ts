@@ -9,10 +9,11 @@ export interface BlogPost {
   tags: string[];
   publishedAt: string;
   readingTime: string;
+  substackUrl: string;
   author: {
     name: string;
     avatar: string;
   };
 }
 
-export type BlogCategory = 'photography' | 'travel' | 'gear' | 'tutorials' | 'personal';
+export type BlogCategory = 'ai' | 'product' | 'startup' | 'thinking' | 'dev';
