@@ -35,7 +35,7 @@ export function NewsletterBar() {
       animate={{ y: 0, opacity: 1, scale: 1 }}
       exit={{ y: 80, opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.6, delay: 2, type: 'spring' as const, stiffness: 100, damping: 15 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+      className="fixed bottom-6 right-6 z-50"
     >
       <AnimatePresence mode="wait">
         {!expanded ? (
