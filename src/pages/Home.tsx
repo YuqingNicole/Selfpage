@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 function AnimatedTitle({ text }: { text: string }) {
   return (
     <motion.h1
-      className="text-6xl md:text-8xl lg:text-9xl font-extralight tracking-widest text-white"
+      className="text-6xl md:text-8xl lg:text-9xl font-extralight tracking-widest text-foreground"
       initial="hidden"
       animate="visible"
       variants={{
@@ -52,7 +52,7 @@ export default function Home() {
     target: heroRef,
     offset: ['start start', 'end start'],
   });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const _heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const heroTextY = useTransform(scrollYProgress, [0, 1], [0, 80]);
 
@@ -63,23 +63,7 @@ export default function Home() {
       <div className="min-h-screen">
         {/* Hero Section with parallax */}
         <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
-          <motion.div className="absolute inset-0" style={{ scale: heroScale }}>
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="https://images.pexels.com/videos/2675516/free-video-2675516.jpg?auto=compress&cs=tinysrgb&fit=crop&h=630&w=1200"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.opacity = '0';
-              }}
-            >
-              <source src="https://videos.pexels.com/video-files/2675516/2675516-sd_960_540_24fps.mp4" type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
-          </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
 
           <motion.div
             className="relative h-full flex flex-col items-center justify-center px-6"
@@ -89,7 +73,7 @@ export default function Home() {
               <AnimatedTitle text={photographerInfo.name.toUpperCase()} />
               
               <motion.p
-                className="text-xl md:text-2xl font-light tracking-wide text-white/90"
+                className="text-xl md:text-2xl font-light tracking-wide text-foreground/90"
                 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.8, delay: 0.8 }}
@@ -98,7 +82,7 @@ export default function Home() {
               </motion.p>
 
               <motion.p
-                className="text-base md:text-lg font-light leading-relaxed text-white/80 max-w-2xl mx-auto"
+                className="text-base md:text-lg font-light leading-relaxed text-muted-foreground max-w-2xl mx-auto"
                 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.8, delay: 1.0 }}
