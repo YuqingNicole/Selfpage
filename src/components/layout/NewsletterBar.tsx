@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Fixed bottom newsletter bar with magnetic hover and smooth morph
@@ -19,12 +20,27 @@ export function NewsletterBar() {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success('Subscribed! Welcome aboard 🎉');
-    setEmail('');
-    setExpanded(false);
-    setDismissed(true);
-    setLoading(false);
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert({ email: email.trim().toLowerCase() });
+      if (error) {
+        if (error.code === '23505') {
+          toast.info('You are already subscribed!');
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success('Subscribed! Welcome aboard 🎉');
+      }
+      setEmail('');
+      setExpanded(false);
+      setDismissed(true);
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (dismissed) return null;
