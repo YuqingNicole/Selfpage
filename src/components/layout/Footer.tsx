@@ -81,30 +81,6 @@ export function Footer() {
                 <Linkedin className="size-5" />
               </a>
             )}
-            {photographerInfo.socialLinks.behance && (
-              <a
-                href={photographerInfo.socialLinks.behance}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Behance"
-              >
-                <svg
-                  className="size-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M3 8h6a3 3 0 0 1 0 6H3V8z" />
-                  <path d="M3 14h7a3 3 0 0 1 0 6H3v-6z" />
-                  <path d="M14 7h7" />
-                  <path d="M17 8a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
-                </svg>
-              </a>
-            )}
             <a
               href="https://discord.gg/tqE5Tbcz"
               target="_blank"

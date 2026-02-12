@@ -34,7 +34,7 @@ Whether working on editorial assignments or commercial projects, I strive to cre
   socialLinks: {
     instagram: 'https://instagram.com/sarahmitchellphoto',
     linkedin: 'https://linkedin.com/in/sarahmitchell',
-    behance: 'https://behance.net/sarahmitchell'
+    
   },
   // Photo by Joshua Sun on Unsplash
   portraitImage: 'https://images.unsplash.com/photo-1585279968680-6606ee6ed134?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MDA2OTF8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NjI3Njk1NjB8&ixlib=rb-4.1.0&q=80&w=1080'
