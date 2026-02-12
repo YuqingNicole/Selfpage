@@ -1,5 +1,6 @@
 import type { Project } from '@/types';
 import deckcleanerCover from '@/assets/deckcleaner-cover.png';
+import magpiechinaCover from '@/assets/magpiechina-cover.png';
 
 export const projects: Project[] = [
   {
@@ -18,6 +19,26 @@ export const projects: Project[] = [
         id: '0-1',
         src: deckcleanerCover,
         alt: 'Deck Cleaner homepage',
+        aspectRatio: 'landscape'
+      }
+    ]
+  },
+  {
+    id: '0b',
+    title: 'Magpie China',
+    category: 'product',
+    year: '2025',
+    slug: 'magpie-china',
+    coverImage: magpiechinaCover,
+    description: 'An AI-powered travel companion for China. Helps travelers navigate language barriers, payment setup, visa policies, and itinerary planning.',
+    client: 'Personal Project',
+    location: 'Web',
+    externalUrl: 'https://www.magpiechina.com/',
+    images: [
+      {
+        id: '0b-1',
+        src: magpiechinaCover,
+        alt: 'Magpie China homepage',
         aspectRatio: 'landscape'
       }
     ]
