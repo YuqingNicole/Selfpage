@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 /**
- * Minimal footer component with social links and copyright
+ * Minimal footer component with social links, copyright, and buy me a coffee
  */
 export function Footer() {
   const currentYear = new Date().getFullYear();
