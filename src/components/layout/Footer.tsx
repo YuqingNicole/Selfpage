@@ -1,12 +1,32 @@
-import { Instagram, Linkedin } from 'lucide-react';
+import { Instagram, Linkedin, Coffee } from 'lucide-react';
 import { photographerInfo } from '@/data/photographer';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 /**
  * Minimal footer component with social links and copyright
  */
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const [loading, setLoading] = useState(false);
+
+  const handleBuyCoffee = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-coffee-payment');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (err) {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <footer className="border-t border-border">
@@ -16,6 +36,17 @@ export function Footer() {
           <p className="text-sm text-muted-foreground font-light tracking-wide">
             © {currentYear} {photographerInfo.name}. All rights reserved.
           </p>
+          {/* Buy Me a Coffee */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBuyCoffee}
+            disabled={loading}
+            className="gap-2 font-light tracking-wide"
+          >
+            <Coffee className="size-4" />
+            {loading ? 'Loading...' : 'Buy Me a Coffee'}
+          </Button>
 
           {/* Social Links */}
           <div className="flex items-center gap-6">
