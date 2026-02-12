@@ -2,40 +2,14 @@ import { Instagram, Linkedin, Coffee } from 'lucide-react';
 import { photographerInfo } from '@/data/photographer';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { useBuyCoffee } from '@/hooks/useBuyCoffee';
 
 /**
  * Minimal footer component with social links, copyright, and buy me a coffee
  */
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const [loading, setLoading] = useState(false);
-
-  const handleBuyCoffee = async () => {
-    setLoading(true);
-    try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      if (!supabaseUrl || !supabaseKey) throw new Error('Backend not ready');
-      const res = await fetch(`${supabaseUrl}/functions/v1/create-coffee-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseKey,
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Payment failed');
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (err) {
-      toast.error('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { loading, handleBuyCoffee } = useBuyCoffee();
 
   return (
     <footer className="border-t border-border">
