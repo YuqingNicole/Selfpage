@@ -33,7 +33,7 @@ Whether working on editorial assignments or commercial projects, I strive to cre
   availability: 'Currently booking for Q2 2025',
   socialLinks: {
     instagram: 'https://instagram.com/sarahmitchellphoto',
-    linkedin: 'https://linkedin.com/in/sarahmitchell',
+    linkedin: 'https://www.linkedin.com/in/yuqing-chen-5957bb216/',
     
   },
   // Photo by Joshua Sun on Unsplash
