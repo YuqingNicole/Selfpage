@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { NewsletterBar } from './NewsletterBar';
 
 interface LayoutProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
+      <NewsletterBar />
     </div>
   );
 }
