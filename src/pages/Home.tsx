@@ -166,10 +166,10 @@ export default function Home() {
           <ScrollReveal>
             <div className="text-center mb-16 space-y-4 px-6">
               <h2 className="text-4xl md:text-5xl font-light tracking-wide">
-                From the Journal
+                From the Garden
               </h2>
               <p className="text-lg text-muted-foreground font-light tracking-wide">
-                Stories & thoughts from behind the lens
+                AI时代的思考与观察
               </p>
             </div>
           </ScrollReveal>
