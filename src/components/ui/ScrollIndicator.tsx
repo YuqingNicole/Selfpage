@@ -1,9 +1,7 @@
 import { motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
 
 /**
- * Animated scroll indicator for hero sections
- * Subtle visual cue to encourage scrolling
+ * Animated scroll indicator with morphing line + arrow
  */
 export function ScrollIndicator() {
   const handleScroll = () => {
@@ -16,19 +14,27 @@ export function ScrollIndicator() {
   return (
     <motion.button
       onClick={handleScroll}
-      className="flex flex-col items-center gap-2 text-white/80 hover:text-white transition-colors cursor-pointer"
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1, duration: 0.8 }}
+      className="flex flex-col items-center gap-3 text-white/80 hover:text-white transition-colors cursor-pointer"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.5, duration: 0.8 }}
       aria-label="Scroll to content"
+      whileHover={{ scale: 1.1 }}
     >
-      <span className="text-xs font-light tracking-widest uppercase">Scroll</span>
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      <motion.span
+        className="text-[10px] font-light tracking-[0.3em] uppercase"
+        animate={{ opacity: [0.4, 1, 0.4] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <ChevronDown className="size-5" />
-      </motion.div>
+        Scroll
+      </motion.span>
+      <div className="relative w-px h-12 overflow-hidden">
+        <motion.div
+          className="absolute top-0 left-0 w-full bg-white/60"
+          animate={{ height: ['0%', '100%', '0%'], top: ['0%', '0%', '100%'] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </div>
     </motion.button>
   );
 }
