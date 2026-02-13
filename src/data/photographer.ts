@@ -27,8 +27,8 @@ I'm especially drawn to the ways AI is transforming how we build — from accele
     'Wired'
   ],
   education: 'MFA Photography, School of Visual Arts, New York',
-  location: 'New York, NY',
-  email: 'hello@nicolegarden.com',
+  location: 'Shanghai',
+  email: 'yuqingchen02@gmail.com',
   phone: '+1 (555) 123-4567',
   availability: 'Open to collaborations and speaking engagements',
   socialLinks: {
