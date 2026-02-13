@@ -27,6 +27,12 @@ export const githubRepos: GitHubRepo[] = [
     language: 'Markdown',
     url: 'https://github.com/YouMind-OpenLab/nano-banana-pro-prompts-recommend-skill',
   },
+  {
+    name: 'seo-geo-claude-skills',
+    description: 'SEO & GEO optimization skills powered by Claude for search engine and generative engine visibility.',
+    language: 'TypeScript',
+    url: 'https://github.com/aaron-he-zhu/seo-geo-claude-skills',
+  },
 ];
 
 export interface UseCase {
