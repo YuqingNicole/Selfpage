@@ -24,6 +24,26 @@ export const projects: Project[] = [
     ]
   },
   {
+    id: '0c',
+    title: "Lenny's Newsletter",
+    category: 'product',
+    year: '2025',
+    slug: 'lennys-newsletter',
+    coverImage: 'https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F742d30f0-88a0-4535-a04d-2cd386efb366_1456x816.png',
+    description: "Lenny's Newsletter — the #1 business newsletter on Substack. Covers product management, growth, working with humans, and strategy.",
+    client: 'Personal Project',
+    location: 'Web',
+    externalUrl: 'https://www.lennysnewsletter.com/',
+    images: [
+      {
+        id: '0c-1',
+        src: 'https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F742d30f0-88a0-4535-a04d-2cd386efb366_1456x816.png',
+        alt: "Lenny's Newsletter homepage",
+        aspectRatio: 'landscape'
+      }
+    ]
+  },
+  {
     id: '0b',
     title: 'Magpie China',
     category: 'product',
