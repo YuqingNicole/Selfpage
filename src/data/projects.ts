@@ -1,6 +1,7 @@
 import type { Project } from '@/types';
 import deckcleanerCover from '@/assets/deckcleaner-cover.png';
 import magpiechinaCover from '@/assets/magpiechina-cover.png';
+import lennysNewsletterCover from '@/assets/lennys-newsletter-cover.jpg';
 
 export const projects: Project[] = [
   {
@@ -29,7 +30,7 @@ export const projects: Project[] = [
     category: 'product',
     year: '2025',
     slug: 'lennys-newsletter',
-    coverImage: 'https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F742d30f0-88a0-4535-a04d-2cd386efb366_1456x816.png',
+    coverImage: lennysNewsletterCover,
     description: "Lenny's Newsletter — the #1 business newsletter on Substack. Covers product management, growth, working with humans, and strategy.",
     client: 'Personal Project',
     location: 'Web',
@@ -37,7 +38,7 @@ export const projects: Project[] = [
     images: [
       {
         id: '0c-1',
-        src: 'https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F742d30f0-88a0-4535-a04d-2cd386efb366_1456x816.png',
+        src: lennysNewsletterCover,
         alt: "Lenny's Newsletter homepage",
         aspectRatio: 'landscape'
       }
