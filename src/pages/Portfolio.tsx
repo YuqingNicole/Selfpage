@@ -61,7 +61,7 @@ export default function Portfolio() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2 text-primary">
-                      <Code className="size-4" />
+                      <img src={`https://www.google.com/s2/favicons?domain=${new URL(repo.url).hostname}&sz=32`} alt="" className="size-4 rounded-sm" />
                       <span className="font-medium tracking-wide">{repo.name}</span>
                     </div>
                     <ExternalLink className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
