@@ -1,6 +1,8 @@
-import { Instagram, Linkedin, Coffee } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Instagram, Linkedin, Coffee, Camera } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { photographerInfo } from '@/data/photographer';
+import { photographyImages } from '@/data/photography';
 import { Button } from '@/components/ui/button';
 import { useBuyCoffee } from '@/hooks/useBuyCoffee';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
@@ -17,6 +19,7 @@ const socialIconVariants = {
 export function Footer() {
   const currentYear = new Date().getFullYear();
   const { loading, handleBuyCoffee } = useBuyCoffee();
+  const [showGallery, setShowGallery] = useState(false);
 
   const socialLinks = [
     photographerInfo.socialLinks.instagram && {
@@ -60,7 +63,59 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+      {/* Photography Gallery Toggle */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-10 pb-4">
+        <ScrollReveal>
+          <button
+            onClick={() => setShowGallery(!showGallery)}
+            className="group flex items-center gap-2 text-sm font-light tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors mx-auto"
+          >
+            <Camera className="size-4" />
+            <span>Photography</span>
+            <motion.span
+              animate={{ rotate: showGallery ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="inline-block text-xs"
+            >
+              ▼
+            </motion.span>
+          </button>
+        </ScrollReveal>
+
+        <AnimatePresence>
+          {showGallery && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mt-6">
+                {photographyImages.map((photo, i) => (
+                  <motion.div
+                    key={photo.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.04, duration: 0.3 }}
+                    className="aspect-square overflow-hidden rounded-sm"
+                  >
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      loading="lazy"
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Original Footer Content */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
         <ScrollReveal>
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-sm text-muted-foreground font-light tracking-wide">
