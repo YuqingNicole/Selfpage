@@ -21,6 +21,12 @@ export const githubRepos: GitHubRepo[] = [
     stars: 8,
     url: 'https://github.com/yourusername/magpie-china',
   },
+  {
+    name: 'nano-banana-pro-prompts-recommend-skill',
+    description: 'A curated collection of prompt engineering skills and recommendations for Nano Banana Pro.',
+    language: 'Markdown',
+    url: 'https://github.com/YouMind-OpenLab/nano-banana-pro-prompts-recommend-skill',
+  },
 ];
 
 export interface UseCase {
