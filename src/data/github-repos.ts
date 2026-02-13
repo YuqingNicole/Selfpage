@@ -8,18 +8,10 @@ export interface GitHubRepo {
 
 export const githubRepos: GitHubRepo[] = [
   {
-    name: 'deck-cleaner',
-    description: 'A web tool that removes watermarks from NotebookLM Slide Deck PDF files.',
-    language: 'TypeScript',
-    stars: 12,
-    url: 'https://github.com/yourusername/deck-cleaner',
-  },
-  {
-    name: 'magpie-china',
-    description: 'AI-powered travel companion for China — navigate language, payments, visas.',
-    language: 'TypeScript',
-    stars: 8,
-    url: 'https://github.com/yourusername/magpie-china',
+    name: 'nano-banana-pro-prompts-recommend-skill',
+    description: 'A curated collection of prompt engineering skills and recommendations for Nano Banana Pro.',
+    language: 'Markdown',
+    url: 'https://github.com/YouMind-OpenLab/nano-banana-pro-prompts-recommend-skill',
   },
   {
     name: 'nano-banana-pro-prompts-recommend-skill',
