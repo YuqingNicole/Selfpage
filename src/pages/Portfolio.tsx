@@ -1,6 +1,4 @@
-import { projects } from '@/data/projects';
 import { githubRepos, useCases } from '@/data/github-repos';
-import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { ExternalLink, Star, Code } from 'lucide-react';
@@ -131,21 +129,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* Projects Section */}
-        <section className="py-12 md:py-16 px-2 md:px-4">
-          <div className="max-w-6xl mx-auto px-4 lg:px-4 mb-8">
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-2xl md:text-3xl font-light tracking-wide"
-            >
-              Projects
-            </motion.h2>
-          </div>
-          <PortfolioGrid projects={projects} />
-        </section>
+
 
         <div className="h-24" />
       </div>
