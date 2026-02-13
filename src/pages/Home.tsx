@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 function AnimatedTitle({ text }: { text: string }) {
   return (
     <motion.h1
-      className="text-6xl md:text-8xl lg:text-9xl font-extralight tracking-widest text-foreground"
+      className="text-5xl md:text-8xl lg:text-9xl font-extralight tracking-widest text-foreground whitespace-nowrap"
       initial="hidden"
       animate="visible"
       variants={{
