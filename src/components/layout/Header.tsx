@@ -14,7 +14,7 @@ const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Journal', path: '/blog' },
   { name: 'Skills', path: '/portfolio' },
-  
+  { name: 'Partner Links', path: '/partner-links' },
   { name: 'Contact', path: '/contact' },
 ];
 
