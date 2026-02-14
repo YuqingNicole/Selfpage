@@ -100,31 +100,40 @@ export default function Portfolio() {
               Use Cases
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {useCases.map((uc, i) => (
-                <motion.div
-                  key={uc.title}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="p-6 rounded-lg border border-border bg-card"
-                >
-                  <h3 className="text-lg font-medium tracking-wide mb-2">{uc.title}</h3>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed mb-4">
-                    {uc.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {uc.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="px-2.5 py-1 text-xs rounded-full border border-border text-muted-foreground"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
+              {useCases.map((uc, i) => {
+                const Wrapper = uc.url ? motion.a : motion.div;
+                const linkProps = uc.url ? { href: uc.url, target: '_blank', rel: 'noopener noreferrer' } : {};
+                return (
+                  <Wrapper
+                    key={uc.title}
+                    {...linkProps}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    whileHover={uc.url ? { y: -2 } : undefined}
+                    className={`group block p-6 rounded-lg border border-border bg-card${uc.url ? ' hover:border-foreground/20 transition-colors' : ''}`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-lg font-medium tracking-wide">{uc.title}</h3>
+                      {uc.url && <ExternalLink className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />}
+                    </div>
+                    <p className="text-sm text-muted-foreground font-light leading-relaxed mb-4">
+                      {uc.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {uc.tags.map(tag => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-1 text-xs rounded-full border border-border text-muted-foreground"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </Wrapper>
+                );
+              })}
             </div>
           </div>
         </section>
