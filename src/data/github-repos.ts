@@ -34,6 +34,14 @@ export interface UseCase {
   url?: string;
 }
 
+export interface PartnerLink {
+  name: string;
+  description: string;
+  url: string;
+}
+
+export const partnerLinks: PartnerLink[] = [];
+
 export const useCases: UseCase[] = [
   {
     title: 'PDF Watermark Removal Pipeline',
