@@ -6,9 +6,38 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Simple in-memory rate limiter
+const requestCounts = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = requestCounts.get(ip);
+
+  if (!limit || now > limit.resetAt) {
+    requestCounts.set(ip, { count: 1, resetAt: now + 60000 });
+    return true;
+  }
+
+  if (limit.count >= 5) {
+    return false;
+  }
+
+  limit.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
+  if (!checkRateLimit(clientIp)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 429,
+    });
   }
 
   try {
@@ -33,7 +62,9 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("Payment error:", error);
+
+    return new Response(JSON.stringify({ error: "Unable to process payment. Please try again later." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
