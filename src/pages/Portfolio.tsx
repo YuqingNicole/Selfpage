@@ -1,7 +1,7 @@
-import { githubRepos, useCases, partnerLinks } from '@/data/github-repos';
+import { githubRepos, useCases } from '@/data/github-repos';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
-import { ExternalLink, Star, Code, Link2 } from 'lucide-react';
+import { ExternalLink, Star } from 'lucide-react';
 
 /**
  * Skills page — projects, GitHub repos, and use cases
@@ -135,50 +135,6 @@ export default function Portfolio() {
                 );
               })}
             </div>
-          </div>
-        </section>
-
-        {/* Partner Links Section */}
-        <section className="py-12 md:py-16 px-6 lg:px-8 border-b border-border">
-          <div className="max-w-6xl mx-auto">
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-2xl md:text-3xl font-light tracking-wide mb-8"
-            >
-              Partner Links
-            </motion.h2>
-            {partnerLinks.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {partnerLinks.map((link, i) => (
-                  <motion.a
-                    key={link.name}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    whileHover={{ y: -2 }}
-                    className="group flex items-start gap-4 p-6 rounded-lg border border-border bg-card hover:border-foreground/20 transition-colors"
-                  >
-                    <img src={`https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}&sz=32`} alt="" className="size-5 rounded-sm mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium tracking-wide">{link.name}</span>
-                        <ExternalLink className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                      </div>
-                      <p className="text-sm text-muted-foreground font-light leading-relaxed">{link.description}</p>
-                    </div>
-                  </motion.a>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground font-light">Coming soon...</p>
-            )}
           </div>
         </section>
 
