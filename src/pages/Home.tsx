@@ -15,7 +15,8 @@ import { Link } from 'react-router-dom';
 function AnimatedTitle({ text }: { text: string }) {
   return (
     <motion.h1
-      className="text-5xl md:text-8xl lg:text-9xl font-extralight tracking-widest text-foreground whitespace-nowrap"
+      className="text-5xl md:text-8xl lg:text-9xl tracking-widest text-foreground whitespace-nowrap italic"
+      style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
       initial="hidden"
       animate="visible"
       variants={{
@@ -63,7 +64,22 @@ export default function Home() {
       <div className="min-h-screen">
         {/* Hero Section with parallax */}
         <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
+          {/* Layered atmospheric background */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+          {/* Warm radial glow — top center */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 70% 50% at 50% -10%, var(--accent-warm-subtle) 0%, transparent 70%)',
+            }}
+          />
+          {/* Subtle secondary warm spot — bottom left */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-40"
+            style={{
+              background: 'radial-gradient(ellipse 50% 40% at 15% 90%, var(--accent-warm-muted) 0%, transparent 70%)',
+            }}
+          />
 
           <motion.div
             className="relative h-full flex flex-col items-center justify-center px-6"
@@ -73,12 +89,15 @@ export default function Home() {
               <AnimatedTitle text={photographerInfo.name.toUpperCase()} />
               
               <motion.p
-                className="text-xl md:text-2xl font-light tracking-wide text-foreground/90"
+                className="text-base md:text-lg tracking-[0.25em] uppercase text-foreground/60"
+                style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.2em' }}
                 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.8, delay: 0.8 }}
               >
-                {photographerInfo.tagline}
+                <span style={{ color: 'var(--accent-warm)' }}>·</span>{' '}
+                {photographerInfo.tagline.split(' · ').join(' ')}
+                {' '}<span style={{ color: 'var(--accent-warm)' }}>·</span>
               </motion.p>
 
               <motion.p
@@ -107,10 +126,18 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <ScrollReveal spring>
               <div className="space-y-6">
-                <h2 className="text-3xl md:text-4xl font-light tracking-wide">
+                <div className="flex items-center justify-center gap-4 mb-2">
+                  <div className="h-px w-12 bg-border" />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>About</span>
+                  <div className="h-px w-12 bg-border" />
+                </div>
+                <h2
+                  className="text-3xl md:text-5xl tracking-wide"
+                  style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
+                >
                   About My Work
                 </h2>
-                <div className="space-y-4 text-lg font-light leading-relaxed text-muted-foreground">
+                <div className="space-y-4 text-lg font-light leading-relaxed text-muted-foreground max-w-3xl mx-auto">
                   <p>{photographerInfo.biography.split('\n\n')[0]}</p>
                 </div>
               </div>
@@ -122,10 +149,18 @@ export default function Home() {
         <section className="py-24 md:py-32 border-t border-border">
           <ScrollReveal direction="up" spring>
             <div className="text-center mb-16 space-y-4 px-6">
-              <h2 className="text-4xl md:text-5xl font-light tracking-wide">
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <div className="h-px w-12 bg-border" />
+                <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>Work</span>
+                <div className="h-px w-12 bg-border" />
+              </div>
+              <h2
+                className="text-4xl md:text-5xl tracking-wide"
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
+              >
                 Featured Projects
               </h2>
-              <p className="text-lg text-muted-foreground font-light tracking-wide">
+              <p className="text-base text-muted-foreground font-light tracking-widest uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
                 A selection of recent work
               </p>
             </div>
@@ -162,14 +197,31 @@ export default function Home() {
         </section>
 
         {/* Recent Blog Posts Section */}
-        <section className="py-24 md:py-32 border-t border-border bg-background">
+        <section className="py-24 md:py-32 border-t border-border relative overflow-hidden" style={{ background: 'var(--accent-warm-subtle)' }}>
+          {/* Warm background accent */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent-warm-muted) 0%, transparent 60%)',
+              opacity: 0.5,
+            }}
+          />
           <ScrollReveal direction="up" spring>
-            <div className="text-center mb-16 space-y-4 px-6">
-              <h2 className="text-4xl md:text-5xl font-light tracking-wide">
+            <div className="text-center mb-16 space-y-4 px-6 relative">
+              {/* Decorative accent line */}
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="h-px w-8 bg-border" />
+                <span style={{ color: 'var(--accent-warm)', fontSize: '1.2rem' }}>✦</span>
+                <div className="h-px w-8 bg-border" />
+              </div>
+              <h2
+                className="text-4xl md:text-5xl tracking-wide"
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
+              >
                 From the Garden
               </h2>
-              <p className="text-lg text-muted-foreground font-light tracking-wide">
-                AI时代的思考与观察
+              <p className="text-muted-foreground font-light tracking-[0.15em] uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+                Thoughts on AI & the world
               </p>
             </div>
           </ScrollReveal>

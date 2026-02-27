@@ -70,19 +70,27 @@ export function ProjectCard({
         />
         
         {/* Overlay with gradient and text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
           <div className="absolute bottom-0 left-0 right-0 p-6 space-y-2">
             <motion.h3
-              className="text-white text-xl md:text-2xl font-light tracking-wide flex items-center gap-2"
+              className="text-white text-xl md:text-2xl tracking-wide flex items-center gap-2"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontStyle: 'italic' }}
               initial={false}
             >
               {project.title}
-              {project.externalUrl && <ExternalLink className="size-4 text-white/70" />}
+              {project.externalUrl && <ExternalLink className="size-4 text-white/60" />}
             </motion.h3>
             {showCategory && (
-              <div className="flex items-center gap-3 text-sm text-white/80 font-light tracking-wide">
-                <span className="capitalize">{project.category}</span>
-                <span>•</span>
+              <div
+                className="flex items-center gap-2 text-white/70"
+                style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: 'var(--accent-warm)', display: 'inline-block' }}
+                />
+                <span>{project.category}</span>
+                <span className="opacity-50">·</span>
                 <span>{project.year}</span>
               </div>
             )}

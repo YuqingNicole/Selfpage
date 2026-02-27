@@ -50,18 +50,25 @@ export function Header() {
           <Link
             to="/"
             className={cn(
-              'text-lg font-light tracking-widest transition-all duration-300',
-      isTransparent
-          ? 'text-foreground hover:text-foreground/80'
-          : 'text-foreground hover:text-foreground/80'
+              'transition-all duration-300',
+              isTransparent
+                ? 'text-foreground hover:text-foreground/80'
+                : 'text-foreground hover:text-foreground/80'
             )}
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: '1.25rem',
+              letterSpacing: '0.08em',
+            }}
           >
             <motion.span
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {photographerInfo.name.toUpperCase()}
+              {photographerInfo.name}
             </motion.span>
           </Link>
 
@@ -77,10 +84,10 @@ export function Header() {
                   <Link
                     to={link.path}
                     className={cn(
-                      "relative text-lg leading-7 font-light tracking-wide transition-colors duration-300",
-                    isTransparent
-                        ? 'text-foreground hover:text-foreground/80'
-                        : 'text-foreground hover:text-foreground/80'
+                      "relative text-sm leading-7 font-light tracking-[0.08em] transition-colors duration-300",
+                      isTransparent
+                        ? 'text-foreground hover:text-foreground/70'
+                        : 'text-foreground hover:text-foreground/70'
                     )}
                   >
                     {link.name}

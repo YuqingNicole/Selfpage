@@ -6,6 +6,16 @@ All colors MUST be HSL.
 */
 
 :root {
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', 'Fira Code', monospace;
+
+  /* Warm accent palette */
+  --accent-warm: hsl(32, 78%, 52%);
+  --accent-warm-muted: hsl(32, 60%, 93%);
+  --accent-warm-subtle: hsl(32, 40%, 96%);
+  --accent-sage: hsl(150, 22%, 52%);
   --background: hsl(0 0% 100%);
   --foreground: hsl(240 10% 3.9%);
   --card: hsl(0 0% 100%);
@@ -57,6 +67,10 @@ All colors MUST be HSL.
 }
 
 .dark {
+  --accent-warm: hsl(32, 78%, 60%);
+  --accent-warm-muted: hsl(32, 30%, 14%);
+  --accent-warm-subtle: hsl(32, 20%, 10%);
+  --accent-sage: hsl(150, 22%, 44%);
   --background: hsl(240 10% 3.9%);
   --foreground: hsl(0 0% 98%);
   --card: hsl(240 10% 3.9%);
@@ -104,6 +118,17 @@ All colors MUST be HSL.
 }
 
 @theme {
+  /* Font families */
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Warm accent colors */
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-warm-muted: var(--accent-warm-muted);
+  --color-accent-warm-subtle: var(--accent-warm-subtle);
+  --color-accent-sage: var(--accent-sage);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -182,6 +207,37 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Subtle grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    background-repeat: repeat;
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
   }
 }
 
