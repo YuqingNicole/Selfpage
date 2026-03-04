@@ -1,12 +1,17 @@
 import { githubRepos, useCases } from '@/data/github-repos';
+import { claudeSkills, skillCategories, getSkillsByCategory } from '@/data/claude-skills';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { ExternalLink, Star } from 'lucide-react';
+import { useState } from 'react';
 
 /**
  * Skills page — projects, GitHub repos, and use cases
  */
 export default function Portfolio() {
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const filteredSkills = getSkillsByCategory(activeCategory);
+
   return (
     <>
       <SEOHead 
@@ -134,6 +139,87 @@ export default function Portfolio() {
                   </Wrapper>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        {/* Claude Skills Section */}
+        <section className="py-12 md:py-16 px-6 lg:px-8 border-b border-border">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-8"
+            >
+              <h2 className="text-2xl md:text-3xl font-light tracking-wide mb-2">
+                Claude Skills
+              </h2>
+              <p className="text-sm text-muted-foreground font-light">
+                {claudeSkills.length} skills across {skillCategories.length - 1} categories
+              </p>
+            </motion.div>
+
+            {/* Category filter */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="flex flex-wrap gap-2 mb-8"
+            >
+              {skillCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                    activeCategory === cat
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border text-muted-foreground hover:border-foreground/40'
+                  }`}
+                >
+                  {cat}
+                  {cat === 'All' && (
+                    <span className="ml-1.5 opacity-60">{claudeSkills.length}</span>
+                  )}
+                </button>
+              ))}
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredSkills.map((skill, i) => (
+                <motion.div
+                  key={skill.name}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.4) }}
+                  className="p-5 rounded-lg border border-border bg-card"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="font-mono text-sm font-medium text-primary tracking-tight">
+                      /{skill.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground/60 border border-border/50 rounded px-1.5 py-0.5 shrink-0 ml-2">
+                      {skill.category}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground font-light leading-relaxed mb-3">
+                    {skill.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {skill.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 text-xs rounded-full border border-border text-muted-foreground/70"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
