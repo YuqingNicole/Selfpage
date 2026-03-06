@@ -2,8 +2,11 @@ import { githubRepos, useCases } from '@/data/github-repos';
 import { claudeSkills, skillCategories, getSkillsByCategory } from '@/data/claude-skills';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
-import { ExternalLink, Star } from 'lucide-react';
+import { ExternalLink, Star, Terminal, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/data/translations';
 
 /**
  * Skills page — projects, GitHub repos, and use cases
@@ -11,6 +14,8 @@ import { useState } from 'react';
 export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const filteredSkills = getSkillsByCategory(activeCategory);
+  const { lang } = useLanguage();
+  const tr = t[lang].skills;
 
   return (
     <>
@@ -29,10 +34,10 @@ export default function Portfolio() {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-wide mb-4">
-                Skills
+                {tr.pageTitle}
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground font-light tracking-wide max-w-2xl mx-auto">
-                Projects, repositories, and use cases
+                {tr.pageSub}
               </p>
             </motion.div>
           </div>
@@ -48,7 +53,7 @@ export default function Portfolio() {
               transition={{ duration: 0.6 }}
               className="text-2xl md:text-3xl font-light tracking-wide mb-8"
             >
-              GitHub Repositories
+              {tr.githubTitle}
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {githubRepos.map((repo, i) => (
@@ -102,7 +107,7 @@ export default function Portfolio() {
               transition={{ duration: 0.6 }}
               className="text-2xl md:text-3xl font-light tracking-wide mb-8"
             >
-              Use Cases
+              {tr.useCasesTitle}
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {useCases.map((uc, i) => {
@@ -151,14 +156,35 @@ export default function Portfolio() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="mb-8"
+              className="mb-6"
             >
               <h2 className="text-2xl md:text-3xl font-light tracking-wide mb-2">
-                Claude Skills
+                {tr.claudeSkillsTitle}
               </h2>
               <p className="text-sm text-muted-foreground font-light">
                 {claudeSkills.length} skills across {skillCategories.length - 1} categories
               </p>
+            </motion.div>
+
+            {/* Onboarding / guidance banner */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="flex items-start gap-4 p-5 rounded-lg border border-border bg-card mb-8"
+            >
+              <div className="shrink-0 mt-0.5 size-8 rounded-md border border-border flex items-center justify-center">
+                <Terminal className="size-4 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">{tr.guideTitle}</p>
+                <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                  {tr.guideBody}{' '}
+                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">/skill-name</code>{' '}
+                  {tr.guideBodyMid}
+                </p>
+              </div>
             </motion.div>
 
             {/* Category filter */}
@@ -195,29 +221,36 @@ export default function Portfolio() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.4) }}
-                  className="p-5 rounded-lg border border-border bg-card"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="font-mono text-sm font-medium text-primary tracking-tight">
-                      /{skill.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground/60 border border-border/50 rounded px-1.5 py-0.5 shrink-0 ml-2">
-                      {skill.category}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed mb-3">
-                    {skill.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {skill.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 text-xs rounded-full border border-border text-muted-foreground/70"
-                      >
-                        {tag}
+                  <Link
+                    to={`/skills/${skill.name}`}
+                    className="group flex flex-col h-full p-5 rounded-lg border border-border bg-card hover:border-foreground/20 transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className="font-mono text-sm font-medium text-primary tracking-tight">
+                        /{skill.name}
                       </span>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        <span className="text-xs text-muted-foreground/60 border border-border/50 rounded px-1.5 py-0.5">
+                          {skill.category}
+                        </span>
+                        <ArrowRight className="size-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground font-light leading-relaxed mb-3 flex-1">
+                      {skill.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {skill.tags.map(tag => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 text-xs rounded-full border border-border text-muted-foreground/70"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </Link>
                 </motion.div>
               ))}
             </div>

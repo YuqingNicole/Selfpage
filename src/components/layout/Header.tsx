@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, Coffee } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { ThemeToggle } from './ThemeToggle';
@@ -9,14 +9,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { photographerInfo } from '@/data/photographer';
 import { useBuyCoffee } from '@/hooks/useBuyCoffee';
 import { cn } from '@/lib/utils';
-
-const navLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'Journal', path: '/blog' },
-  { name: 'Skills', path: '/portfolio' },
-  { name: 'Partner Links', path: '/partner-links' },
-  { name: 'Contact', path: '/contact' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/data/translations';
 
 /**
  * Main header component with scroll-aware styling
@@ -27,7 +21,28 @@ export function Header() {
   const location = useLocation();
   const { isScrolled } = useScrollPosition();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const qrTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { loading: coffeeLoading, handleBuyCoffee } = useBuyCoffee();
+  const { lang, setLang } = useLanguage();
+  const tr = t[lang];
+
+  const navLinks = [
+    { name: tr.nav.home, path: '/' },
+    { name: tr.nav.journal, path: '/blog' },
+    { name: tr.nav.skills, path: '/portfolio' },
+    { name: tr.nav.partnerLinks, path: '/partner-links' },
+    { name: tr.nav.contact, path: '/contact' },
+  ];
+
+  const handleCoffeeMouseEnter = () => {
+    if (qrTimeout.current) clearTimeout(qrTimeout.current);
+    setShowQR(true);
+  };
+
+  const handleCoffeeMouseLeave = () => {
+    qrTimeout.current = setTimeout(() => setShowQR(false), 200);
+  };
   
   // Header is transparent only on homepage hero when not scrolled
   const isTransparent = location.pathname === '/' && !isScrolled;
@@ -110,21 +125,60 @@ export function Header() {
               transition={{ duration: 0.4, delay: 0.4 }}
               className="flex items-center gap-2"
             >
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBuyCoffee}
-                disabled={coffeeLoading}
-                className={cn(
-                  'gap-1.5 font-light tracking-wide text-sm',
-                  isTransparent
-                    ? 'text-foreground hover:text-foreground/80'
-                    : 'text-foreground hover:text-foreground/80'
-                )}
+              <div
+                className="relative"
+                onMouseEnter={handleCoffeeMouseEnter}
+                onMouseLeave={handleCoffeeMouseLeave}
               >
-                <Coffee className="size-4" />
-                {coffeeLoading ? '...' : 'Buy Me a Coffee'}
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBuyCoffee}
+                  disabled={coffeeLoading}
+                  className={cn(
+                    'gap-1.5 font-light tracking-wide text-sm',
+                    isTransparent
+                      ? 'text-foreground hover:text-foreground/80'
+                      : 'text-foreground hover:text-foreground/80'
+                  )}
+                >
+                  <Coffee className="size-4" />
+                  {coffeeLoading ? '...' : tr.nav.buyCoffee}
+                </Button>
+
+                <AnimatePresence>
+                  {showQR && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                      transition={{ duration: 0.18 }}
+                      onMouseEnter={handleCoffeeMouseEnter}
+                      onMouseLeave={handleCoffeeMouseLeave}
+                      className="absolute top-full right-0 mt-2 p-2 rounded-xl border border-border bg-background shadow-lg z-50"
+                    >
+                      <img
+                        src="/wechat-qr.jpg"
+                        alt="WeChat QR code"
+                        className="w-48 h-48 rounded-lg object-cover"
+                      />
+                      <p className="text-xs text-center text-muted-foreground mt-2 font-light">
+                        {tr.nav.scanToTip}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              <button
+                onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+                className={cn(
+                  'text-xs font-mono tracking-wide px-2 py-1 rounded border border-border transition-colors hover:border-foreground/40',
+                  isTransparent ? 'text-foreground/70' : 'text-muted-foreground'
+                )}
+                aria-label="Toggle language"
+              >
+                {lang === 'en' ? '中文' : 'EN'}
+              </button>
               <ThemeToggle />
             </motion.div>
           </nav>
@@ -166,8 +220,14 @@ export function Header() {
                     className="gap-2 font-light tracking-wide w-fit"
                   >
                     <Coffee className="size-4" />
-                    {coffeeLoading ? 'Loading...' : 'Buy Me a Coffee'}
+                    {coffeeLoading ? '...' : tr.nav.buyCoffee}
                   </Button>
+                  <button
+                    onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+                    className="text-xs font-mono tracking-wide px-2 py-1 rounded border border-border text-muted-foreground hover:border-foreground/40 transition-colors w-fit"
+                  >
+                    {lang === 'en' ? '切换中文' : 'Switch to EN'}
+                  </button>
                 </nav>
               </SheetContent>
             </Sheet>

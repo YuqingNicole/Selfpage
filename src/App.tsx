@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Layout } from "@/components/layout/Layout";
 import { SkipToContent } from "@/components/ui/SkipToContent";
 import { LoadingFallback } from "@/components/ui/LoadingFallback";
@@ -21,6 +22,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 const Contact = lazy(() => import("./pages/Contact"));
 const PartnerLinks = lazy(() => import("./pages/PartnerLinks"));
+const SkillDetail = lazy(() => import("./pages/SkillDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -72,6 +74,14 @@ function AnimatedRoutes() {
           }
         />
         <Route
+          path="/skills/:name"
+          element={
+            <PageTransition>
+              <SkillDetail />
+            </PageTransition>
+          }
+        />
+        <Route
           path="/contact"
           element={
             <PageTransition>
@@ -104,6 +114,7 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <LanguageProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -116,6 +127,7 @@ const App = () => (
             </Layout>
           </BrowserRouter>
         </TooltipProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>

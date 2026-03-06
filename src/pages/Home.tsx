@@ -10,6 +10,8 @@ import { ScrollReveal, StaggerReveal } from '@/components/ui/ScrollReveal';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/data/translations';
 
 // Letter-by-letter stagger for hero title
 function AnimatedTitle({ text }: { text: string }) {
@@ -49,6 +51,8 @@ export default function Home() {
   const featuredProjects = getFeaturedProjects();
   const recentPosts = getRecentPosts(3);
   const heroRef = useRef(null);
+  const { lang } = useLanguage();
+  const tr = t[lang].home;
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
@@ -96,7 +100,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.8 }}
               >
                 <span style={{ color: 'var(--accent-warm)' }}>·</span>{' '}
-                {photographerInfo.tagline.split(' · ').join(' ')}
+                {tr.tagline}
                 {' '}<span style={{ color: 'var(--accent-warm)' }}>·</span>
               </motion.p>
 
@@ -106,7 +110,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.8, delay: 1.0 }}
               >
-                {photographerInfo.heroIntroduction}
+                {tr.heroIntro}
               </motion.p>
             </div>
 
@@ -128,17 +132,17 @@ export default function Home() {
               <div className="space-y-6">
                 <div className="flex items-center justify-center gap-4 mb-2">
                   <div className="h-px w-12 bg-border" />
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>About</span>
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>{tr.aboutLabel}</span>
                   <div className="h-px w-12 bg-border" />
                 </div>
                 <h2
                   className="text-3xl md:text-5xl tracking-wide"
                   style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
                 >
-                  About My Work
+                  {tr.aboutTitle}
                 </h2>
                 <div className="space-y-4 text-lg font-light leading-relaxed text-muted-foreground max-w-3xl mx-auto">
-                  <p>{photographerInfo.biography.split('\n\n')[0]}</p>
+                  <p>{tr.biography}</p>
                 </div>
               </div>
             </ScrollReveal>
@@ -151,17 +155,17 @@ export default function Home() {
             <div className="text-center mb-16 space-y-4 px-6">
               <div className="flex items-center justify-center gap-4 mb-2">
                 <div className="h-px w-12 bg-border" />
-                <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>Work</span>
+                <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>{tr.workLabel}</span>
                 <div className="h-px w-12 bg-border" />
               </div>
               <h2
                 className="text-4xl md:text-5xl tracking-wide"
                 style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
               >
-                Featured Projects
+                {tr.featuredProjects}
               </h2>
               <p className="text-base text-muted-foreground font-light tracking-widest uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
-                A selection of recent work
+                {tr.featuredSub}
               </p>
             </div>
           </ScrollReveal>
@@ -183,7 +187,7 @@ export default function Home() {
                 to="/portfolio"
                 className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
               >
-                <span>View All Projects</span>
+                <span>{tr.viewAll}</span>
                 <motion.span
                   className="inline-block"
                   whileHover={{ x: 6 }}
@@ -218,10 +222,10 @@ export default function Home() {
                 className="text-4xl md:text-5xl tracking-wide"
                 style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
               >
-                From the Garden
+                {tr.gardenTitle}
               </h2>
               <p className="text-muted-foreground font-light tracking-[0.15em] uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
-                Thoughts on AI & the world
+                {tr.gardenSub}
               </p>
             </div>
           </ScrollReveal>
@@ -240,7 +244,7 @@ export default function Home() {
                 to="/blog"
                 className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
               >
-                <span>Read All Articles</span>
+                <span>{tr.readAll}</span>
                 <motion.span
                   className="inline-block"
                   whileHover={{ x: 6 }}
