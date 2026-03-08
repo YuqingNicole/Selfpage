@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { photographerInfo } from '@/data/photographer';
 
 const BASE_URL = 'https://nicoles.garden';
@@ -48,7 +50,7 @@ export function SEOHead({
   publishedTime,
   jsonLd,
 }: SEOHeadProps) {
-  const location = useLocation();
+  const pathname = usePathname();
 
   const fullTitle = title
     ? `${title} | Nicole Chen`
@@ -56,9 +58,9 @@ export function SEOHead({
 
   const fullDescription =
     description ||
-    'Nicole Chen's digital garden — product manager, builder, and AI explorer. Sharing lessons from product development, reflections on the AI revolution, and Claude Skills.';
+    "Nicole Chen's digital garden — product manager, builder, and AI explorer. Sharing lessons from product development, reflections on the AI revolution, and Claude Skills.";
 
-  const canonicalUrl = `${BASE_URL}${location.pathname}`;
+  const canonicalUrl = `${BASE_URL}${pathname}`;
 
   useEffect(() => {
     document.title = fullTitle;

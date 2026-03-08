@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { Project } from '@/types';
@@ -20,7 +22,7 @@ export function ProjectNavigation({ prev, next }: ProjectNavigationProps) {
       <div className={cn('border-b md:border-b-0 md:border-r border-border', !prev && 'opacity-50')}>
         {prev ? (
           <Link
-            to={`/project/${prev.slug}`}
+            href={`/project/${prev.slug}`}
             className="group block p-8 md:p-12 hover:bg-accent transition-colors duration-300"
           >
             <motion.div
@@ -56,7 +58,7 @@ export function ProjectNavigation({ prev, next }: ProjectNavigationProps) {
       <div className={cn(!next && 'opacity-50')}>
         {next ? (
           <Link
-            to={`/project/${next.slug}`}
+            href={`/project/${next.slug}`}
             className="group block p-8 md:p-12 hover:bg-accent transition-colors duration-300"
           >
             <motion.div

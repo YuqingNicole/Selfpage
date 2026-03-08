@@ -5,7 +5,7 @@ export const t = {
       home: 'Home',
       journal: 'Journal',
       skills: 'Skills',
-      partnerLinks: 'Partner Links',
+      partnerLinks: 'Partner',
       contact: 'Contact',
       buyCoffee: 'Buy Me a Coffee',
       scanToTip: 'Scan with WeChat to tip',

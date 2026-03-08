@@ -1,5 +1,7 @@
+'use client';
+
 import { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { NewsletterBar } from './NewsletterBar';
@@ -14,8 +16,8 @@ interface LayoutProps {
  * Homepage removes top padding to allow header overlay on hero
  */
 export function Layout({ children }: LayoutProps) {
-  const location = useLocation();
-  const isHomepage = location.pathname === '/';
+  const pathname = usePathname();
+  const isHomepage = pathname === '/';
 
   return (
     <div className="min-h-screen flex flex-col">

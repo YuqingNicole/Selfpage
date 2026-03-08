@@ -1,4 +1,7 @@
-import { Link, useLocation } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, Coffee } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +21,7 @@ import { t } from '@/data/translations';
  * Mobile responsive with hamburger menu
  */
 export function Header() {
-  const location = useLocation();
+  const pathname = usePathname();
   const { isScrolled } = useScrollPosition();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -31,8 +34,8 @@ export function Header() {
     { name: tr.nav.home, path: '/' },
     { name: tr.nav.journal, path: '/blog' },
     { name: tr.nav.skills, path: '/portfolio' },
-    { name: tr.nav.partnerLinks, path: '/partner-links' },
     { name: tr.nav.contact, path: '/contact' },
+    { name: tr.nav.partnerLinks, path: '/partner-links' },
   ];
 
   const handleCoffeeMouseEnter = () => {
@@ -45,7 +48,7 @@ export function Header() {
   };
   
   // Header is transparent only on homepage hero when not scrolled
-  const isTransparent = location.pathname === '/' && !isScrolled;
+  const isTransparent = pathname === '/' && !isScrolled;
 
   return (
     <motion.header
@@ -63,7 +66,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
-            to="/"
+            href="/"
             className={cn(
               'transition-all duration-300',
               isTransparent
@@ -97,7 +100,7 @@ export function Header() {
                   transition={{ duration: 0.4, delay: 0.1 * index }}
                 >
                   <Link
-                    to={link.path}
+                    href={link.path}
                     className={cn(
                       "relative text-sm leading-7 font-light tracking-[0.08em] transition-colors duration-300",
                       isTransparent
@@ -106,7 +109,7 @@ export function Header() {
                     )}
                   >
                     {link.name}
-                    {location.pathname === link.path && (
+                    {pathname === link.path && (
                       <motion.div
                         layoutId="activeNav"
                         className={cn(
@@ -205,7 +208,7 @@ export function Header() {
                   {navLinks.map((link) => (
                     <Link
                       key={link.path}
-                      to={link.path}
+                      href={link.path}
                       onClick={() => setMobileMenuOpen(false)}
                       className="text-lg leading-7 font-light tracking-wide text-foreground hover:text-foreground/80"
                     >

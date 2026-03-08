@@ -1,4 +1,7 @@
-import { useParams, Link } from 'react-router-dom';
+'use client';
+
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { claudeSkills } from '@/data/claude-skills';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
@@ -7,7 +10,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/data/translations';
 
 export default function SkillDetail() {
-  const { name } = useParams<{ name: string }>();
+  const params = useParams();
+  const name = params?.name as string;
   const skill = claudeSkills.find(s => s.name === name);
   const { lang } = useLanguage();
   const tr = t[lang].skillDetail;
@@ -17,7 +21,7 @@ export default function SkillDetail() {
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <p className="text-muted-foreground mb-6">Skill <code className="font-mono">/{name}</code> not found.</p>
         <Link
-          to="/portfolio"
+          href="/portfolio"
           className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
         >
           <ArrowLeft className="size-3.5" />
@@ -57,7 +61,7 @@ export default function SkillDetail() {
               transition={{ duration: 0.4 }}
             >
               <Link
-                to="/portfolio"
+                href="/portfolio"
                 className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10"
               >
                 <ArrowLeft className="size-3.5" />

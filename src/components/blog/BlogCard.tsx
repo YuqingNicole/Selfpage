@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { BlogPost } from '@/types/blog';
 import { Clock, ArrowUpRight } from 'lucide-react';
@@ -25,7 +27,7 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
         variants={staggerChildVariants}
         className="group"
       >
-        <Link to={`/blog/${post.slug}`} className="flex gap-6 py-7 items-start">
+        <Link href={`/blog/${post.slug}`} className="flex gap-6 py-7 items-start">
           {/* Content */}
           <div className="flex-1 min-w-0 space-y-2">
             <div
@@ -74,7 +76,7 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
       <motion.article
         variants={staggerChildVariants}
       >
-        <Link to={`/blog/${post.slug}`} className="group block">
+        <Link href={`/blog/${post.slug}`} className="group block">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="relative aspect-[3/2] overflow-hidden rounded-sm bg-muted">
               <img
@@ -121,7 +123,7 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
       whileHover={{ y: -6 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
-      <Link to={`/blog/${post.slug}`} className="group block space-y-4">
+      <Link href={`/blog/${post.slug}`} className="group block space-y-4">
         <div className="relative aspect-[3/2] overflow-hidden rounded-sm bg-muted">
           <img
             src={post.coverImage}

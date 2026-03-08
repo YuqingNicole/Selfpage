@@ -1,3 +1,5 @@
+'use client';
+
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { photographerInfo } from '@/data/photographer';
@@ -9,7 +11,7 @@ import { ScrollIndicator } from '@/components/ui/ScrollIndicator';
 import { ScrollReveal, StaggerReveal } from '@/components/ui/ScrollReveal';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/data/translations';
 
@@ -184,7 +186,7 @@ export default function Home() {
           <ScrollReveal delay={0.3} spring>
             <div className="flex justify-center mt-16 px-6">
               <Link
-                to="/portfolio"
+                href="/portfolio"
                 className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
               >
                 <span>{tr.viewAll}</span>
@@ -241,7 +243,7 @@ export default function Home() {
           <ScrollReveal delay={0.3} spring>
             <div className="flex justify-center mt-16 px-6">
               <Link
-                to="/blog"
+                href="/blog"
                 className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
               >
                 <span>{tr.readAll}</span>

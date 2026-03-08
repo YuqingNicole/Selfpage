@@ -34,7 +34,8 @@ export function useSubstackPosts() {
   return useQuery<SubstackPost[]>({
     queryKey: ['substack-posts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // eslint-disable-next-line
+      const { data, error } = await (supabase as any)
         .from('substack_posts')
         .select('*')
         .eq('audience', 'everyone')
@@ -52,7 +53,8 @@ export function useSubstackNotes() {
   return useQuery<SubstackNote[]>({
     queryKey: ['substack-notes'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // eslint-disable-next-line
+      const { data, error } = await (supabase as any)
         .from('substack_notes')
         .select('*')
         .order('note_date', { ascending: false })

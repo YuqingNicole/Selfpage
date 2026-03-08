@@ -1,3 +1,5 @@
+'use client';
+
 import { partnerLinks } from '@/data/github-repos';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';

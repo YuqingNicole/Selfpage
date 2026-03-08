@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import type { Project } from '@/types';
 import { cn } from '@/lib/utils';
@@ -119,7 +121,7 @@ export function ProjectCard({
           {cardContent}
         </a>
       ) : (
-        <Link to={`/project/${project.slug}`} className={linkClass}>
+        <Link href={`/project/${project.slug}`} className={linkClass}>
           {cardContent}
         </Link>
       )}

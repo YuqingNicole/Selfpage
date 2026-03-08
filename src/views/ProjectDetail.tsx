@@ -1,5 +1,8 @@
+'use client';
+
 import { useState } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Camera, User } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -14,7 +17,8 @@ import { Lightbox } from '@/components/portfolio/Lightbox';
  * Features smooth animations and immersive image viewing experience
  */
 export default function ProjectDetail() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams();
+  const slug = params?.slug as string;
   const project = slug ? getProjectBySlug(slug) : undefined;
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -22,7 +26,7 @@ export default function ProjectDetail() {
 
   // 404 if project not found
   if (!project) {
-    return <Navigate to="/404" replace />;
+    notFound();
   }
 
   const openLightbox = (index: number) => {

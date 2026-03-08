@@ -1,7 +1,9 @@
 import type { Project } from '@/types';
-import deckcleanerCover from '@/assets/deckcleaner-cover.png';
-import magpiechinaCover from '@/assets/magpiechina-cover.png';
-import lennysNewsletterCover from '@/assets/lennys-newsletter-cover.jpg';
+import deckcleanerCoverImg from '@/assets/deckcleaner-cover.png';
+import magpiechinaCoverImg from '@/assets/magpiechina-cover.png';
+
+const deckcleanerCover = deckcleanerCoverImg.src;
+const magpiechinaCover = magpiechinaCoverImg.src;
 
 export const projects: Project[] = [
   {
@@ -20,26 +22,6 @@ export const projects: Project[] = [
         id: '0-1',
         src: deckcleanerCover,
         alt: 'Deck Cleaner homepage',
-        aspectRatio: 'landscape'
-      }
-    ]
-  },
-  {
-    id: '0c',
-    title: "Lenny's Newsletter",
-    category: 'product',
-    year: '2025',
-    slug: 'lennys-newsletter',
-    coverImage: lennysNewsletterCover,
-    description: "Lenny's Newsletter — the #1 business newsletter on Substack. Covers product management, growth, working with humans, and strategy.",
-    client: 'Personal Project',
-    location: 'Web',
-    externalUrl: 'https://www.lennysnewsletter.com/',
-    images: [
-      {
-        id: '0c-1',
-        src: lennysNewsletterCover,
-        alt: "Lenny's Newsletter homepage",
         aspectRatio: 'landscape'
       }
     ]

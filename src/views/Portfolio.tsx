@@ -1,10 +1,12 @@
+'use client';
+
 import { githubRepos, useCases } from '@/data/github-repos';
 import { claudeSkills, skillCategories, getSkillsByCategory } from '@/data/claude-skills';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { ExternalLink, Star, Terminal, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/data/translations';
 
@@ -223,7 +225,7 @@ export default function Portfolio() {
                   transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.4) }}
                 >
                   <Link
-                    to={`/skills/${skill.name}`}
+                    href={`/skills/${skill.name}`}
                     className="group flex flex-col h-full p-5 rounded-lg border border-border bg-card hover:border-foreground/20 transition-colors"
                   >
                     <div className="flex items-start justify-between mb-2">

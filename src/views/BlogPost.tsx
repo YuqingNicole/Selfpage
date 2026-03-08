@@ -1,4 +1,7 @@
-import { useParams, Link } from 'react-router-dom';
+'use client';
+
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { getBlogPostBySlug, getRelatedPosts } from '@/data/blog';
@@ -107,7 +110,8 @@ function renderContent(content: string) {
 }
 
 export default function BlogPost() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams();
+  const slug = params?.slug as string;
   const post = slug ? getBlogPostBySlug(slug) : undefined;
 
   if (!post) {
@@ -119,7 +123,7 @@ export default function BlogPost() {
             The article you're looking for doesn't exist.
           </p>
           <Link
-            to="/blog"
+            href="/blog"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="size-4" />
@@ -164,7 +168,7 @@ export default function BlogPost() {
         <div className="px-6 pt-24 pb-6">
           <div className="max-w-2xl mx-auto">
             <Link
-              to="/blog"
+              href="/blog"
               className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
               style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', letterSpacing: '0.06em' }}
             >

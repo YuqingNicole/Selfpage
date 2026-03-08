@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+'use client';
+
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,7 +69,7 @@ const NotFound = () => {
               size="lg"
               className="px-8 py-6 text-base font-light tracking-wide group"
             >
-              <Link to="/">
+              <Link href="/">
                 <ArrowLeft className="mr-2 size-5 transition-transform group-hover:-translate-x-1" />
                 Return to Home
               </Link>
