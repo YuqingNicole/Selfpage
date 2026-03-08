@@ -65,7 +65,7 @@ export default function Blog() {
   const [activeCategory, setActiveCategory] = useState('all');
 
   // Supabase live data
-  const { data: livePosts, isLoading: postsLoading } = useSubstackPosts();
+  const { data: livePosts } = useSubstackPosts();
   const { data: liveNotes, isLoading: notesLoading } = useSubstackNotes();
 
   // Posts: prefer live Supabase data, fallback to static
@@ -159,13 +159,7 @@ export default function Blog() {
 
             <section className="px-6 pb-24">
               <div className="max-w-2xl mx-auto">
-                {postsLoading ? (
-                  <div className="py-20 text-center">
-                    <p className="text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
-                      Loading...
-                    </p>
-                  </div>
-                ) : filteredPosts.length === 0 ? (
+                {filteredPosts.length === 0 ? (
                   <p
                     className="text-center text-muted-foreground py-20"
                     style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}
