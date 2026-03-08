@@ -148,7 +148,7 @@ export default function Blog() {
                           ? 'bg-foreground text-background'
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
-                      style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', letterSpacing: '0.08em' }}
+                      style={{ fontSize: '0.72rem', letterSpacing: '0.05em' }}
                     >
                       {cat.label}
                     </button>

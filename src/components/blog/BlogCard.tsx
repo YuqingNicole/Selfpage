@@ -30,18 +30,15 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
         <Link href={`/blog/${post.slug}`} className="flex gap-6 py-7 items-start">
           {/* Content */}
           <div className="flex-1 min-w-0 space-y-2">
-            <div
-              className="flex items-center gap-2.5 flex-wrap"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.1em' }}
-            >
+            <div className="flex items-center gap-2.5 flex-wrap">
               <span
                 className="uppercase px-2 py-0.5 rounded-sm"
-                style={{ background: 'var(--accent-warm-muted)', color: 'var(--accent-warm)' }}
+                style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.1em', background: 'var(--accent-warm-muted)', color: 'var(--accent-warm)' }}
               >
                 {post.category}
               </span>
-              <span className="text-muted-foreground">{formattedDate}</span>
-              <span className="text-muted-foreground flex items-center gap-1">
+              <span className="text-muted-foreground text-xs">{formattedDate}</span>
+              <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Clock className="size-3" />
                 {post.readingTime}
               </span>
@@ -87,14 +84,14 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-3" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.15em' }}>
+              <div className="flex items-center gap-3">
                 <span
                   className="uppercase text-foreground/80 px-2 py-0.5 rounded-sm"
-                  style={{ background: 'var(--accent-warm-muted)', color: 'var(--accent-warm)' }}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.15em', background: 'var(--accent-warm-muted)', color: 'var(--accent-warm)' }}
                 >
                   {post.category}
                 </span>
-                <span className="text-muted-foreground">{formattedDate}</span>
+                <span className="text-muted-foreground text-xs">{formattedDate}</span>
               </div>
               <h2
                 className="text-2xl md:text-3xl tracking-wide leading-tight group-hover:text-muted-foreground transition-colors"
@@ -105,7 +102,7 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
               <p className="text-muted-foreground font-light leading-relaxed line-clamp-3">
                 {post.excerpt}
               </p>
-              <div className="flex items-center gap-1.5 text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+              <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
                 <Clock className="size-3" />
                 {post.readingTime}
               </div>
@@ -138,14 +135,14 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
           </div>
         </div>
         <div className="space-y-2.5">
-          <div className="flex items-center gap-2.5" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.12em' }}>
+          <div className="flex items-center gap-2.5">
             <span
               className="uppercase px-2 py-0.5 rounded-sm"
-              style={{ background: 'var(--accent-warm-muted)', color: 'var(--accent-warm)' }}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.12em', background: 'var(--accent-warm-muted)', color: 'var(--accent-warm)' }}
             >
               {post.category}
             </span>
-            <span className="text-muted-foreground">{formattedDate}</span>
+            <span className="text-muted-foreground text-xs">{formattedDate}</span>
           </div>
           <h3
             className="text-xl tracking-wide leading-snug group-hover:text-muted-foreground transition-colors"
@@ -156,7 +153,7 @@ export function BlogCard({ post, index = 0, featured = false, variant = 'card' }
           <p className="text-sm text-muted-foreground font-light leading-relaxed line-clamp-2">
             {post.excerpt}
           </p>
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground text-xs">
             <Clock className="size-3" />
             {post.readingTime}
           </span>

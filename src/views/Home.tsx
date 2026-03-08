@@ -33,12 +33,11 @@ function AnimatedTitle({ text }: { text: string }) {
           key={i}
           className="inline-block"
           variants={{
-            hidden: { opacity: 0, y: 40, rotateX: -90 },
+            hidden: { opacity: 0, y: 18 },
             visible: {
               opacity: 1,
               y: 0,
-              rotateX: 0,
-              transition: { type: 'spring' as const, stiffness: 100, damping: 12 },
+              transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
             },
           }}
         >
@@ -129,23 +128,17 @@ export default function Home() {
 
         {/* Introduction Section */}
         <section className="py-24 md:py-32 px-6 lg:px-8 bg-background">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="max-w-2xl mx-auto">
             <ScrollReveal spring>
-              <div className="space-y-6">
-                <div className="flex items-center justify-center gap-4 mb-2">
-                  <div className="h-px w-12 bg-border" />
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>{tr.aboutLabel}</span>
-                  <div className="h-px w-12 bg-border" />
-                </div>
+              <div className="space-y-5">
+                <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">{tr.aboutLabel}</span>
                 <h2
                   className="text-3xl md:text-5xl tracking-wide"
                   style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
                 >
                   {tr.aboutTitle}
                 </h2>
-                <div className="space-y-4 text-lg font-light leading-relaxed text-muted-foreground max-w-3xl mx-auto">
-                  <p>{tr.biography}</p>
-                </div>
+                <p className="text-lg font-light leading-relaxed text-muted-foreground">{tr.biography}</p>
               </div>
             </ScrollReveal>
           </div>
@@ -154,19 +147,15 @@ export default function Home() {
         {/* Featured Projects Section */}
         <section className="py-24 md:py-32 border-t border-border">
           <ScrollReveal direction="up" spring>
-            <div className="text-center mb-16 space-y-4 px-6">
-              <div className="flex items-center justify-center gap-4 mb-2">
-                <div className="h-px w-12 bg-border" />
-                <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>{tr.workLabel}</span>
-                <div className="h-px w-12 bg-border" />
-              </div>
+            <div className="mb-16 space-y-3 px-6 max-w-6xl mx-auto">
+              <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>{tr.workLabel}</span>
               <h2
                 className="text-4xl md:text-5xl tracking-wide"
                 style={{ fontFamily: 'var(--font-display)', fontWeight: 300 }}
               >
                 {tr.featuredProjects}
               </h2>
-              <p className="text-base text-muted-foreground font-light tracking-widest uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+              <p className="text-muted-foreground font-light tracking-widest uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
                 {tr.featuredSub}
               </p>
             </div>
@@ -214,11 +203,8 @@ export default function Home() {
           />
           <ScrollReveal direction="up" spring>
             <div className="text-center mb-16 space-y-4 px-6 relative">
-              {/* Decorative accent line */}
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="h-px w-8 bg-border" />
+              <div className="mb-4">
                 <span style={{ color: 'var(--accent-warm)', fontSize: '1.2rem' }}>✦</span>
-                <div className="h-px w-8 bg-border" />
               </div>
               <h2
                 className="text-4xl md:text-5xl tracking-wide"
@@ -233,11 +219,18 @@ export default function Home() {
           </ScrollReveal>
 
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
-            <StaggerReveal className="grid grid-cols-1 md:grid-cols-3 gap-10" stagger={0.1}>
-              {recentPosts.map((post) => (
-                <BlogCard key={post.id} post={post} />
-              ))}
-            </StaggerReveal>
+            <ScrollReveal spring>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 items-start">
+                <div className="md:col-span-2">
+                  <BlogCard post={recentPosts[0]} featured />
+                </div>
+                <div className="flex flex-col gap-8 justify-between">
+                  {recentPosts.slice(1).map((post, i) => (
+                    <BlogCard key={post.id} post={post} index={i + 1} variant="list" />
+                  ))}
+                </div>
+              </div>
+            </ScrollReveal>
           </div>
 
           <ScrollReveal delay={0.3} spring>
