@@ -7,8 +7,6 @@
     <loc>https://nicoles.garden/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://nicoles.garden/"/>
-    <xhtml:link rel="alternate" hreflang="zh" href="https://nicoles.garden/"/>
   </url>
   <url>
     <loc>https://nicoles.garden/blog</loc>
@@ -150,17 +148,17 @@
   <url><loc>https://nicoles.garden/skills/feishu-bridge</loc><priority>0.7</priority></url>
   <url><loc>https://nicoles.garden/skills/feishu-api-docs</loc><priority>0.7</priority></url>
   <url><loc>https://nicoles.garden/skills/feishu-doc-reader</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:new-project</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:plan-phase</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:execute-phase</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:debug</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:verify-work</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:progress</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:map-codebase</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:quick</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:new-milestone</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:complete-milestone</loc><priority>0.7</priority></url>
-  <url><loc>https://nicoles.garden/skills/gsd:help</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Anew-project</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Aplan-phase</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Aexecute-phase</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Adebug</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Averify-work</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Aprogress</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Amap-codebase</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Aquick</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Anew-milestone</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Acomplete-milestone</loc><priority>0.7</priority></url>
+  <url><loc>https://nicoles.garden/skills/gsd%3Ahelp</loc><priority>0.7</priority></url>
   <url><loc>https://nicoles.garden/skills/long-term-plan</loc><priority>0.7</priority></url>
   <url><loc>https://nicoles.garden/skills/version-planner</loc><priority>0.7</priority></url>
   <url><loc>https://nicoles.garden/skills/project-map-builder</loc><priority>0.7</priority></url>

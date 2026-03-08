@@ -88,6 +88,8 @@ export function SEOHead({
     setMeta('meta[property="og:site_name"]', 'Nicole Chen');
     if (publishedTime) {
       setMeta('meta[property="article:published_time"]', publishedTime);
+    } else {
+      document.querySelector('meta[property="article:published_time"]')?.remove();
     }
 
     // Twitter
