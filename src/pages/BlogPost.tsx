@@ -144,6 +144,19 @@ export default function BlogPost() {
         title={post.title}
         description={post.excerpt}
         image={post.coverImage}
+        type="article"
+        publishedTime={post.publishedAt}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: post.title,
+          description: post.excerpt,
+          image: post.coverImage,
+          datePublished: post.publishedAt,
+          url: `https://nicoles.garden/blog/${post.slug}`,
+          author: { '@type': 'Person', name: 'Nicole Chen', url: 'https://nicoles.garden' },
+          publisher: { '@type': 'Person', name: 'Nicole Chen', url: 'https://nicoles.garden' },
+        }}
       />
 
       <div className="min-h-screen">

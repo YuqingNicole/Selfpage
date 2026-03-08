@@ -32,6 +32,19 @@ export default function SkillDetail() {
       <SEOHead
         title={`/${skill.name} — Claude Skill`}
         description={skill.description}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: `How to use /${skill.name} Claude Skill`,
+          description: skill.description,
+          url: `https://nicoles.garden/skills/${skill.name}`,
+          step: [{
+            '@type': 'HowToStep',
+            name: 'Activate the skill',
+            text: `Type /${skill.name} in Claude Code to activate this skill.`,
+          }],
+          keywords: skill.tags.join(', '),
+        }}
       />
 
       <div className="min-h-screen">
