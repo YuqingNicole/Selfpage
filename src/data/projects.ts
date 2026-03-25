@@ -7,6 +7,26 @@ const magpiechinaCover = magpiechinaCoverImg.src;
 
 export const projects: Project[] = [
   {
+    id: '2',
+    title: 'Boris Cherny — Claude Code 创始人公开发言整理',
+    category: 'research',
+    year: '2026',
+    slug: 'boris-cherny-claude-code',
+    coverImage: 'https://opengraph.githubassets.com/1/YuqingNicole/boris-cherny-claude-code',
+    description: 'A research site documenting Boris Cherny (creator of Claude Code at Anthropic) — his workflow, product philosophy, views on the future of software engineering, and key quotes from Twitter/X threads, Lenny\'s Podcast, and press interviews. Features dark/light theme toggle, sidebar navigation, and full Lenny\'s Podcast transcript excerpts.',
+    client: 'Personal Project',
+    location: 'Web',
+    externalUrl: 'https://boris-cherny-claude-code.vercel.app',
+    images: [
+      {
+        id: '2-1',
+        src: 'https://opengraph.githubassets.com/1/YuqingNicole/boris-cherny-claude-code',
+        alt: 'Boris Cherny Claude Code research site',
+        aspectRatio: 'landscape'
+      }
+    ]
+  },
+  {
     id: '0',
     title: 'Deck Cleaner',
     category: 'product',
