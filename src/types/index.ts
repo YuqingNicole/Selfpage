@@ -3,7 +3,7 @@
  * Based on SPECIFICATION.md data model requirements
  */
 
-export type ProjectCategory = 'portraits' | 'landscapes' | 'editorial' | 'architecture' | 'documentary' | 'product';
+export type ProjectCategory = 'portraits' | 'landscapes' | 'editorial' | 'architecture' | 'documentary' | 'product' | 'research';
 
 export type AspectRatio = 'portrait' | 'landscape' | 'square';
 
