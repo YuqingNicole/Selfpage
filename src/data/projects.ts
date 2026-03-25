@@ -81,7 +81,7 @@ export const getProjectsByCategory = (category: string): Project[] => {
 
 // Helper function to get featured projects (first 4)
 export const getFeaturedProjects = (): Project[] => {
-  return projects.slice(0, 4);
+  return projects;
 };
 
 // Helper function to get next/previous project
