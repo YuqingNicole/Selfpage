@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { NewsletterBar } from './NewsletterBar';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 
 interface LayoutProps {
   children: ReactNode;
@@ -31,6 +32,7 @@ export function Layout({ children }: LayoutProps) {
       </main>
       <Footer />
       <NewsletterBar />
+      <ScrollToTop />
     </div>
   );
 }

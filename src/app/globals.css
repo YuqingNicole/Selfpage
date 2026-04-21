@@ -11,6 +11,12 @@ All colors MUST be HSL.
   --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'DM Mono', 'Fira Code', monospace;
 
+  /* Typography scale tokens for metadata/captions */
+  --text-caption-size: 0.68rem;
+  --text-caption-tracking: 0.12em;
+  --text-eyebrow-size: 0.72rem;
+  --text-eyebrow-tracking: 0.08em;
+
   /* Warm accent palette */
   --accent-warm: hsl(32, 78%, 52%);
   --accent-warm-muted: hsl(32, 60%, 93%);
@@ -67,7 +73,7 @@ All colors MUST be HSL.
 }
 
 .dark {
-  --accent-warm: hsl(32, 78%, 60%);
+  --accent-warm: hsl(32, 82%, 70%);
   --accent-warm-muted: hsl(32, 30%, 14%);
   --accent-warm-subtle: hsl(32, 20%, 10%);
   --accent-sage: hsl(150, 22%, 44%);

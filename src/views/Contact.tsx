@@ -88,9 +88,9 @@ export default function Contact() {
               )}
 
               <div
-                className="calendly-inline-widget"
+                className="calendly-inline-widget w-full"
                 data-url={calendlyUrl}
-                style={{ minWidth: '280px', height: '680px' }}
+                style={{ maxWidth: '100%', height: '680px' }}
               />
             </motion.div>
 

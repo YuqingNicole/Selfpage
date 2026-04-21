@@ -176,7 +176,7 @@ export default function Home() {
             <div className="flex justify-center mt-16 px-6">
               <Link
                 href="/portfolio"
-                className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
+                className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-foreground/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
               >
                 <span>{tr.viewAll}</span>
                 <motion.span
@@ -237,7 +237,7 @@ export default function Home() {
             <div className="flex justify-center mt-16 px-6">
               <Link
                 href="/blog"
-                className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-muted-foreground transition-colors"
+                className="group inline-flex items-center gap-2 text-lg font-light tracking-wide text-foreground hover:text-foreground/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
               >
                 <span>{tr.readAll}</span>
                 <motion.span

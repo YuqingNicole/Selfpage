@@ -138,12 +138,18 @@ export default function Blog() {
             {/* Category Filter */}
             <section className="px-6 py-3 border-b border-border bg-background">
               <div className="max-w-2xl mx-auto">
-                <div className="flex flex-wrap gap-1">
+                <div
+                  className="flex flex-wrap gap-x-2 gap-y-1.5"
+                  role="tablist"
+                  aria-label="Filter posts by category"
+                >
                   {postCategories.map((cat) => (
                     <button
                       key={cat.value}
                       onClick={() => setActiveCategory(cat.value)}
-                      className={`px-3 py-1.5 rounded-sm transition-all duration-200 ${
+                      role="tab"
+                      aria-selected={activeCategory === cat.value}
+                      className={`px-3 py-1.5 rounded-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 ${
                         activeCategory === cat.value
                           ? 'bg-foreground text-background'
                           : 'text-muted-foreground hover:text-foreground'
