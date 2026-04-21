@@ -7,6 +7,26 @@ const magpiechinaCover = magpiechinaCoverImg.src;
 
 export const projects: Project[] = [
   {
+    id: '3',
+    title: 'AutoReddit',
+    category: 'product',
+    year: '2025',
+    slug: 'autoreddit',
+    coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80',
+    description: 'An AI-powered tool that autopilots your Reddit posts — drafts on-brand content, schedules routine posts to target subreddits, and streamlines lead generation without manually picking dates and times.',
+    client: 'Personal Project',
+    location: 'Web',
+    externalUrl: 'https://autoreddit.ai/',
+    images: [
+      {
+        id: '3-1',
+        src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80',
+        alt: 'AutoReddit — AI-powered Reddit post automation',
+        aspectRatio: 'landscape'
+      }
+    ]
+  },
+  {
     id: '2',
     title: 'Boris Cherny — Claude Code 创始人公开发言整理',
     category: 'research',
