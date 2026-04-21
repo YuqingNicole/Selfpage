@@ -50,14 +50,14 @@ export default function ProjectDetail() {
       <div className="min-h-screen">
         {/* Hero Image - 70vh */}
       <motion.div
-        className="relative w-full h-[70vh] overflow-hidden bg-muted"
+        className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] overflow-hidden bg-muted"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
         <img
           src={project.coverImage}
-          alt={project.title}
+          alt={`Cover image for ${project.title} — ${project.category} project${project.location ? ` shot in ${project.location}` : ''}${project.year ? `, ${project.year}` : ''}`}
           className="w-full h-full object-cover"
           loading="eager"
           fetchPriority="high"

@@ -99,15 +99,21 @@ export function Lightbox({
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="absolute top-4 right-4 z-50 size-10 text-white hover:bg-white/10 rounded-full"
+            className="absolute top-2 right-2 md:top-4 md:right-4 z-50 size-12 md:size-10 text-white hover:bg-white/10 rounded-full focus-visible:ring-2 focus-visible:ring-white/70"
             aria-label="Close lightbox"
           >
             <X className="size-6" />
           </Button>
 
           {/* Image Counter */}
-          <div className="absolute top-4 left-4 z-50 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm">
-            <span className="text-white text-sm font-light tracking-wide">
+          <div
+            className="absolute top-4 left-4 z-50 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            aria-label={`Image ${currentIndex + 1} of ${totalImages}`}
+          >
+            <span className="text-white text-sm font-light tracking-wide" aria-hidden="true">
               {currentIndex + 1} / {totalImages}
             </span>
           </div>
@@ -118,7 +124,7 @@ export function Lightbox({
               variant="ghost"
               size="icon"
               onClick={handlePrevious}
-              className="absolute left-4 z-50 size-12 text-white hover:bg-white/10 rounded-full"
+              className="absolute left-2 md:left-4 z-50 size-14 md:size-12 text-white hover:bg-white/10 rounded-full focus-visible:ring-2 focus-visible:ring-white/70"
               aria-label="Previous image"
             >
               <ChevronLeft className="size-8" />
@@ -131,7 +137,7 @@ export function Lightbox({
               variant="ghost"
               size="icon"
               onClick={handleNext}
-              className="absolute right-4 z-50 size-12 text-white hover:bg-white/10 rounded-full"
+              className="absolute right-2 md:right-4 z-50 size-14 md:size-12 text-white hover:bg-white/10 rounded-full focus-visible:ring-2 focus-visible:ring-white/70"
               aria-label="Next image"
             >
               <ChevronRight className="size-8" />

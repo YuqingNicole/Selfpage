@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import type { Project } from '@/types';
@@ -24,9 +24,25 @@ export function ProjectCard({
   showCategory = true,
   index = 0 
 }: ProjectCardProps) {
-  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const ratio = aspectRatio || 'landscape';
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Skip 3D tilt on touch / reduced-motion devices to avoid jank
+  const [tiltEnabled, setTiltEnabled] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setTiltEnabled(hoverQuery.matches && !motionQuery.matches);
+    update();
+    hoverQuery.addEventListener('change', update);
+    motionQuery.addEventListener('change', update);
+    return () => {
+      hoverQuery.removeEventListener('change', update);
+      motionQuery.removeEventListener('change', update);
+    };
+  }, []);
 
   // 3D tilt motion values
   const mouseX = useMotionValue(0);
@@ -35,7 +51,7 @@ export function ProjectCard({
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), { stiffness: 200, damping: 20 });
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
+    if (!tiltEnabled || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
     mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -61,7 +77,7 @@ export function ProjectCard({
         
         <motion.img
           src={project.coverImage}
-          alt={project.title}
+          alt={`${project.title} — ${project.category} project${project.year ? ` (${project.year})` : ''}`}
           className={cn(
             'absolute inset-0 w-full h-full object-cover transition-all duration-700',
             isLoaded ? 'opacity-100' : 'opacity-0',
@@ -84,8 +100,12 @@ export function ProjectCard({
             </motion.h3>
             {showCategory && (
               <div
-                className="flex items-center gap-2 text-white/70"
-                style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+                className="flex items-center gap-2 text-white/70 uppercase"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 'var(--text-caption-size)',
+                  letterSpacing: 'var(--text-caption-tracking)',
+                }}
               >
                 <span
                   className="w-1.5 h-1.5 rounded-full"
@@ -111,10 +131,10 @@ export function ProjectCard({
     <motion.div
       ref={cardRef}
       variants={staggerChildVariants}
-      style={{ rotateX, rotateY, transformPerspective: 800 }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="will-change-transform"
+      style={tiltEnabled ? { rotateX, rotateY, transformPerspective: 800 } : undefined}
+      onMouseMove={tiltEnabled ? handleMouseMove : undefined}
+      onMouseLeave={tiltEnabled ? handleMouseLeave : undefined}
+      className={tiltEnabled ? 'will-change-transform' : undefined}
     >
       {project.externalUrl ? (
         <a href={project.externalUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>

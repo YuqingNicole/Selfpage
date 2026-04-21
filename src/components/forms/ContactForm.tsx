@@ -131,7 +131,8 @@ export function ContactForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" aria-busy={isSubmitting}>
+        <fieldset disabled={isSubmitting} className="space-y-6 disabled:opacity-70">
         {/* Name Field */}
         <FormField
           control={form.control}
@@ -145,6 +146,7 @@ export function ContactForm() {
                 <Input
                   placeholder="Your full name"
                   className="font-light"
+                  autoComplete="name"
                   {...field}
                 />
               </FormControl>
@@ -167,6 +169,7 @@ export function ContactForm() {
                   type="email"
                   placeholder="your.email@example.com"
                   className="font-light"
+                  autoComplete="email"
                   {...field}
                 />
               </FormControl>
@@ -184,7 +187,7 @@ export function ContactForm() {
               <FormLabel className="text-sm font-light tracking-wide">
                 Project Type
               </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                 <FormControl>
                   <SelectTrigger className="font-light">
                     <SelectValue placeholder="Select project type" />
@@ -230,7 +233,10 @@ export function ContactForm() {
 
         {/* Root Error Message */}
         {form.formState.errors.root && (
-          <div className="text-sm text-destructive font-light">
+          <div
+            role="alert"
+            className="text-sm text-destructive font-light rounded-sm border border-destructive/30 bg-destructive/5 px-3 py-2"
+          >
             {form.formState.errors.root.message}
           </div>
         )}
@@ -250,6 +256,7 @@ export function ContactForm() {
             'Send Message'
           )}
         </Button>
+        </fieldset>
       </form>
     </Form>
   );
