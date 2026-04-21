@@ -13,7 +13,7 @@ export const projects: Project[] = [
     year: '2025',
     slug: 'autoreddit',
     coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80',
-    description: 'An AI-powered tool that autopilots your Reddit posts — drafts on-brand content, schedules routine posts to target subreddits, and streamlines lead generation without manually picking dates and times.',
+    description: 'An AI-powered Reddit growth engine. Built on OpenClaw autonomous agents that take real action on your behalf — smart scheduling, community intelligence, and content optimization running 24/7. Not just suggestions, but execution.',
     client: 'Personal Project',
     location: 'Web',
     externalUrl: 'https://autoreddit.ai/',
@@ -21,7 +21,7 @@ export const projects: Project[] = [
       {
         id: '3-1',
         src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80',
-        alt: 'AutoReddit — AI-powered Reddit post automation',
+        alt: 'AutoReddit — AI-powered Reddit growth engine dashboard',
         aspectRatio: 'landscape'
       }
     ]
