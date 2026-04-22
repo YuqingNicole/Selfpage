@@ -34,6 +34,7 @@ export function Header() {
     { name: tr.nav.home, path: '/' },
     { name: tr.nav.journal, path: '/blog' },
     { name: tr.nav.skills, path: '/portfolio' },
+    { name: tr.nav.readings, path: '/readings' },
     { name: tr.nav.contact, path: '/contact' },
     { name: tr.nav.partnerLinks, path: '/partner-links' },
   ];
