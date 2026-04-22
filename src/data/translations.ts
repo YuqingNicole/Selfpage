@@ -6,6 +6,7 @@ export const t = {
       journal: 'Journal',
       skills: 'Skills',
       partnerLinks: 'Partner',
+      readings: 'Readings',
       contact: 'Contact',
       buyCoffee: 'Buy Me a Coffee',
       scanToTip: 'Scan with WeChat to tip',
@@ -47,6 +48,13 @@ export const t = {
       howToUseBodyMid: 'to activate the skill. You can also describe what you want to do and Claude will suggest the right skill automatically.',
       whenToTrigger: 'When to trigger',
     },
+
+    // Readings
+    readings: {
+      pageTitle: 'Readings',
+      pageSub: 'Articles and essays worth revisiting',
+      empty: 'Coming soon...',
+    },
   },
 
   zh: {
@@ -56,6 +64,7 @@ export const t = {
       journal: '日志',
       skills: '技能',
       partnerLinks: '合作伙伴',
+      readings: '阅读',
       contact: '联系我',
       buyCoffee: '请我喝杯咖啡',
       scanToTip: '微信扫码打赏',
@@ -96,6 +105,13 @@ export const t = {
       howToUseBody: '在',
       howToUseBodyMid: '中输入该命令即可激活此技能。你也可以直接描述需求，Claude 会自动推荐合适的技能。',
       whenToTrigger: '适用场景',
+    },
+
+    // Readings
+    readings: {
+      pageTitle: '阅读',
+      pageSub: '值得反复重读的文章',
+      empty: '敬请期待...',
     },
   },
 } as const;
