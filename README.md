@@ -75,3 +75,7 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/c
 # ./tailwind-plus folder:
 
 The tailwind-plus folder contains tailwind components and themes to be used as inspiration for the project. DO NOT REMOVE THE FOLDER UNLESS SPECIFICALLY TOLD TO DO SO
+
+## Design Inspiration & References
+
+- [Agents with taste — Emil Kowalski](https://emilkowal.ski/ui/agents-with-taste) — on UI craft and the details that make interfaces feel considered.
