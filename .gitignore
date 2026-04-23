@@ -30,3 +30,6 @@ next-env.d.ts
 *.sln
 *.sw?
 supabase/.temp
+
+# Scraper output
+scripts/out/
