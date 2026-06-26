@@ -1,12 +1,15 @@
-import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+"use client";
+
+import Link from "next/link";
+import { ExternalLink, ArrowRight } from "lucide-react";
+import { workProjects } from "@/data/workProjects";
 
 const experiences = [
   {
     period: "2024 — Present",
     role: "Product Manager",
     company: "ARTi",
-    companyUrl: "https://artifin.ai",
+    companySlug: "arti",
     type: "Full-time",
     tags: ["AI", "FinTech", "B2C"],
     desc: "构建机构级 AI 投研平台，负责核心产品路线图规划、用户增长策略与跨团队协作，推动 0→1 产品落地。",
@@ -15,7 +18,7 @@ const experiences = [
     period: "2024",
     role: "Product Designer & PM",
     company: "botearn.ai",
-    companyUrl: "https://botearn.ai",
+    companySlug: "botearn",
     type: "Founding Team",
     tags: ["SaaS", "AI", "Product"],
     desc: "参与创始团队，负责产品设计与 PM 工作，覆盖功能定义、原型设计到上线迭代全流程。",
@@ -24,7 +27,7 @@ const experiences = [
     period: "2024",
     role: "Product Researcher",
     company: "WanderPod",
-    companyUrl: "#",
+    companySlug: "wanderpod",
     type: "Project",
     tags: ["Travel", "AI", "Consumer"],
     desc: "旅行 AI 产品研究，覆盖竞品分析（Viator vs TripAdvisor）、用户调研与产品差异化方案设计。",
@@ -33,38 +36,18 @@ const experiences = [
     period: "2023 — 2024",
     role: "Research Assistant",
     company: "Academic Research",
-    companyUrl: "#",
+    companySlug: null,
     type: "Research",
     tags: ["Consumer Behavior", "ESG", "Quantitative"],
     desc: "研究方向涵盖可持续消费、年轻消费者行为、语言风格匹配（LSM）及品牌忠诚度，使用 Stata / SPSS 进行数据分析。",
   },
 ];
 
-const projects = [
-  {
-    name: "FitReward",
-    url: "https://fitreward-next.vercel.app",
-    tags: ["Next.js", "PWA", "AI"],
-    desc: "团队运动激励 Web App，截图记录运动、AI 识别截图、季度奖池机制。Strava 风格设计。",
-    status: "Live",
-  },
-  {
-    name: "ARTi Careers",
-    url: "https://arti-careers-74te948a7-sitesfy.vercel.app",
-    tags: ["Static", "Editorial"],
-    desc: "ARTi 招聘官网，白色杂志风设计，基于 EB Garamond + Inter 双字体系统。",
-    status: "Live",
-  },
-  {
-    name: "Agent Report",
-    url: "https://yuqingnicole.github.io/agent-report/",
-    tags: ["Research", "AI"],
-    desc: "AI Agent 投研报告系统，自动化生成金融分析内容并发布至 GitHub Pages。",
-    status: "Live",
-  },
-];
+const projectSlugs = ["fitreward", "arti", "wanderpod"];
 
 export function Work() {
+  const projects = workProjects.filter((p) => projectSlugs.includes(p.slug));
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
@@ -111,7 +94,7 @@ export function Work() {
           {experiences.map((exp, i) => (
             <div
               key={i}
-              className="grid grid-cols-[120px_1fr] gap-12 py-8 group"
+              className="grid grid-cols-[120px_1fr] gap-12 py-8"
               style={{ borderTop: i === 0 ? "none" : "1px solid var(--border)" }}
             >
               <div>
@@ -129,25 +112,30 @@ export function Work() {
                 </p>
               </div>
               <div>
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3
-                      className="text-lg font-normal leading-snug"
-                      style={{ fontFamily: "var(--font-display)", color: "var(--foreground)" }}
-                    >
-                      {exp.role}
-                    </h3>
-                    <a
-                      href={exp.companyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                <div className="mb-2">
+                  <h3
+                    className="text-lg font-normal leading-snug"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--foreground)" }}
+                  >
+                    {exp.role}
+                  </h3>
+                  {exp.companySlug ? (
+                    <Link
+                      href={`/work/${exp.companySlug}`}
                       className="text-sm inline-flex items-center gap-1 transition-opacity hover:opacity-70"
                       style={{ color: "var(--accent-warm)", fontFamily: "var(--font-sans)" }}
                     >
                       {exp.company}
-                      {exp.companyUrl !== "#" && <ExternalLink size={11} />}
-                    </a>
-                  </div>
+                      <ArrowRight size={11} />
+                    </Link>
+                  ) : (
+                    <span
+                      className="text-sm"
+                      style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
+                    >
+                      {exp.company}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {exp.tags.map((tag) => (
@@ -191,12 +179,10 @@ export function Work() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map((proj, i) => (
-            <a
-              key={i}
-              href={proj.url}
-              target="_blank"
-              rel="noopener noreferrer"
+          {projects.map((proj) => (
+            <Link
+              key={proj.slug}
+              href={`/work/${proj.slug}`}
               className="block p-6 rounded-lg transition-all hover:-translate-y-0.5"
               style={{
                 border: "1px solid var(--border)",
@@ -210,19 +196,7 @@ export function Work() {
                 >
                   {proj.name}
                 </h3>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-[10px] tracking-[0.06em] uppercase px-2 py-0.5 rounded-full"
-                    style={{
-                      background: "hsl(150, 22%, 90%)",
-                      color: "var(--accent-sage)",
-                      fontFamily: "var(--font-sans)",
-                    }}
-                  >
-                    {proj.status}
-                  </span>
-                  <ExternalLink size={13} style={{ color: "var(--muted-foreground)" }} />
-                </div>
+                <ArrowRight size={14} style={{ color: "var(--muted-foreground)" }} />
               </div>
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {proj.tags.map((tag) => (
@@ -243,9 +217,9 @@ export function Work() {
                 className="text-sm font-light leading-relaxed"
                 style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
               >
-                {proj.desc}
+                {proj.summary}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
       </section>
