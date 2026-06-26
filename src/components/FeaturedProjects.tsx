@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { t } from "@/data/translations";
-import { getFeaturedProjects } from "@/data/projects";
+import { translations } from "@/data/translations";
+import { projects } from "@/data/projects";
 
 export function FeaturedProjects() {
   const { language } = useLanguage();
-  const featured = getFeaturedProjects();
+  const T = translations[language];
+  const featured = projects.filter((p) => p.featured);
 
   return (
     <section className="py-16">
@@ -19,14 +20,14 @@ export function FeaturedProjects() {
             className="text-xs tracking-[0.12em] uppercase"
             style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
           >
-            {t("featuredProjects", language) || "Featured Projects"}
+            {T?.featuredProjects ?? "Featured Projects"}
           </p>
           <Link
             href="/portfolio"
             className="text-xs flex items-center gap-1 transition-opacity hover:opacity-70"
             style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
           >
-            {t("viewAll", language) || "View all"}
+            {T?.viewAll ?? "View all"}
             <ArrowRight size={11} />
           </Link>
         </div>
