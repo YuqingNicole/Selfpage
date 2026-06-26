@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Careers — ARTi</title>
+  <meta name="description" content="Join ARTi — building institutional-grade AI for financial research." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --white: #ffffff;
+      --off: #fafaf8;
+      --ink: #111110;
+      --ink2: #444440;
+      --ink3: #888884;
+      --rule: #e8e8e4;
+      --accent: #1a1a18;
+      --tag-bg: #f2f2ee;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 60px;
+    }
+    .nav-logo {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--ink3); font-style: italic; font-size: 13px; margin-left: 8px; font-family: 'Inter', sans-serif; }
+    .nav-right { display: flex; gap: 32px; align-items: center; }
+    .nav-right a { font-size: 13px; color: var(--ink3); text-decoration: none; letter-spacing: 0.03em; transition: color .2s; }
+    .nav-right a:hover { color: var(--ink); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 100px 48px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: end;
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: clamp(48px, 6vw, 72px);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+    .hero h1 em { font-style: italic; color: var(--ink2); }
+    .hero-right {
+      padding-bottom: 8px;
+    }
+    .hero-desc {
+      font-size: 16px;
+      color: var(--ink2);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+    }
+    .stat-num {
+      font-family: 'EB Garamond', serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-label { font-size: 12px; color: var(--ink3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 6px; }
+
+    /* ── DIVIDER ── */
+    .full-rule { border: none; border-top: 1px solid var(--rule); margin: 0; }
+    .section-rule {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    /* ── MISSION ── */
+    .mission {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 48px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 6px;
+    }
+    .mission-body {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .mission-body em { font-style: italic; }
+
+    /* ── VALUES ── */
+    .values-section {
+      background: var(--off);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .values {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 48px;
+    }
+    .values-header {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 80px;
+      margin-bottom: 60px;
+    }
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px 40px;
+    }
+    .value-item {}
+    .value-num {
+      font-family: 'EB Garamond', serif;
+      font-size: 13px;
+      color: var(--ink3);
+      margin-bottom: 12px;
+    }
+    .value-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+    .value-desc {
+      font-size: 13.5px;
+      color: var(--ink2);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── ROLES ── */
+    .roles-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 48px;
+    }
+    .roles-header {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 80px;
+      margin-bottom: 48px;
+      align-items: start;
+    }
+    .roles-intro { font-size: 15px; color: var(--ink2); line-height: 1.75; font-weight: 300; }
+
+    .role-card {
+      border-top: 1px solid var(--rule);
+      padding: 36px 0;
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      gap: 40px;
+      align-items: start;
+      transition: opacity .2s;
+    }
+    .role-card:last-child { border-bottom: 1px solid var(--rule); }
+    .role-dept {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      padding-top: 4px;
+    }
+    .role-main {}
+    .role-title {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .role-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .tag {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--ink2);
+      border-radius: 2px;
+      padding: 4px 10px;
+    }
+    .role-desc { font-size: 13.5px; color: var(--ink2); line-height: 1.7; font-weight: 300; max-width: 480px; }
+    .role-action { padding-top: 4px; }
+    .btn-apply {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--ink);
+      padding: 10px 20px;
+      border-radius: 2px;
+      transition: background .2s, color .2s;
+      white-space: nowrap;
+    }
+    .btn-apply:hover { background: var(--ink); color: white; }
+
+    /* ── OPEN ROLE CTA ── */
+    .open-cta {
+      background: var(--off);
+      border-top: 1px solid var(--rule);
+    }
+    .open-cta-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 48px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .open-body h3 {
+      font-family: 'EB Garamond', serif;
+      font-size: 32px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .open-body p { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 28px; font-weight: 300; }
+    .btn-outline {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--ink);
+      padding: 11px 24px;
+      border-radius: 2px;
+      transition: background .2s, color .2s;
+    }
+    .btn-outline:hover { background: var(--ink); color: white; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'EB Garamond', serif;
+      font-size: 18px;
+      color: var(--ink);
+    }
+    .footer-copy { font-size: 12px; color: var(--ink3); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 12px; color: var(--ink3); text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 0 24px; }
+      .hero, .mission, .values-header, .roles-header, .open-cta-inner { grid-template-columns: 1fr; gap: 32px; padding: 60px 24px; }
+      .values { padding: 60px 24px; }
+      .roles-section { padding: 60px 24px; }
+      .values-grid { grid-template-columns: 1fr 1fr; }
+      .role-card { grid-template-columns: 1fr; gap: 16px; padding: 28px 0; }
+      .hero { padding-top: 64px; }
+      footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">ARTi <span>Careers</span></a>
+    <div class="nav-right">
+      <a href="https://artifin.ai">About</a>
+      <a href="#roles">Open Roles</a>
+      <a href="mailto:careers@artifin.ai">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">We're hiring</p>
+      <h1>Build the future<br>of <em>financial</em><br>intelligence.</h1>
+    </div>
+    <div class="hero-right">
+      <p class="hero-desc">ARTi 正在构建机构级 AI 投研基础设施——让每一位投资者都能拥有专业级的分析能力。我们在寻找真正热爱 AI × 金融的伙伴。</p>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">6+</div>
+          <div class="stat-label">Open Roles</div>
+        </div>
+        <div>
+          <div class="stat-num">全</div>
+          <div class="stat-label">Remote Friendly</div>
+        </div>
+        <div>
+          <div class="stat-num">早</div>
+          <div class="stat-label">Early Stage</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="full-rule" />
+
+  <!-- MISSION -->
+  <section class="mission">
+    <div class="section-label">Our Mission</div>
+    <div class="mission-body">
+      We believe institutional-grade financial intelligence should be accessible to everyone. ARTi is building the infrastructure that turns raw market data into <em>clear, actionable insight</em> — at scale, in real time.
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <div class="values-section">
+    <div class="values">
+      <div class="values-header">
+        <div class="section-label">How We Work</div>
+        <div></div>
+      </div>
+      <div class="values-grid">
+        <div class="value-item">
+          <div class="value-num">01</div>
+          <div class="value-title">Conviction over consensus</div>
+          <div class="value-desc">我们不做大公司做的事。我们在被低估的地方押注，然后全力以赴。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">02</div>
+          <div class="value-title">Ship, then iterate</div>
+          <div class="value-desc">完美是完成的敌人。我们快速发布，从真实用户那里学习，持续打磨。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">03</div>
+          <div class="value-title">Trust by default</div>
+          <div class="value-desc">没有审批流，没有微管理。我们信任每个人有足够的判断力做出正确的决定。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">04</div>
+          <div class="value-title">Context, not control</div>
+          <div class="value-desc">我们分享所有信息，包括商业目标和财务状况，让每个人都能在最完整的上下文下工作。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">05</div>
+          <div class="value-title">Depth over breadth</div>
+          <div class="value-desc">我们宁愿在少数几件事上做到极致，也不愿浅尝辄止地涉及所有方向。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">06</div>
+          <div class="value-title">First principles thinking</div>
+          <div class="value-desc">遇到问题时，我们回到本质重新推导，而不是复制已有的解法。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLES -->
+  <section id="roles" class="roles-section">
+    <div class="roles-header">
+      <div class="section-label">Open Roles</div>
+      <p class="roles-intro">我们是一支小而精的团队，每个人都在做真正重要的事。以下职位全部 remote-friendly，薪资+期权，根据经验面议。</p>
+    </div>
+
+    <!-- Role 1 -->
+    <div class="role-card">
+      <div class="role-dept">Engineering</div>
+      <div class="role-main">
+        <div class="role-title">Full-Stack Engineer</div>
+        <div class="role-tags">
+          <span class="tag">Remote</span>
+          <span class="tag">Full-time</span>
+          <span class="tag">Next.js · Python</span>
+        </div>
+        <div class="role-desc">负责前后端全链路开发，从产品 UI 到数据 API。你将参与核心功能的架构设计，与 AI 模型深度集成，打造真正好用的投研工具。</div>
+      </div>
+      <div class="role-action">
+        <a href="mailto:careers@artifin.ai?subject=Apply: Full-Stack Engineer" class="btn-apply">Apply</a>
+      </div>
+    </div>
+
+    <!-- Role 2 -->
+    <div class="role-card">
+      <div class="role-dept">AI / ML</div>
+      <div class="role-main">
+        <div class="role-title">AI Research Engineer</div>
+        <div class="role-tags">
+          <span class="tag">Remote</span>
+          <span class="tag">Full-time</span>
+          <span class="tag">LLM · RAG · Finance</span>
+        </div>
+        <div class="role-desc">负责 LLM pipeline 设计、金融数据 RAG 架构、模型评测与优化。你需要既懂模型又懂市场，能把前沿研究落地为生产系统。</div>
+      </div>
+      <div class="role-action">
+        <a href="mailto:careers@artifin.ai?subject=Apply: AI Research Engineer" class="btn-apply">Apply</a>
+      </div>
+    </div>
+
+    <!-- Role 3 -->
+    <div class="role-card">
+      <div class="role-dept">Product</div>
+      <div class="role-main">
+        <div class="role-title">Product Manager</div>
+        <div class="role-tags">
+          <span class="tag">Remote</span>
+          <span class="tag">Full-time</span>
+          <span class="tag">AI Product · B2C/B2B</span>
+        </div>
+        <div class="role-desc">定义产品路线图，挖掘用户真实需求，推动从 0 到 1 的产品迭代。你需要对 AI 产品有深刻理解，能在模糊中找到清晰的方向。</div>
+      </div>
+      <div class="role-action">
+        <a href="mailto:careers@artifin.ai?subject=Apply: Product Manager" class="btn-apply">Apply</a>
+      </div>
+    </div>
+
+    <!-- Role 4 -->
+    <div class="role-card">
+      <div class="role-dept">Data</div>
+      <div class="role-main">
+        <div class="role-title">Data Engineer</div>
+        <div class="role-tags">
+          <span class="tag">Remote</span>
+          <span class="tag">Full-time</span>
+          <span class="tag">Pipeline · SQL · ETL</span>
+        </div>
+        <div class="role-desc">构建稳定、高效的金融数据管道，处理实时行情、财报、新闻等多源数据。你的工作是整个 AI 系统的数据根基。</div>
+      </div>
+      <div class="role-action">
+        <a href="mailto:careers@artifin.ai?subject=Apply: Data Engineer" class="btn-apply">Apply</a>
+      </div>
+    </div>
+
+    <!-- Role 5 -->
+    <div class="role-card">
+      <div class="role-dept">Growth</div>
+      <div class="role-main">
+        <div class="role-title">Growth & Marketing Lead</div>
+        <div class="role-tags">
+          <span class="tag">Remote</span>
+          <span class="tag">Full-time</span>
+          <span class="tag">Content · SEO · Community</span>
+        </div>
+        <div class="role-desc">负责用户增长与品牌建设，涵盖内容营销、SEO、社区运营和 KOL 合作。你要能让专业投资者知道 ARTi 的存在，并爱上它。</div>
+      </div>
+      <div class="role-action">
+        <a href="mailto:careers@artifin.ai?subject=Apply: Growth Lead" class="btn-apply">Apply</a>
+      </div>
+    </div>
+
+    <!-- Role 6 -->
+    <div class="role-card">
+      <div class="role-dept">Design</div>
+      <div class="role-main">
+        <div class="role-title">Product Designer</div>
+        <div class="role-tags">
+          <span class="tag">Remote</span>
+          <span class="tag">Part-time / Full-time</span>
+          <span class="tag">Figma · UI/UX</span>
+        </div>
+        <div class="role-desc">设计清晰、专业、有温度的金融产品界面。你需要理解数据密集型产品的复杂性，同时保持优雅简洁的视觉语言。</div>
+      </div>
+      <div class="role-action">
+        <a href="mailto:careers@artifin.ai?subject=Apply: Product Designer" class="btn-apply">Apply</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPEN CTA -->
+  <div class="open-cta">
+    <div class="open-cta-inner">
+      <div class="section-label">Don't see your role?</div>
+      <div class="open-body">
+        <h3>We hire for talent,<br>not just job titles.</h3>
+        <p>如果你对 AI × 金融充满热情，但没有找到匹配的职位，欢迎直接联系我们。我们对足够优秀的人永远开放。</p>
+        <a href="mailto:careers@artifin.ai?subject=Open Application — ARTi" class="btn-outline">Send Open Application</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">ARTi</div>
+    <div class="footer-copy">© 2026 ARTi. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="https://artifin.ai">Website</a>
+      <a href="mailto:careers@artifin.ai">careers@artifin.ai</a>
+    </div>
+  </footer>
+
+</body>
+</html>
