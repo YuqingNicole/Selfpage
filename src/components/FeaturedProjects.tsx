@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translations } from "@/data/translations";
-import { projects } from "@/data/projects";
+import { t as translations } from "@/data/translations";
+import { getFeaturedProjects } from "@/data/projects";
 
 export function FeaturedProjects() {
-  const { language } = useLanguage();
-  const T = translations[language];
-  const featured = projects.filter((p) => p.featured);
+  const { lang } = useLanguage();
+  const T = translations[lang].home;
+  const featured = getFeaturedProjects();
 
   return (
     <section className="py-16">
@@ -49,21 +49,16 @@ export function FeaturedProjects() {
                     >
                       {project.title}
                     </h3>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {project.tags?.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] tracking-[0.06em] uppercase px-1.5 py-0.5 rounded-sm"
-                          style={{
-                            background: "var(--muted)",
-                            color: "var(--muted-foreground)",
-                            fontFamily: "var(--font-sans)",
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    <span
+                      className="text-[10px] tracking-[0.06em] uppercase px-1.5 py-0.5 rounded-sm"
+                      style={{
+                        background: "var(--muted)",
+                        color: "var(--muted-foreground)",
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {project.category}
+                    </span>
                   </div>
                   <p
                     className="text-sm font-light leading-relaxed"

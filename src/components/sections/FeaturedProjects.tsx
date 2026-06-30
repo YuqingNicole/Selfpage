@@ -7,7 +7,8 @@ import { t } from "@/data/translations";
 import { getFeaturedProjects } from "@/data/projects";
 
 export function FeaturedProjects() {
-  const { language } = useLanguage();
+  const { lang } = useLanguage();
+  const T = t[lang].home;
   const featured = getFeaturedProjects();
 
   return (
@@ -19,14 +20,14 @@ export function FeaturedProjects() {
             className="text-xs tracking-[0.12em] uppercase"
             style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
           >
-            {t("featuredProjects", language) || "Featured Projects"}
+            {T?.featuredProjects ?? "Featured Projects"}
           </p>
           <Link
             href="/portfolio"
             className="text-xs flex items-center gap-1 transition-opacity hover:opacity-70"
             style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
           >
-            {t("viewAll", language) || "View all"}
+            {T?.viewAll ?? "View all"}
             <ArrowRight size={11} />
           </Link>
         </div>
@@ -48,21 +49,16 @@ export function FeaturedProjects() {
                     >
                       {project.title}
                     </h3>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {project.tags?.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] tracking-[0.06em] uppercase px-1.5 py-0.5 rounded-sm"
-                          style={{
-                            background: "var(--muted)",
-                            color: "var(--muted-foreground)",
-                            fontFamily: "var(--font-sans)",
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    <span
+                      className="text-[10px] tracking-[0.06em] uppercase px-1.5 py-0.5 rounded-sm"
+                      style={{
+                        background: "var(--muted)",
+                        color: "var(--muted-foreground)",
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {project.category}
+                    </span>
                   </div>
                   <p
                     className="text-sm font-light leading-relaxed"
