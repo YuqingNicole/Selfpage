@@ -24,4 +24,10 @@ export const readings: Reading[] = [
     url: 'https://emilkowal.ski/ui/agents-with-taste',
     description: 'On UI craft and the details that make interfaces feel considered.',
   },
+  {
+    title: '如何判断一个人是否真正 AI Native？',
+    author: '阿迪亚',
+    url: 'https://mp.weixin.qq.com/s/0Ba8fG4l6kD-mspkJ8hksw',
+    description: '区分真正 AI Native 与普通 AI 用户的关键特征与思维方式。',
+  },
 ];
