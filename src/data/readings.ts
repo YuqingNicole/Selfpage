@@ -30,4 +30,10 @@ export const readings: Reading[] = [
     url: 'https://mp.weixin.qq.com/s/0Ba8fG4l6kD-mspkJ8hksw',
     description: '区分真正 AI Native 与普通 AI 用户的关键特征与思维方式。',
   },
+  {
+    title: '字节跳动更新领导力原则',
+    author: '人人都是产品经理',
+    url: 'https://mp.weixin.qq.com/s/SkvTmd9yCtdmKCcVNZrbrQ',
+    description: '字节跳动最新领导力原则更新解读，梳理其组织文化与管理理念的演变方向。',
+  },
 ];
