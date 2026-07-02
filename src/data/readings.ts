@@ -37,6 +37,12 @@ export const readings: Reading[] = [
     description: '字节跳动最新领导力原则更新解读，梳理其组织文化与管理理念的演变方向。',
   },
   {
+    title: '70条锦秋小饭桌 Hot Takes，预判2026年AI创业下半场',
+    author: '锦秋基金',
+    url: 'https://mp.weixin.qq.com/s/kM8pFh7KGQHAdINbEJivhA',
+    description: '锦秋基金对 2026 年 AI 创业下半场的 70 条预判——从市场格局、产品方向到团队构建的高密度洞察。',
+  },
+  {
     title: '如何把超级个体的产能，转化成组织能力？| AI跃迁者调研',
     author: '腾讯研究院',
     url: 'https://mp.weixin.qq.com/s/ywS4Vx2hDdq0BhJbU2CCzw',
