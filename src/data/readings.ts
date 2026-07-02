@@ -37,6 +37,12 @@ export const readings: Reading[] = [
     description: '字节跳动最新领导力原则更新解读，梳理其组织文化与管理理念的演变方向。',
   },
   {
+    title: '如何把超级个体的产能，转化成组织能力？| AI跃迁者调研',
+    author: '腾讯研究院',
+    url: 'https://mp.weixin.qq.com/s/ywS4Vx2hDdq0BhJbU2CCzw',
+    description: '腾讯研究院对 AI 跃迁者的调研——探讨超级个体如何将个人 AI 产能沉淀为可复用的组织能力。',
+  },
+  {
     title: 'Claude Code 的重点不是 tool calling，而是 agent runtime',
     author: 'yudesk.dev',
     url: 'https://yudesk.dev/docs/notes/claude-code-tool-calling-system',
