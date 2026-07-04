@@ -55,6 +55,12 @@ export const readings: Reading[] = [
     description: '我们造出了 AI，却在这面镜子里意外照见了自己。',
   },
   {
+    title: 'How to Earn a Billion Dollars',
+    author: 'Paul Graham',
+    url: 'https://paulgraham.com/earn.html',
+    description: 'PG 在牛津联合会的演讲——人们如何成为亿万富翁，以及这对创业者意味着什么。',
+  },
+  {
     title: 'Claude Code 的重点不是 tool calling，而是 agent runtime',
     author: 'yudesk.dev',
     url: 'https://yudesk.dev/docs/notes/claude-code-tool-calling-system',
