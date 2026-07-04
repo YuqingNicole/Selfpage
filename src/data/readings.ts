@@ -49,6 +49,12 @@ export const readings: Reading[] = [
     description: '腾讯研究院对 AI 跃迁者的调研——探讨超级个体如何将个人 AI 产能沉淀为可复用的组织能力。',
   },
   {
+    title: '我们造出了 AI，却意外照见了自己',
+    author: '公众号',
+    url: 'https://mp.weixin.qq.com/s?__biz=Mzg5Mzc2Mjc2Ng==&mid=2247484055&idx=1&sn=84853e664b64abb2c7a27d54e0e46e9d',
+    description: '我们造出了 AI，却在这面镜子里意外照见了自己。',
+  },
+  {
     title: 'Claude Code 的重点不是 tool calling，而是 agent runtime',
     author: 'yudesk.dev',
     url: 'https://yudesk.dev/docs/notes/claude-code-tool-calling-system',
