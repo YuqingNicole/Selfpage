@@ -66,4 +66,10 @@ export const readings: Reading[] = [
     url: 'https://yudesk.dev/docs/notes/claude-code-tool-calling-system',
     description: '很多人把 Claude Code 理解成"模型加一堆工具"，真正值得学的是它如何把工具发现、权限、hooks、sandbox 和结果回流组织成一条可验证的 agent loop。',
   },
+  {
+    title: '为什么我用 mattpocock/skills 替代了 superpowers',
+    author: '枫言枫语',
+    url: 'https://justinyan.me/post/6676',
+    description: '作者从实际使用出发，解释为什么 mattpocock/skills 比 superpowers 更适合作为 TypeScript 学习工具链。',
+  },
 ];
