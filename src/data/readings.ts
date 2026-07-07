@@ -72,4 +72,10 @@ export const readings: Reading[] = [
     url: 'https://justinyan.me/post/6676',
     description: '作者从实际使用出发，解释为什么 mattpocock/skills 比 superpowers 更适合作为 TypeScript 学习工具链。',
   },
+  {
+    title: '高善文：一位首席经济学家的心灵史',
+    author: '北大汇丰',
+    url: 'https://mp.weixin.qq.com/s/Q0L0ghXoaGKqIxuxxe-9Ow',
+    description: '安信证券首席经济学家高善文的思想历程——一位经济学家如何在时代变局中形成自己的研究框架与心智模型。',
+  },
 ];
