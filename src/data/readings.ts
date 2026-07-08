@@ -78,4 +78,10 @@ export const readings: Reading[] = [
     url: 'https://mp.weixin.qq.com/s/Q0L0ghXoaGKqIxuxxe-9Ow',
     description: '安信证券首席经济学家高善文的思想历程——一位经济学家如何在时代变局中形成自己的研究框架与心智模型。',
   },
+  {
+    title: '宁德时代创始人曾毓群的几个底层思考逻辑',
+    author: '黄泓毅（黄师傅的记事本）',
+    url: 'https://mp.weixin.qq.com/s',
+    description: '通过晚点深度报道提炼曾毓群的底层逻辑：五识修养、扁担与彩票的技术布局观、鸡蛋与火腿的人才评价、以及"练好基本功才能发挥想象力"的做事哲学。',
+  },
 ];
