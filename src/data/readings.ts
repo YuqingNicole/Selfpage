@@ -84,4 +84,11 @@ export const readings: Reading[] = [
     url: 'https://mp.weixin.qq.com/s/0Lz0TWbSgnrgTinKULhA0A',
     description: '通过晚点深度报道提炼曾毓群的底层逻辑：五识修养、扁担与彩票的技术布局观、鸡蛋与火腿的人才评价、以及"练好基本功才能发挥想象力"的做事哲学。',
   },
+
+  {
+    title: "Harnessing AI for the Real Economy",
+    author: "Goldman Sachs",
+    url: "https://www.goldmansachs.com/what-we-do/investment-banking/insights/articles/harnessing-ai-for-the-real-economy",
+    description: "Goldman Sachs on how AI is moving from model hype into real-economy adoption, with focus on enterprise deployment, industrial use cases, and practical value creation.",
+  },
 ];
