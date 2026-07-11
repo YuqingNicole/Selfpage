@@ -91,4 +91,10 @@ export const readings: Reading[] = [
     url: "https://www.goldmansachs.com/what-we-do/investment-banking/insights/articles/harnessing-ai-for-the-real-economy",
     description: "Goldman Sachs on how AI is moving from model hype into real-economy adoption, with focus on enterprise deployment, industrial use cases, and practical value creation.",
   },
+  {
+    title: '需要驾驭 AI 而不是 trust me bro',
+    author: 'Nicole with',
+    url: 'https://mp.weixin.qq.com/s/G5SUBkIwN4YTfBQ4XhGxhg',
+    description: '关于如何真正驾驭 AI，而不是停留在“trust me bro”式的轻信与表面使用。',
+  },
 ];
