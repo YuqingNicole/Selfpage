@@ -97,4 +97,10 @@ export const readings: Reading[] = [
     url: 'https://mp.weixin.qq.com/s/G5SUBkIwN4YTfBQ4XhGxhg',
     description: '关于如何真正驾驭 AI，而不是停留在“trust me bro”式的轻信与表面使用。',
   },
+  {
+    title: '闭门会｜张咋啦 Zara：AI 时代的底层工作方式',
+    author: '泛函',
+    url: 'https://mp.weixin.qq.com/s/W6_fwHy2DqocOEXv0-WQwQ',
+    description: '关于 AI 时代底层工作方式的闭门会分享，聚焦人在新工具环境中的工作方法与认知更新。',
+  },
 ];
