@@ -59,6 +59,11 @@ export type ChainDayStat = {
   breadth: number
 }
 
+export type ScorePart = {
+  label: string
+  value: number
+}
+
 export type ChainData = ChainDef & {
   points: TickerPoint[]
   avgDayChangePct: number
@@ -69,15 +74,30 @@ export type ChainData = ChainDef & {
   breadthImproving: boolean
   excessDayPct: number
   excessFiveDayPct: number
+  beta: number | null
+  betaAdjExcessDayPct: number | null
   leaderGapPct: number
   syncGapPct: number
   mode: ChainMode
   quality: ChainQuality
+  qualityReason: string
   score: number
+  scoreParts: ScorePart[]
   history: ChainDayStat[]
   leader?: TickerPoint
   laggard?: TickerPoint
 }
+
+// 判定阈值（启发式，非统计检验）——集中定义，方法论区和判定逻辑共用。
+export const thresholds = {
+  leaderGapPct: 2.5,
+  syncGapPct: 5,
+  breadthWeak: 0.5,
+  strongExcess: 0.3,
+  breadthHealthy: 0.6,
+  betaWindow: 60,
+  betaMinSamples: 20,
+} as const
 
 export type BoardRegime = '有效扩散' | '龙头抱团' | '扩散衰减' | '普跌防御'
 

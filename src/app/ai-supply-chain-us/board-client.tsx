@@ -314,20 +314,30 @@ export function ChainGridSection({ chains }: { chains: ChainData[] }) {
               </div>
 
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-                {badge(chain.quality, tone.fg, tone.bg)}
+                <span title={`判定依据：${chain.qualityReason}`}>{badge(`${chain.quality} ⓘ`, tone.fg, tone.bg)}</span>
                 {badge(chain.mode, '#101828', '#F2F4F7')}
                 {badge(`breadth ${chain.breadthImproving ? '改善中' : '走平/转弱'}`, chain.breadthImproving ? '#027A48' : '#667085', chain.breadthImproving ? 'rgba(18,183,106,0.10)' : 'rgba(102,112,133,0.10)')}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10, marginBottom: 12 }}>
-                <MiniMetric label="超额 vs QQQ" value={formatPct(chain.excessDayPct)} positive={chain.excessDayPct >= 0} />
-                <MiniMetric label="中位数涨幅" value={formatPct(chain.medianDayChangePct)} positive={chain.medianDayChangePct >= 0} />
-                <MiniMetric label="Breadth" value={`${Math.round(chain.breadth * 100)}%`} positive={chain.breadth >= 0.5} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10, marginBottom: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginBottom: 12 }}>
+                <MiniMetric
+                  label="β调整超额 (α)"
+                  value={chain.betaAdjExcessDayPct !== null ? formatPct(chain.betaAdjExcessDayPct) : '—'}
+                  positive={(chain.betaAdjExcessDayPct ?? 0) >= 0}
+                />
+                <MiniMetric label="raw 超额" value={formatPct(chain.excessDayPct)} positive={chain.excessDayPct >= 0} />
                 <MiniMetric label="日内均值" value={formatPct(chain.avgDayChangePct)} positive={chain.avgDayChangePct >= 0} />
+                <MiniMetric label="中位数涨幅" value={formatPct(chain.medianDayChangePct)} positive={chain.medianDayChangePct >= 0} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginBottom: 14 }}>
+                <MiniMetric
+                  label="Breadth"
+                  value={`${chain.points.filter((point) => point.dayChangePct > 0).length}/${chain.points.length} (${Math.round(chain.breadth * 100)}%)`}
+                  positive={chain.breadth >= 0.5}
+                />
                 <MiniMetric label="龙头带动差" value={formatPct(chain.leaderGapPct)} positive={chain.leaderGapPct <= 2.5} />
                 <MiniMetric label="前2/后2同步差" value={formatPct(chain.syncGapPct)} positive={chain.syncGapPct <= 5} />
+                <MiniMetric label="β (60D vs QQQ)" value={chain.beta !== null ? chain.beta.toFixed(2) : '—'} neutral />
               </div>
 
               <div style={{ color: '#475467', fontSize: 13, lineHeight: 1.65, marginBottom: 14 }}>观察点：{chain.signal}</div>
@@ -345,11 +355,11 @@ export function ChainGridSection({ chains }: { chains: ChainData[] }) {
   )
 }
 
-function MiniMetric({ label, value, positive }: { label: string; value: string; positive: boolean }) {
+function MiniMetric({ label, value, positive, neutral }: { label: string; value: string; positive?: boolean; neutral?: boolean }) {
   return (
     <div style={{ borderRadius: 14, background: '#F9FAFB', border: '1px solid #F2F4F7', padding: '12px 12px 10px' }}>
       <div style={{ fontSize: 11, color: '#667085', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 17, fontWeight: 700, color: positive ? '#027A48' : '#D92D20' }}>{value}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: neutral ? '#101828' : positive ? '#027A48' : '#D92D20' }}>{value}</div>
     </div>
   )
 }

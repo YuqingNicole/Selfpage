@@ -98,11 +98,26 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
               <Badge label={chain.mode} fg="#667085" bg="rgba(102,112,133,0.10)" />
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginBottom: 16 }}>
-            <QualityMetric label="超额 vs QQQ（日）" value={formatPct(chain.excessDayPct)} good={chain.excessDayPct >= 0} hint={baseline ? `QQQ ${formatPct(baseline.dayChangePct)}` : 'QQQ 不可用'} />
-            <QualityMetric label="超额 vs QQQ（5日）" value={formatPct(chain.excessFiveDayPct)} good={chain.excessFiveDayPct >= 0} hint="持续为正 = 真强" />
+          <div style={{ fontSize: 13, color: '#475467', lineHeight: 1.7, marginBottom: 14, padding: '10px 14px', borderRadius: 12, background: '#F9FAFB', border: '1px solid #F2F4F7' }}>
+            判定依据：{chain.qualityReason}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10, marginBottom: 16 }}>
+            <QualityMetric
+              label="β调整超额 α（日）"
+              value={chain.betaAdjExcessDayPct !== null ? formatPct(chain.betaAdjExcessDayPct) : '—'}
+              good={(chain.betaAdjExcessDayPct ?? 0) >= 0}
+              hint={chain.beta !== null ? `β(60D)=${chain.beta.toFixed(2)}，剔除弹性后的真实强弱` : 'β 样本不足'}
+            />
+            <QualityMetric label="raw 超额（日）" value={formatPct(chain.excessDayPct)} good={chain.excessDayPct >= 0} hint={baseline ? `QQQ ${formatPct(baseline.dayChangePct)}，未做 β 调整` : 'QQQ 不可用'} />
+            <QualityMetric label="raw 超额（5日）" value={formatPct(chain.excessFiveDayPct)} good={chain.excessFiveDayPct >= 0} hint="持续为正 = 真强" />
             <QualityMetric label="中位数涨幅" value={formatPct(chain.medianDayChangePct)} good={chain.medianDayChangePct >= 0} hint="均值被龙头拉高时看这里" />
-            <QualityMetric label="龙头带动差" value={formatPct(chain.leaderGapPct)} good={chain.leaderGapPct <= 2.5} hint="龙头 − 其余中位数，过大 = 抱团" />
+            <QualityMetric label="龙头带动差" value={formatPct(chain.leaderGapPct)} good={chain.leaderGapPct <= 2.5} hint="龙头 − 其余中位数，>2.5% 视为抱团迹象" />
+            <QualityMetric
+              label="Breadth"
+              value={`${chain.points.filter((point) => point.dayChangePct > 0).length}/${chain.points.length} (${Math.round(chain.breadth * 100)}%)`}
+              good={chain.breadth >= 0.5}
+              hint={`样本仅 ${chain.points.length} 只，粒度约 ${Math.round(100 / chain.points.length)}%`}
+            />
           </div>
           <div style={{ display: 'flex', gap: 24, alignItems: 'end', flexWrap: 'wrap' }}>
             <div>
@@ -116,6 +131,32 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
             <div style={{ fontSize: 13, color: '#475467', lineHeight: 1.7, maxWidth: 520 }}>
               前 2 名与后 2 名当日同步差 <strong>{formatPct(chain.syncGapPct)}</strong>
               {chain.syncGapPct > 5 ? '，差距偏大，链内并不同步。' : '，链内整体同步。'}
+            </div>
+          </div>
+        </section>
+
+        {/* Score 拆解：Rotation score 不是黑箱，每一项贡献都列出来 */}
+        <section style={{ borderRadius: 24, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 24, boxShadow: '0 1px 2px rgba(16,24,40,0.04)', marginBottom: 18 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#6D5EF5', letterSpacing: '0.08em', marginBottom: 4 }}>Rotation score 拆解</div>
+          <div style={{ fontSize: 12, color: '#667085', marginBottom: 14 }}>启发式加权求和，非统计模型。各项贡献如下（单位为分）：</div>
+          <div style={{ display: 'grid', gap: 6, maxWidth: 560 }}>
+            {chain.scoreParts.map((part) => {
+              const maxAbs = Math.max(...chain.scoreParts.map((item) => Math.abs(item.value)), 0.001)
+              const width = (Math.abs(part.value) / maxAbs) * 100
+              return (
+                <div key={part.label} style={{ display: 'grid', gridTemplateColumns: '180px minmax(0,1fr) 64px', gap: 10, alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: '#667085' }}>{part.label}</span>
+                  <div style={{ height: 10, borderRadius: 5, background: '#F2F4F7', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${width}%`, borderRadius: 5, background: part.value >= 0 ? '#12B76A' : '#F04438' }} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 700, textAlign: 'right', color: part.value >= 0 ? '#027A48' : '#D92D20' }}>{part.value >= 0 ? '+' : ''}{part.value.toFixed(2)}</span>
+                </div>
+              )
+            })}
+            <div style={{ display: 'grid', gridTemplateColumns: '180px minmax(0,1fr) 64px', gap: 10, alignItems: 'center', borderTop: '1px solid #EAECF0', paddingTop: 8, marginTop: 2 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#101828' }}>合计</span>
+              <div />
+              <span style={{ fontSize: 13, fontWeight: 700, textAlign: 'right', color: chain.score >= 0 ? '#6D5EF5' : '#D94F70' }}>{chain.score.toFixed(2)}</span>
             </div>
           </div>
         </section>
@@ -143,7 +184,7 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
                     </div>
                   </div>
                   <div>
-                    <Sparkline values={point.closes} />
+                    <Sparkline values={point.closes.slice(-15)} />
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 8, marginTop: 12 }}>
                       <DataChip label="超额 vs QQQ（日）" value={baseline ? formatPct(point.dayChangePct - baseline.dayChangePct) : '—'} />
                       <DataChip label="超额 vs QQQ（5日）" value={baseline ? formatPct(point.fiveDayChangePct - baseline.fiveDayChangePct) : '—'} />
