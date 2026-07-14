@@ -13,16 +13,16 @@ function Badge({ label, fg, bg }: { label: string; fg: string; bg: string }) {
   )
 }
 
-function getRoleTone(role: 'Leader' | 'Follower' | 'Laggard') {
-  if (role === 'Leader') return { fg: '#6D5EF5', bg: 'rgba(109,94,245,0.10)' }
-  if (role === 'Laggard') return { fg: '#D94F70', bg: 'rgba(217,79,112,0.10)' }
+function getRoleTone(role: '领涨' | '跟随' | '垫底') {
+  if (role === '领涨') return { fg: '#6D5EF5', bg: 'rgba(109,94,245,0.10)' }
+  if (role === '垫底') return { fg: '#D94F70', bg: 'rgba(217,79,112,0.10)' }
   return { fg: '#667085', bg: 'rgba(102,112,133,0.10)' }
 }
 
-function getPointRole(index: number, total: number): 'Leader' | 'Follower' | 'Laggard' {
-  if (index === 0) return 'Leader'
-  if (index === total - 1) return 'Laggard'
-  return 'Follower'
+function getPointRole(index: number, total: number): '领涨' | '跟随' | '垫底' {
+  if (index === 0) return '领涨'
+  if (index === total - 1) return '垫底'
+  return '跟随'
 }
 
 function Sparkline({ values }: { values: number[] }) {
@@ -77,13 +77,13 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
               <div style={{ color: '#667085', lineHeight: 1.7, marginTop: 10 }}>观察点：{chain.signal}</div>
             </div>
             <div style={{ minWidth: 220, borderRadius: 16, background: '#F9FAFB', border: '1px solid #F2F4F7', padding: 16 }}>
-              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>Last updated</div>
+              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>最后更新</div>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{lastUpdated}</div>
               <div style={{ display: 'grid', gap: 8 }}>
-                <Metric label="Rotation score" value={chain.score.toFixed(1)} />
+                <Metric label="轮动分" value={chain.score.toFixed(1)} />
                 <Metric label="日内均值" value={formatPct(chain.avgDayChangePct)} />
                 <Metric label="5日均值" value={formatPct(chain.avgFiveDayChangePct)} />
-                <Metric label="Breadth" value={`${Math.round(chain.breadth * 100)}%`} />
+                <Metric label="广度" value={`${Math.round(chain.breadth * 100)}%`} />
               </div>
             </div>
           </div>
@@ -106,14 +106,14 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
               label="β调整超额 α（日）"
               value={chain.betaAdjExcessDayPct !== null ? formatPct(chain.betaAdjExcessDayPct) : '—'}
               good={(chain.betaAdjExcessDayPct ?? 0) >= 0}
-              hint={chain.beta !== null ? `β(60D)=${chain.beta.toFixed(2)}，剔除弹性后的真实强弱` : 'β 样本不足'}
+              hint={chain.beta !== null ? `β（60日）=${chain.beta.toFixed(2)}，剔除弹性后的真实强弱` : 'β 样本不足'}
             />
-            <QualityMetric label="raw 超额（日）" value={formatPct(chain.excessDayPct)} good={chain.excessDayPct >= 0} hint={baseline ? `QQQ ${formatPct(baseline.dayChangePct)}，未做 β 调整` : 'QQQ 不可用'} />
-            <QualityMetric label="raw 超额（5日）" value={formatPct(chain.excessFiveDayPct)} good={chain.excessFiveDayPct >= 0} hint="持续为正 = 真强" />
+            <QualityMetric label="原始超额（日）" value={formatPct(chain.excessDayPct)} good={chain.excessDayPct >= 0} hint={baseline ? `QQQ ${formatPct(baseline.dayChangePct)}，未做 β 调整` : 'QQQ 不可用'} />
+            <QualityMetric label="原始超额（5日）" value={formatPct(chain.excessFiveDayPct)} good={chain.excessFiveDayPct >= 0} hint="持续为正 = 真强" />
             <QualityMetric label="中位数涨幅" value={formatPct(chain.medianDayChangePct)} good={chain.medianDayChangePct >= 0} hint="均值被龙头拉高时看这里" />
             <QualityMetric label="龙头带动差" value={formatPct(chain.leaderGapPct)} good={chain.leaderGapPct <= 2.5} hint="龙头 − 其余中位数，>2.5% 视为抱团迹象" />
             <QualityMetric
-              label="Breadth"
+              label="广度"
               value={`${chain.points.filter((point) => point.dayChangePct > 0).length}/${chain.points.length} (${Math.round(chain.breadth * 100)}%)`}
               good={chain.breadth >= 0.5}
               hint={`样本仅 ${chain.points.length} 只，粒度约 ${Math.round(100 / chain.points.length)}%`}
@@ -121,7 +121,7 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
           </div>
           <div style={{ display: 'flex', gap: 24, alignItems: 'end', flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>近 5 日 breadth（{chain.breadthImproving ? '改善中' : '走平/转弱'}）</div>
+              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>近 5 日广度（{chain.breadthImproving ? '改善中' : '走平/转弱'}）</div>
               <div style={{ display: 'flex', gap: 6, alignItems: 'end', height: 44 }}>
                 {chain.breadthSeries.map((value, index) => (
                   <div key={index} style={{ width: 22, height: Math.max(4, value * 44), borderRadius: 4, background: index === chain.breadthSeries.length - 1 ? '#6D5EF5' : '#D0C9F8' }} title={`${Math.round(value * 100)}%`} />
@@ -135,9 +135,9 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
           </div>
         </section>
 
-        {/* Score 拆解：Rotation score 不是黑箱，每一项贡献都列出来 */}
+        {/* 轮动分拆解：不是黑箱，每一项贡献都列出来 */}
         <section style={{ borderRadius: 24, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 24, boxShadow: '0 1px 2px rgba(16,24,40,0.04)', marginBottom: 18 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#6D5EF5', letterSpacing: '0.08em', marginBottom: 4 }}>Rotation score 拆解</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#6D5EF5', letterSpacing: '0.08em', marginBottom: 4 }}>轮动分拆解</div>
           <div style={{ fontSize: 12, color: '#667085', marginBottom: 14 }}>启发式加权求和，非统计模型。各项贡献如下（单位为分）：</div>
           <div style={{ display: 'grid', gap: 6, maxWidth: 560 }}>
             {chain.scoreParts.map((part) => {
@@ -189,18 +189,18 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
                       <DataChip label="超额 vs QQQ（日）" value={baseline ? formatPct(point.dayChangePct - baseline.dayChangePct) : '—'} />
                       <DataChip label="超额 vs QQQ（5日）" value={baseline ? formatPct(point.fiveDayChangePct - baseline.fiveDayChangePct) : '—'} />
                       <DataChip label="近5日连涨" value={`${point.positiveDays}/4 天`} />
-                      <DataChip label="YTD" value={formatPct(point.ytdChangePct)} />
-                      <DataChip label="Vol / 3月均量" value={`${formatLargeNumber(point.volume)} / ${formatLargeNumber(point.avgVolume)}`} />
-                      <DataChip label="MCap · 52W" value={`${formatLargeNumber(point.marketCap)} · ${formatPrice(point.week52Low)}–${formatPrice(point.week52High)}`} />
+                      <DataChip label="年初至今" value={formatPct(point.ytdChangePct)} />
+                      <DataChip label="成交量 / 3月均量" value={`${formatLargeNumber(point.volume)} / ${formatLargeNumber(point.avgVolume)}`} />
+                      <DataChip label="市值 · 52周区间" value={`${formatLargeNumber(point.marketCap)} · ${formatPrice(point.week52Low)}–${formatPrice(point.week52High)}`} />
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 18, fontWeight: 700 }}>{formatPrice(point.price)}</div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: point.dayChangePct >= 0 ? '#027A48' : '#D92D20' }}>{formatPct(point.dayChangePct)}</div>
-                    <div style={{ fontSize: 12, color: '#667085', marginTop: 2 }}>5D {formatPct(point.fiveDayChangePct)}</div>
+                    <div style={{ fontSize: 12, color: '#667085', marginTop: 2 }}>5日 {formatPct(point.fiveDayChangePct)}</div>
                     <div style={{ display: 'flex', justifyContent: 'end', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-                      <Badge label={point.sourceConfidence === 'high' ? 'Primary' : 'Fallback'} fg={point.sourceConfidence === 'high' ? '#6D5EF5' : '#B54708'} bg={point.sourceConfidence === 'high' ? 'rgba(109,94,245,0.10)' : 'rgba(247,144,9,0.10)'} />
-                      <Badge label={point.freshness === 'live-ish' ? 'Live-ish' : 'Delayed'} fg={point.freshness === 'live-ish' ? '#027A48' : '#B54708'} bg={point.freshness === 'live-ish' ? 'rgba(18,183,106,0.10)' : 'rgba(247,144,9,0.10)'} />
+                      <Badge label={point.sourceConfidence === 'high' ? '主源' : '备源'} fg={point.sourceConfidence === 'high' ? '#6D5EF5' : '#B54708'} bg={point.sourceConfidence === 'high' ? 'rgba(109,94,245,0.10)' : 'rgba(247,144,9,0.10)'} />
+                      <Badge label={point.freshness === 'live-ish' ? '准实时' : '延迟'} fg={point.freshness === 'live-ish' ? '#027A48' : '#B54708'} bg={point.freshness === 'live-ish' ? 'rgba(18,183,106,0.10)' : 'rgba(247,144,9,0.10)'} />
                     </div>
                   </div>
                 </div>
