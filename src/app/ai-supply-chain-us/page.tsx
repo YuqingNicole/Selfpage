@@ -1,58 +1,224 @@
-const chainCards = [
+export const dynamic = 'force-dynamic'
+
+type TickerPoint = {
+  symbol: string
+  shortName: string
+  price: number
+  previousClose: number
+  dayChangePct: number
+  fiveDayChangePct: number
+  positiveDays: number
+  closes: number[]
+  currency: string
+}
+
+type ChainDef = {
+  title: string
+  desc: string
+  signal: string
+  symbols: string[]
+}
+
+type ChainData = ChainDef & {
+  points: TickerPoint[]
+  avgDayChangePct: number
+  avgFiveDayChangePct: number
+  breadth: number
+  score: number
+  leader?: TickerPoint
+}
+
+const chainDefs: ChainDef[] = [
   {
     title: 'GPU / AI 芯片',
-    focus: 'NVDA · AMD · AVGO · MRVL',
+    symbols: ['NVDA', 'AMD', 'AVGO', 'MRVL'],
     desc: '主线风险偏好温度计。先看龙头是否领涨，再看链内是否扩散。',
     signal: '先看 NVDA 是否带动 AVGO / MRVL 同步转强。',
   },
   {
     title: '网络 / 光通信',
-    focus: 'ANET · CIEN · LITE · COHR',
+    symbols: ['ANET', 'CIEN', 'LITE', 'COHR'],
     desc: 'Scale-out 扩散链。常在 GPU 之后承接资金，决定主线宽度。',
     signal: 'ANET 是否持续跑赢 NVDA，是关键背离信号。',
   },
   {
     title: '服务器 / 基础设施',
-    focus: 'SMCI · DELL · HPE',
+    symbols: ['SMCI', 'DELL', 'HPE'],
     desc: '验证硬件 CapEx 是否还在继续外溢。',
     signal: '如果 GPU 强而服务器弱，说明市场只在交易龙头，不在交易广度。',
   },
   {
     title: '半导体设备 / 制造',
-    focus: 'AMAT · LRCX · KLAC · ASML · TSM',
+    symbols: ['AMAT', 'LRCX', 'KLAC', 'ASML', 'TSM'],
     desc: '中周期验证链，判断资本开支是否真的向制造端传导。',
     signal: '设备链转强，往往意味着主线从情绪走向更扎实的中期逻辑。',
   },
   {
     title: '存储 / 封装',
-    focus: 'MU · WDC · AMKR',
+    symbols: ['MU', 'WDC', 'AMKR'],
     desc: '看训练与推理扩容是否往 memory / packaging 传导。',
     signal: 'MU 是否带动存储链回暖，是判断需求扩散的重要观察点。',
   },
   {
     title: '电力 / 散热 / 供电',
-    focus: 'VRT · ETN · NVT · HUBB · PWR',
+    symbols: ['VRT', 'ETN', 'NVT', 'HUBB', 'PWR'],
     desc: 'AI Infra 的确定性补链，经常承担第二波逻辑。',
     signal: '硬件回调时若电力链抗跌，说明市场仍在交易基础设施确定性。',
   },
 ]
 
-const signals = [
-  '今日状态：先判断 risk-on / risk-off / 观察期，不先看细节。',
-  '风格切换：硬件强还是软件强？龙头强还是扩散强？',
-  '关键背离：NVDA 跌而 ANET / VRT 抗跌，往往比单纯涨跌更有信息。',
-  '明日阈值：只保留 3–5 条最重要观察，不做信息堆料。',
-]
+async function fetchTicker(symbol: string): Promise<TickerPoint | null> {
+  try {
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`,
+      {
+        headers: { 'user-agent': 'Mozilla/5.0' },
+        next: { revalidate: 1800 },
+      },
+    )
 
-const watchlist = [
-  'NVDA 是否重新站回短期强势区间',
-  'ANET 是否连续跑赢 GPU 链',
-  'MSFT / META 是否相对硬件出现超额收益',
-  'VRT / ETN 是否在回调日维持韧性',
-  'MU 是否带动存储链同步修复',
-]
+    if (!res.ok) return null
 
-export default function AiSupplyChainUsPage() {
+    const json = await res.json()
+    const result = json?.chart?.result?.[0]
+    const meta = result?.meta
+    const closesRaw = result?.indicators?.quote?.[0]?.close ?? []
+    const closes = closesRaw.filter((v: unknown) => typeof v === 'number') as number[]
+
+    if (!meta || closes.length < 6) return null
+
+    const price = Number(meta.regularMarketPrice ?? closes[closes.length - 1] ?? 0)
+    const previousClose = Number(meta.chartPreviousClose ?? closes[closes.length - 2] ?? price)
+    const fiveDayBase = closes[Math.max(0, closes.length - 6)] ?? previousClose
+    const lastFive = closes.slice(-5)
+    const positiveDays = lastFive.reduce((acc, current, index) => {
+      if (index === 0) return acc
+      return current > lastFive[index - 1] ? acc + 1 : acc
+    }, 0)
+
+    return {
+      symbol,
+      shortName: meta.shortName || symbol,
+      price,
+      previousClose,
+      dayChangePct: previousClose ? ((price - previousClose) / previousClose) * 100 : 0,
+      fiveDayChangePct: fiveDayBase ? ((price - fiveDayBase) / fiveDayBase) * 100 : 0,
+      positiveDays,
+      closes: closes.slice(-10),
+      currency: meta.currency || 'USD',
+    }
+  } catch {
+    return null
+  }
+}
+
+function avg(values: number[]) {
+  return values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
+}
+
+function formatPct(value: number) {
+  const sign = value > 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
+}
+
+function formatPrice(value: number) {
+  return `$${value.toFixed(2)}`
+}
+
+function scoreChain(points: TickerPoint[]) {
+  const avgDayChangePct = avg(points.map((item) => item.dayChangePct))
+  const avgFiveDayChangePct = avg(points.map((item) => item.fiveDayChangePct))
+  const breadth = points.length ? points.filter((item) => item.dayChangePct > 0).length / points.length : 0
+  const score = avgDayChangePct * 0.55 + avgFiveDayChangePct * 0.35 + breadth * 10
+  const leader = [...points].sort((a, b) => b.dayChangePct - a.dayChangePct)[0]
+
+  return { avgDayChangePct, avgFiveDayChangePct, breadth, score, leader }
+}
+
+function getMarketState(score: number) {
+  if (score >= 3.5) return 'Risk-on'
+  if (score <= -1.5) return 'Risk-off'
+  return 'Observation'
+}
+
+function getActionLabel(score: number) {
+  if (score >= 3.5) return 'Follow strength'
+  if (score <= -1.5) return 'Defense first'
+  return 'Wait for confirmation'
+}
+
+function getFlowNarrative(chain: ChainData[]) {
+  const strongest = chain[0]
+  const second = chain[1]
+  const weakest = chain[chain.length - 1]
+
+  return `今天资金更偏向 ${strongest.title}，其次是 ${second.title}；${weakest.title} 明显偏弱，说明主线扩散还不均匀。`
+}
+
+function Sparkline({ values }: { values: number[] }) {
+  if (!values.length) return null
+  const width = 140
+  const height = 42
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = max - min || 1
+  const points = values
+    .map((value, index) => {
+      const x = (index / (values.length - 1 || 1)) * width
+      const y = height - ((value - min) / range) * height
+      return `${x},${y}`
+    })
+    .join(' ')
+  const up = values[values.length - 1] >= values[0]
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+      <polyline
+        fill="none"
+        stroke={up ? '#9FE870' : '#F87171'}
+        strokeWidth="2.4"
+        points={points}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function cardStyle(alpha = 0.04): React.CSSProperties {
+  return {
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 24,
+    padding: 22,
+    background: `rgba(255,255,255,${alpha})`,
+    backdropFilter: 'blur(12px)',
+  }
+}
+
+export default async function AiSupplyChainUsPage() {
+  const uniqueSymbols = [...new Set(chainDefs.flatMap((chain) => chain.symbols))]
+  const tickerResults = await Promise.all(uniqueSymbols.map(fetchTicker))
+  const tickerMap = new Map(
+    tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]),
+  )
+
+  const chains: ChainData[] = chainDefs
+    .map((chain) => {
+      const points = chain.symbols.map((symbol) => tickerMap.get(symbol)).filter(Boolean) as TickerPoint[]
+      const scored = scoreChain(points)
+      return { ...chain, points, ...scored }
+    })
+    .filter((chain) => chain.points.length > 0)
+    .sort((a, b) => b.score - a.score)
+
+  const boardScore = avg(chains.map((chain) => chain.score))
+  const marketState = getMarketState(boardScore)
+  const strongestChain = chains[0]
+  const weakestChain = chains[chains.length - 1]
+  const bestTicker = [...chains.flatMap((chain) => chain.points)].sort((a, b) => b.dayChangePct - a.dayChangePct)[0]
+  const lastUpdated = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
+  const flowNarrative = chains.length >= 3 ? getFlowNarrative(chains) : '公开行情已接入，后续可继续补更强的数据源。'
+
   return (
     <main
       style={{
@@ -62,8 +228,8 @@ export default function AiSupplyChainUsPage() {
         color: '#f5f7fb',
       }}
     >
-      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '56px 24px 80px' }}>
-        <section style={{ marginBottom: 40 }}>
+      <div style={{ maxWidth: 1220, margin: '0 auto', padding: '56px 24px 80px' }}>
+        <section style={{ marginBottom: 34 }}>
           <div
             style={{
               display: 'inline-block',
@@ -75,17 +241,17 @@ export default function AiSupplyChainUsPage() {
               letterSpacing: '0.06em',
             }}
           >
-            SELF PAGE · MVP
+            SELF PAGE · LIVE MARKET VERSION
           </div>
           <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 4.2rem)', lineHeight: 1.02, margin: '18px 0 14px', fontWeight: 700 }}>
             US AI Supply Chain
             <br />
             Decision Board
           </h1>
-          <p style={{ maxWidth: 820, fontSize: 18, lineHeight: 1.7, color: 'rgba(245,247,251,0.76)', margin: 0 }}>
-            一个给投资判断用的 MVP，不是研究堆料页。核心不是“把所有信息都摆出来”，而是先回答：
-            <strong style={{ color: '#fff' }}> 今天 AI 主线的钱在往哪里走？</strong>
+          <p style={{ maxWidth: 860, fontSize: 18, lineHeight: 1.7, color: 'rgba(245,247,251,0.76)', margin: 0 }}>
+            这版已经不是静态展示页，而是直接抓取公开美股行情，压缩成主线强弱、龙头联动和“资金流向代理”判断。
           </p>
+          <div style={{ marginTop: 12, color: 'rgba(245,247,251,0.54)', fontSize: 14 }}>Last updated: {lastUpdated}</div>
         </section>
 
         <section
@@ -97,21 +263,13 @@ export default function AiSupplyChainUsPage() {
           }}
         >
           {[
-            ['Today\'s State', 'Observation', '主线未崩，但不默认继续追高，先看资金是否回流。'],
-            ['Strongest Chain', 'Application Software', '若软件持续跑赢硬件，意味着风格正在切换。'],
-            ['Weakest Chain', 'Semi Equipment', '设备链偏弱时，说明市场还没 fully price in 中周期扩张。'],
-            ['Today\'s Move', 'Wait for Confirmation', '先看龙头与扩散是否同步，再决定试探还是防守。'],
+            ['Today\'s State', marketState, flowNarrative],
+            ['Strongest Chain', strongestChain?.title || 'N/A', strongestChain ? `日内 ${formatPct(strongestChain.avgDayChangePct)} · 5日 ${formatPct(strongestChain.avgFiveDayChangePct)}` : '暂无数据'],
+            ['Weakest Chain', weakestChain?.title || 'N/A', weakestChain ? `日内 ${formatPct(weakestChain.avgDayChangePct)} · 5日 ${formatPct(weakestChain.avgFiveDayChangePct)}` : '暂无数据'],
+            ['Today\'s Leader', bestTicker?.symbol || 'N/A', bestTicker ? `${formatPrice(bestTicker.price)} · ${formatPct(bestTicker.dayChangePct)}` : '暂无数据'],
+            ['Today\'s Move', getActionLabel(boardScore), '先看最强链能否继续扩散，再决定追随还是等待确认。'],
           ].map(([eyebrow, title, body]) => (
-            <div
-              key={eyebrow}
-              style={{
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 24,
-                padding: 22,
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(12px)',
-              }}
-            >
+            <div key={String(eyebrow)} style={cardStyle()}>
               <div style={{ color: '#c8a2c8', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
                 {eyebrow}
               </div>
@@ -131,98 +289,97 @@ export default function AiSupplyChainUsPage() {
           }}
         >
           <div style={{ fontSize: 14, color: '#c8a2c8', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Core framing
+            Flow proxy
           </div>
-          <h2 style={{ fontSize: 30, lineHeight: 1.15, margin: '0 0 12px' }}>
-            From analyst dashboard to decision dashboard
-          </h2>
-          <p style={{ maxWidth: 860, lineHeight: 1.8, color: 'rgba(245,247,251,0.76)', margin: 0 }}>
-            第一屏只做一件事：把复杂研究压缩成用户可执行的判断。先给结论，再给证据；先说今天怎么看，再说为什么；先服务动作，再服务理解。
+          <h2 style={{ fontSize: 30, lineHeight: 1.15, margin: '0 0 12px' }}>不是逐笔资金流，但已经能看出钱往哪条链走</h2>
+          <p style={{ maxWidth: 920, lineHeight: 1.8, color: 'rgba(245,247,251,0.76)', margin: 0 }}>
+            我现在用的是公开行情做代理判断：链内平均涨跌、5日相对强弱、上涨家数占比、龙头是否同步扩散。它不等于专业 terminal 的资金流数据，但足够把“今天主线在哪、扩散到哪一步”看出来。
           </p>
         </section>
 
         <section style={{ marginBottom: 34 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'end', marginBottom: 16, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ color: '#c8a2c8', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Six-chain MVP</div>
-              <h2 style={{ fontSize: 30, margin: 0 }}>What to track in the US version</h2>
+              <div style={{ color: '#c8a2c8', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Six-chain live board</div>
+              <h2 style={{ fontSize: 30, margin: 0 }}>Real market structure</h2>
             </div>
-            <div style={{ color: 'rgba(245,247,251,0.68)', maxWidth: 420, lineHeight: 1.65 }}>
-              先只盯 6 条主链，把注意力压缩到真正影响 risk appetite、风格切换与扩散路径的地方。
+            <div style={{ color: 'rgba(245,247,251,0.68)', maxWidth: 460, lineHeight: 1.65 }}>
+              这六条链不再只是观察框架，而是已经接上真实价格、日内强弱、5日趋势和链内广度。
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-            {chainCards.map((card) => (
-              <article
-                key={card.title}
-                style={{
-                  borderRadius: 24,
-                  padding: 22,
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <h3 style={{ fontSize: 22, margin: '0 0 10px' }}>{card.title}</h3>
-                <div style={{ color: '#e9d5ff', marginBottom: 12, fontWeight: 600 }}>{card.focus}</div>
-                <p style={{ margin: '0 0 14px', color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>{card.desc}</p>
-                <div style={{ color: '#cbd5e1', lineHeight: 1.65, fontSize: 15 }}>观察点：{card.signal}</div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
+            {chains.map((chain) => (
+              <article key={chain.title} style={cardStyle()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'start', marginBottom: 14 }}>
+                  <div>
+                    <h3 style={{ fontSize: 22, margin: '0 0 8px' }}>{chain.title}</h3>
+                    <div style={{ color: '#e9d5ff', fontWeight: 600, marginBottom: 10 }}>
+                      {chain.symbols.join(' · ')}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 13, color: '#c8a2c8', marginBottom: 6 }}>Chain score</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: chain.score >= 0 ? '#9FE870' : '#F87171' }}>{chain.score.toFixed(1)}</div>
+                  </div>
+                </div>
+
+                <p style={{ margin: '0 0 12px', color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>{chain.desc}</p>
+                <div style={{ color: '#cbd5e1', lineHeight: 1.65, fontSize: 15, marginBottom: 16 }}>观察点：{chain.signal}</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 10, marginBottom: 14 }}>
+                  <Metric label="日内均值" value={formatPct(chain.avgDayChangePct)} positive={chain.avgDayChangePct >= 0} />
+                  <Metric label="5日均值" value={formatPct(chain.avgFiveDayChangePct)} positive={chain.avgFiveDayChangePct >= 0} />
+                  <Metric label="链内广度" value={`${Math.round(chain.breadth * 100)}%`} positive={chain.breadth >= 0.5} />
+                </div>
+
+                <div style={{ display: 'grid', gap: 10 }}>
+                  {chain.points.map((point) => (
+                    <div
+                      key={point.symbol}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '90px 1fr auto',
+                        gap: 12,
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        borderRadius: 16,
+                        background: 'rgba(255,255,255,0.03)',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 700 }}>{point.symbol}</div>
+                        <div style={{ fontSize: 12, color: 'rgba(245,247,251,0.54)' }}>{formatPrice(point.price)}</div>
+                      </div>
+                      <Sparkline values={point.closes} />
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: point.dayChangePct >= 0 ? '#9FE870' : '#F87171', fontWeight: 700 }}>{formatPct(point.dayChangePct)}</div>
+                        <div style={{ fontSize: 12, color: 'rgba(245,247,251,0.54)' }}>5D {formatPct(point.fiveDayChangePct)}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </article>
             ))}
           </div>
         </section>
-
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.2fr 0.8fr',
-            gap: 18,
-            marginBottom: 28,
-          }}
-        >
-          <div
-            style={{
-              borderRadius: 24,
-              padding: 24,
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.07)',
-            }}
-          >
-            <div style={{ color: '#c8a2c8', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Signal lights</div>
-            <ul style={{ margin: 0, paddingLeft: 18, color: 'rgba(245,247,251,0.78)', lineHeight: 1.9 }}>
-              {signals.map((item) => (
-                <li key={item} style={{ marginBottom: 6 }}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div
-            style={{
-              borderRadius: 24,
-              padding: 24,
-              background: 'linear-gradient(180deg, rgba(150,120,210,0.18), rgba(255,255,255,0.04))',
-              border: '1px solid rgba(255,255,255,0.08)',
-            }}
-          >
-            <div style={{ color: '#f3e8ff', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Tomorrow watchlist</div>
-            <ol style={{ margin: 0, paddingLeft: 18, color: 'rgba(245,247,251,0.84)', lineHeight: 1.9 }}>
-              {watchlist.map((item) => (
-                <li key={item} style={{ marginBottom: 6 }}>{item}</li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <section
-          style={{
-            borderTop: '1px solid rgba(255,255,255,0.08)',
-            paddingTop: 24,
-            color: 'rgba(245,247,251,0.62)',
-            lineHeight: 1.75,
-          }}
-        >
-          MVP 目标不是做全量数据库，而是先验证一个问题：
-          <strong style={{ color: '#fff' }}>用户是否愿意每天回来，用一屏内容完成当天的 AI 主线判断。</strong>
-        </section>
       </div>
     </main>
+  )
+}
+
+function Metric({ label, value, positive }: { label: string; value: string; positive: boolean }) {
+  return (
+    <div
+      style={{
+        borderRadius: 16,
+        padding: '12px 14px',
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.05)',
+      }}
+    >
+      <div style={{ fontSize: 12, color: 'rgba(245,247,251,0.56)', marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: positive ? '#9FE870' : '#F87171' }}>{value}</div>
+    </div>
   )
 }
