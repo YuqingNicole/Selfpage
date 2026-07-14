@@ -35,24 +35,24 @@ export default async function AiSupplyChainUsPage() {
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '36px 20px 72px' }}>
         <section style={{ marginBottom: 24 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 999, background: '#FFFFFF', border: '1px solid #EAECF0', color: '#6D5EF5', fontSize: 12, fontWeight: 600 }}>
-            SELF PAGE · ROTATION FLOW VERSION
+            SELF PAGE · 轮动增强版
           </div>
           <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 280px', gap: 16, alignItems: 'start' }}>
             <div>
               <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.6rem)', lineHeight: 1.02, margin: '0 0 12px', fontWeight: 700, letterSpacing: '-0.04em' }}>
-                US AI Supply Chain Rotation Board
+                美股 AI 供应链轮动看板
               </h1>
               <p style={{ maxWidth: 820, fontSize: 16, lineHeight: 1.75, color: '#475467', margin: 0 }}>
-                不只看强弱排名：每条链先对比 QQQ 算超额收益，再用中位数、龙头带动差、前后排同步差和 5 日 breadth 趋势判断扩散质量，最后翻译成一句轮动结论。每个交易日的结论自动落库存档。
+                不只看强弱排名：每条链先对比 QQQ 算超额收益，再用中位数、龙头带动差、前后排同步差和 5 日广度趋势判断扩散质量，最后翻译成一句轮动结论。每个交易日的结论自动落库存档。
               </p>
             </div>
             <div style={{ borderRadius: 20, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 16, boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}>
-              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>Last updated</div>
+              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>最后更新</div>
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{lastUpdated}</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {badge(`Coverage ${coverage}`, '#6941C6', 'rgba(109,65,198,0.10)')}
-                {badge(`Primary ${primaryCount}`, '#027A48', 'rgba(18,183,106,0.10)')}
-                {badge(`Fallback ${fallbackCount}`, '#B54708', 'rgba(247,144,9,0.10)')}
+                {badge(`覆盖 ${coverage}`, '#6941C6', 'rgba(109,65,198,0.10)')}
+                {badge(`主源 ${primaryCount}`, '#027A48', 'rgba(18,183,106,0.10)')}
+                {badge(`备源 ${fallbackCount}`, '#B54708', 'rgba(247,144,9,0.10)')}
                 {tradingDate && badge(`交易日 ${tradingDate}`, '#6D5EF5', 'rgba(109,94,245,0.10)')}
               </div>
               {missingSymbols.length > 0 && (
@@ -95,7 +95,7 @@ export default async function AiSupplyChainUsPage() {
           <section style={{ borderRadius: 24, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 24, boxShadow: '0 1px 2px rgba(16,24,40,0.04)', marginTop: 22 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#6D5EF5', letterSpacing: '0.08em', marginBottom: 4 }}>信号追踪 · 次日兑现率</div>
             <div style={{ fontSize: 12, color: '#667085', marginBottom: 14 }}>
-              存档中每一天的「主线」和「扩散最强」，检查次一交易日该链 raw 超额是否为正。样本随落库天数累积，前期波动大，仅作框架校验。
+              存档中每一天的「主线」和「扩散最强」，检查次一交易日该链原始超额是否为正。样本随落库天数累积，前期波动大，仅作框架校验。
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
               <div style={{ borderRadius: 14, border: '1px solid #F2F4F7', background: '#F9FAFB', padding: '12px 16px' }}>
@@ -135,13 +135,13 @@ export default async function AiSupplyChainUsPage() {
               <strong>数据</strong>：Yahoo Finance（约 15 分钟延迟）为主，Stooq 兜底；服务端缓存 30 分钟。盘中读数会持续变化，收盘后定格并落库存档。
             </div>
             <div>
-              <strong>口径</strong>：链内指标为成分股<strong>等权</strong>平均（未按市值加权）。raw 超额 = 链等权日收益 − QQQ；β 调整超额 α = 链日收益 − β × QQQ，其中 β 为近 {thresholds.betaWindow} 个交易日日收益对 QQQ 的回归斜率（样本不足 {thresholds.betaMinSamples} 天不显示）。低 β 链（如电力）看 raw 超额会长期偏弱，请以 α 为准。
+              <strong>口径</strong>：链内指标为成分股<strong>等权</strong>平均（未按市值加权）。原始超额 = 链等权日收益 − QQQ；β 调整超额 α = 链日收益 − β × QQQ，其中 β 为近 {thresholds.betaWindow} 个交易日日收益对 QQQ 的回归斜率（样本不足 {thresholds.betaMinSamples} 天不显示）。低 β 链（如电力）看原始超额会长期偏弱，请以 α 为准。
             </div>
             <div>
-              <strong>阈值</strong>（启发式，非统计检验）：龙头带动差 &gt; {thresholds.leaderGapPct}%、前2/后2同步差 &gt; {thresholds.syncGapPct}% 或 breadth &lt; {Math.round(thresholds.breadthWeak * 100)}% 判为「龙头抱团」；超额 &gt; {thresholds.strongExcess}% 且 breadth ≥ {Math.round(thresholds.breadthHealthy * 100)}% 视为扩散健康。Rotation score 为启发式加权和，成分拆解见各链详情页。
+              <strong>阈值</strong>（启发式，非统计检验）：龙头带动差 &gt; {thresholds.leaderGapPct}%、前2/后2同步差 &gt; {thresholds.syncGapPct}% 或广度 &lt; {Math.round(thresholds.breadthWeak * 100)}% 判为「龙头抱团」；超额 &gt; {thresholds.strongExcess}% 且广度 ≥ {Math.round(thresholds.breadthHealthy * 100)}% 视为扩散健康。轮动分为启发式加权和，成分拆解见各链详情页。
             </div>
             <div>
-              <strong>局限</strong>：每条链仅 4–6 只成分股，breadth 粒度约 20–25%，单只个股翻面即可改变标签；链与成分为手工维护，非行业标准分类；结论层是规则翻译，不构成任何投资建议。
+              <strong>局限</strong>：每条链仅 3–6 只成分股，广度粒度约 17–33%，单只个股翻面即可改变标签；链与成分为手工维护，非行业标准分类；结论层是规则翻译，不构成任何投资建议。
             </div>
           </div>
         </section>

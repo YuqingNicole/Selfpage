@@ -53,7 +53,7 @@ function ConclusionTile({ label, chain, accent }: { label: string; chain?: Chain
         <>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#101828' }}>{chain.shortTitle} →</div>
           <div style={{ fontSize: 12, color: '#667085', marginTop: 4 }}>
-            超额 {formatPct(chain.excessDayPct)} · breadth {Math.round(chain.breadth * 100)}%
+            超额 {formatPct(chain.excessDayPct)} · 广度 {Math.round(chain.breadth * 100)}%
           </div>
         </>
       ) : (
@@ -88,7 +88,7 @@ export function BenchmarkStrip({ benchmarks, baseline }: { benchmarks: TickerPoi
           <span style={{ fontSize: 13, fontWeight: 700, color: '#101828' }}>{bench.symbol}</span>
           <span style={{ fontSize: 11, color: '#667085' }}>{benchmarkNames[bench.symbol] ?? bench.shortName}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: bench.dayChangePct >= 0 ? '#027A48' : '#D92D20' }}>{formatPct(bench.dayChangePct)}</span>
-          <span style={{ fontSize: 11, color: '#667085' }}>5D {formatPct(bench.fiveDayChangePct)}</span>
+          <span style={{ fontSize: 11, color: '#667085' }}>5日 {formatPct(bench.fiveDayChangePct)}</span>
         </a>
       ))}
       {!baseline && <div style={{ fontSize: 12, color: '#B54708' }}>QQQ 数据暂不可用，超额收益退化为绝对涨幅。</div>}
@@ -118,7 +118,7 @@ export function FlowPathSection({ flowChains }: { flowChains: ChainData[] }) {
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#101828' }}>{chain.shortTitle}</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: tone.fg, marginTop: 4 }}>超额 {formatPct(chain.excessDayPct)}</div>
                 <div style={{ fontSize: 11, color: '#667085', marginTop: 2 }}>
-                  breadth {Math.round(chain.breadth * 100)}%{chain.breadthImproving ? ' ↑' : ' ↓'}
+                  广度 {Math.round(chain.breadth * 100)}%{chain.breadthImproving ? ' ↑' : ' ↓'}
                 </div>
               </Link>
               {index < flowChains.length - 1 && <span style={{ color: '#98A2B3', fontSize: 16 }}>→</span>}
@@ -140,7 +140,7 @@ type HeatMetric = 'excess' | 'avg' | 'breadth'
 const heatMetricLabels: Record<HeatMetric, string> = {
   excess: '超额 vs QQQ',
   avg: '日均涨幅',
-  breadth: 'Breadth',
+  breadth: '广度',
 }
 
 function heatCell(metric: HeatMetric, stat: { avgPct: number; excessPct: number; breadth: number }) {
@@ -228,7 +228,7 @@ export function RotationHeatmapSection({ flowChains }: { flowChains: ChainData[]
                   <Link
                     key={day}
                     href={`/ai-supply-chain-us/${chain.slug}`}
-                    title={`${chain.shortTitle} · 超额 ${formatPct(stat.excessPct)} · 日均 ${formatPct(stat.avgPct)} · breadth ${Math.round(stat.breadth * 100)}%`}
+                    title={`${chain.shortTitle} · 超额 ${formatPct(stat.excessPct)} · 日均 ${formatPct(stat.avgPct)} · 广度 ${Math.round(stat.breadth * 100)}%`}
                     style={{
                       height: 30,
                       borderRadius: 6,
@@ -262,7 +262,7 @@ type SortKey = 'score' | 'excessDayPct' | 'breadth' | 'avgDayChangePct'
 const sortLabels: Record<SortKey, string> = {
   score: '轮动分',
   excessDayPct: '超额',
-  breadth: 'Breadth',
+  breadth: '广度',
   avgDayChangePct: '日内涨幅',
 }
 
@@ -308,7 +308,7 @@ export function ChainGridSection({ chains }: { chains: ChainData[] }) {
                   <div style={{ color: '#667085', fontSize: 14 }}>{chain.desc}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 12, color: '#667085', marginBottom: 4 }}>Rotation score</div>
+                  <div style={{ fontSize: 12, color: '#667085', marginBottom: 4 }}>轮动分</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: chain.score >= 0 ? '#6D5EF5' : '#D94F70' }}>{chain.score.toFixed(1)}</div>
                 </div>
               </div>
@@ -316,7 +316,7 @@ export function ChainGridSection({ chains }: { chains: ChainData[] }) {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
                 <span title={`判定依据：${chain.qualityReason}`}>{badge(`${chain.quality} ⓘ`, tone.fg, tone.bg)}</span>
                 {badge(chain.mode, '#101828', '#F2F4F7')}
-                {badge(`breadth ${chain.breadthImproving ? '改善中' : '走平/转弱'}`, chain.breadthImproving ? '#027A48' : '#667085', chain.breadthImproving ? 'rgba(18,183,106,0.10)' : 'rgba(102,112,133,0.10)')}
+                {badge(`广度${chain.breadthImproving ? '改善中' : '走平/转弱'}`, chain.breadthImproving ? '#027A48' : '#667085', chain.breadthImproving ? 'rgba(18,183,106,0.10)' : 'rgba(102,112,133,0.10)')}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginBottom: 12 }}>
@@ -325,19 +325,19 @@ export function ChainGridSection({ chains }: { chains: ChainData[] }) {
                   value={chain.betaAdjExcessDayPct !== null ? formatPct(chain.betaAdjExcessDayPct) : '—'}
                   positive={(chain.betaAdjExcessDayPct ?? 0) >= 0}
                 />
-                <MiniMetric label="raw 超额" value={formatPct(chain.excessDayPct)} positive={chain.excessDayPct >= 0} />
+                <MiniMetric label="原始超额" value={formatPct(chain.excessDayPct)} positive={chain.excessDayPct >= 0} />
                 <MiniMetric label="日内均值" value={formatPct(chain.avgDayChangePct)} positive={chain.avgDayChangePct >= 0} />
                 <MiniMetric label="中位数涨幅" value={formatPct(chain.medianDayChangePct)} positive={chain.medianDayChangePct >= 0} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginBottom: 14 }}>
                 <MiniMetric
-                  label="Breadth"
+                  label="广度"
                   value={`${chain.points.filter((point) => point.dayChangePct > 0).length}/${chain.points.length} (${Math.round(chain.breadth * 100)}%)`}
                   positive={chain.breadth >= 0.5}
                 />
                 <MiniMetric label="龙头带动差" value={formatPct(chain.leaderGapPct)} positive={chain.leaderGapPct <= 2.5} />
                 <MiniMetric label="前2/后2同步差" value={formatPct(chain.syncGapPct)} positive={chain.syncGapPct <= 5} />
-                <MiniMetric label="β (60D vs QQQ)" value={chain.beta !== null ? chain.beta.toFixed(2) : '—'} neutral />
+                <MiniMetric label="β（60日 vs QQQ）" value={chain.beta !== null ? chain.beta.toFixed(2) : '—'} neutral />
               </div>
 
               <div style={{ color: '#475467', fontSize: 13, lineHeight: 1.65, marginBottom: 14 }}>观察点：{chain.signal}</div>

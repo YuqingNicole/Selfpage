@@ -363,11 +363,11 @@ function classifyQuality(params: {
     return { quality: '龙头抱团', reason: `前2/后2同步差 ${formatPct(syncGapPct)} > 阈值 ${thresholds.syncGapPct}%` }
   }
   if (breadth < thresholds.breadthWeak) {
-    return { quality: '龙头抱团', reason: `breadth ${Math.round(breadth * 100)}% < 阈值 ${Math.round(thresholds.breadthWeak * 100)}%` }
+    return { quality: '龙头抱团', reason: `广度 ${Math.round(breadth * 100)}% < 阈值 ${Math.round(thresholds.breadthWeak * 100)}%` }
   }
   return {
     quality: '有效扩散',
-    reason: `超额为正、breadth ${Math.round(breadth * 100)}%、带动差 ${formatPct(leaderGapPct)} 与同步差 ${formatPct(syncGapPct)} 均在阈值内`,
+    reason: `超额为正、广度 ${Math.round(breadth * 100)}%、带动差 ${formatPct(leaderGapPct)} 与同步差 ${formatPct(syncGapPct)} 均在阈值内`,
   }
 }
 
@@ -402,8 +402,8 @@ function scoreChain(points: TickerPoint[], benchmark?: TickerPoint) {
     { label: '当日超额 × 0.9', value: excessDayPct * 0.9 },
     { label: '5日超额 × 0.35', value: excessFiveDayPct * 0.35 },
     { label: '中位数涨幅 × 0.6', value: medianDayChangePct * 0.6 },
-    { label: 'breadth × 3', value: breadth * 3 },
-    { label: 'breadth 改善 +0.8', value: breadthImproving ? 0.8 : 0 },
+    { label: '广度 × 3', value: breadth * 3 },
+    { label: '广度改善 +0.8', value: breadthImproving ? 0.8 : 0 },
     { label: `带动差超阈惩罚 × 0.4`, value: -Math.max(0, leaderGapPct - thresholds.leaderGapPct) * 0.4 },
   ]
   const score = scoreParts.reduce((acc, part) => acc + part.value, 0)
@@ -443,8 +443,13 @@ function buildConclusion(chains: ChainData[]): BoardConclusion {
   const spreadCandidates = byScore.filter((chain) => chain !== mainline && chain.excessDayPct > 0)
   const spread = spreadCandidates.find((chain) => chain.breadth >= 0.5) ?? spreadCandidates[0]
 
-  const power = chains.find((chain) => chain.slug === 'power-cooling-electrical')
-  const defensive = power && (power.avgDayChangePct > 0 || power.excessDayPct > -0.2) ? power : undefined
+  // 防御承接看电力供应与电力设备两条链，取当日更强者。
+  const defensiveCandidates = ['datacenter-power-supply', 'power-cooling-electrical']
+    .map((slug) => chains.find((chain) => chain.slug === slug))
+    .filter(Boolean) as ChainData[]
+  const defensive = defensiveCandidates
+    .filter((chain) => chain.avgDayChangePct > 0 || chain.excessDayPct > -0.2)
+    .sort((a, b) => b.excessDayPct - a.excessDayPct)[0]
 
   const strongSpread = chains.filter((chain) => chain.excessDayPct > 0 && chain.breadth >= 0.6).length
   const improvingCount = chains.filter((chain) => chain.breadthImproving).length
@@ -465,7 +470,7 @@ function buildConclusion(chains: ChainData[]): BoardConclusion {
 
   const parts: string[] = []
   if (mainline) parts.push(`主线在${mainline.shortTitle}（超额 ${formatPct(mainline.excessDayPct)}）`)
-  if (spread) parts.push(`扩散最强是${spread.shortTitle}（breadth ${Math.round(spread.breadth * 100)}%）`)
+  if (spread) parts.push(`扩散最强是${spread.shortTitle}（广度 ${Math.round(spread.breadth * 100)}%）`)
   if (defensive) parts.push(`${defensive.shortTitle}在承接`)
   if (lagging && lagging !== spread) parts.push(`${lagging.shortTitle}明显掉队`)
   const summary = `${parts.join('，')}。当前状态：${regime}。`
