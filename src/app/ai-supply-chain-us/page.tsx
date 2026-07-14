@@ -10,6 +10,7 @@ type TickerPoint = {
   positiveDays: number
   closes: number[]
   currency: string
+  source: 'Yahoo Finance' | 'Stooq'
 }
 
 type ChainDef = {
@@ -26,6 +27,33 @@ type ChainData = ChainDef & {
   breadth: number
   score: number
   leader?: TickerPoint
+}
+
+const symbolNames: Record<string, string> = {
+  NVDA: 'NVIDIA',
+  AMD: 'AMD',
+  AVGO: 'Broadcom',
+  MRVL: 'Marvell',
+  ANET: 'Arista Networks',
+  CIEN: 'Ciena',
+  LITE: 'Lumentum',
+  COHR: 'Coherent',
+  SMCI: 'Super Micro Computer',
+  DELL: 'Dell Technologies',
+  HPE: 'Hewlett Packard Enterprise',
+  AMAT: 'Applied Materials',
+  LRCX: 'Lam Research',
+  KLAC: 'KLA',
+  ASML: 'ASML',
+  TSM: 'TSMC',
+  MU: 'Micron',
+  WDC: 'Western Digital',
+  AMKR: 'Amkor',
+  VRT: 'Vertiv',
+  ETN: 'Eaton',
+  NVT: 'nVent',
+  HUBB: 'Hubbell',
+  PWR: 'Quanta Services',
 }
 
 const chainDefs: ChainDef[] = [
@@ -67,7 +95,40 @@ const chainDefs: ChainDef[] = [
   },
 ]
 
-async function fetchTicker(symbol: string): Promise<TickerPoint | null> {
+function toTickerPoint(params: {
+  symbol: string
+  shortName?: string
+  price: number
+  previousClose: number
+  closes: number[]
+  currency?: string
+  source: 'Yahoo Finance' | 'Stooq'
+}): TickerPoint | null {
+  const { symbol, shortName, price, previousClose, closes, currency, source } = params
+  if (!price || !previousClose || closes.length < 6) return null
+
+  const fiveDayBase = closes[Math.max(0, closes.length - 6)] ?? previousClose
+  const lastFive = closes.slice(-5)
+  const positiveDays = lastFive.reduce((acc, current, index) => {
+    if (index === 0) return acc
+    return current > lastFive[index - 1] ? acc + 1 : acc
+  }, 0)
+
+  return {
+    symbol,
+    shortName: shortName || symbolNames[symbol] || symbol,
+    price,
+    previousClose,
+    dayChangePct: previousClose ? ((price - previousClose) / previousClose) * 100 : 0,
+    fiveDayChangePct: fiveDayBase ? ((price - fiveDayBase) / fiveDayBase) * 100 : 0,
+    positiveDays,
+    closes: closes.slice(-10),
+    currency: currency || 'USD',
+    source,
+  }
+}
+
+async function fetchYahooTicker(symbol: string): Promise<TickerPoint | null> {
   try {
     const res = await fetch(
       `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`,
@@ -85,31 +146,67 @@ async function fetchTicker(symbol: string): Promise<TickerPoint | null> {
     const closesRaw = result?.indicators?.quote?.[0]?.close ?? []
     const closes = closesRaw.filter((v: unknown) => typeof v === 'number') as number[]
 
-    if (!meta || closes.length < 6) return null
+    if (!meta) return null
 
-    const price = Number(meta.regularMarketPrice ?? closes[closes.length - 1] ?? 0)
-    const previousClose = Number(meta.chartPreviousClose ?? closes[closes.length - 2] ?? price)
-    const fiveDayBase = closes[Math.max(0, closes.length - 6)] ?? previousClose
-    const lastFive = closes.slice(-5)
-    const positiveDays = lastFive.reduce((acc, current, index) => {
-      if (index === 0) return acc
-      return current > lastFive[index - 1] ? acc + 1 : acc
-    }, 0)
-
-    return {
+    return toTickerPoint({
       symbol,
-      shortName: meta.shortName || symbol,
-      price,
-      previousClose,
-      dayChangePct: previousClose ? ((price - previousClose) / previousClose) * 100 : 0,
-      fiveDayChangePct: fiveDayBase ? ((price - fiveDayBase) / fiveDayBase) * 100 : 0,
-      positiveDays,
-      closes: closes.slice(-10),
+      shortName: meta.shortName,
+      price: Number(meta.regularMarketPrice ?? closes[closes.length - 1] ?? 0),
+      previousClose: Number(meta.chartPreviousClose ?? closes[closes.length - 2] ?? 0),
+      closes,
       currency: meta.currency || 'USD',
-    }
+      source: 'Yahoo Finance',
+    })
   } catch {
     return null
   }
+}
+
+async function fetchStooqTicker(symbol: string): Promise<TickerPoint | null> {
+  try {
+    const res = await fetch(`https://stooq.com/q/d/l/?s=${symbol.toLowerCase()}.us&i=d`, {
+      next: { revalidate: 1800 },
+    })
+
+    if (!res.ok) return null
+
+    const csv = await res.text()
+    const lines = csv
+      .trim()
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+
+    if (lines.length < 7) return null
+
+    const rows = lines.slice(1).map((line) => line.split(','))
+    const closes = rows
+      .map((cols) => Number(cols[4]))
+      .filter((value) => Number.isFinite(value) && value > 0)
+
+    if (closes.length < 6) return null
+
+    const price = closes[closes.length - 1]
+    const previousClose = closes[closes.length - 2]
+
+    return toTickerPoint({
+      symbol,
+      shortName: symbolNames[symbol] || symbol,
+      price,
+      previousClose,
+      closes,
+      currency: 'USD',
+      source: 'Stooq',
+    })
+  } catch {
+    return null
+  }
+}
+
+async function fetchTicker(symbol: string): Promise<TickerPoint | null> {
+  const yahoo = await fetchYahooTicker(symbol)
+  if (yahoo) return yahoo
+  return fetchStooqTicker(symbol)
 }
 
 function avg(values: number[]) {
@@ -198,9 +295,7 @@ function cardStyle(alpha = 0.04): React.CSSProperties {
 export default async function AiSupplyChainUsPage() {
   const uniqueSymbols = [...new Set(chainDefs.flatMap((chain) => chain.symbols))]
   const tickerResults = await Promise.all(uniqueSymbols.map(fetchTicker))
-  const tickerMap = new Map(
-    tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]),
-  )
+  const tickerMap = new Map(tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]))
 
   const chains: ChainData[] = chainDefs
     .map((chain) => {
@@ -218,6 +313,7 @@ export default async function AiSupplyChainUsPage() {
   const bestTicker = [...chains.flatMap((chain) => chain.points)].sort((a, b) => b.dayChangePct - a.dayChangePct)[0]
   const lastUpdated = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
   const flowNarrative = chains.length >= 3 ? getFlowNarrative(chains) : '公开行情已接入，后续可继续补更强的数据源。'
+  const sourceSummary = Array.from(new Set(chains.flatMap((chain) => chain.points.map((point) => point.source))))
 
   return (
     <main
@@ -252,6 +348,35 @@ export default async function AiSupplyChainUsPage() {
             这版已经不是静态展示页，而是直接抓取公开美股行情，压缩成主线强弱、龙头联动和“资金流向代理”判断。
           </p>
           <div style={{ marginTop: 12, color: 'rgba(245,247,251,0.54)', fontSize: 14 }}>Last updated: {lastUpdated}</div>
+          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {sourceSummary.map((source) => (
+              <span
+                key={source}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  color: '#dbeafe',
+                  background: 'rgba(147, 197, 253, 0.12)',
+                  border: '1px solid rgba(147, 197, 253, 0.18)',
+                }}
+              >
+                Source: {source}
+              </span>
+            ))}
+            <span
+              style={{
+                padding: '6px 10px',
+                borderRadius: 999,
+                fontSize: 12,
+                color: '#ede9fe',
+                background: 'rgba(196, 181, 253, 0.12)',
+                border: '1px solid rgba(196, 181, 253, 0.18)',
+              }}
+            >
+              Fallback enabled
+            </span>
+          </div>
         </section>
 
         <section
@@ -263,11 +388,11 @@ export default async function AiSupplyChainUsPage() {
           }}
         >
           {[
-            ['Today\'s State', marketState, flowNarrative],
+            ["Today's State", marketState, flowNarrative],
             ['Strongest Chain', strongestChain?.title || 'N/A', strongestChain ? `日内 ${formatPct(strongestChain.avgDayChangePct)} · 5日 ${formatPct(strongestChain.avgFiveDayChangePct)}` : '暂无数据'],
             ['Weakest Chain', weakestChain?.title || 'N/A', weakestChain ? `日内 ${formatPct(weakestChain.avgDayChangePct)} · 5日 ${formatPct(weakestChain.avgFiveDayChangePct)}` : '暂无数据'],
-            ['Today\'s Leader', bestTicker?.symbol || 'N/A', bestTicker ? `${formatPrice(bestTicker.price)} · ${formatPct(bestTicker.dayChangePct)}` : '暂无数据'],
-            ['Today\'s Move', getActionLabel(boardScore), '先看最强链能否继续扩散，再决定追随还是等待确认。'],
+            ["Today's Leader", bestTicker?.symbol || 'N/A', bestTicker ? `${formatPrice(bestTicker.price)} · ${formatPct(bestTicker.dayChangePct)}` : '暂无数据'],
+            ["Today's Move", getActionLabel(boardScore), '先看最强链能否继续扩散，再决定追随还是等待确认。'],
           ].map(([eyebrow, title, body]) => (
             <div key={String(eyebrow)} style={cardStyle()}>
               <div style={{ color: '#c8a2c8', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
@@ -314,9 +439,7 @@ export default async function AiSupplyChainUsPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'start', marginBottom: 14 }}>
                   <div>
                     <h3 style={{ fontSize: 22, margin: '0 0 8px' }}>{chain.title}</h3>
-                    <div style={{ color: '#e9d5ff', fontWeight: 600, marginBottom: 10 }}>
-                      {chain.symbols.join(' · ')}
-                    </div>
+                    <div style={{ color: '#e9d5ff', fontWeight: 600, marginBottom: 10 }}>{chain.symbols.join(' · ')}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 13, color: '#c8a2c8', marginBottom: 6 }}>Chain score</div>
@@ -355,12 +478,53 @@ export default async function AiSupplyChainUsPage() {
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ color: point.dayChangePct >= 0 ? '#9FE870' : '#F87171', fontWeight: 700 }}>{formatPct(point.dayChangePct)}</div>
                         <div style={{ fontSize: 12, color: 'rgba(245,247,251,0.54)' }}>5D {formatPct(point.fiveDayChangePct)}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(245,247,251,0.4)', marginTop: 2 }}>{point.source}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section
+          style={{
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 28,
+            padding: 28,
+            background: 'rgba(255,255,255,0.03)',
+          }}
+        >
+          <div style={{ color: '#c8a2c8', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+            Data source / methodology
+          </div>
+          <h2 style={{ fontSize: 28, lineHeight: 1.15, margin: '0 0 14px' }}>公开把来源和判断逻辑写清楚</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+            <div style={cardStyle(0.02)}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Primary source</div>
+              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>
+                Yahoo Finance chart API：优先抓取 1 个月日线数据，用于最新价、昨收、5日涨跌幅和 sparkline。
+              </div>
+            </div>
+            <div style={cardStyle(0.02)}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Fallback source</div>
+              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>
+                当 Yahoo 不可用时，自动退回 Stooq 日线 CSV，保证页面不因单一数据源失效而整块空掉。
+              </div>
+            </div>
+            <div style={cardStyle(0.02)}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>What this board measures</div>
+              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>
+                指标包括最新价、昨收、当日涨跌幅、5日涨跌幅、链内上涨家数占比，以及按链条聚合后的 breadth / score。
+              </div>
+            </div>
+            <div style={cardStyle(0.02)}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Important limitation</div>
+              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>
+                这里的“资金流向”是价格行为代理，不是 Bloomberg / FactSet 级别的逐笔资金流或机构订单流数据。
+              </div>
+            </div>
           </div>
         </section>
       </div>
