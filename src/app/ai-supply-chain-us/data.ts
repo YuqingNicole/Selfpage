@@ -38,20 +38,52 @@ export type TickerPoint = {
 
 export type ChainDef = {
   title: string
+  shortTitle: string
   slug: string
   desc: string
   signal: string
   symbols: string[]
 }
 
+export type ChainMode = '延续' | '补涨' | '回调' | '走弱'
+
+export type ChainQuality = '有效扩散' | '龙头抱团' | '跟涨' | '补涨修复' | '走弱'
+
+export type ChainDayStat = {
+  avgPct: number
+  excessPct: number
+  breadth: number
+}
+
 export type ChainData = ChainDef & {
   points: TickerPoint[]
   avgDayChangePct: number
   avgFiveDayChangePct: number
+  medianDayChangePct: number
   breadth: number
+  breadthSeries: number[]
+  breadthImproving: boolean
+  excessDayPct: number
+  excessFiveDayPct: number
+  leaderGapPct: number
+  syncGapPct: number
+  mode: ChainMode
+  quality: ChainQuality
   score: number
+  history: ChainDayStat[]
   leader?: TickerPoint
   laggard?: TickerPoint
+}
+
+export type BoardRegime = '有效扩散' | '龙头抱团' | '扩散衰减' | '普跌防御'
+
+export type BoardConclusion = {
+  mainline?: ChainData
+  spread?: ChainData
+  defensive?: ChainData
+  lagging?: ChainData
+  regime: BoardRegime
+  summary: string
 }
 
 export const symbolNames: Record<string, string> = {
@@ -89,6 +121,7 @@ export const symbolNames: Record<string, string> = {
 export const chainDefs: ChainDef[] = [
   {
     title: 'GPU / AI 芯片',
+    shortTitle: 'GPU 芯片',
     slug: 'gpu-ai-chips',
     symbols: ['NVDA', 'AMD', 'AVGO', 'MRVL', 'TSM'],
     desc: '主线强度核心温度计。',
@@ -96,6 +129,7 @@ export const chainDefs: ChainDef[] = [
   },
   {
     title: '网络 / 光通信',
+    shortTitle: '网络光通信',
     slug: 'network-optical',
     symbols: ['ANET', 'CIEN', 'LITE', 'COHR', 'CSCO'],
     desc: 'GPU 之后最容易承接扩散的链。',
@@ -103,6 +137,7 @@ export const chainDefs: ChainDef[] = [
   },
   {
     title: '服务器 / 存储基础设施',
+    shortTitle: '服务器存储',
     slug: 'server-storage-infra',
     symbols: ['SMCI', 'DELL', 'HPE', 'PSTG'],
     desc: '看硬件 CapEx 是否继续外溢。',
@@ -110,6 +145,7 @@ export const chainDefs: ChainDef[] = [
   },
   {
     title: '半导体设备 / 制造',
+    shortTitle: '半导体设备',
     slug: 'semi-equipment-manufacturing',
     symbols: ['AMAT', 'LRCX', 'KLAC', 'ASML', 'TER'],
     desc: '中周期验证链。',
@@ -117,6 +153,7 @@ export const chainDefs: ChainDef[] = [
   },
   {
     title: '存储 / 封装',
+    shortTitle: '存储封装',
     slug: 'memory-packaging',
     symbols: ['MU', 'WDC', 'AMKR', 'UMC'],
     desc: '看训练和推理需求是否继续扩容。',
@@ -124,12 +161,31 @@ export const chainDefs: ChainDef[] = [
   },
   {
     title: '电力 / 散热 / 供电',
+    shortTitle: '电力散热',
     slug: 'power-cooling-electrical',
     symbols: ['VRT', 'ETN', 'NVT', 'HUBB', 'PWR', 'TT'],
     desc: 'AI Infra 的确定性补链。',
     signal: '硬件回调时若电力链抗跌，说明基础设施逻辑还在。',
   },
 ]
+
+// 资金从上游向下游扩散的典型顺序，用于轮动路径展示。
+export const flowOrder = [
+  'gpu-ai-chips',
+  'network-optical',
+  'server-storage-infra',
+  'semi-equipment-manufacturing',
+  'memory-packaging',
+  'power-cooling-electrical',
+]
+
+export const benchmarkSymbols = ['QQQ', 'SOXX', 'SPY']
+
+export const benchmarkNames: Record<string, string> = {
+  QQQ: '纳指100',
+  SOXX: '费城半导体',
+  SPY: '标普500',
+}
 
 async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMeta>> {
   try {
@@ -197,7 +253,7 @@ function toTickerPoint(params: {
     fiveDayChangePct: fiveDayBase ? ((price - fiveDayBase) / fiveDayBase) * 100 : 0,
     ytdChangePct: calculateYtdChange(closes, timestamps),
     positiveDays,
-    closes: closes.slice(-10),
+    closes: closes.slice(-15),
     currency: quote?.currency || 'USD',
     source,
     sourceConfidence: source === 'Yahoo Finance' ? 'high' : 'medium',
@@ -281,42 +337,200 @@ function avg(values: number[]) {
   return values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
 }
 
-function scoreChain(points: TickerPoint[]) {
-  const avgDayChangePct = avg(points.map((item) => item.dayChangePct))
+function median(values: number[]) {
+  if (!values.length) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
+}
+
+// 逐日 breadth（链内当日上涨家数占比），基于每只股票保留的收盘序列，最近一天在末尾。
+function calcBreadthSeries(points: TickerPoint[], days = 5): number[] {
+  const series: number[] = []
+  for (let back = days - 1; back >= 0; back--) {
+    let up = 0
+    let total = 0
+    for (const point of points) {
+      const index = point.closes.length - 1 - back
+      if (index >= 1) {
+        total++
+        if (point.closes[index] > point.closes[index - 1]) up++
+      }
+    }
+    series.push(total ? up / total : 0)
+  }
+  return series
+}
+
+// 回算最近 N 个交易日的链级日收益 / 超额 / breadth，各序列按末尾对齐。
+function calcHistory(points: TickerPoint[], benchmark?: TickerPoint, days = 10): ChainDayStat[] {
+  const history: ChainDayStat[] = []
+  for (let back = days - 1; back >= 0; back--) {
+    const returns: number[] = []
+    let up = 0
+    for (const point of points) {
+      const index = point.closes.length - 1 - back
+      if (index >= 1) {
+        const ret = (point.closes[index] / point.closes[index - 1] - 1) * 100
+        returns.push(ret)
+        if (ret > 0) up++
+      }
+    }
+    if (!returns.length) continue
+    const avgPct = avg(returns)
+    let benchPct = 0
+    if (benchmark) {
+      const bIndex = benchmark.closes.length - 1 - back
+      if (bIndex >= 1) benchPct = (benchmark.closes[bIndex] / benchmark.closes[bIndex - 1] - 1) * 100
+    }
+    history.push({ avgPct, excessPct: avgPct - benchPct, breadth: up / returns.length })
+  }
+  return history
+}
+
+function classifyMode(avgDayChangePct: number, avgFiveDayChangePct: number): ChainMode {
+  if (avgDayChangePct > 0 && avgFiveDayChangePct > 0) return '延续'
+  if (avgDayChangePct > 0) return '补涨'
+  if (avgFiveDayChangePct > 0) return '回调'
+  return '走弱'
+}
+
+function classifyQuality(params: {
+  avgDayChangePct: number
+  excessDayPct: number
+  breadth: number
+  leaderGapPct: number
+  syncGapPct: number
+  mode: ChainMode
+}): ChainQuality {
+  const { avgDayChangePct, excessDayPct, breadth, leaderGapPct, syncGapPct, mode } = params
+  if (avgDayChangePct <= 0 && excessDayPct <= 0) return '走弱'
+  if (excessDayPct <= 0) return '跟涨'
+  if (mode === '补涨') return '补涨修复'
+  if (leaderGapPct > 2.5 || syncGapPct > 5 || breadth < 0.5) return '龙头抱团'
+  return '有效扩散'
+}
+
+function scoreChain(points: TickerPoint[], benchmark?: TickerPoint) {
+  const dayChanges = points.map((item) => item.dayChangePct)
+  const avgDayChangePct = avg(dayChanges)
   const avgFiveDayChangePct = avg(points.map((item) => item.fiveDayChangePct))
+  const medianDayChangePct = median(dayChanges)
   const breadth = points.length ? points.filter((item) => item.dayChangePct > 0).length / points.length : 0
-  const score = avgDayChangePct * 0.45 + avgFiveDayChangePct * 0.25 + breadth * 10 + avg(points.map((item) => item.ytdChangePct)) * 0.08
+  const breadthSeries = calcBreadthSeries(points)
+  const breadthImproving =
+    breadthSeries.length >= 2 && breadthSeries[breadthSeries.length - 1] >= avg(breadthSeries.slice(0, -1))
+
+  const excessDayPct = avgDayChangePct - (benchmark?.dayChangePct ?? 0)
+  const excessFiveDayPct = avgFiveDayChangePct - (benchmark?.fiveDayChangePct ?? 0)
+
   const ranked = [...points].sort((a, b) => b.dayChangePct - a.dayChangePct)
+  const leaderGapPct = ranked.length > 1 ? ranked[0].dayChangePct - median(ranked.slice(1).map((item) => item.dayChangePct)) : 0
+  const top2 = avg(ranked.slice(0, 2).map((item) => item.dayChangePct))
+  const bottom2 = avg(ranked.slice(-2).map((item) => item.dayChangePct))
+  const syncGapPct = ranked.length > 2 ? top2 - bottom2 : 0
+
+  const mode = classifyMode(avgDayChangePct, avgFiveDayChangePct)
+  const quality = classifyQuality({ avgDayChangePct, excessDayPct, breadth, leaderGapPct, syncGapPct, mode })
+
+  // 轮动导向评分：超额收益 + 内部同步性为主，惩罚龙头独涨。
+  const score =
+    excessDayPct * 0.9 +
+    excessFiveDayPct * 0.35 +
+    medianDayChangePct * 0.6 +
+    breadth * 3 +
+    (breadthImproving ? 0.8 : 0) -
+    Math.max(0, leaderGapPct - 2.5) * 0.4
 
   return {
     avgDayChangePct,
     avgFiveDayChangePct,
+    medianDayChangePct,
     breadth,
+    breadthSeries,
+    breadthImproving,
+    excessDayPct,
+    excessFiveDayPct,
+    leaderGapPct,
+    syncGapPct,
+    mode,
+    quality,
     score,
+    history: calcHistory(points, benchmark),
     leader: ranked[0],
     laggard: ranked[ranked.length - 1],
   }
 }
 
+function buildConclusion(chains: ChainData[]): BoardConclusion {
+  if (!chains.length) {
+    return { regime: '扩散衰减', summary: '行情数据暂不可用，无法给出今日轮动判断。' }
+  }
+  const byScore = [...chains].sort((a, b) => b.score - a.score)
+  const mainline = byScore[0]
+  const lagging = byScore[byScore.length - 1]
+
+  const spreadCandidates = byScore.filter((chain) => chain !== mainline && chain.excessDayPct > 0)
+  const spread = spreadCandidates.find((chain) => chain.breadth >= 0.5) ?? spreadCandidates[0]
+
+  const power = chains.find((chain) => chain.slug === 'power-cooling-electrical')
+  const defensive = power && (power.avgDayChangePct > 0 || power.excessDayPct > -0.2) ? power : undefined
+
+  const strongSpread = chains.filter((chain) => chain.excessDayPct > 0 && chain.breadth >= 0.6).length
+  const improvingCount = chains.filter((chain) => chain.breadthImproving).length
+  const fallingCount = chains.filter((chain) => chain.avgDayChangePct <= 0).length
+
+  let regime: BoardRegime
+  if (fallingCount >= chains.length - 1) {
+    regime = '普跌防御'
+  } else if (strongSpread >= 3) {
+    regime = '有效扩散'
+  } else if (mainline && mainline.excessDayPct > 0 && strongSpread <= 1) {
+    regime = '龙头抱团'
+  } else if (improvingCount < chains.length / 2) {
+    regime = '扩散衰减'
+  } else {
+    regime = '有效扩散'
+  }
+
+  const parts: string[] = []
+  if (mainline) parts.push(`主线在${mainline.shortTitle}（超额 ${formatPct(mainline.excessDayPct)}）`)
+  if (spread) parts.push(`扩散最强是${spread.shortTitle}（breadth ${Math.round(spread.breadth * 100)}%）`)
+  if (defensive) parts.push(`${defensive.shortTitle}在承接`)
+  if (lagging && lagging !== spread) parts.push(`${lagging.shortTitle}明显掉队`)
+  const summary = `${parts.join('，')}。当前状态：${regime}。`
+
+  return { mainline, spread, defensive, lagging, regime, summary }
+}
+
 export async function fetchBoardData() {
   const uniqueSymbols = [...new Set(chainDefs.flatMap((chain) => chain.symbols))]
-  const quoteMap = await fetchYahooQuotes(uniqueSymbols)
-  const tickerResults = await Promise.all(uniqueSymbols.map((symbol) => fetchTicker(symbol, quoteMap)))
+  const allSymbols = [...uniqueSymbols, ...benchmarkSymbols]
+  const quoteMap = await fetchYahooQuotes(allSymbols)
+  const tickerResults = await Promise.all(allSymbols.map((symbol) => fetchTicker(symbol, quoteMap)))
   const tickerMap = new Map(tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]))
+
+  const benchmarks = benchmarkSymbols.map((symbol) => tickerMap.get(symbol)).filter(Boolean) as TickerPoint[]
+  const baseline = tickerMap.get('QQQ')
 
   const chains: ChainData[] = chainDefs
     .map((chain) => {
       const points = chain.symbols.map((symbol) => tickerMap.get(symbol)).filter(Boolean) as TickerPoint[]
-      const scored = scoreChain(points)
+      const scored = scoreChain(points, baseline)
       return { ...chain, points, ...scored }
     })
     .filter((chain) => chain.points.length > 0)
     .sort((a, b) => b.score - a.score)
 
+  const conclusion = buildConclusion(chains)
+
   const allPoints = chains.flatMap((chain) => chain.points)
   return {
     chains,
     allPoints,
+    benchmarks,
+    baseline,
+    conclusion,
     lastUpdated: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
     coverage: `${allPoints.length}/${uniqueSymbols.length}`,
   }
