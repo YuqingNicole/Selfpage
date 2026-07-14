@@ -49,6 +49,12 @@ export type ChainMode = '延续' | '补涨' | '回调' | '走弱'
 
 export type ChainQuality = '有效扩散' | '龙头抱团' | '跟涨' | '补涨修复' | '走弱'
 
+export type ChainDayStat = {
+  avgPct: number
+  excessPct: number
+  breadth: number
+}
+
 export type ChainData = ChainDef & {
   points: TickerPoint[]
   avgDayChangePct: number
@@ -64,6 +70,7 @@ export type ChainData = ChainDef & {
   mode: ChainMode
   quality: ChainQuality
   score: number
+  history: ChainDayStat[]
   leader?: TickerPoint
   laggard?: TickerPoint
 }
@@ -246,7 +253,7 @@ function toTickerPoint(params: {
     fiveDayChangePct: fiveDayBase ? ((price - fiveDayBase) / fiveDayBase) * 100 : 0,
     ytdChangePct: calculateYtdChange(closes, timestamps),
     positiveDays,
-    closes: closes.slice(-10),
+    closes: closes.slice(-15),
     currency: quote?.currency || 'USD',
     source,
     sourceConfidence: source === 'Yahoo Finance' ? 'high' : 'medium',
@@ -355,6 +362,32 @@ function calcBreadthSeries(points: TickerPoint[], days = 5): number[] {
   return series
 }
 
+// 回算最近 N 个交易日的链级日收益 / 超额 / breadth，各序列按末尾对齐。
+function calcHistory(points: TickerPoint[], benchmark?: TickerPoint, days = 10): ChainDayStat[] {
+  const history: ChainDayStat[] = []
+  for (let back = days - 1; back >= 0; back--) {
+    const returns: number[] = []
+    let up = 0
+    for (const point of points) {
+      const index = point.closes.length - 1 - back
+      if (index >= 1) {
+        const ret = (point.closes[index] / point.closes[index - 1] - 1) * 100
+        returns.push(ret)
+        if (ret > 0) up++
+      }
+    }
+    if (!returns.length) continue
+    const avgPct = avg(returns)
+    let benchPct = 0
+    if (benchmark) {
+      const bIndex = benchmark.closes.length - 1 - back
+      if (bIndex >= 1) benchPct = (benchmark.closes[bIndex] / benchmark.closes[bIndex - 1] - 1) * 100
+    }
+    history.push({ avgPct, excessPct: avgPct - benchPct, breadth: up / returns.length })
+  }
+  return history
+}
+
 function classifyMode(avgDayChangePct: number, avgFiveDayChangePct: number): ChainMode {
   if (avgDayChangePct > 0 && avgFiveDayChangePct > 0) return '延续'
   if (avgDayChangePct > 0) return '补涨'
@@ -423,6 +456,7 @@ function scoreChain(points: TickerPoint[], benchmark?: TickerPoint) {
     mode,
     quality,
     score,
+    history: calcHistory(points, benchmark),
     leader: ranked[0],
     laggard: ranked[ranked.length - 1],
   }

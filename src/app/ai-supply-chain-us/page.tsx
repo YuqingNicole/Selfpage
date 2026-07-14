@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import Link from 'next/link'
 
 import { benchmarkNames, fetchBoardData, flowOrder, formatPct, type ChainData, type ChainQuality } from './data'
@@ -122,6 +123,15 @@ export default async function AiSupplyChainUsPage() {
           </div>
         </section>
 
+        {/* 轮动轨迹：过去 10 个交易日，每天哪条链在领跑（相对 QQQ 的日超额） */}
+        {flowChains.some((chain) => chain.history.length > 1) && (
+          <section style={{ borderRadius: 24, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 20, boxShadow: '0 1px 2px rgba(16,24,40,0.04)', marginBottom: 22 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#6D5EF5', letterSpacing: '0.08em', marginBottom: 4 }}>轮动轨迹 · 近 10 个交易日</div>
+            <div style={{ fontSize: 12, color: '#667085', marginBottom: 14 }}>每格 = 该链当日相对 QQQ 的超额收益。绿涨红跌，颜色越深超额越大；描边 = 当日领跑链。顺着深绿格子从上往下看，就是资金的扩散路径。</div>
+            <RotationHeatmap chains={flowChains} />
+          </section>
+        )}
+
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
           {chains.map((chain) => (
             <Link
@@ -175,6 +185,77 @@ export default async function AiSupplyChainUsPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+function heatColor(excessPct: number) {
+  const alpha = Math.min(0.85, 0.12 + Math.abs(excessPct) * 0.22)
+  return excessPct >= 0 ? `rgba(18,183,106,${alpha})` : `rgba(217,45,32,${alpha})`
+}
+
+function RotationHeatmap({ chains }: { chains: ChainData[] }) {
+  const days = Math.max(...chains.map((chain) => chain.history.length))
+  if (!Number.isFinite(days) || days < 2) return null
+
+  // 每列（每个交易日）超额最高的链作为当日领跑者。
+  const dailyLeader: number[] = []
+  for (let day = 0; day < days; day++) {
+    let best = -Infinity
+    let bestIndex = -1
+    chains.forEach((chain, chainIndex) => {
+      const stat = chain.history[chain.history.length - days + day]
+      if (stat && stat.excessPct > best) {
+        best = stat.excessPct
+        bestIndex = chainIndex
+      }
+    })
+    dailyLeader.push(bestIndex)
+  }
+
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `120px repeat(${days}, minmax(34px, 1fr))`, gap: 4, minWidth: 560 }}>
+        <div />
+        {Array.from({ length: days }, (_, day) => (
+          <div key={day} style={{ fontSize: 10, color: '#98A2B3', textAlign: 'center', alignSelf: 'end' }}>
+            {day === days - 1 ? '今' : `-${days - 1 - day}`}
+          </div>
+        ))}
+        {chains.map((chain, chainIndex) => (
+          <Fragment key={chain.slug}>
+            <Link href={`/ai-supply-chain-us/${chain.slug}`} style={{ textDecoration: 'none', fontSize: 12, fontWeight: 600, color: '#475467', alignSelf: 'center', whiteSpace: 'nowrap' }}>
+              {chain.shortTitle}
+            </Link>
+            {Array.from({ length: days }, (_, day) => {
+              const stat = chain.history[chain.history.length - days + day]
+              if (!stat) return <div key={day} style={{ height: 30, borderRadius: 6, background: '#F2F4F7' }} />
+              const isLeader = dailyLeader[day] === chainIndex
+              return (
+                <div
+                  key={day}
+                  title={`超额 ${formatPct(stat.excessPct)} · 日均 ${formatPct(stat.avgPct)} · breadth ${Math.round(stat.breadth * 100)}%`}
+                  style={{
+                    height: 30,
+                    borderRadius: 6,
+                    background: heatColor(stat.excessPct),
+                    border: isLeader ? '2px solid #101828' : '1px solid rgba(16,24,40,0.04)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 9,
+                    fontWeight: 700,
+                    color: Math.abs(stat.excessPct) > 1.6 ? '#FFFFFF' : '#101828',
+                  }}
+                >
+                  {stat.excessPct >= 0 ? '+' : ''}
+                  {stat.excessPct.toFixed(1)}
+                </div>
+              )
+            })}
+          </Fragment>
+        ))}
+      </div>
+    </div>
   )
 }
 
