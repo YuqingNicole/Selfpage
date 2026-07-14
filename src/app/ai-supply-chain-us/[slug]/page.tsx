@@ -54,7 +54,7 @@ export async function generateStaticParams() {
 
 export default async function ChainDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const { chains, lastUpdated } = await fetchBoardData()
+  const { chains, baseline, lastUpdated } = await fetchBoardData()
   const chain = chains.find((item) => item.slug === slug)
   if (!chain) notFound()
 
@@ -80,11 +80,42 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
               <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>Last updated</div>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{lastUpdated}</div>
               <div style={{ display: 'grid', gap: 8 }}>
-                <Metric label="Chain score" value={chain.score.toFixed(1)} />
+                <Metric label="Rotation score" value={chain.score.toFixed(1)} />
                 <Metric label="日内均值" value={formatPct(chain.avgDayChangePct)} />
                 <Metric label="5日均值" value={formatPct(chain.avgFiveDayChangePct)} />
                 <Metric label="Breadth" value={`${Math.round(chain.breadth * 100)}%`} />
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 扩散质量：这条链的上涨是龙头独舞还是集体行动 */}
+        <section style={{ borderRadius: 24, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 24, boxShadow: '0 1px 2px rgba(16,24,40,0.04)', marginBottom: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginBottom: 14 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#6D5EF5', letterSpacing: '0.08em' }}>扩散质量</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Badge label={chain.quality} fg="#101828" bg="#F2F4F7" />
+              <Badge label={chain.mode} fg="#667085" bg="rgba(102,112,133,0.10)" />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10, marginBottom: 16 }}>
+            <QualityMetric label="超额 vs QQQ（日）" value={formatPct(chain.excessDayPct)} good={chain.excessDayPct >= 0} hint={baseline ? `QQQ ${formatPct(baseline.dayChangePct)}` : 'QQQ 不可用'} />
+            <QualityMetric label="超额 vs QQQ（5日）" value={formatPct(chain.excessFiveDayPct)} good={chain.excessFiveDayPct >= 0} hint="持续为正 = 真强" />
+            <QualityMetric label="中位数涨幅" value={formatPct(chain.medianDayChangePct)} good={chain.medianDayChangePct >= 0} hint="均值被龙头拉高时看这里" />
+            <QualityMetric label="龙头带动差" value={formatPct(chain.leaderGapPct)} good={chain.leaderGapPct <= 2.5} hint="龙头 − 其余中位数，过大 = 抱团" />
+          </div>
+          <div style={{ display: 'flex', gap: 24, alignItems: 'end', flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>近 5 日 breadth（{chain.breadthImproving ? '改善中' : '走平/转弱'}）</div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'end', height: 44 }}>
+                {chain.breadthSeries.map((value, index) => (
+                  <div key={index} style={{ width: 22, height: Math.max(4, value * 44), borderRadius: 4, background: index === chain.breadthSeries.length - 1 ? '#6D5EF5' : '#D0C9F8' }} title={`${Math.round(value * 100)}%`} />
+                ))}
+              </div>
+            </div>
+            <div style={{ fontSize: 13, color: '#475467', lineHeight: 1.7, maxWidth: 520 }}>
+              前 2 名与后 2 名当日同步差 <strong>{formatPct(chain.syncGapPct)}</strong>
+              {chain.syncGapPct > 5 ? '，差距偏大，链内并不同步。' : '，链内整体同步。'}
             </div>
           </div>
         </section>
@@ -106,10 +137,10 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
                   <div>
                     <Sparkline values={point.closes} />
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 8, marginTop: 12 }}>
+                      <DataChip label="超额 vs QQQ" value={baseline ? formatPct(point.dayChangePct - baseline.dayChangePct) : '—'} />
                       <DataChip label="YTD" value={formatPct(point.ytdChangePct)} />
                       <DataChip label="Vol" value={formatLargeNumber(point.volume)} />
                       <DataChip label="MCap" value={formatLargeNumber(point.marketCap)} />
-                      <DataChip label="52W" value={`${formatPrice(point.week52Low)}–${formatPrice(point.week52High)}`} />
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -128,6 +159,16 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
         </section>
       </div>
     </main>
+  )
+}
+
+function QualityMetric({ label, value, good, hint }: { label: string; value: string; good: boolean; hint: string }) {
+  return (
+    <div style={{ borderRadius: 14, background: '#F9FAFB', border: '1px solid #F2F4F7', padding: '12px 12px 10px' }}>
+      <div style={{ fontSize: 11, color: '#667085', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 17, fontWeight: 700, color: good ? '#027A48' : '#D92D20' }}>{value}</div>
+      <div style={{ fontSize: 11, color: '#98A2B3', marginTop: 4 }}>{hint}</div>
+    </div>
   )
 }
 
