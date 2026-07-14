@@ -164,13 +164,44 @@ function toTickerPoint(params: {
   }
 }
 
+// 带退避的重试：429 / 5xx / 网络抖动时重试，重试请求跳过缓存拿新鲜响应。
+async function fetchWithRetry(url: string, headers: Record<string, string>, retries = 2): Promise<Response | null> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(
+        url,
+        attempt === 0 ? { headers, next: { revalidate: 1800 } } : { headers, cache: 'no-store' },
+      )
+      if (res.ok) return res
+      if (res.status === 404) return null
+    } catch {
+      // network error — fall through to backoff
+    }
+    if (attempt < retries) await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)))
+  }
+  return null
+}
+
+// 简易并发闸：批量抓行情时限制同时在途请求数，避免触发数据源限流。
+async function mapWithConcurrency<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length)
+  let cursor = 0
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor++
+      results[index] = await fn(items[index])
+    }
+  })
+  await Promise.all(workers)
+  return results
+}
+
 async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
   try {
-    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, {
-      headers: { 'user-agent': YAHOO_UA },
-      next: { revalidate: 1800 },
+    const res = await fetchWithRetry(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, {
+      'user-agent': YAHOO_UA,
     })
-    if (!res.ok) return null
+    if (!res) return null
     const json = await res.json()
     const result = json?.chart?.result?.[0]
     const closesRaw = result?.indicators?.quote?.[0]?.close ?? []
@@ -210,10 +241,8 @@ async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
 
 async function fetchStooqTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
   try {
-    const res = await fetch(`https://stooq.com/q/d/l/?s=${symbol.toLowerCase()}.us&i=d`, {
-      next: { revalidate: 1800 },
-    })
-    if (!res.ok) return null
+    const res = await fetchWithRetry(`https://stooq.com/q/d/l/?s=${symbol.toLowerCase()}.us&i=d`, {})
+    if (!res) return null
     const csv = await res.text()
     const lines = csv.trim().split('\n').map((line) => line.trim()).filter(Boolean)
     if (lines.length < 7) return null
@@ -482,7 +511,8 @@ export async function fetchBoardData() {
   const uniqueSymbols = [...new Set(chainDefs.flatMap((chain) => chain.symbols))]
   const allSymbols = [...uniqueSymbols, ...benchmarkSymbols]
   const quoteMap = await fetchYahooQuotes(allSymbols)
-  const tickerResults = await Promise.all(allSymbols.map((symbol) => fetchTicker(symbol, quoteMap)))
+  // 并发限制在 8：46 只全量并发容易触发 Yahoo 限流（429），导致随机缺票。
+  const tickerResults = await mapWithConcurrency(allSymbols, 8, (symbol) => fetchTicker(symbol, quoteMap))
   const tickerMap = new Map(tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]))
 
   const benchmarks = benchmarkSymbols.map((symbol) => tickerMap.get(symbol)).filter(Boolean) as TickerPoint[]

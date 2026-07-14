@@ -341,6 +341,12 @@ export function ChainGridSection({ chains }: { chains: ChainData[] }) {
               </div>
 
               <div style={{ color: '#475467', fontSize: 13, lineHeight: 1.65, marginBottom: 14 }}>观察点：{chain.signal}</div>
+              {(() => {
+                const missing = chain.symbols.filter((symbol) => !chain.points.some((point) => point.symbol === symbol))
+                return missing.length > 0 ? (
+                  <div style={{ color: '#D92D20', fontSize: 12, marginBottom: 10 }}>缺数据：{missing.join('、')}（链指标按剩余 {chain.points.length} 只计算）</div>
+                ) : null
+              })()}
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
                 <div style={{ color: '#667085', fontSize: 13 }}>
                   {chain.points.map((point) => `${point.symbol} ${formatPct(point.dayChangePct)}`).join(' · ') || chain.symbols.join(' · ')}
