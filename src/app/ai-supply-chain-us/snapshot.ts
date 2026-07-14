@@ -80,6 +80,90 @@ export async function persistBoardSnapshot(params: {
   }
 }
 
+export type SignalTrackRow = {
+  date: string
+  nextDate: string
+  signal: '主线' | '扩散'
+  chainTitle: string
+  nextExcessPct: number
+  hit: boolean
+}
+
+export type SignalTrack = {
+  rows: SignalTrackRow[]
+  mainlineHits: number
+  mainlineTotal: number
+  spreadHits: number
+  spreadTotal: number
+}
+
+// 信号追踪：存档中每一天的“主线 / 扩散最强”，次一存档交易日该链超额是否为正。
+// 这是产品自己的 track record —— 没有命中率的信号只是股评。
+export async function fetchSignalTrack(limit = 21): Promise<SignalTrack | null> {
+  const client = makeClient(SERVICE_KEY ?? ANON_KEY)
+  if (!client) return null
+  try {
+    const { data: boards, error } = await client
+      .from('ai_board_snapshots')
+      .select('snapshot_date, mainline_slug, spread_slug')
+      .order('snapshot_date', { ascending: false })
+      .limit(limit)
+    if (error || !boards || boards.length < 2) return null
+
+    const ordered = [...boards].reverse()
+    const dates = ordered.map((row) => row.snapshot_date as string)
+    const { data: chainRows, error: chainError } = await client
+      .from('ai_chain_snapshots')
+      .select('snapshot_date, chain_slug, chain_title, excess_day_pct')
+      .in('snapshot_date', dates)
+    if (chainError || !chainRows) return null
+
+    const byDate = new Map<string, Map<string, { title: string; excess: number }>>()
+    for (const row of chainRows) {
+      const date = row.snapshot_date as string
+      if (!byDate.has(date)) byDate.set(date, new Map())
+      byDate.get(date)!.set(row.chain_slug as string, { title: row.chain_title as string, excess: Number(row.excess_day_pct) })
+    }
+
+    const rows: SignalTrackRow[] = []
+    let mainlineHits = 0
+    let mainlineTotal = 0
+    let spreadHits = 0
+    let spreadTotal = 0
+
+    for (let i = 0; i < ordered.length - 1; i++) {
+      const date = ordered[i].snapshot_date as string
+      const nextDate = ordered[i + 1].snapshot_date as string
+      const nextChains = byDate.get(nextDate)
+      if (!nextChains) continue
+
+      const picks: Array<{ signal: '主线' | '扩散'; slug: string | null }> = [
+        { signal: '主线', slug: ordered[i].mainline_slug as string | null },
+        { signal: '扩散', slug: ordered[i].spread_slug as string | null },
+      ]
+      for (const pick of picks) {
+        if (!pick.slug) continue
+        const next = nextChains.get(pick.slug)
+        if (!next || !Number.isFinite(next.excess)) continue
+        const hit = next.excess > 0
+        rows.push({ date, nextDate, signal: pick.signal, chainTitle: next.title, nextExcessPct: next.excess, hit })
+        if (pick.signal === '主线') {
+          mainlineTotal++
+          if (hit) mainlineHits++
+        } else {
+          spreadTotal++
+          if (hit) spreadHits++
+        }
+      }
+    }
+
+    if (!rows.length) return null
+    return { rows: rows.reverse(), mainlineHits, mainlineTotal, spreadHits, spreadTotal }
+  } catch {
+    return null
+  }
+}
+
 // 读取最近 N 个交易日的结论快照（anon key，公开只读）。
 export async function fetchRecentBoardSnapshots(limit = 14): Promise<BoardSnapshotRow[]> {
   const client = makeClient(SERVICE_KEY ?? ANON_KEY)

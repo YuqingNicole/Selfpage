@@ -4,6 +4,7 @@ import {
   chainDefs,
   formatPct,
   symbolNames,
+  thresholds,
   type BoardConclusion,
   type BoardRegime,
   type ChainData,
@@ -16,16 +17,63 @@ import {
 
 export * from './shared'
 
-async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMeta>> {
+const YAHOO_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
+
+// Yahoo v7 quote 接口自 2023 年起要求 cookie + crumb，裸调用返回 401。
+// 这里做一次性的鉴权握手并在进程内缓存 1 小时。
+let yahooAuthCache: { cookie: string; crumb: string; ts: number } | null = null
+
+async function getYahooAuth(): Promise<{ cookie: string; crumb: string } | null> {
+  if (yahooAuthCache && Date.now() - yahooAuthCache.ts < 3600_000) return yahooAuthCache
   try {
-    const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`, {
-      headers: { 'user-agent': 'Mozilla/5.0' },
-      next: { revalidate: 1800 },
+    const cookieRes = await fetch('https://fc.yahoo.com/', {
+      headers: { 'user-agent': YAHOO_UA },
+      redirect: 'manual',
+      cache: 'no-store',
     })
-    if (!res.ok) return new Map()
+    const cookie = cookieRes.headers.get('set-cookie')?.split(';')[0]
+    if (!cookie) return null
+    const crumbRes = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', {
+      headers: { 'user-agent': YAHOO_UA, cookie },
+      cache: 'no-store',
+    })
+    if (!crumbRes.ok) return null
+    const crumb = (await crumbRes.text()).trim()
+    if (!crumb || crumb.includes('<')) return null
+    yahooAuthCache = { cookie, crumb, ts: Date.now() }
+    return yahooAuthCache
+  } catch {
+    return null
+  }
+}
+
+async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMeta>> {
+  const parse = async (res: Response) => {
+    if (!res.ok) return null
     const json = await res.json()
     const list = (json?.quoteResponse?.result ?? []) as QuoteMeta[]
-    return new Map(list.map((item) => [item.symbol, item]))
+    return list.length ? new Map(list.map((item) => [item.symbol, item])) : null
+  }
+
+  try {
+    const plain = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`, {
+      headers: { 'user-agent': YAHOO_UA },
+      next: { revalidate: 1800 },
+    })
+    const plainMap = await parse(plain).catch(() => null)
+    if (plainMap) return plainMap
+  } catch {
+    // fall through to crumb-authenticated attempt
+  }
+
+  try {
+    const auth = await getYahooAuth()
+    if (!auth) return new Map()
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}&crumb=${encodeURIComponent(auth.crumb)}`,
+      { headers: { 'user-agent': YAHOO_UA, cookie: auth.cookie }, cache: 'no-store' },
+    )
+    return (await parse(res).catch(() => null)) ?? new Map()
   } catch {
     return new Map()
   }
@@ -50,20 +98,31 @@ function calculateYtdChange(closes: number[], timestamps: number[]) {
   return ((latest - base) / base) * 100
 }
 
+type ChartMeta = {
+  shortName?: string
+  volume?: number
+  week52High?: number
+  week52Low?: number
+  price?: number
+  previousClose?: number
+}
+
 function toTickerPoint(params: {
   symbol: string
   closes: number[]
   timestamps: number[]
+  volumes?: number[]
+  chartMeta?: ChartMeta
   quote?: QuoteMeta
   source: 'Yahoo Finance' | 'Stooq'
 }): TickerPoint | null {
-  const { symbol, closes, timestamps, quote, source } = params
+  const { symbol, closes, timestamps, volumes = [], chartMeta, quote, source } = params
   if (closes.length < 6) return null
 
   const inferredPrice = closes[closes.length - 1]
   const inferredPrev = closes[closes.length - 2]
-  const price = Number(quote?.regularMarketPrice ?? inferredPrice ?? 0)
-  const previousClose = Number(quote?.regularMarketPreviousClose ?? inferredPrev ?? 0)
+  const price = Number(quote?.regularMarketPrice ?? chartMeta?.price ?? inferredPrice ?? 0)
+  const previousClose = Number(quote?.regularMarketPreviousClose ?? chartMeta?.previousClose ?? inferredPrev ?? 0)
   if (!price || !previousClose) return null
 
   const fiveDayBase = closes[Math.max(0, closes.length - 6)] ?? previousClose
@@ -73,26 +132,33 @@ function toTickerPoint(params: {
     return current > lastFive[index - 1] ? acc + 1 : acc
   }, 0)
 
+  // 报价接口失败时，成交量 / 均量 / 52 周区间从日线序列自算，保证字段不缺。
+  const yearCloses = closes.slice(-252)
+  const lastVolume = volumes.length ? volumes[volumes.length - 1] : undefined
+  const quarterVolumes = volumes.slice(-63).filter((value) => Number.isFinite(value) && value > 0)
+  const derivedAvgVolume = quarterVolumes.length >= 20 ? Math.round(quarterVolumes.reduce((a, b) => a + b, 0) / quarterVolumes.length) : undefined
+
   return {
     symbol,
-    shortName: quote?.shortName || symbolNames[symbol] || symbol,
+    shortName: quote?.shortName || chartMeta?.shortName || symbolNames[symbol] || symbol,
     price,
     previousClose,
     dayChangePct: ((price - previousClose) / previousClose) * 100,
     fiveDayChangePct: fiveDayBase ? ((price - fiveDayBase) / fiveDayBase) * 100 : 0,
     ytdChangePct: calculateYtdChange(closes, timestamps),
     positiveDays,
-    closes: closes.slice(-15),
+    // 保留 ~半年日线：轨迹热力图用末尾 10 天，β 回归用末尾 60 天。
+    closes: closes.slice(-130),
     currency: quote?.currency || 'USD',
     lastCloseDate: new Date(timestamps[timestamps.length - 1] * 1000).toISOString().slice(0, 10),
     source,
     sourceConfidence: source === 'Yahoo Finance' ? 'high' : 'medium',
     freshness: source === 'Yahoo Finance' ? 'live-ish' : 'delayed-fallback',
-    volume: quote?.regularMarketVolume,
-    avgVolume: quote?.averageDailyVolume3Month,
+    volume: quote?.regularMarketVolume ?? chartMeta?.volume ?? lastVolume,
+    avgVolume: quote?.averageDailyVolume3Month ?? derivedAvgVolume,
     marketCap: quote?.marketCap,
-    week52High: quote?.fiftyTwoWeekHigh,
-    week52Low: quote?.fiftyTwoWeekLow,
+    week52High: quote?.fiftyTwoWeekHigh ?? chartMeta?.week52High ?? (yearCloses.length >= 60 ? Math.max(...yearCloses) : undefined),
+    week52Low: quote?.fiftyTwoWeekLow ?? chartMeta?.week52Low ?? (yearCloses.length >= 60 ? Math.min(...yearCloses) : undefined),
     preMarketPrice: quote?.preMarketPrice,
     postMarketPrice: quote?.postMarketPrice,
   }
@@ -101,15 +167,17 @@ function toTickerPoint(params: {
 async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
   try {
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, {
-      headers: { 'user-agent': 'Mozilla/5.0' },
+      headers: { 'user-agent': YAHOO_UA },
       next: { revalidate: 1800 },
     })
     if (!res.ok) return null
     const json = await res.json()
     const result = json?.chart?.result?.[0]
     const closesRaw = result?.indicators?.quote?.[0]?.close ?? []
+    const volumesRaw = result?.indicators?.quote?.[0]?.volume ?? []
     const timestampsRaw = result?.timestamp ?? []
     const closes: number[] = []
+    const volumes: number[] = []
     const timestamps: number[] = []
 
     closesRaw.forEach((value: unknown, index: number) => {
@@ -117,11 +185,24 @@ async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
       const ts = Number(timestampsRaw[index])
       if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
         closes.push(close)
+        volumes.push(Number(volumesRaw[index]) || 0)
         timestamps.push(ts)
       }
     })
 
-    return toTickerPoint({ symbol, closes, timestamps, quote: quoteMap.get(symbol), source: 'Yahoo Finance' })
+    // chart 接口的 meta 无需鉴权，即使 quote 接口失效也能补上名称 / 现价 / 52 周区间。
+    const meta = result?.meta ?? {}
+    const chartMeta: ChartMeta = {
+      shortName: meta.shortName || meta.longName,
+      volume: Number(meta.regularMarketVolume) || undefined,
+      week52High: Number(meta.fiftyTwoWeekHigh) || undefined,
+      week52Low: Number(meta.fiftyTwoWeekLow) || undefined,
+      price: Number(meta.regularMarketPrice) || undefined,
+      // 注意：meta.chartPreviousClose 是图表范围起点的前收盘（一年前），不能当昨收用。
+      previousClose: Number(meta.previousClose) || undefined,
+    }
+
+    return toTickerPoint({ symbol, closes, timestamps, volumes, chartMeta, quote: quoteMap.get(symbol), source: 'Yahoo Finance' })
   } catch {
     return null
   }
@@ -139,6 +220,7 @@ async function fetchStooqTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
 
     const rows = lines.slice(1).map((line) => line.split(','))
     const closes: number[] = []
+    const volumes: number[] = []
     const timestamps: number[] = []
 
     rows.forEach((cols) => {
@@ -147,11 +229,12 @@ async function fetchStooqTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
       const ts = Date.parse(`${date}T00:00:00Z`)
       if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
         closes.push(close)
+        volumes.push(Number(cols[5]) || 0)
         timestamps.push(Math.floor(ts / 1000))
       }
     })
 
-    return toTickerPoint({ symbol, closes, timestamps, quote: quoteMap.get(symbol), source: 'Stooq' })
+    return toTickerPoint({ symbol, closes, timestamps, volumes, quote: quoteMap.get(symbol), source: 'Stooq' })
   } catch {
     return null
   }
@@ -218,6 +301,35 @@ function calcHistory(points: TickerPoint[], benchmark?: TickerPoint, days = 10):
   return history
 }
 
+// 链等权日收益对基准日收益的回归斜率（近 N 个交易日），样本不足返回 null。
+function calcBeta(points: TickerPoint[], benchmark?: TickerPoint, days = thresholds.betaWindow): number | null {
+  if (!benchmark) return null
+  const chainRets: number[] = []
+  const benchRets: number[] = []
+  for (let back = days; back >= 1; back--) {
+    const bIndex = benchmark.closes.length - back
+    if (bIndex < 1) continue
+    const rets: number[] = []
+    for (const point of points) {
+      const index = point.closes.length - back
+      if (index >= 1) rets.push((point.closes[index] / point.closes[index - 1] - 1) * 100)
+    }
+    if (!rets.length) continue
+    chainRets.push(avg(rets))
+    benchRets.push((benchmark.closes[bIndex] / benchmark.closes[bIndex - 1] - 1) * 100)
+  }
+  if (chainRets.length < thresholds.betaMinSamples) return null
+  const meanBench = avg(benchRets)
+  const meanChain = avg(chainRets)
+  let cov = 0
+  let varBench = 0
+  for (let i = 0; i < benchRets.length; i++) {
+    cov += (benchRets[i] - meanBench) * (chainRets[i] - meanChain)
+    varBench += (benchRets[i] - meanBench) ** 2
+  }
+  return varBench > 0 ? cov / varBench : null
+}
+
 function classifyMode(avgDayChangePct: number, avgFiveDayChangePct: number): ChainMode {
   if (avgDayChangePct > 0 && avgFiveDayChangePct > 0) return '延续'
   if (avgDayChangePct > 0) return '补涨'
@@ -225,6 +337,7 @@ function classifyMode(avgDayChangePct: number, avgFiveDayChangePct: number): Cha
   return '走弱'
 }
 
+// 返回判定结果 + 触发原因，原因原样呈现在页面上（规则透明化）。
 function classifyQuality(params: {
   avgDayChangePct: number
   excessDayPct: number
@@ -232,13 +345,30 @@ function classifyQuality(params: {
   leaderGapPct: number
   syncGapPct: number
   mode: ChainMode
-}): ChainQuality {
+}): { quality: ChainQuality; reason: string } {
   const { avgDayChangePct, excessDayPct, breadth, leaderGapPct, syncGapPct, mode } = params
-  if (avgDayChangePct <= 0 && excessDayPct <= 0) return '走弱'
-  if (excessDayPct <= 0) return '跟涨'
-  if (mode === '补涨') return '补涨修复'
-  if (leaderGapPct > 2.5 || syncGapPct > 5 || breadth < 0.5) return '龙头抱团'
-  return '有效扩散'
+  if (avgDayChangePct <= 0 && excessDayPct <= 0) {
+    return { quality: '走弱', reason: `日均 ${formatPct(avgDayChangePct)} 且超额 ${formatPct(excessDayPct)} 均不为正` }
+  }
+  if (excessDayPct <= 0) {
+    return { quality: '跟涨', reason: `日均为正但超额 ${formatPct(excessDayPct)} ≤ 0，涨幅跑输 QQQ` }
+  }
+  if (mode === '补涨') {
+    return { quality: '补涨修复', reason: `当日超额为正但 5 日均值仍为负，属回补而非延续` }
+  }
+  if (leaderGapPct > thresholds.leaderGapPct) {
+    return { quality: '龙头抱团', reason: `龙头带动差 ${formatPct(leaderGapPct)} > 阈值 ${thresholds.leaderGapPct}%` }
+  }
+  if (syncGapPct > thresholds.syncGapPct) {
+    return { quality: '龙头抱团', reason: `前2/后2同步差 ${formatPct(syncGapPct)} > 阈值 ${thresholds.syncGapPct}%` }
+  }
+  if (breadth < thresholds.breadthWeak) {
+    return { quality: '龙头抱团', reason: `breadth ${Math.round(breadth * 100)}% < 阈值 ${Math.round(thresholds.breadthWeak * 100)}%` }
+  }
+  return {
+    quality: '有效扩散',
+    reason: `超额为正、breadth ${Math.round(breadth * 100)}%、带动差 ${formatPct(leaderGapPct)} 与同步差 ${formatPct(syncGapPct)} 均在阈值内`,
+  }
 }
 
 function scoreChain(points: TickerPoint[], benchmark?: TickerPoint) {
@@ -261,16 +391,22 @@ function scoreChain(points: TickerPoint[], benchmark?: TickerPoint) {
   const syncGapPct = ranked.length > 2 ? top2 - bottom2 : 0
 
   const mode = classifyMode(avgDayChangePct, avgFiveDayChangePct)
-  const quality = classifyQuality({ avgDayChangePct, excessDayPct, breadth, leaderGapPct, syncGapPct, mode })
+  const { quality, reason: qualityReason } = classifyQuality({ avgDayChangePct, excessDayPct, breadth, leaderGapPct, syncGapPct, mode })
+
+  const beta = calcBeta(points, benchmark)
+  const betaAdjExcessDayPct = beta !== null && benchmark ? avgDayChangePct - beta * benchmark.dayChangePct : null
 
   // 轮动导向评分：超额收益 + 内部同步性为主，惩罚龙头独涨。
-  const score =
-    excessDayPct * 0.9 +
-    excessFiveDayPct * 0.35 +
-    medianDayChangePct * 0.6 +
-    breadth * 3 +
-    (breadthImproving ? 0.8 : 0) -
-    Math.max(0, leaderGapPct - 2.5) * 0.4
+  // 各项贡献单独列出（scoreParts），供页面拆解展示 —— 这是启发式加权，不是统计模型。
+  const scoreParts = [
+    { label: '当日超额 × 0.9', value: excessDayPct * 0.9 },
+    { label: '5日超额 × 0.35', value: excessFiveDayPct * 0.35 },
+    { label: '中位数涨幅 × 0.6', value: medianDayChangePct * 0.6 },
+    { label: 'breadth × 3', value: breadth * 3 },
+    { label: 'breadth 改善 +0.8', value: breadthImproving ? 0.8 : 0 },
+    { label: `带动差超阈惩罚 × 0.4`, value: -Math.max(0, leaderGapPct - thresholds.leaderGapPct) * 0.4 },
+  ]
+  const score = scoreParts.reduce((acc, part) => acc + part.value, 0)
 
   return {
     avgDayChangePct,
@@ -281,11 +417,15 @@ function scoreChain(points: TickerPoint[], benchmark?: TickerPoint) {
     breadthImproving,
     excessDayPct,
     excessFiveDayPct,
+    beta,
+    betaAdjExcessDayPct,
     leaderGapPct,
     syncGapPct,
     mode,
     quality,
+    qualityReason,
     score,
+    scoreParts,
     history: calcHistory(points, benchmark),
     leader: ranked[0],
     laggard: ranked[ranked.length - 1],
@@ -356,6 +496,7 @@ export async function fetchBoardData() {
 
   const allPoints = chains.flatMap((chain) => chain.points)
   const coverage = `${allPoints.length}/${uniqueSymbols.length}`
+  const missingSymbols = allSymbols.filter((symbol) => !tickerMap.has(symbol))
   // 交易日以 QQQ 最后一根日线为准，深夜/周末渲染也会归到正确的交易日。
   const tradingDate =
     baseline?.lastCloseDate ??
@@ -371,6 +512,7 @@ export async function fetchBoardData() {
     baseline,
     conclusion,
     tradingDate,
+    missingSymbols,
     lastUpdated: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
     coverage,
   }
