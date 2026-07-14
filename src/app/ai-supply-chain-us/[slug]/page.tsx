@@ -128,19 +128,29 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
               <article key={point.symbol} style={{ borderRadius: 20, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 18, boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '140px minmax(0,1fr) auto', gap: 14, alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 700 }}>{point.symbol}</div>
-                    <div style={{ fontSize: 13, color: '#667085', marginTop: 3 }}>{point.shortName}</div>
+                    <a
+                      href={`https://finance.yahoo.com/quote/${encodeURIComponent(point.symbol)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`在 Yahoo Finance 查看 ${point.symbol}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#6D5EF5' }}>{point.symbol} ↗</div>
+                      <div style={{ fontSize: 13, color: '#667085', marginTop: 3 }}>{point.shortName}</div>
+                    </a>
                     <div style={{ marginTop: 8 }}>
                       <Badge label={role} fg={roleTone.fg} bg={roleTone.bg} />
                     </div>
                   </div>
                   <div>
                     <Sparkline values={point.closes} />
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 8, marginTop: 12 }}>
-                      <DataChip label="超额 vs QQQ" value={baseline ? formatPct(point.dayChangePct - baseline.dayChangePct) : '—'} />
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 8, marginTop: 12 }}>
+                      <DataChip label="超额 vs QQQ（日）" value={baseline ? formatPct(point.dayChangePct - baseline.dayChangePct) : '—'} />
+                      <DataChip label="超额 vs QQQ（5日）" value={baseline ? formatPct(point.fiveDayChangePct - baseline.fiveDayChangePct) : '—'} />
+                      <DataChip label="近5日连涨" value={`${point.positiveDays}/4 天`} />
                       <DataChip label="YTD" value={formatPct(point.ytdChangePct)} />
-                      <DataChip label="Vol" value={formatLargeNumber(point.volume)} />
-                      <DataChip label="MCap" value={formatLargeNumber(point.marketCap)} />
+                      <DataChip label="Vol / 3月均量" value={`${formatLargeNumber(point.volume)} / ${formatLargeNumber(point.avgVolume)}`} />
+                      <DataChip label="MCap · 52W" value={`${formatLargeNumber(point.marketCap)} · ${formatPrice(point.week52Low)}–${formatPrice(point.week52High)}`} />
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
