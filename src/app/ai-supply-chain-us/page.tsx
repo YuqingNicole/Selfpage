@@ -27,6 +27,8 @@ type TickerPoint = {
   closes: number[]
   currency: string
   source: 'Yahoo Finance' | 'Stooq'
+  sourceConfidence: 'high' | 'medium'
+  freshness: 'live-ish' | 'delayed-fallback'
   volume?: number
   avgVolume?: number
   marketCap?: number
@@ -59,14 +61,14 @@ const symbolNames: Record<string, string> = {
   AVGO: 'Broadcom',
   MRVL: 'Marvell',
   TSM: 'TSMC',
-  ANET: 'Arista Networks',
+  ANET: 'Arista',
   CIEN: 'Ciena',
   LITE: 'Lumentum',
   COHR: 'Coherent',
   CSCO: 'Cisco',
-  SMCI: 'Super Micro Computer',
-  DELL: 'Dell Technologies',
-  HPE: 'Hewlett Packard Enterprise',
+  SMCI: 'Supermicro',
+  DELL: 'Dell',
+  HPE: 'HPE',
   PSTG: 'Pure Storage',
   AMAT: 'Applied Materials',
   LRCX: 'Lam Research',
@@ -81,46 +83,46 @@ const symbolNames: Record<string, string> = {
   ETN: 'Eaton',
   NVT: 'nVent',
   HUBB: 'Hubbell',
-  PWR: 'Quanta Services',
-  TT: 'Trane Technologies',
+  PWR: 'Quanta',
+  TT: 'Trane',
 }
 
 const chainDefs: ChainDef[] = [
   {
     title: 'GPU / AI 芯片',
     symbols: ['NVDA', 'AMD', 'AVGO', 'MRVL', 'TSM'],
-    desc: '主线风险偏好温度计。先看龙头是否领涨，再看链内是否扩散。',
-    signal: '先看 NVDA 是否带动 AVGO / MRVL / TSM 同步转强。',
+    desc: '主线强度核心温度计。',
+    signal: '先看 NVDA 是否带动 AVGO / MRVL / TSM 同步走强。',
   },
   {
     title: '网络 / 光通信',
     symbols: ['ANET', 'CIEN', 'LITE', 'COHR', 'CSCO'],
-    desc: 'Scale-out 扩散链。常在 GPU 之后承接资金，决定主线宽度。',
-    signal: 'ANET 是否持续跑赢 NVDA，是关键背离信号。',
+    desc: 'GPU 之后最容易承接扩散的链。',
+    signal: 'ANET 能否持续强于大盘，是扩散质量的关键。',
   },
   {
     title: '服务器 / 存储基础设施',
     symbols: ['SMCI', 'DELL', 'HPE', 'PSTG'],
-    desc: '验证硬件 CapEx 是否还在继续外溢。',
-    signal: '如果 GPU 强而服务器弱，说明市场只在交易龙头，不在交易广度。',
+    desc: '看硬件 CapEx 是否继续外溢。',
+    signal: 'GPU 强而服务器弱，通常代表主线偏龙头抱团。',
   },
   {
     title: '半导体设备 / 制造',
     symbols: ['AMAT', 'LRCX', 'KLAC', 'ASML', 'TER'],
-    desc: '中周期验证链，判断资本开支是否真的向制造端传导。',
-    signal: '设备链转强，往往意味着主线从情绪走向更扎实的中期逻辑。',
+    desc: '中周期验证链。',
+    signal: '设备链回暖，说明情绪开始向更扎实的制造逻辑传导。',
   },
   {
     title: '存储 / 封装',
     symbols: ['MU', 'WDC', 'AMKR', 'UMC'],
-    desc: '看训练与推理扩容是否往 memory / packaging 传导。',
-    signal: 'MU 是否带动存储链回暖，是判断需求扩散的重要观察点。',
+    desc: '看训练和推理需求是否继续扩容。',
+    signal: 'MU 带不带得动链内，是需求扩散的重要观察点。',
   },
   {
     title: '电力 / 散热 / 供电',
     symbols: ['VRT', 'ETN', 'NVT', 'HUBB', 'PWR', 'TT'],
-    desc: 'AI Infra 的确定性补链，经常承担第二波逻辑。',
-    signal: '硬件回调时若电力链抗跌，说明市场仍在交易基础设施确定性。',
+    desc: 'AI Infra 的确定性补链。',
+    signal: '硬件回调时若电力链抗跌，说明基础设施逻辑还在。',
   },
 ]
 
@@ -193,6 +195,8 @@ function toTickerPoint(params: {
     closes: closes.slice(-10),
     currency: quote?.currency || 'USD',
     source,
+    sourceConfidence: source === 'Yahoo Finance' ? 'high' : 'medium',
+    freshness: source === 'Yahoo Finance' ? 'live-ish' : 'delayed-fallback',
     volume: quote?.regularMarketVolume,
     avgVolume: quote?.averageDailyVolume3Month,
     marketCap: quote?.marketCap,
@@ -205,13 +209,10 @@ function toTickerPoint(params: {
 
 async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
   try {
-    const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`,
-      {
-        headers: { 'user-agent': 'Mozilla/5.0' },
-        next: { revalidate: 1800 },
-      },
-    )
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, {
+      headers: { 'user-agent': 'Mozilla/5.0' },
+      next: { revalidate: 1800 },
+    })
     if (!res.ok) return null
 
     const json = await res.json()
@@ -328,13 +329,13 @@ function getFlowNarrative(chains: ChainData[]) {
   const strongest = chains[0]
   const second = chains[1]
   const weakest = chains[chains.length - 1]
-  return `今天资金更偏向 ${strongest.title}，其次是 ${second.title}；${weakest.title} 明显偏弱，说明主线扩散还不均匀。`
+  return `资金更偏向 ${strongest.title}，其次是 ${second.title}；${weakest.title} 偏弱，说明扩散还不均匀。`
 }
 
 function Sparkline({ values }: { values: number[] }) {
   if (!values.length) return null
-  const width = 140
-  const height = 42
+  const width = 108
+  const height = 28
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
@@ -349,25 +350,43 @@ function Sparkline({ values }: { values: number[] }) {
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
-      <polyline fill="none" stroke={up ? '#9FE870' : '#F87171'} strokeWidth="2.4" points={points} strokeLinecap="round" strokeLinejoin="round" />
+      <polyline fill="none" stroke={up ? '#8B7CF6' : '#F87171'} strokeWidth="2" points={points} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function cardStyle(alpha = 0.04): React.CSSProperties {
-  return {
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 24,
-    padding: 22,
-    background: `rgba(255,255,255,${alpha})`,
-    backdropFilter: 'blur(12px)',
-  }
+function getRoleTone(role: 'Leader' | 'Follower' | 'Laggard') {
+  if (role === 'Leader') return { fg: '#6D5EF5', bg: 'rgba(109,94,245,0.10)' }
+  if (role === 'Laggard') return { fg: '#D94F70', bg: 'rgba(217,79,112,0.10)' }
+  return { fg: '#667085', bg: 'rgba(102,112,133,0.10)' }
 }
 
-function getPointRole(index: number, total: number) {
+function getConfidenceTone(level: 'high' | 'medium') {
+  return level === 'high'
+    ? { label: 'Primary', fg: '#6D5EF5', bg: 'rgba(109,94,245,0.10)' }
+    : { label: 'Fallback', fg: '#9A6B00', bg: 'rgba(217,166,0,0.10)' }
+}
+
+function getFreshnessTone(level: 'live-ish' | 'delayed-fallback') {
+  return level === 'live-ish'
+    ? { label: 'Live-ish', fg: '#027A48', bg: 'rgba(18,183,106,0.10)' }
+    : { label: 'Delayed', fg: '#B54708', bg: 'rgba(247,144,9,0.10)' }
+}
+
+function getPointRole(index: number, total: number): 'Leader' | 'Follower' | 'Laggard' {
   if (index === 0) return 'Leader'
   if (index === total - 1) return 'Laggard'
   return 'Follower'
+}
+
+function metricCardStyle(): React.CSSProperties {
+  return {
+    borderRadius: 20,
+    border: '1px solid #EAECF0',
+    background: '#FFFFFF',
+    padding: 18,
+    boxShadow: '0 1px 2px rgba(16,24,40,0.04)',
+  }
 }
 
 export default async function AiSupplyChainUsPage() {
@@ -392,216 +411,177 @@ export default async function AiSupplyChainUsPage() {
   const allPoints = [...chains.flatMap((chain) => chain.points)]
   const bestTicker = [...allPoints].sort((a, b) => b.dayChangePct - a.dayChangePct)[0]
   const lastUpdated = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC'
-  const flowNarrative = chains.length >= 3 ? getFlowNarrative(chains) : '公开行情已接入，后续可继续补更强的数据源。'
-  const sourceSummary = Array.from(new Set(allPoints.map((point) => point.source)))
+  const flowNarrative = chains.length >= 3 ? getFlowNarrative(chains) : '公开行情已接入，后续可继续补更强数据源。'
+  const primaryCount = allPoints.filter((point) => point.sourceConfidence === 'high').length
+  const fallbackCount = allPoints.filter((point) => point.sourceConfidence === 'medium').length
   const coverage = `${allPoints.length}/${uniqueSymbols.length}`
 
   return (
     <main
       style={{
         minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top, rgba(158, 116, 255, 0.18), transparent 28%), linear-gradient(180deg, #0b1020 0%, #0f172a 45%, #111827 100%)',
-        color: '#f5f7fb',
+        background: '#F8F8FC',
+        color: '#101828',
       }}
     >
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '56px 24px 80px' }}>
-        <section style={{ marginBottom: 34 }}>
-          <div
-            style={{
-              display: 'inline-block',
-              padding: '8px 14px',
-              borderRadius: 999,
-              background: 'rgba(200, 162, 200, 0.16)',
-              color: '#e9d5ff',
-              fontSize: 13,
-              letterSpacing: '0.06em',
-            }}
-          >
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '36px 20px 72px' }}>
+        <section style={{ marginBottom: 28 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 999, background: '#FFFFFF', border: '1px solid #EAECF0', color: '#6D5EF5', fontSize: 12, fontWeight: 600 }}>
             SELF PAGE · LIVE MARKET VERSION
           </div>
-          <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 4.2rem)', lineHeight: 1.02, margin: '18px 0 14px', fontWeight: 700 }}>
-            US AI Supply Chain
-            <br />
-            Decision Board
-          </h1>
-          <p style={{ maxWidth: 920, fontSize: 18, lineHeight: 1.7, color: 'rgba(245,247,251,0.76)', margin: 0 }}>
-            这版补成了更完整的看盘板：不仅看日内和 5 日强弱，还补了 YTD、成交量、平均成交量、市值、52 周区间，以及盘前 / 盘后价格。
-          </p>
-          <div style={{ marginTop: 12, color: 'rgba(245,247,251,0.54)', fontSize: 14 }}>Last updated: {lastUpdated}</div>
-          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {sourceSummary.map((source) => (
-              <span
-                key={source}
-                style={{
-                  padding: '6px 10px',
-                  borderRadius: 999,
-                  fontSize: 12,
-                  color: '#dbeafe',
-                  background: 'rgba(147, 197, 253, 0.12)',
-                  border: '1px solid rgba(147, 197, 253, 0.18)',
-                }}
-              >
-                Source: {source}
-              </span>
-            ))}
-            <span style={{ padding: '6px 10px', borderRadius: 999, fontSize: 12, color: '#ede9fe', background: 'rgba(196, 181, 253, 0.12)', border: '1px solid rgba(196, 181, 253, 0.18)' }}>
-              Coverage: {coverage}
-            </span>
-            <span style={{ padding: '6px 10px', borderRadius: 999, fontSize: 12, color: '#ede9fe', background: 'rgba(196, 181, 253, 0.12)', border: '1px solid rgba(196, 181, 253, 0.18)' }}>
-              Fallback enabled
-            </span>
-          </div>
-        </section>
-
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 18 }}>
-          {[
-            ["Today's State", marketState, flowNarrative],
-            ['Strongest Chain', strongestChain?.title || 'N/A', strongestChain ? `日内 ${formatPct(strongestChain.avgDayChangePct)} · 5日 ${formatPct(strongestChain.avgFiveDayChangePct)}` : '暂无数据'],
-            ['Weakest Chain', weakestChain?.title || 'N/A', weakestChain ? `日内 ${formatPct(weakestChain.avgDayChangePct)} · 5日 ${formatPct(weakestChain.avgFiveDayChangePct)}` : '暂无数据'],
-            ["Today's Leader", bestTicker?.symbol || 'N/A', bestTicker ? `${formatPrice(bestTicker.price)} · ${formatPct(bestTicker.dayChangePct)}` : '暂无数据'],
-            ["Today's Move", getActionLabel(boardScore), '先看最强链能否继续扩散，再决定追随还是等待确认。'],
-          ].map(([eyebrow, title, body]) => (
-            <div key={String(eyebrow)} style={cardStyle()}>
-              <div style={{ color: '#c8a2c8', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>{eyebrow}</div>
-              <div style={{ fontSize: 24, fontWeight: 600, marginBottom: 10 }}>{title}</div>
-              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.65 }}>{body}</div>
-            </div>
-          ))}
-        </section>
-
-        <section style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 28, padding: 28, background: 'rgba(17,24,39,0.5)', marginBottom: 28 }}>
-          <div style={{ fontSize: 14, color: '#c8a2c8', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Flow proxy</div>
-          <h2 style={{ fontSize: 30, lineHeight: 1.15, margin: '0 0 12px' }}>不是逐笔资金流，但已经更接近真实看盘</h2>
-          <p style={{ maxWidth: 960, lineHeight: 1.8, color: 'rgba(245,247,251,0.76)', margin: 0 }}>
-            我现在用的是公开行情做代理判断：链内平均涨跌、5 日相对强弱、YTD 位置、上涨家数占比、龙头是否同步扩散，以及量能和市值信息。它不等于专业 terminal 的订单流，但已经足够判断“钱在往哪条链集中”。
-          </p>
-        </section>
-
-        <section style={{ marginBottom: 34 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'end', marginBottom: 16, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 280px', gap: 16, alignItems: 'start' }}>
             <div>
-              <div style={{ color: '#c8a2c8', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Six-chain live board</div>
-              <h2 style={{ fontSize: 30, margin: 0 }}>Real market structure</h2>
+              <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.6rem)', lineHeight: 1.02, margin: '0 0 12px', fontWeight: 700, letterSpacing: '-0.04em' }}>
+                US AI Supply Chain Decision Board
+              </h1>
+              <p style={{ maxWidth: 820, fontSize: 16, lineHeight: 1.75, color: '#475467', margin: 0 }}>
+                这版已经不是静态展示页，而是直接抓取公开美股行情，压缩成主线强弱、龙头联动和“资金流向代理”判断。现在我把它收成了更简洁的一版，同时补了 source confidence / freshness。
+              </p>
             </div>
-            <div style={{ color: 'rgba(245,247,251,0.68)', maxWidth: 500, lineHeight: 1.65 }}>
-              每条链都补了更多 ticker 和更多指标，现在不只是看涨跌，而是在看主线深度、广度和成交承接。
+            <div style={{ ...metricCardStyle(), padding: 16 }}>
+              <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>Last updated</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{lastUpdated}</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <Badge label={`Coverage ${coverage}`} fg="#6941C6" bg="rgba(109,65,198,0.10)" />
+                <Badge label={`Primary ${primaryCount}`} fg="#027A48" bg="rgba(18,183,106,0.10)" />
+                <Badge label={`Fallback ${fallbackCount}`} fg="#B54708" bg="rgba(247,144,9,0.10)" />
+              </div>
             </div>
           </div>
+        </section>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 16 }}>
-            {chains.map((chain) => {
-              const rankedPoints = [...chain.points].sort((a, b) => b.dayChangePct - a.dayChangePct)
-              return (
-                <article key={chain.title} style={cardStyle()}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'start', marginBottom: 14 }}>
-                    <div>
-                      <h3 style={{ fontSize: 22, margin: '0 0 8px' }}>{chain.title}</h3>
-                      <div style={{ color: '#e9d5ff', fontWeight: 600, marginBottom: 10 }}>{chain.symbols.join(' · ')}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 13, color: '#c8a2c8', marginBottom: 6 }}>Chain score</div>
-                      <div style={{ fontSize: 22, fontWeight: 700, color: chain.score >= 0 ? '#9FE870' : '#F87171' }}>{chain.score.toFixed(1)}</div>
-                    </div>
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 12, marginBottom: 14 }}>
+          <SummaryCard title="State" value={marketState} note={flowNarrative} />
+          <SummaryCard title="Strongest" value={strongestChain?.title || 'N/A'} note={strongestChain ? `日内 ${formatPct(strongestChain.avgDayChangePct)}` : '暂无数据'} />
+          <SummaryCard title="Weakest" value={weakestChain?.title || 'N/A'} note={weakestChain ? `日内 ${formatPct(weakestChain.avgDayChangePct)}` : '暂无数据'} />
+          <SummaryCard title="Action" value={getActionLabel(boardScore)} note={bestTicker ? `${bestTicker.symbol} ${formatPct(bestTicker.dayChangePct)}` : '暂无数据'} />
+        </section>
+
+        <section style={{ ...metricCardStyle(), marginBottom: 16, padding: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'start' }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#667085', marginBottom: 6 }}>Flow proxy</div>
+              <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>更像一个能用的盘面总览，而不是信息墙</div>
+              <div style={{ maxWidth: 860, color: '#475467', lineHeight: 1.7 }}>
+                我现在把公开行情源分成主源和 fallback，并明确标注 freshness。这样你一眼就能知道：这是实时近似数据，还是只是保证不断流的延迟替代数据。
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <Badge label="Yahoo = high confidence" fg="#6D5EF5" bg="rgba(109,94,245,0.10)" />
+              <Badge label="Stooq = fallback" fg="#B54708" bg="rgba(247,144,9,0.10)" />
+            </div>
+          </div>
+        </section>
+
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
+          {chains.map((chain) => {
+            const rankedPoints = [...chain.points].sort((a, b) => b.dayChangePct - a.dayChangePct)
+            return (
+              <article key={chain.title} style={{ ...metricCardStyle(), padding: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'start', marginBottom: 14 }}>
+                  <div>
+                    <h2 style={{ fontSize: 20, lineHeight: 1.2, margin: '0 0 6px' }}>{chain.title}</h2>
+                    <div style={{ color: '#667085', fontSize: 14 }}>{chain.desc}</div>
                   </div>
-
-                  <p style={{ margin: '0 0 12px', color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>{chain.desc}</p>
-                  <div style={{ color: '#cbd5e1', lineHeight: 1.65, fontSize: 15, marginBottom: 16 }}>观察点：{chain.signal}</div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 10, marginBottom: 14 }}>
-                    <Metric label="日内均值" value={formatPct(chain.avgDayChangePct)} positive={chain.avgDayChangePct >= 0} />
-                    <Metric label="5日均值" value={formatPct(chain.avgFiveDayChangePct)} positive={chain.avgFiveDayChangePct >= 0} />
-                    <Metric label="链内广度" value={`${Math.round(chain.breadth * 100)}%`} positive={chain.breadth >= 0.5} />
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 12, color: '#667085', marginBottom: 4 }}>Score</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: chain.score >= 0 ? '#6D5EF5' : '#D94F70' }}>{chain.score.toFixed(1)}</div>
                   </div>
+                </div>
 
-                  <div style={{ display: 'grid', gap: 10 }}>
-                    {rankedPoints.map((point, index) => {
-                      const role = getPointRole(index, rankedPoints.length)
-                      return (
-                        <div
-                          key={point.symbol}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '100px 1fr auto',
-                            gap: 12,
-                            alignItems: 'center',
-                            padding: '12px 14px',
-                            borderRadius: 16,
-                            background: 'rgba(255,255,255,0.03)',
-                          }}
-                        >
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10, marginBottom: 14 }}>
+                  <MiniMetric label="日内" value={formatPct(chain.avgDayChangePct)} positive={chain.avgDayChangePct >= 0} />
+                  <MiniMetric label="5日" value={formatPct(chain.avgFiveDayChangePct)} positive={chain.avgFiveDayChangePct >= 0} />
+                  <MiniMetric label="Breadth" value={`${Math.round(chain.breadth * 100)}%`} positive={chain.breadth >= 0.5} />
+                </div>
+
+                <div style={{ color: '#475467', fontSize: 13, lineHeight: 1.65, marginBottom: 14 }}>观察点：{chain.signal}</div>
+
+                <div style={{ display: 'grid', gap: 10 }}>
+                  {rankedPoints.map((point, index) => {
+                    const role = getPointRole(index, rankedPoints.length)
+                    const roleTone = getRoleTone(role)
+                    const confidenceTone = getConfidenceTone(point.sourceConfidence)
+                    const freshnessTone = getFreshnessTone(point.freshness)
+                    return (
+                      <div key={point.symbol} style={{ borderRadius: 16, border: '1px solid #F2F4F7', background: '#FCFCFD', padding: 14 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '110px minmax(0,1fr) auto', gap: 12, alignItems: 'center' }}>
                           <div>
-                            <div style={{ fontWeight: 700 }}>{point.symbol}</div>
-                            <div style={{ fontSize: 11, color: role === 'Leader' ? '#9FE870' : role === 'Laggard' ? '#FCA5A5' : 'rgba(245,247,251,0.54)' }}>{role}</div>
+                            <div style={{ fontSize: 16, fontWeight: 700 }}>{point.symbol}</div>
+                            <div style={{ fontSize: 12, color: '#667085', marginTop: 2 }}>{point.shortName}</div>
                           </div>
                           <div>
                             <Sparkline values={point.closes} />
-                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', fontSize: 11, color: 'rgba(245,247,251,0.54)', marginTop: 6 }}>
-                              <span>MCap {formatLargeNumber(point.marketCap)}</span>
-                              <span>Vol {formatLargeNumber(point.volume)}</span>
-                              <span>AvgVol {formatLargeNumber(point.avgVolume)}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', fontSize: 11, color: 'rgba(245,247,251,0.54)', marginTop: 4 }}>
-                              <span>YTD {formatPct(point.ytdChangePct)}</span>
-                              <span>52W {formatPrice(point.week52Low)}–{formatPrice(point.week52High)}</span>
-                              {(point.preMarketPrice || point.postMarketPrice) ? <span>Ext {formatPrice(point.preMarketPrice || point.postMarketPrice)}</span> : null}
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                              <Badge label={role} fg={roleTone.fg} bg={roleTone.bg} />
+                              <Badge label={confidenceTone.label} fg={confidenceTone.fg} bg={confidenceTone.bg} />
+                              <Badge label={freshnessTone.label} fg={freshnessTone.fg} bg={freshnessTone.bg} />
                             </div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: 700 }}>{formatPrice(point.price)}</div>
-                            <div style={{ color: point.dayChangePct >= 0 ? '#9FE870' : '#F87171', fontWeight: 700 }}>{formatPct(point.dayChangePct)}</div>
-                            <div style={{ fontSize: 12, color: 'rgba(245,247,251,0.54)' }}>5D {formatPct(point.fiveDayChangePct)}</div>
-                            <div style={{ fontSize: 11, color: 'rgba(245,247,251,0.4)', marginTop: 2 }}>{point.source}</div>
+                            <div style={{ fontSize: 17, fontWeight: 700 }}>{formatPrice(point.price)}</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: point.dayChangePct >= 0 ? '#027A48' : '#D92D20' }}>{formatPct(point.dayChangePct)}</div>
+                            <div style={{ fontSize: 12, color: '#667085', marginTop: 2 }}>5D {formatPct(point.fiveDayChangePct)}</div>
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </section>
 
-        <section style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 28, padding: 28, background: 'rgba(255,255,255,0.03)' }}>
-          <div style={{ color: '#c8a2c8', fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Data source / methodology</div>
-          <h2 style={{ fontSize: 28, lineHeight: 1.15, margin: '0 0 14px' }}>公开把来源和判断逻辑写清楚</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
-            <div style={cardStyle(0.02)}>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Primary source</div>
-              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>Yahoo Finance quote + chart API：优先抓取实时报价、1 年日线、量能、市值、52 周区间和盘前 / 盘后价格。</div>
-            </div>
-            <div style={cardStyle(0.02)}>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Fallback source</div>
-              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>当 Yahoo 不可用时，自动退回 Stooq 日线 CSV，保证页面不因单一数据源失效而整块空掉。</div>
-            </div>
-            <div style={cardStyle(0.02)}>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>What this board measures</div>
-              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>指标包括最新价、昨收、当日涨跌幅、5 日涨跌幅、YTD、链内上涨家数占比、成交量、平均成交量，以及按链条聚合后的 breadth / score。</div>
-            </div>
-            <div style={cardStyle(0.02)}>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Important limitation</div>
-              <div style={{ color: 'rgba(245,247,251,0.72)', lineHeight: 1.7 }}>这里的“资金流向”仍然是价格行为代理，不是 Bloomberg / FactSet 级别的逐笔资金流或机构订单流数据。</div>
-            </div>
-          </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 8, marginTop: 12 }}>
+                          <DataChip label="YTD" value={formatPct(point.ytdChangePct)} />
+                          <DataChip label="Vol" value={formatLargeNumber(point.volume)} />
+                          <DataChip label="MCap" value={formatLargeNumber(point.marketCap)} />
+                          <DataChip label="52W" value={`${formatPrice(point.week52Low)}–${formatPrice(point.week52High)}`} />
+                        </div>
+
+                        {(point.preMarketPrice || point.postMarketPrice) ? (
+                          <div style={{ marginTop: 10, fontSize: 12, color: '#667085' }}>
+                            Ext hours: {formatPrice(point.preMarketPrice || point.postMarketPrice)}
+                          </div>
+                        ) : null}
+                      </div>
+                    )
+                  })}
+                </div>
+              </article>
+            )
+          })}
         </section>
       </div>
     </main>
   )
 }
 
-function Metric({ label, value, positive }: { label: string; value: string; positive: boolean }) {
+function SummaryCard({ title, value, note }: { title: string; value: string; note: string }) {
   return (
-    <div
-      style={{
-        borderRadius: 16,
-        padding: '12px 14px',
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.05)',
-      }}
-    >
-      <div style={{ fontSize: 12, color: 'rgba(245,247,251,0.56)', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 700, color: positive ? '#9FE870' : '#F87171' }}>{value}</div>
+    <div style={metricCardStyle()}>
+      <div style={{ fontSize: 12, color: '#667085', marginBottom: 8 }}>{title}</div>
+      <div style={{ fontSize: 20, lineHeight: 1.2, fontWeight: 700, marginBottom: 8 }}>{value}</div>
+      <div style={{ fontSize: 13, color: '#475467', lineHeight: 1.6 }}>{note}</div>
     </div>
+  )
+}
+
+function MiniMetric({ label, value, positive }: { label: string; value: string; positive: boolean }) {
+  return (
+    <div style={{ borderRadius: 14, background: '#F9FAFB', border: '1px solid #F2F4F7', padding: '12px 12px 10px' }}>
+      <div style={{ fontSize: 11, color: '#667085', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 17, fontWeight: 700, color: positive ? '#027A48' : '#D92D20' }}>{value}</div>
+    </div>
+  )
+}
+
+function DataChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ borderRadius: 12, background: '#FFFFFF', border: '1px solid #EAECF0', padding: '9px 10px' }}>
+      <div style={{ fontSize: 10, color: '#667085', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#101828', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</div>
+    </div>
+  )
+}
+
+function Badge({ label, fg, bg }: { label: string; fg: string; bg: string }) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '5px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600, color: fg, background: bg }}>
+      {label}
+    </span>
   )
 }
