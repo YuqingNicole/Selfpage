@@ -103,4 +103,10 @@ export const readings: Reading[] = [
     url: 'https://mp.weixin.qq.com/s/W6_fwHy2DqocOEXv0-WQwQ',
     description: '关于 AI 时代底层工作方式的闭门会分享，聚焦人在新工具环境中的工作方法与认知更新。',
   },
+  {
+    title: 'Vibe Design Playbook',
+    author: 'Alibaba Cloud Design',
+    url: 'https://alibaba-cloud-design.github.io/vibe-designing-playbook/',
+    description: '一份关于 Vibe Designing 的实战手册，聚焦如何把设计意图、协作方式与 AI 时代的新工作流结合起来。',
+  },
 ];
