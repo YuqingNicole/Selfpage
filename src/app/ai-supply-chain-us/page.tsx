@@ -20,7 +20,7 @@ const regimeTones: Record<string, { fg: string; bg: string }> = {
 }
 
 export default async function AiSupplyChainUsPage() {
-  const [{ chains, allPoints, benchmarks, baseline, conclusion, tradingDate, lastUpdated, coverage }, snapshots, signalTrack] = await Promise.all([
+  const [{ chains, allPoints, benchmarks, baseline, conclusion, tradingDate, missingSymbols, lastUpdated, coverage }, snapshots, signalTrack] = await Promise.all([
     fetchBoardData(),
     fetchRecentBoardSnapshots(14),
     fetchSignalTrack(),
@@ -55,6 +55,11 @@ export default async function AiSupplyChainUsPage() {
                 {badge(`Fallback ${fallbackCount}`, '#B54708', 'rgba(247,144,9,0.10)')}
                 {tradingDate && badge(`交易日 ${tradingDate}`, '#6D5EF5', 'rgba(109,94,245,0.10)')}
               </div>
+              {missingSymbols.length > 0 && (
+                <div style={{ fontSize: 11, color: '#D92D20', marginTop: 10, lineHeight: 1.6 }}>
+                  数据缺失：{missingSymbols.join('、')}（两个数据源均未返回，相关链指标按剩余成分计算）
+                </div>
+              )}
             </div>
           </div>
         </section>

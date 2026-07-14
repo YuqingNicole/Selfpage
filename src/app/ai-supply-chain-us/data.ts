@@ -17,16 +17,63 @@ import {
 
 export * from './shared'
 
-async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMeta>> {
+const YAHOO_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
+
+// Yahoo v7 quote 接口自 2023 年起要求 cookie + crumb，裸调用返回 401。
+// 这里做一次性的鉴权握手并在进程内缓存 1 小时。
+let yahooAuthCache: { cookie: string; crumb: string; ts: number } | null = null
+
+async function getYahooAuth(): Promise<{ cookie: string; crumb: string } | null> {
+  if (yahooAuthCache && Date.now() - yahooAuthCache.ts < 3600_000) return yahooAuthCache
   try {
-    const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`, {
-      headers: { 'user-agent': 'Mozilla/5.0' },
-      next: { revalidate: 1800 },
+    const cookieRes = await fetch('https://fc.yahoo.com/', {
+      headers: { 'user-agent': YAHOO_UA },
+      redirect: 'manual',
+      cache: 'no-store',
     })
-    if (!res.ok) return new Map()
+    const cookie = cookieRes.headers.get('set-cookie')?.split(';')[0]
+    if (!cookie) return null
+    const crumbRes = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', {
+      headers: { 'user-agent': YAHOO_UA, cookie },
+      cache: 'no-store',
+    })
+    if (!crumbRes.ok) return null
+    const crumb = (await crumbRes.text()).trim()
+    if (!crumb || crumb.includes('<')) return null
+    yahooAuthCache = { cookie, crumb, ts: Date.now() }
+    return yahooAuthCache
+  } catch {
+    return null
+  }
+}
+
+async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMeta>> {
+  const parse = async (res: Response) => {
+    if (!res.ok) return null
     const json = await res.json()
     const list = (json?.quoteResponse?.result ?? []) as QuoteMeta[]
-    return new Map(list.map((item) => [item.symbol, item]))
+    return list.length ? new Map(list.map((item) => [item.symbol, item])) : null
+  }
+
+  try {
+    const plain = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`, {
+      headers: { 'user-agent': YAHOO_UA },
+      next: { revalidate: 1800 },
+    })
+    const plainMap = await parse(plain).catch(() => null)
+    if (plainMap) return plainMap
+  } catch {
+    // fall through to crumb-authenticated attempt
+  }
+
+  try {
+    const auth = await getYahooAuth()
+    if (!auth) return new Map()
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}&crumb=${encodeURIComponent(auth.crumb)}`,
+      { headers: { 'user-agent': YAHOO_UA, cookie: auth.cookie }, cache: 'no-store' },
+    )
+    return (await parse(res).catch(() => null)) ?? new Map()
   } catch {
     return new Map()
   }
@@ -51,20 +98,31 @@ function calculateYtdChange(closes: number[], timestamps: number[]) {
   return ((latest - base) / base) * 100
 }
 
+type ChartMeta = {
+  shortName?: string
+  volume?: number
+  week52High?: number
+  week52Low?: number
+  price?: number
+  previousClose?: number
+}
+
 function toTickerPoint(params: {
   symbol: string
   closes: number[]
   timestamps: number[]
+  volumes?: number[]
+  chartMeta?: ChartMeta
   quote?: QuoteMeta
   source: 'Yahoo Finance' | 'Stooq'
 }): TickerPoint | null {
-  const { symbol, closes, timestamps, quote, source } = params
+  const { symbol, closes, timestamps, volumes = [], chartMeta, quote, source } = params
   if (closes.length < 6) return null
 
   const inferredPrice = closes[closes.length - 1]
   const inferredPrev = closes[closes.length - 2]
-  const price = Number(quote?.regularMarketPrice ?? inferredPrice ?? 0)
-  const previousClose = Number(quote?.regularMarketPreviousClose ?? inferredPrev ?? 0)
+  const price = Number(quote?.regularMarketPrice ?? chartMeta?.price ?? inferredPrice ?? 0)
+  const previousClose = Number(quote?.regularMarketPreviousClose ?? chartMeta?.previousClose ?? inferredPrev ?? 0)
   if (!price || !previousClose) return null
 
   const fiveDayBase = closes[Math.max(0, closes.length - 6)] ?? previousClose
@@ -74,9 +132,15 @@ function toTickerPoint(params: {
     return current > lastFive[index - 1] ? acc + 1 : acc
   }, 0)
 
+  // 报价接口失败时，成交量 / 均量 / 52 周区间从日线序列自算，保证字段不缺。
+  const yearCloses = closes.slice(-252)
+  const lastVolume = volumes.length ? volumes[volumes.length - 1] : undefined
+  const quarterVolumes = volumes.slice(-63).filter((value) => Number.isFinite(value) && value > 0)
+  const derivedAvgVolume = quarterVolumes.length >= 20 ? Math.round(quarterVolumes.reduce((a, b) => a + b, 0) / quarterVolumes.length) : undefined
+
   return {
     symbol,
-    shortName: quote?.shortName || symbolNames[symbol] || symbol,
+    shortName: quote?.shortName || chartMeta?.shortName || symbolNames[symbol] || symbol,
     price,
     previousClose,
     dayChangePct: ((price - previousClose) / previousClose) * 100,
@@ -90,11 +154,11 @@ function toTickerPoint(params: {
     source,
     sourceConfidence: source === 'Yahoo Finance' ? 'high' : 'medium',
     freshness: source === 'Yahoo Finance' ? 'live-ish' : 'delayed-fallback',
-    volume: quote?.regularMarketVolume,
-    avgVolume: quote?.averageDailyVolume3Month,
+    volume: quote?.regularMarketVolume ?? chartMeta?.volume ?? lastVolume,
+    avgVolume: quote?.averageDailyVolume3Month ?? derivedAvgVolume,
     marketCap: quote?.marketCap,
-    week52High: quote?.fiftyTwoWeekHigh,
-    week52Low: quote?.fiftyTwoWeekLow,
+    week52High: quote?.fiftyTwoWeekHigh ?? chartMeta?.week52High ?? (yearCloses.length >= 60 ? Math.max(...yearCloses) : undefined),
+    week52Low: quote?.fiftyTwoWeekLow ?? chartMeta?.week52Low ?? (yearCloses.length >= 60 ? Math.min(...yearCloses) : undefined),
     preMarketPrice: quote?.preMarketPrice,
     postMarketPrice: quote?.postMarketPrice,
   }
@@ -103,15 +167,17 @@ function toTickerPoint(params: {
 async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
   try {
     const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, {
-      headers: { 'user-agent': 'Mozilla/5.0' },
+      headers: { 'user-agent': YAHOO_UA },
       next: { revalidate: 1800 },
     })
     if (!res.ok) return null
     const json = await res.json()
     const result = json?.chart?.result?.[0]
     const closesRaw = result?.indicators?.quote?.[0]?.close ?? []
+    const volumesRaw = result?.indicators?.quote?.[0]?.volume ?? []
     const timestampsRaw = result?.timestamp ?? []
     const closes: number[] = []
+    const volumes: number[] = []
     const timestamps: number[] = []
 
     closesRaw.forEach((value: unknown, index: number) => {
@@ -119,11 +185,24 @@ async function fetchYahooTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
       const ts = Number(timestampsRaw[index])
       if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
         closes.push(close)
+        volumes.push(Number(volumesRaw[index]) || 0)
         timestamps.push(ts)
       }
     })
 
-    return toTickerPoint({ symbol, closes, timestamps, quote: quoteMap.get(symbol), source: 'Yahoo Finance' })
+    // chart 接口的 meta 无需鉴权，即使 quote 接口失效也能补上名称 / 现价 / 52 周区间。
+    const meta = result?.meta ?? {}
+    const chartMeta: ChartMeta = {
+      shortName: meta.shortName || meta.longName,
+      volume: Number(meta.regularMarketVolume) || undefined,
+      week52High: Number(meta.fiftyTwoWeekHigh) || undefined,
+      week52Low: Number(meta.fiftyTwoWeekLow) || undefined,
+      price: Number(meta.regularMarketPrice) || undefined,
+      // 注意：meta.chartPreviousClose 是图表范围起点的前收盘（一年前），不能当昨收用。
+      previousClose: Number(meta.previousClose) || undefined,
+    }
+
+    return toTickerPoint({ symbol, closes, timestamps, volumes, chartMeta, quote: quoteMap.get(symbol), source: 'Yahoo Finance' })
   } catch {
     return null
   }
@@ -141,6 +220,7 @@ async function fetchStooqTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
 
     const rows = lines.slice(1).map((line) => line.split(','))
     const closes: number[] = []
+    const volumes: number[] = []
     const timestamps: number[] = []
 
     rows.forEach((cols) => {
@@ -149,11 +229,12 @@ async function fetchStooqTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
       const ts = Date.parse(`${date}T00:00:00Z`)
       if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
         closes.push(close)
+        volumes.push(Number(cols[5]) || 0)
         timestamps.push(Math.floor(ts / 1000))
       }
     })
 
-    return toTickerPoint({ symbol, closes, timestamps, quote: quoteMap.get(symbol), source: 'Stooq' })
+    return toTickerPoint({ symbol, closes, timestamps, volumes, quote: quoteMap.get(symbol), source: 'Stooq' })
   } catch {
     return null
   }
@@ -415,6 +496,7 @@ export async function fetchBoardData() {
 
   const allPoints = chains.flatMap((chain) => chain.points)
   const coverage = `${allPoints.length}/${uniqueSymbols.length}`
+  const missingSymbols = allSymbols.filter((symbol) => !tickerMap.has(symbol))
   // 交易日以 QQQ 最后一根日线为准，深夜/周末渲染也会归到正确的交易日。
   const tradingDate =
     baseline?.lastCloseDate ??
@@ -430,6 +512,7 @@ export async function fetchBoardData() {
     baseline,
     conclusion,
     tradingDate,
+    missingSymbols,
     lastUpdated: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
     coverage,
   }
