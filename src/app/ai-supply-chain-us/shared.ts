@@ -28,7 +28,7 @@ export type TickerPoint = {
   closes: number[]
   currency: string
   lastCloseDate: string
-  source: 'Yahoo Finance' | 'Stooq'
+  source: 'Yahoo Finance' | 'Stooq' | 'Tencent'
   sourceConfidence: 'high' | 'medium'
   freshness: 'live-ish' | 'delayed-fallback'
   volume?: number
