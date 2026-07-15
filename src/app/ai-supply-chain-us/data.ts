@@ -30,12 +30,14 @@ async function getYahooAuth(): Promise<{ cookie: string; crumb: string } | null>
       headers: { 'user-agent': YAHOO_UA },
       redirect: 'manual',
       cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
     })
     const cookie = cookieRes.headers.get('set-cookie')?.split(';')[0]
     if (!cookie) return null
     const crumbRes = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', {
       headers: { 'user-agent': YAHOO_UA, cookie },
       cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
     })
     if (!crumbRes.ok) return null
     const crumb = (await crumbRes.text()).trim()
@@ -59,6 +61,7 @@ async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMet
     const plain = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`, {
       headers: { 'user-agent': YAHOO_UA },
       next: { revalidate: 1800 },
+      signal: AbortSignal.timeout(6000),
     })
     const plainMap = await parse(plain).catch(() => null)
     if (plainMap) return plainMap
@@ -71,7 +74,7 @@ async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMet
     if (!auth) return new Map()
     const res = await fetch(
       `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}&crumb=${encodeURIComponent(auth.crumb)}`,
-      { headers: { 'user-agent': YAHOO_UA, cookie: auth.cookie }, cache: 'no-store' },
+      { headers: { 'user-agent': YAHOO_UA, cookie: auth.cookie }, cache: 'no-store', signal: AbortSignal.timeout(6000) },
     )
     return (await parse(res).catch(() => null)) ?? new Map()
   } catch {
@@ -114,7 +117,7 @@ function toTickerPoint(params: {
   volumes?: number[]
   chartMeta?: ChartMeta
   quote?: QuoteMeta
-  source: 'Yahoo Finance' | 'Stooq'
+  source: 'Yahoo Finance' | 'Stooq' | 'Tencent'
 }): TickerPoint | null {
   const { symbol, closes, timestamps, volumes = [], chartMeta, quote, source } = params
   if (closes.length < 6) return null
@@ -165,21 +168,35 @@ function toTickerPoint(params: {
 }
 
 // 带退避的重试：429 / 5xx / 网络抖动时重试，重试请求跳过缓存拿新鲜响应。
+// 每次尝试 6 秒超时：被墙 / 黑洞路由会无限挂起，没有超时整页会卡死。
 async function fetchWithRetry(url: string, headers: Record<string, string>, retries = 2): Promise<Response | null> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(
-        url,
-        attempt === 0 ? { headers, next: { revalidate: 1800 } } : { headers, cache: 'no-store' },
-      )
+      const res = await fetch(url, {
+        headers,
+        signal: AbortSignal.timeout(6000),
+        ...(attempt === 0 ? { next: { revalidate: 1800 } } : { cache: 'no-store' as const }),
+      })
       if (res.ok) return res
       if (res.status === 404) return null
     } catch {
-      // network error — fall through to backoff
+      // network error / timeout — fall through to backoff
     }
     if (attempt < retries) await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)))
   }
   return null
+}
+
+// 数据源熔断：同一来源连续失败 5 次后，本进程内直接跳过该来源，
+// 避免不可达的源让每只股票都白等超时。
+const sourceFailureCounts: Record<string, number> = {}
+
+function isSourceDown(name: string) {
+  return (sourceFailureCounts[name] ?? 0) >= 5
+}
+
+function recordSourceResult(name: string, ok: boolean) {
+  sourceFailureCounts[name] = ok ? 0 : (sourceFailureCounts[name] ?? 0) + 1
 }
 
 // 简易并发闸：批量抓行情时限制同时在途请求数，避免触发数据源限流。
@@ -269,10 +286,56 @@ async function fetchStooqTicker(symbol: string, quoteMap: Map<string, QuoteMeta>
   }
 }
 
+// 腾讯行情：国内外网络均可达，作为 Yahoo / Stooq 都失败时的第三兜底。
+// 返回美股前复权日 K：rows 为 [日期, 开, 收, 高, 低, 成交量]。
+async function fetchTencentTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
+  try {
+    const res = await fetchWithRetry(
+      `https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=us${symbol},day,,,320,qfq`,
+      { referer: 'https://gu.qq.com/' },
+    )
+    if (!res) return null
+    const json = await res.json()
+    const node = json?.data?.[`us${symbol}`]
+    const rows: unknown[][] = node?.qfqday ?? node?.day ?? []
+    if (!Array.isArray(rows) || rows.length < 6) return null
+
+    const closes: number[] = []
+    const volumes: number[] = []
+    const timestamps: number[] = []
+    rows.forEach((row) => {
+      const close = Number(row?.[2])
+      const ts = Date.parse(`${row?.[0]}T00:00:00Z`)
+      if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
+        closes.push(close)
+        volumes.push(Number(row?.[5]) || 0)
+        timestamps.push(Math.floor(ts / 1000))
+      }
+    })
+
+    return toTickerPoint({ symbol, closes, timestamps, volumes, quote: quoteMap.get(symbol), source: 'Tencent' })
+  } catch {
+    return null
+  }
+}
+
 async function fetchTicker(symbol: string, quoteMap: Map<string, QuoteMeta>): Promise<TickerPoint | null> {
-  const yahoo = await fetchYahooTicker(symbol, quoteMap)
-  if (yahoo) return yahoo
-  return fetchStooqTicker(symbol, quoteMap)
+  if (!isSourceDown('yahoo')) {
+    const yahoo = await fetchYahooTicker(symbol, quoteMap)
+    recordSourceResult('yahoo', !!yahoo)
+    if (yahoo) return yahoo
+  }
+  if (!isSourceDown('stooq')) {
+    const stooq = await fetchStooqTicker(symbol, quoteMap)
+    recordSourceResult('stooq', !!stooq)
+    if (stooq) return stooq
+  }
+  if (!isSourceDown('tencent')) {
+    const tencent = await fetchTencentTicker(symbol, quoteMap)
+    recordSourceResult('tencent', !!tencent)
+    if (tencent) return tencent
+  }
+  return null
 }
 
 function avg(values: number[]) {
