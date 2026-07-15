@@ -104,6 +104,12 @@ export const readings: Reading[] = [
     description: '关于 AI 时代底层工作方式的闭门会分享，聚焦人在新工具环境中的工作方法与认知更新。',
   },
   {
+    title: '超越OpenAI，中国00后团队攻破「记忆」难题！打造下一个AI互联网时刻',
+    author: '新智元',
+    url: 'https://mp.weixin.qq.com/s/fIW88tVvRw7GtXgmG5dExg',
+    description: '关于中国 00 后团队攻克 AI 记忆难题的报道，聚焦长期记忆能力如何推动下一阶段的 AI 产品与互联网形态。',
+  },
+  {
     title: 'Vibe Design Playbook',
     author: 'Alibaba Cloud Design',
     url: 'https://alibaba-cloud-design.github.io/vibe-designing-playbook/',
