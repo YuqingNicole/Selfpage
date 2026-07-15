@@ -9,9 +9,12 @@ import { readFileSync } from 'node:fs'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
+// 未配置 Supabase 凭据时进入干跑模式：照常抓数据、打印覆盖率，但不写库。
+// 用于在配置 Secrets 之前验证 GitHub Runner 到行情源的连通性。
+const DRY_RUN = !SUPABASE_URL || !SERVICE_KEY
+if (DRY_RUN) {
+  console.warn('DRY RUN: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set — will fetch but NOT write.')
+  console.warn('Add both as repository secrets (Settings → Secrets and variables → Actions) to enable writing.')
 }
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
@@ -86,8 +89,19 @@ async function fetchQuotes(symbols) {
   return authed ?? new Map()
 }
 
-async function fetchChart(symbol) {
-  const res = await fetchWithRetry(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, { 'user-agent': UA })
+function packSeries(closes, volumes, timestamps, chartMeta, source) {
+  if (closes.length < 6) return null
+  return {
+    closes: closes.slice(-300),
+    volumes: volumes.slice(-300),
+    timestamps: timestamps.slice(-300),
+    chartMeta,
+    source,
+  }
+}
+
+async function fetchChartYahoo(symbol) {
+  const res = await fetchWithRetry(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`, { 'user-agent': UA }, 1)
   if (!res) return null
   const json = await res.json()
   const result = json?.chart?.result?.[0]
@@ -106,20 +120,84 @@ async function fetchChart(symbol) {
       timestamps.push(ts)
     }
   })
-  if (closes.length < 6) return null
   const meta = result?.meta ?? {}
-  return {
-    closes: closes.slice(-300),
-    volumes: volumes.slice(-300),
-    timestamps: timestamps.slice(-300),
-    chartMeta: {
-      shortName: meta.shortName || meta.longName || undefined,
-      volume: Number(meta.regularMarketVolume) || undefined,
-      week52High: Number(meta.fiftyTwoWeekHigh) || undefined,
-      week52Low: Number(meta.fiftyTwoWeekLow) || undefined,
-      price: Number(meta.regularMarketPrice) || undefined,
-      previousClose: Number(meta.previousClose) || undefined,
-    },
+  return packSeries(closes, volumes, timestamps, {
+    shortName: meta.shortName || meta.longName || undefined,
+    volume: Number(meta.regularMarketVolume) || undefined,
+    week52High: Number(meta.fiftyTwoWeekHigh) || undefined,
+    week52Low: Number(meta.fiftyTwoWeekLow) || undefined,
+    price: Number(meta.regularMarketPrice) || undefined,
+    previousClose: Number(meta.previousClose) || undefined,
+  }, 'yahoo')
+}
+
+async function fetchChartStooq(symbol) {
+  const res = await fetchWithRetry(`https://stooq.com/q/d/l/?s=${symbol.toLowerCase()}.us&i=d`, {}, 1)
+  if (!res) return null
+  const csv = await res.text()
+  const lines = csv.trim().split('\n').map((line) => line.trim()).filter(Boolean)
+  if (lines.length < 7) return null
+  const closes = []
+  const volumes = []
+  const timestamps = []
+  lines.slice(1).forEach((line) => {
+    const cols = line.split(',')
+    const close = Number(cols[4])
+    const ts = Date.parse(`${cols[0]}T00:00:00Z`)
+    if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
+      closes.push(close)
+      volumes.push(Number(cols[5]) || 0)
+      timestamps.push(Math.floor(ts / 1000))
+    }
+  })
+  return packSeries(closes, volumes, timestamps, undefined, 'stooq')
+}
+
+async function fetchChartTencent(symbol) {
+  const res = await fetchWithRetry(
+    `https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=us${symbol},day,,,320,qfq`,
+    { referer: 'https://gu.qq.com/' },
+    1,
+  )
+  if (!res) return null
+  const json = await res.json()
+  const node = json?.data?.[`us${symbol}`]
+  const rows = node?.qfqday ?? node?.day ?? []
+  if (!Array.isArray(rows)) return null
+  const closes = []
+  const volumes = []
+  const timestamps = []
+  rows.forEach((row) => {
+    const close = Number(row?.[2])
+    const ts = Date.parse(`${row?.[0]}T00:00:00Z`)
+    if (Number.isFinite(close) && close > 0 && Number.isFinite(ts)) {
+      closes.push(close)
+      volumes.push(Number(row?.[5]) || 0)
+      timestamps.push(Math.floor(ts / 1000))
+    }
+  })
+  return packSeries(closes, volumes, timestamps, undefined, 'tencent')
+}
+
+// Yahoo 会封锁云厂商 IP 段（含 GitHub Runner），因此逐源兜底。
+async function fetchChart(symbol) {
+  return (await fetchChartYahoo(symbol)) ?? (await fetchChartStooq(symbol)) ?? (await fetchChartTencent(symbol))
+}
+
+// 启动时各源探测一次，日志里直接可见连通性。
+async function probeSources() {
+  const targets = [
+    ['yahoo', 'https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=5d&interval=1d', { 'user-agent': UA }],
+    ['stooq', 'https://stooq.com/q/d/l/?s=nvda.us&i=d', {}],
+    ['tencent', 'https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usNVDA,day,,,5,qfq', { referer: 'https://gu.qq.com/' }],
+  ]
+  for (const [name, url, headers] of targets) {
+    try {
+      const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) })
+      console.log(`probe ${name}: HTTP ${res.status}`)
+    } catch (error) {
+      console.log(`probe ${name}: ${error}`)
+    }
   }
 }
 
@@ -145,6 +223,7 @@ function pickQuoteFields(quote) {
 async function main() {
   const symbols = loadSymbols()
   console.log(`Syncing ${symbols.length} symbols…`)
+  await probeSources()
   const quoteMap = await fetchQuotes(symbols)
   console.log(`Quotes returned: ${quoteMap.size}`)
 
@@ -168,10 +247,21 @@ async function main() {
   })
   await Promise.all(workers)
 
-  console.log(`Charts ok: ${rows.length}, failed: ${failed.length}${failed.length ? ` (${failed.join(', ')})` : ''}`)
+  const bySource = rows.reduce((acc, row) => {
+    const source = row.data.source ?? 'unknown'
+    acc[source] = (acc[source] ?? 0) + 1
+    return acc
+  }, {})
+  console.log(`Charts ok: ${rows.length} (${JSON.stringify(bySource)}), failed: ${failed.length}${failed.length ? ` (${failed.join(', ')})` : ''}`)
   if (!rows.length) {
     console.error('Nothing fetched — aborting without writing.')
     process.exit(1)
+  }
+
+  if (DRY_RUN) {
+    console.log(`DRY RUN complete: ${rows.length}/${symbols.length} symbols fetched successfully. No data written.`)
+    if (rows.length < symbols.length * 0.8) process.exit(1)
+    return
   }
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/ai_market_data?on_conflict=symbol`, {
