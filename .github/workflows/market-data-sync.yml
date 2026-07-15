@@ -1,0 +1,33 @@
+# 定时抓取美股行情并写入 Supabase（ai_market_data 表）。
+# 页面只读数据库渲染，因此部署环境无需访问任何行情站点。
+#
+# 需要在仓库 Settings → Secrets and variables → Actions 配置：
+#   SUPABASE_URL                （https://<project>.supabase.co）
+#   SUPABASE_SERVICE_ROLE_KEY   （Supabase Dashboard → Settings → API）
+
+name: Sync market data
+
+on:
+  schedule:
+    # 美股盘中每 30 分钟（UTC 13:00–22:00，周一至周五），收盘后一次收尾。
+    - cron: '*/30 13-22 * * 1-5'
+  workflow_dispatch: {}
+
+concurrency:
+  group: market-data-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sync market data to Supabase
+        run: node scripts/sync-market-data.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

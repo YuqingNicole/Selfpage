@@ -57,7 +57,7 @@ export default async function AiSupplyChainUsPage() {
               </div>
               {missingSymbols.length > 0 && (
                 <div style={{ fontSize: 11, color: '#D92D20', marginTop: 10, lineHeight: 1.6 }}>
-                  数据缺失：{missingSymbols.join('、')}（两个数据源均未返回，相关链指标按剩余成分计算）
+                  数据缺失：{missingSymbols.join('、')}（行情源与同步库均无数据，相关链指标按剩余成分计算；请确认 GitHub Actions 行情同步已配置并运行）
                 </div>
               )}
             </div>
@@ -132,7 +132,7 @@ export default async function AiSupplyChainUsPage() {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#667085', letterSpacing: '0.08em', marginBottom: 12 }}>方法论与局限</div>
           <div style={{ display: 'grid', gap: 8, fontSize: 13, color: '#475467', lineHeight: 1.75, maxWidth: 900 }}>
             <div>
-              <strong>数据</strong>：Yahoo Finance（约 15 分钟延迟）为主，Stooq、腾讯行情依次兜底；服务端缓存 30 分钟，单请求 6 秒超时，连续失败的源自动熔断跳过。盘中读数会持续变化，收盘后定格并落库存档。
+              <strong>数据</strong>：主通道为 GitHub Actions 每 30 分钟同步进 Supabase 的行情底表（源自 Yahoo Finance，约 15 分钟延迟），页面读库渲染，不依赖部署环境的外网；库存过期时降级为服务端现抓（Yahoo → Stooq → 腾讯行情，单请求 6 秒超时，连续失败的源自动熔断）。盘中读数会持续变化，收盘后定格并落库存档。
             </div>
             <div>
               <strong>口径</strong>：链内指标为成分股<strong>等权</strong>平均（未按市值加权）。原始超额 = 链等权日收益 − QQQ；β 调整超额 α = 链日收益 − β × QQQ，其中 β 为近 {thresholds.betaWindow} 个交易日日收益对 QQQ 的回归斜率（样本不足 {thresholds.betaMinSamples} 天不显示）。低 β 链（如电力）看原始超额会长期偏弱，请以 α 为准。

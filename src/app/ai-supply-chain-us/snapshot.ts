@@ -80,6 +80,33 @@ export async function persistBoardSnapshot(params: {
   }
 }
 
+export type StoredMarketRow = {
+  symbol: string
+  data: {
+    closes?: number[]
+    volumes?: number[]
+    timestamps?: number[]
+    chartMeta?: Record<string, unknown>
+    quote?: Record<string, unknown>
+    syncedAt?: string
+  }
+  updated_at: string
+}
+
+// 读取 GitHub Actions 同步进来的行情底表（ai_market_data）。
+// 这是部署环境无外网时页面的主数据通道。
+export async function fetchStoredMarketData(): Promise<StoredMarketRow[]> {
+  const client = makeClient(SERVICE_KEY ?? ANON_KEY)
+  if (!client) return []
+  try {
+    const { data, error } = await client.from('ai_market_data').select('symbol, data, updated_at')
+    if (error || !data) return []
+    return data as StoredMarketRow[]
+  } catch {
+    return []
+  }
+}
+
 export type SignalTrackRow = {
   date: string
   nextDate: string

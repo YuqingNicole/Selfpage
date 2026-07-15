@@ -1,4 +1,4 @@
-import { persistBoardSnapshot } from './snapshot'
+import { fetchStoredMarketData, persistBoardSnapshot } from './snapshot'
 import {
   benchmarkSymbols,
   chainDefs,
@@ -117,7 +117,7 @@ function toTickerPoint(params: {
   volumes?: number[]
   chartMeta?: ChartMeta
   quote?: QuoteMeta
-  source: 'Yahoo Finance' | 'Stooq' | 'Tencent'
+  source: 'Yahoo Finance' | 'Stooq' | 'Tencent' | 'Synced'
 }): TickerPoint | null {
   const { symbol, closes, timestamps, volumes = [], chartMeta, quote, source } = params
   if (closes.length < 6) return null
@@ -573,10 +573,45 @@ function buildConclusion(chains: ChainData[]): BoardConclusion {
 export async function fetchBoardData() {
   const uniqueSymbols = [...new Set(chainDefs.flatMap((chain) => chain.symbols))]
   const allSymbols = [...uniqueSymbols, ...benchmarkSymbols]
-  const quoteMap = await fetchYahooQuotes(allSymbols)
-  // 并发限制在 8：46 只全量并发容易触发 Yahoo 限流（429），导致随机缺票。
-  const tickerResults = await mapWithConcurrency(allSymbols, 8, (symbol) => fetchTicker(symbol, quoteMap))
-  const tickerMap = new Map(tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]))
+
+  // 主通道：GitHub Actions 定时同步进 Supabase 的行情底表。
+  // 库存足够新（45 分钟内）且覆盖齐全时直接零外网渲染；
+  // 否则尝试现抓，现抓缺的票再用库存兜底。
+  const storedRows = await fetchStoredMarketData()
+  const storedMap = new Map<string, TickerPoint>()
+  let newestSyncMs = 0
+  for (const row of storedRows) {
+    const point = toTickerPoint({
+      symbol: row.symbol,
+      closes: (row.data?.closes ?? []) as number[],
+      timestamps: (row.data?.timestamps ?? []) as number[],
+      volumes: (row.data?.volumes ?? []) as number[],
+      chartMeta: row.data?.chartMeta as ChartMeta | undefined,
+      quote: row.data?.quote as QuoteMeta | undefined,
+      source: 'Synced',
+    })
+    if (!point) continue
+    const updatedMs = Date.parse(row.updated_at)
+    if (Number.isFinite(updatedMs)) newestSyncMs = Math.max(newestSyncMs, updatedMs)
+    const ageMs = Date.now() - updatedMs
+    point.sourceConfidence = ageMs < 26 * 3600_000 ? 'high' : 'medium'
+    point.freshness = ageMs < 3600_000 ? 'live-ish' : 'delayed-fallback'
+    storedMap.set(row.symbol, point)
+  }
+
+  const storedIsFresh = newestSyncMs > 0 && Date.now() - newestSyncMs < 45 * 60_000
+  let tickerMap: Map<string, TickerPoint>
+  if (storedIsFresh && storedMap.size >= allSymbols.length * 0.9) {
+    tickerMap = storedMap
+  } else {
+    const quoteMap = await fetchYahooQuotes(allSymbols)
+    // 并发限制在 8：全量并发容易触发 Yahoo 限流（429），导致随机缺票。
+    const tickerResults = await mapWithConcurrency(allSymbols, 8, (symbol) => fetchTicker(symbol, quoteMap))
+    tickerMap = new Map(tickerResults.filter(Boolean).map((item) => [item!.symbol, item!]))
+    for (const [symbol, point] of storedMap) {
+      if (!tickerMap.has(symbol)) tickerMap.set(symbol, point)
+    }
+  }
 
   const benchmarks = benchmarkSymbols.map((symbol) => tickerMap.get(symbol)).filter(Boolean) as TickerPoint[]
   const baseline = tickerMap.get('QQQ')
