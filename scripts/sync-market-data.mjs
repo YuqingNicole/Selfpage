@@ -9,9 +9,12 @@ import { readFileSync } from 'node:fs'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
+// 未配置 Supabase 凭据时进入干跑模式：照常抓数据、打印覆盖率，但不写库。
+// 用于在配置 Secrets 之前验证 GitHub Runner 到行情源的连通性。
+const DRY_RUN = !SUPABASE_URL || !SERVICE_KEY
+if (DRY_RUN) {
+  console.warn('DRY RUN: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set — will fetch but NOT write.')
+  console.warn('Add both as repository secrets (Settings → Secrets and variables → Actions) to enable writing.')
 }
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
@@ -172,6 +175,12 @@ async function main() {
   if (!rows.length) {
     console.error('Nothing fetched — aborting without writing.')
     process.exit(1)
+  }
+
+  if (DRY_RUN) {
+    console.log(`DRY RUN complete: ${rows.length}/${symbols.length} symbols fetched successfully. No data written.`)
+    if (rows.length < symbols.length * 0.8) process.exit(1)
+    return
   }
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/ai_market_data?on_conflict=symbol`, {
