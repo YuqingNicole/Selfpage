@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "add-reading": "node scripts/add-reading.mjs"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.5",

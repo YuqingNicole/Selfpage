@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: 'Grok Build 源码拆解：xAI 编码 Agent 的设计智慧与提效手册',
+    author: '向阳乔木',
+    url: 'https://xiangyangqiaomu.feishu.cn/docx/OAoYdiZ1eoc2HTxmmZ3clWIPnLf',
+    description: '一篇对 xAI 开源 coding agent Grok Build 的源码拆解，重点看 prompt 体系、工具系统、上下文压缩、记忆机制与权限设计。',
+  },
+  {
     title: 'AI 2027',
     author: 'Daniel Kokotajlo et al.',
     url: 'https://ai-2027.com/summary',
