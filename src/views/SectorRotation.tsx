@@ -6,10 +6,10 @@ export function SectorRotation() {
       src="/work/sector-rotation/index.html"
       style={{
         position: "fixed",
-        top: 0,
+        top: 65, // 站点固定头部高度 (h-16 + 下边框)，避免遮挡看板内容
         left: 0,
         width: "100%",
-        height: "100%",
+        height: "calc(100% - 65px)",
         border: "none",
         zIndex: 10,
       }}

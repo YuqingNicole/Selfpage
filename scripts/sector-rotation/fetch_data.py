@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """拉取美股 11 个 GICS 板块 ETF + SPY 日线数据，计算板块轮动指标，输出 data.js。
 
+同时抓取各板块代表个股与相关 ETF 的行情(价格/日涨跌/近1月/量比)，供板块详情弹层使用。
+
 用法:
     .venv/bin/python fetch_data.py
 
@@ -29,6 +31,47 @@ SECTORS = {
     "XLRE": ("房地产",     "def"),
 }
 BENCH = "SPY"
+
+# 各板块代表个股 (代码, 中文名) —— 静态清单, 行情每日自动更新
+STOCKS = {
+    "XLK": [("AAPL","苹果"),("MSFT","微软"),("NVDA","英伟达"),("AVGO","博通"),
+            ("ORCL","甲骨文"),("CRM","赛富时"),("AMD","超微半导体"),("CSCO","思科")],
+    "XLC": [("GOOGL","谷歌"),("META","Meta"),("NFLX","奈飞"),("DIS","迪士尼"),
+            ("TMUS","T-Mobile"),("VZ","威瑞森"),("T","美国电话电报"),("CMCSA","康卡斯特")],
+    "XLY": [("AMZN","亚马逊"),("TSLA","特斯拉"),("HD","家得宝"),("MCD","麦当劳"),
+            ("NKE","耐克"),("BKNG","Booking"),("LOW","劳氏"),("SBUX","星巴克")],
+    "XLF": [("BRK-B","伯克希尔"),("JPM","摩根大通"),("V","Visa"),("MA","万事达"),
+            ("BAC","美国银行"),("WFC","富国银行"),("GS","高盛"),("MS","摩根士丹利")],
+    "XLI": [("GE","通用电气"),("RTX","雷神技术"),("CAT","卡特彼勒"),("BA","波音"),
+            ("HON","霍尼韦尔"),("UNP","联合太平洋"),("UPS","联合包裹"),("DE","迪尔")],
+    "XLB": [("LIN","林德"),("SHW","宣伟"),("FCX","自由港麦克莫兰"),("NEM","纽蒙特"),
+            ("NUE","纽柯钢铁"),("DOW","陶氏"),("DD","杜邦"),("APD","空气化工")],
+    "XLE": [("XOM","埃克森美孚"),("CVX","雪佛龙"),("COP","康菲石油"),("SLB","斯伦贝谢"),
+            ("EOG","EOG资源"),("MPC","马拉松石油"),("PSX","菲利普66"),("OXY","西方石油")],
+    "XLV": [("LLY","礼来"),("UNH","联合健康"),("JNJ","强生"),("ABBV","艾伯维"),
+            ("MRK","默克"),("TMO","赛默飞"),("ABT","雅培"),("PFE","辉瑞")],
+    "XLP": [("WMT","沃尔玛"),("COST","好市多"),("PG","宝洁"),("KO","可口可乐"),
+            ("PEP","百事"),("PM","菲利普莫里斯"),("MO","奥驰亚"),("CL","高露洁")],
+    "XLU": [("NEE","新纪元能源"),("SO","南方电力"),("DUK","杜克能源"),("CEG","星座能源"),
+            ("VST","维斯特拉"),("SRE","桑普拉能源"),("AEP","美国电力"),("EXC","爱克斯龙")],
+    "XLRE":[("PLD","安博"),("AMT","美国铁塔"),("EQIX","Equinix"),("WELL","Welltower"),
+            ("SPG","西蒙地产"),("O","Realty Income"),("DLR","数字地产"),("CCI","冠城国际")],
+}
+
+# 各板块相关 ETF (代码, 中文名)
+ETFS = {
+    "XLK": [("SMH","VanEck半导体"),("SOXX","iShares半导体"),("IGV","iShares软件"),("TECL","Direxion三倍科技")],
+    "XLC": [("FDN","First Trust互联网"),("IYZ","iShares电信"),("SOCL","Global X社交媒体")],
+    "XLY": [("XRT","SPDR零售"),("XHB","SPDR住宅建筑"),("FDIS","富达非必需消费")],
+    "XLF": [("KBE","SPDR银行"),("KRE","SPDR地区银行"),("IAI","iShares券商"),("KIE","SPDR保险")],
+    "XLI": [("ITA","iShares航空军工"),("XAR","SPDR航空军工"),("IYT","iShares交通运输")],
+    "XLB": [("GDX","VanEck金矿"),("XME","SPDR金属采矿"),("COPX","Global X铜矿"),("MOO","VanEck农业")],
+    "XLE": [("XOP","SPDR油气勘探"),("OIH","VanEck油服"),("AMLP","Alerian管道MLP"),("UCO","ProShares两倍原油")],
+    "XLV": [("IBB","iShares生物科技"),("XBI","SPDR生物科技"),("IHI","iShares医疗器械"),("IHF","iShares医疗服务")],
+    "XLP": [("PBJ","Invesco食品饮料"),("FSTA","富达必需消费"),("RHS","Invesco等权必需消费"),("KXI","iShares全球必需消费")],
+    "XLU": [("GRID","First Trust电网"),("FUTY","富达公用事业"),("JXI","iShares全球公用事业"),("NLR","VanEck铀矿核电")],
+    "XLRE":[("IYR","iShares美国房地产"),("VNQ","Vanguard房地产"),("REM","iShares抵押REIT"),("SRVR","Pacer数据中心REIT")],
+}
 
 # 交易日偏移 -> 展示名
 HORIZONS = [(5, "1周"), (21, "1月"), (63, "3月"), (126, "6月"), (None, "YTD"), (252, "1年")]
@@ -62,11 +105,45 @@ def zscore_to_100(s: pd.Series, win: int) -> pd.Series:
     return 100 + 2 * (s - m) / sd  # ×2 仅放大视觉散布, 象限判定不变
 
 
+def fetch_ohlcv(tickers, period):
+    """批量下载 OHLCV; Yahoo 偶发单只失败, 用 Ticker.history 单独重试至多两轮。
+    返回 (raw MultiIndex DataFrame, 仍失败的 ticker 列表)。"""
+    import time
+    raw = yf.download(tickers, period=period, interval="1d",
+                      auto_adjust=True, progress=False, group_by="column")
+
+    def missing():
+        if raw.empty:
+            return list(tickers)
+        c = raw["Close"]
+        return [t for t in tickers if t not in c.columns or c[t].dropna().empty]
+
+    for _ in range(2):
+        miss = missing()
+        if not miss:
+            break
+        time.sleep(3)
+        for t in miss:
+            try:
+                h = yf.Ticker(t).history(period=period, auto_adjust=True)
+            except Exception:
+                continue
+            if h.empty:
+                continue
+            h.index = h.index.tz_localize(None)
+            for col in ("Open", "High", "Low", "Close", "Volume"):
+                if col in h.columns and (col, t) in raw.columns:
+                    raw.loc[h.index, (col, t)] = h[col]
+            print(f"  单独重试成功: {t}")
+    return raw, missing()
+
+
 def main():
     tickers = list(SECTORS) + [BENCH]
     print(f"下载 {len(tickers)} 只 ETF 近两年日线 ...")
-    raw = yf.download(tickers, period="2y", interval="1d",
-                      auto_adjust=True, progress=False, group_by="column")
+    raw, miss_core = fetch_ohlcv(tickers, "2y")
+    if miss_core:
+        sys.exit(f"下载失败: {','.join(miss_core)}")
     close = raw["Close"].dropna(how="any")
     if close.empty:
         sys.exit("下载失败: 无数据")
@@ -99,6 +176,9 @@ def main():
         excess[tk] = [r2(v) for v in ex]
     spy_cum = [r2(v * 100) for v in cum[BENCH]]
 
+    # ---- 板块详情: 近一年日线收盘价 (与 excess 同一时间窗) ----
+    px = {tk: [r2(v) for v in win[tk]] for tk in SECTORS}
+
     # ---- RRG (周频, JdK 风格): x=RS-Ratio, y=RS-Momentum, 均以100为中心 ----
     wk = close.resample("W-FRI").last().dropna(how="any")
     rrg = {}
@@ -109,6 +189,101 @@ def main():
         trail = pd.DataFrame({"x": ratio, "y": momentum}).dropna().tail(RRG_TRAIL)
         rrg[tk] = [[r2(r.x), r2(r.y), d.strftime("%m-%d")]
                    for d, r in trail.iterrows()]
+
+    # ---- 板块详情: 代表个股 & 相关 ETF 行情 ----
+    extra = sorted({t for lst in list(STOCKS.values()) + list(ETFS.values()) for t, _ in lst})
+    print(f"下载 {len(extra)} 只个股/相关 ETF 近两年日线 ...")
+    eraw, _ = fetch_ohlcv(extra, "2y")
+    eclose, ehigh, elow, evol = eraw["Close"], eraw["High"], eraw["Low"], eraw["Volume"]
+
+    def quote(t):
+        """-> 行情/技术指标字典; 数据缺失返回 None。"""
+        if t not in eclose:
+            return None
+        c = eclose[t].dropna()
+        if len(c) < 2:
+            return None
+        v = evol[t].dropna() if t in evol else pd.Series(dtype=float)
+        vr = None
+        if len(v):
+            base = v.iloc[-21:-1] if len(v) > 21 else v.iloc[:-1]
+            if len(base) and base.mean():
+                vr = round(float(v.iloc[-1] / base.mean()), 2)
+
+        def ret(n):
+            return r2((c.iloc[-1] / c.iloc[-1 - n] - 1) * 100) if len(c) > n else None
+
+        ytd = None
+        base_y = c[c.index.year == c.index.year[-1] - 1]
+        if not base_y.empty:
+            ytd = r2((c.iloc[-1] / base_y.iloc[-1] - 1) * 100)
+
+        def ma(n):
+            return r2(c.tail(n).mean()) if len(c) >= n else None
+
+        yr = c.tail(252)
+        hi = ehigh[t].dropna().tail(252) if t in ehigh else pd.Series(dtype=float)
+        lo = elow[t].dropna().tail(252) if t in elow else pd.Series(dtype=float)
+        vola = None
+        if len(yr) > 20:
+            vola = r2(yr.pct_change().dropna().std(ddof=0) * (252 ** 0.5) * 100)
+        return {"p": r2(c.iloc[-1]),
+                "chg": ret(1), "w1": ret(5), "m1": ret(21), "m3": ret(63),
+                "m6": ret(126), "ytd": ytd, "y1": ret(252),
+                "vr": vr,
+                "vol": int(v.iloc[-1]) if len(v) else None,
+                "tvr": r2(c.iloc[-1] * v.iloc[-1]) if len(v) else None,
+                "h52": r2(hi.max()) if len(hi) else None,
+                "l52": r2(lo.min()) if len(lo) else None,
+                "ma20": ma(20), "ma50": ma(50), "ma200": ma(200),
+                "vola": vola,
+                "hist": [r2(x) for x in yr]}
+
+    # ---- 基本面 (.info, 尽力而为) ----
+    print(f"抓取 {len(extra)} 只标的基本面 ...")
+    etf_set = {t for lst in ETFS.values() for t, _ in lst}
+    info_map = {}
+    for i, t in enumerate(extra):
+        try:
+            inf = yf.Ticker(t).info or {}
+        except Exception:
+            inf = {}
+
+        def num(k, scale=1):
+            x = inf.get(k)
+            return r2(x * scale) if isinstance(x, (int, float)) else None
+
+        if t in etf_set:
+            dy = num("yield", 100)
+            if dy is None:
+                dy = num("dividendYield")
+        else:
+            dy = num("dividendYield")
+        info_map[t] = {
+            "full": inf.get("longName"), "ind": inf.get("industry"),
+            "mc": num("marketCap"), "aum": num("totalAssets"),
+            "pe": num("trailingPE"), "fpe": num("forwardPE"), "pb": num("priceToBook"),
+            "dy": dy, "beta": num("beta"), "eps": num("trailingEps"),
+            "pm": num("profitMargins", 100), "roe": num("returnOnEquity", 100),
+            "tgt": num("targetMeanPrice"),
+        }
+        if (i + 1) % 30 == 0:
+            print(f"  基本面 {i + 1}/{len(extra)}")
+
+    def pack(lst):
+        out = []
+        for t, n in lst:
+            q = quote(t)
+            if q:
+                out.append({"t": t, "n": n, **q, **info_map.get(t, {})})
+        return out
+
+    stocks = {tk: pack(lst) for tk, lst in STOCKS.items()}
+    etfs = {tk: pack(lst) for tk, lst in ETFS.items()}
+    hist_dates = [d.strftime("%m-%d") for d in eclose.index[-252:]]
+    missing = [t for t in extra if quote(t) is None]
+    if missing:
+        print(f"警告: {len(missing)} 只无数据已跳过: {','.join(missing)}")
 
     # ---- 顶部 KPI ----
     m1 = {s["ticker"]: s["returns"]["1月"] for s in sectors if s["returns"]["1月"] is not None}
@@ -140,7 +315,11 @@ def main():
             "total": len(SECTORS),
         },
         "excess": {"dates": dates, "spy_cum": spy_cum, "series": excess},
+        "px": px,
         "rrg": rrg,
+        "stocks": stocks,
+        "etfs": etfs,
+        "hist_dates": hist_dates,
     }
 
     out = Path(__file__).resolve().parents[2] / "public" / "work" / "sector-rotation" / "data.js"
