@@ -13,6 +13,12 @@ export const readings: Reading[] = [
     description: '一篇对 xAI 开源 coding agent Grok Build 的源码拆解，重点看 prompt 体系、工具系统、上下文压缩、记忆机制与权限设计。',
   },
   {
+    title: '朱松纯两万字演讲：AI热潮的回望与反思、思想自主、未来展望',
+    author: '朱松纯',
+    url: 'https://mp.weixin.qq.com/s/39e7WKJsjKWDD1H1VaHWUg?scene=1',
+    description: '朱松纯对 AI 热潮的系统回望与反思，延伸到思想自主与未来发展的判断。',
+  },
+  {
     title: 'AI 2027',
     author: 'Daniel Kokotajlo et al.',
     url: 'https://ai-2027.com/summary',
