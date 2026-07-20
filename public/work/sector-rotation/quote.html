@@ -422,7 +422,7 @@ if (!q) {
     </div>
     <div class="ret-cell">
       <div class="ret-label">成交额</div>
-      <div class="ret-val" style="font-size:var(--text-base)">$${fM(q.tvr)}</div>
+      <div class="ret-val" style="font-size:var(--text-base)">${q.tvr == null ? '—' : '$'+fM(q.tvr)}</div>
     </div>
     <div class="ret-cell">
       <div class="ret-label">年化波动</div>
@@ -438,8 +438,8 @@ if (!q) {
       <div class="section">
         <div class="chart-tabs">
           <button class="chart-tab on" onclick="switchTab('price',this)">价格走势</button>
-          <button class="chart-tab" onclick="switchTab('vs',this)">vs 板块 ETF</button>
-          <button class="chart-tab" onclick="switchTab('excess',this)">超额收益</button>
+          ${sec.ticker && sec.ticker !== TICKER ? `<button class="chart-tab" onclick="switchTab('vs',this)">vs 板块 ETF</button>` : ''}
+          ${sec.ticker && sec.ticker !== TICKER ? `<button class="chart-tab" onclick="switchTab('excess',this)">超额收益</button>` : ''}
           <div id="maLegend" style="margin-left:auto;display:flex;gap:10px;align-items:center;padding:0 14px;font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)">
             ${['MA20','MA50','MA200'].filter((_,i)=>[q.ma20,q.ma50,q.ma200][i]).map((lab,i) => {
               const colors = ['#e66b00','#9c27b0',INK];
@@ -785,9 +785,9 @@ if (!q) {
           itemStyle:{color:p.t===TICKER?ACCENT:(p.m1>=0?'#d32f2f':'#00a676'),borderRadius:0,
             opacity:p.t===TICKER?1:0.55},
           label:{show:true,
-            position:p.m1>=0?'right':(p.m1<-12?'insideRight':'left'),
+            position:p.m1>12?'insideLeft':p.m1>=0?'right':p.m1<-12?'insideRight':'left',
             fontSize:9.5,fontFamily:'"IBM Plex Mono",monospace',
-            color:p.m1<-12?'rgba(255,255,255,0.82)':MUTE,
+            color:(p.m1>12||p.m1<-12)?'rgba(255,255,255,0.82)':MUTE,
             formatter:params=>fmt(params.value)}
         }))}]
     });
