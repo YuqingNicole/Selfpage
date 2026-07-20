@@ -180,7 +180,28 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
   letter-spacing:var(--track-label);margin-top:4px
 }
 .chart-body{padding:0}
-#cHeat{height:440px} #cRRG{height:440px} #cEx{height:400px} #cBar{height:400px}
+#cHeat{height:440px} #cRRG{height:400px} #cEx{height:400px} #cBar{height:400px}
+
+/* ======= RRG CONTROLS ======= */
+.rrg-ctrl{
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  border-bottom:1px solid var(--line);background:var(--card)
+}
+.rrg-week{
+  font-family:var(--font-mono);font-size:var(--text-xs);font-weight:var(--w-semibold);
+  color:var(--accent);letter-spacing:var(--track-label);min-width:46px
+}
+.rrg-slider{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:2px;background:var(--line);outline:none;cursor:pointer;
+  accent-color:var(--accent)
+}
+.rrg-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--card);
+  box-shadow:0 0 0 1.5px var(--accent)
+}
+.rrg-hint{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);letter-spacing:var(--track-label)}
 
 /* ======= PERIOD TABS ======= */
 .tabs{display:flex;gap:0}
@@ -346,8 +367,13 @@ footer code{
     <div class="card-head">
       <div>
         <h2>相对强弱轮转 RRG</h2>
-        <div class="card-hint">周频 · 近12周轨迹 · 顺时针轮动</div>
+        <div class="card-hint">周频 · 顺时针轮动 · 悬停高亮单条</div>
       </div>
+    </div>
+    <div class="rrg-ctrl">
+      <span class="rrg-week" id="rrgWeekLabel">W12</span>
+      <input type="range" class="rrg-slider" id="rrgSlider" min="1" max="12" value="12" step="1">
+      <span class="rrg-hint">← 回看历史</span>
     </div>
     <div id="cRRG"></div>
   </div>
@@ -505,61 +531,190 @@ document.querySelectorAll('.pill').forEach(p=>{
 
 /* ---- RRG ---- */
 (function(){
-  const pts=Object.values(D.rrg).flat().map(p=>[p[0],p[1]]);
-  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
-  const r05=v=>Math.round(v*2)/2;
-  const pad=(a,b)=>{const r=b-a||1;return[r05(a-r*.12-.1),r05(b+r*.12+.1)];};
-  let [x0,x1]=pad(Math.min(...xs,100),Math.max(...xs,100));
-  let [y0,y1]=pad(Math.min(...ys,100),Math.max(...ys,100));
-  const qLab=(x,y,t,c)=>({value:[x,y],label:{show:true,position:'inside',formatter:t,color:c,fontSize:11,fontFamily:'"IBM Plex Mono",monospace',fontWeight:600}});
-  const series=[{
-    type:'scatter',data:[],silent:true,symbolSize:0,
-    markLine:{silent:true,symbol:'none',label:{show:false},
-      lineStyle:{color:LINE,type:'dashed',width:1},
-      data:[{xAxis:100},{yAxis:100}]},
-    markArea:{silent:true,data:[
-      [{coord:[100,100],itemStyle:{color:'rgba(49,87,255,.05)'}},{coord:[x1,y1]}],
-      [{coord:[x0,100],itemStyle:{color:'rgba(0,166,118,.05)'}},{coord:[100,y1]}],
-      [{coord:[x0,y0],itemStyle:{color:'rgba(0,0,0,.02)'}},{coord:[100,100]}],
-      [{coord:[100,y0],itemStyle:{color:'rgba(211,47,47,.05)'}},{coord:[x1,100]}],
-    ]}
-  },{
-    type:'scatter',silent:true,symbolSize:0,z:1,
-    data:[
-      qLab(x1-.045*(x1-x0),y1-.06*(y1-y0),'领先','rgba(49,87,255,.7)'),
-      qLab(x0+.045*(x1-x0),y1-.06*(y1-y0),'改善','rgba(0,166,118,.7)'),
-      qLab(x0+.045*(x1-x0),y0+.06*(y1-y0),'落后','rgba(123,132,145,.8)'),
-      qLab(x1-.045*(x1-x0),y0+.06*(y1-y0),'转弱','rgba(211,47,47,.65)'),
-    ]
-  }];
-  const heads=[];
-  Object.entries(D.rrg).forEach(([tk,trail])=>{
-    series.push({type:'line',silent:true,data:trail.map(p=>[p[0],p[1]]),
-      lineStyle:{color:COLOR[tk],width:1.4,opacity:.45},symbol:'none',z:2});
-    const h=trail[trail.length-1];
-    heads.push({name:tk,value:[h[0],h[1]],date:h[2],
-      itemStyle:{color:COLOR[tk],borderColor:PAPER,borderWidth:1.5}});
+  const TICKERS = Object.keys(D.rrg);
+  const MAX_W   = 12;
+
+  /* stable axis bounds from full 12-week data */
+  const allPts = Object.values(D.rrg).flat();
+  const xs = allPts.map(p=>p[0]), ys = allPts.map(p=>p[1]);
+  const r05 = v => Math.round(v*2)/2;
+  const pad  = (a,b) => { const r=b-a||1; return [r05(a-r*.14-.1), r05(b+r*.14+.1)]; };
+  const [x0,x1] = pad(Math.min(...xs,100), Math.max(...xs,100));
+  const [y0,y1] = pad(Math.min(...ys,100), Math.max(...ys,100));
+
+  const quadName = (x,y) => x>=100 ? (y>=100?'领先':'转弱') : (y>=100?'改善':'落后');
+
+  const qLab = (x,y,t,c) => ({
+    value:[x,y],
+    label:{show:true,position:'inside',formatter:t,color:c,
+           fontSize:11,fontFamily:'"IBM Plex Mono",monospace',fontWeight:600}
   });
-  series.push({type:'scatter',data:heads,symbolSize:11,z:3,cursor:'pointer',
-    label:{show:true,position:'right',fontSize:10.5,fontFamily:'"IBM Plex Mono",monospace',color:INK,
-           formatter:p=>D.sectors.find(s=>s.ticker===p.name)?.name||p.name},
-    labelLayout:{hideOverlap:true}});
-  const quadName=(x,y)=>x>=100?(y>=100?'领先':'转弱'):(y>=100?'改善':'落后');
-  const chart=mk('cRRG');
-  chart.setOption({
-    tooltip:{...TIP,trigger:'item',formatter:p=>{
-      if(!p.name)return'';
-      const s=D.sectors.find(x=>x.ticker===p.name);
-      return `${s.name} (${p.name}) · ${p.data.date}<br/>RS-Ratio: <b>${p.value[0]}</b> · RS-Momentum: <b>${p.value[1]}</b><br/>象限: ${quadName(p.value[0],p.value[1])}`;}},
-    grid:{left:52,right:26,top:14,bottom:36},
-    xAxis:{name:'RS-Ratio →',nameLocation:'middle',nameGap:26,
-      nameTextStyle:{color:MUTE,fontSize:11,fontFamily:'"IBM Plex Mono",monospace'},
-      min:x0,max:x1,...AXIS,axisLabel:{...AXIS.axisLabel,formatter:v=>v.toFixed(1)}},
-    yAxis:{name:'RS-Momentum →',nameTextStyle:{color:MUTE,fontSize:11,fontFamily:'"IBM Plex Mono",monospace'},
-      min:y0,max:y1,...AXIS,axisLabel:{...AXIS.axisLabel,formatter:v=>v.toFixed(1)}},
-    series
+
+  /* background / axes base series — never changes */
+  const BASE = [
+    {
+      type:'scatter',data:[],silent:true,symbolSize:0,
+      markLine:{silent:true,symbol:'none',label:{show:false},
+        lineStyle:{color:LINE,type:'dashed',width:1},
+        data:[{xAxis:100},{yAxis:100}]},
+      markArea:{silent:true,data:[
+        [{coord:[100,100],itemStyle:{color:'rgba(49,87,255,.05)'}},{coord:[x1,y1]}],
+        [{coord:[x0,100],itemStyle:{color:'rgba(0,166,118,.05)'}},{coord:[100,y1]}],
+        [{coord:[x0,y0],itemStyle:{color:'rgba(0,0,0,.02)'}},{coord:[100,100]}],
+        [{coord:[100,y0],itemStyle:{color:'rgba(211,47,47,.05)'}},{coord:[x1,100]}],
+      ]}
+    },
+    {
+      type:'scatter',silent:true,symbolSize:0,z:1,
+      data:[
+        qLab(x1-.045*(x1-x0), y1-.06*(y1-y0), '领先', 'rgba(49,87,255,.7)'),
+        qLab(x0+.045*(x1-x0), y1-.06*(y1-y0), '改善', 'rgba(0,166,118,.7)'),
+        qLab(x0+.045*(x1-x0), y0+.06*(y1-y0), '落后', 'rgba(123,132,145,.8)'),
+        qLab(x1-.045*(x1-x0), y0+.06*(y1-y0), '转弱', 'rgba(211,47,47,.65)'),
+      ]
+    }
+  ];
+
+  const chart = mk('cRRG');
+  let hoveredTk = null;  /* null = show all */
+  let weekDepth = MAX_W;
+
+  function buildSeries(depth, hovered) {
+    const series = [...BASE];
+
+    TICKERS.forEach(tk => {
+      const trail = D.rrg[tk].slice(0, depth);
+      const dim   = hovered !== null && hovered !== tk;
+      const hex   = COLOR[tk];
+
+      /* trail line — fade old segments, dim non-hovered */
+      const lineData = trail.map((p,i) => ({
+        value: [p[0], p[1]],
+        lineStyle: {
+          opacity: dim ? 0.06 : (0.12 + 0.88 * (i / (trail.length - 1 || 1)))
+        }
+      }));
+
+      series.push({
+        id: 'trail_' + tk,
+        type: 'line',
+        silent: true,
+        data: trail.map(p=>[p[0],p[1]]),
+        lineStyle: { color: dim ? '#b0b8c4' : hex, width: dim ? 1 : 2, opacity: dim ? 0.12 : 0.55 },
+        symbol: 'none',
+        z: 2,
+      });
+
+      /* head dot */
+      const h = trail[trail.length - 1];
+      if (!h) return;
+      series.push({
+        id: 'head_' + tk,
+        type: 'scatter',
+        name: tk,
+        data: [{
+          name: tk,
+          value: [h[0], h[1]],
+          date: h[2],
+          itemStyle: {
+            color: dim ? '#b0b8c4' : hex,
+            borderColor: PAPER,
+            borderWidth: 1.5,
+            opacity: dim ? 0.25 : 1,
+          }
+        }],
+        symbolSize: hovered === tk ? 15 : (dim ? 8 : 11),
+        z: 3,
+        cursor: 'pointer',
+        label: {
+          show: !dim,
+          position: 'right',
+          fontSize: hovered === tk ? 12 : 10.5,
+          fontFamily: '"IBM Plex Mono",monospace',
+          fontWeight: hovered === tk ? 700 : 400,
+          color: hovered === tk ? hex : INK,
+          formatter: p => D.sectors.find(s=>s.ticker===p.name)?.name || p.name,
+        },
+        labelLayout: { hideOverlap: true },
+      });
+
+      /* direction arrow on hovered trail */
+      if (hovered === tk && trail.length >= 2) {
+        const a = trail[trail.length-2], b = trail[trail.length-1];
+        series.push({
+          id: 'arrow_' + tk,
+          type: 'scatter',
+          silent: true,
+          data: [[b[0], b[1]]],
+          symbol: 'arrow',
+          symbolSize: 10,
+          symbolRotate: -(Math.atan2(b[1]-a[1], b[0]-a[0]) * 180 / Math.PI),
+          itemStyle: { color: hex },
+          z: 4,
+        });
+      }
+    });
+
+    return series;
+  }
+
+  function render(depth, hovered) {
+    chart.setOption({
+      tooltip: {
+        ...TIP, trigger: 'item',
+        formatter: p => {
+          if (!p.name || !COLOR[p.name]) return '';
+          const s = D.sectors.find(x => x.ticker === p.name);
+          const trail = D.rrg[p.name];
+          const h = trail[depth - 1];
+          const prev = depth > 1 ? trail[depth - 2] : null;
+          const trend = prev
+            ? (h[0] > prev[0] ? '→ RS 增强' : '← RS 减弱') + ' · ' + (h[1] > prev[1] ? '↑ 动量上行' : '↓ 动量下行')
+            : '';
+          return `<b>${s?.name || p.name}</b> <span style="opacity:.5">${p.name}</span><br/>`
+            + `${h[2]} · <b>${quadName(h[0],h[1])}</b><br/>`
+            + `RS-Ratio <b>${h[0].toFixed(2)}</b>  RS-Mom <b>${h[1].toFixed(2)}</b>`
+            + (trend ? `<br/><span style="opacity:.65">${trend}</span>` : '');
+        }
+      },
+      grid:  { left:52, right:26, top:14, bottom:36 },
+      xAxis: { name:'RS-Ratio →', nameLocation:'middle', nameGap:26,
+        nameTextStyle:{color:MUTE,fontSize:11,fontFamily:'"IBM Plex Mono",monospace'},
+        min:x0, max:x1, ...AXIS, axisLabel:{...AXIS.axisLabel, formatter:v=>v.toFixed(1)} },
+      yAxis: { name:'RS-Momentum →',
+        nameTextStyle:{color:MUTE,fontSize:11,fontFamily:'"IBM Plex Mono",monospace'},
+        min:y0, max:y1, ...AXIS, axisLabel:{...AXIS.axisLabel, formatter:v=>v.toFixed(1)} },
+      series: buildSeries(depth, hovered),
+    }, false); /* false = merge, no full reset */
+  }
+
+  render(weekDepth, null);
+
+  /* hover: highlight single trail */
+  chart.on('mouseover', p => {
+    if (p.seriesType === 'scatter' && COLOR[p.name]) {
+      hoveredTk = p.name;
+      render(weekDepth, hoveredTk);
+    }
   });
-  chart.on('click',p=>{if(p.seriesType==='scatter'&&p.name)openSector(p.name);});
+  chart.on('mouseout', p => {
+    if (p.seriesType === 'scatter' && COLOR[p.name]) {
+      hoveredTk = null;
+      render(weekDepth, null);
+    }
+  });
+  chart.on('click', p => {
+    if (p.seriesType === 'scatter' && p.name) openSector(p.name);
+  });
+
+  /* time slider */
+  const slider = document.getElementById('rrgSlider');
+  const wLabel = document.getElementById('rrgWeekLabel');
+  slider.addEventListener('input', () => {
+    weekDepth = +slider.value;
+    wLabel.textContent = 'W' + weekDepth;
+    render(weekDepth, hoveredTk);
+  });
 })();
 
 /* ---- excess return lines ---- */

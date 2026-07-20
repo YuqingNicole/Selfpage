@@ -9,15 +9,7 @@ export default function ScreenerPage() {
   return (
     <iframe
       src="/work/sector-rotation/screener.html"
-      style={{
-        position: "fixed",
-        top: 65,
-        left: 0,
-        width: "100%",
-        height: "calc(100% - 65px)",
-        border: "none",
-        zIndex: 10,
-      }}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }}
       title="个股全景筛选"
     />
   );
