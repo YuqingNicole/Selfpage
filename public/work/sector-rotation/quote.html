@@ -784,8 +784,10 @@ if (!q) {
           value:p.m1,
           itemStyle:{color:p.t===TICKER?ACCENT:(p.m1>=0?'#d32f2f':'#00a676'),borderRadius:0,
             opacity:p.t===TICKER?1:0.55},
-          label:{show:true,position:p.m1>=0?'right':'left',
-            fontSize:9.5,fontFamily:'"IBM Plex Mono",monospace',color:MUTE,
+          label:{show:true,
+            position:p.m1>=0?'right':(p.m1<-12?'insideRight':'left'),
+            fontSize:9.5,fontFamily:'"IBM Plex Mono",monospace',
+            color:p.m1<-12?'rgba(255,255,255,0.82)':MUTE,
             formatter:params=>fmt(params.value)}
         }))}]
     });
