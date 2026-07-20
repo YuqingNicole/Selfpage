@@ -103,7 +103,7 @@ a:hover{color:var(--accent);text-decoration-color:var(--accent)}
   font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);margin-bottom:6px}
 .range-bar-labels strong{color:var(--ink);font-weight:var(--w-semibold)}
 .range-track{position:relative;height:6px;background:var(--paper-deep)}
-.range-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-soft))}
+.range-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent-dim),var(--accent))}
 .range-dot{position:absolute;top:50%;transform:translate(-50%,-50%);
   width:12px;height:12px;background:var(--ink);border:2px solid var(--paper)}
 .range-pct{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-top:5px;text-align:center}
@@ -134,8 +134,8 @@ a:hover{color:var(--accent);text-decoration-color:var(--accent)}
 }
 .chart-tab:hover{color:var(--accent)}
 .chart-tab.on{background:var(--ink);color:var(--paper);font-weight:var(--w-semibold)}
-#chart,#chart2{height:260px;background:var(--card);display:none}
-#chart.active,#chart2.active{display:block}
+#chart,#chart2,#chart-excess{height:260px;background:var(--card);display:none}
+#chart.active,#chart2.active,#chart-excess.active{display:block}
 
 /* ---- METRICS GRID ---- */
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:var(--rule-card)}
@@ -187,6 +187,13 @@ a:hover{color:var(--accent);text-decoration-color:var(--accent)}
 .tgt-bar-fill{position:absolute;top:0;left:0;height:100%;background:var(--accent-2)}
 .tgt-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:var(--ink);border:2px solid var(--paper)}
 .tgt-labels{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)}
+
+/* ---- VALUATION COMPARISON BAR ---- */
+.cmp-wrap{margin-top:6px}
+.cmp-track{position:relative;height:3px;background:var(--paper-deep);margin-bottom:3px}
+.cmp-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--accent);border:1.5px solid var(--paper)}
+.cmp-med{position:absolute;top:0;height:100%;width:1.5px;background:var(--ink);opacity:.35;transform:translateX(-50%)}
+.cmp-note{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)}
 
 /* ---- FOOTER ---- */
 footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);padding:14px 0 28px;border-top:1px solid var(--line)}
@@ -285,6 +292,32 @@ if (!q) {
   const peersSorted = [...peers].filter(p => p.m1 != null).sort((a,b) => b.m1 - a.m1);
   const myRank = peersSorted.findIndex(p => p.t === TICKER) + 1;
 
+  /* peer median for valuation comparison */
+  function peerMedian(key) {
+    const vals = peers.map(p => p[key]).filter(v => v != null).sort((a,b) => a-b);
+    if (!vals.length) return null;
+    const mid = Math.floor(vals.length / 2);
+    return vals.length % 2 === 0 ? (vals[mid-1] + vals[mid]) / 2 : vals[mid];
+  }
+  function cmpBar(val, med, fmt2) {
+    if (val == null || med == null) return '';
+    const lo = Math.min(val, med) * 0.85;
+    const hi = Math.max(val, med) * 1.15;
+    const range = hi - lo || 1;
+    const vPct = Math.max(0, Math.min(100, (val - lo) / range * 100));
+    const mPct = Math.max(0, Math.min(100, (med - lo) / range * 100));
+    const diff = med > 0 ? ((val - med) / med * 100) : null;
+    const diffStr = diff == null ? '' : (diff >= 0 ? '+' : '') + diff.toFixed(0) + '% vs 中位';
+    const diffColor = diff == null ? MUTE : (diff > 0 ? UP : DOWN);
+    return `<div class="cmp-wrap">
+      <div class="cmp-track">
+        <div class="cmp-med" style="left:${mPct.toFixed(1)}%" title="同类中位 ${fmt2(med)}"></div>
+        <div class="cmp-dot" style="left:${vPct.toFixed(1)}%" title="${fmt2(val)}"></div>
+      </div>
+      <div class="cmp-note" style="color:${diffColor}">${diffStr}<span style="color:var(--ink-mute);margin-left:6px">中位 ${fmt2(med)}</span></div>
+    </div>`;
+  }
+
   /* sec ETF returns vs SPY */
   const spyR = D.spy;
   const secRetRows = [['今日', sec.day_chg, spyR.day_chg],
@@ -343,9 +376,18 @@ if (!q) {
     </div>
     <div class="range-track">
       <div class="range-fill" style="width:${rangePos.toFixed(1)}%"></div>
+      ${[['ma20','#e66b00'],['ma50','#9c27b0'],['ma200',INK]].map(([k,c]) => {
+        if (!q[k] || q[k] < q.l52 || q[k] > q.h52) return '';
+        const pct = ((q[k] - q.l52) / (q.h52 - q.l52) * 100).toFixed(1);
+        return `<div style="position:absolute;top:0;left:${pct}%;width:1.5px;height:100%;background:${c};opacity:.7;transform:translateX(-50%)" title="${k.toUpperCase()} $${q[k].toFixed(2)}"></div>`;
+      }).join('')}
       <div class="range-dot" style="left:${rangePos.toFixed(1)}%"></div>
     </div>
-    <div class="range-pct">处于年度区间 <strong style="color:var(--ink)">${rangePos.toFixed(0)}%</strong> 分位</div>
+    <div class="range-pct">处于年度区间 <strong style="color:var(--ink)">${rangePos.toFixed(0)}%</strong> 分位
+      ${[['MA20','#e66b00','ma20'],['MA50','#9c27b0','ma50'],['MA200',INK,'ma200']].map(([lab,c,k]) =>
+        q[k] ? `<span style="margin-left:10px;font-size:var(--text-2xs);font-family:var(--font-mono)"><span style="display:inline-block;width:8px;height:2px;background:${c};vertical-align:middle;margin-right:3px"></span><span style="color:${c}">${lab}</span> $${q[k].toFixed(0)}</span>` : ''
+      ).join('')}
+    </div>
   </div>` : ''}
 
   <!-- returns strip -->
@@ -383,9 +425,18 @@ if (!q) {
         <div class="chart-tabs">
           <button class="chart-tab on" onclick="switchTab('price',this)">价格走势</button>
           <button class="chart-tab" onclick="switchTab('vs',this)">vs 板块 ETF</button>
+          <button class="chart-tab" onclick="switchTab('excess',this)">超额收益</button>
+          <div id="maLegend" style="margin-left:auto;display:flex;gap:10px;align-items:center;padding:0 14px;font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)">
+            ${['MA20','MA50','MA200'].filter((_,i)=>[q.ma20,q.ma50,q.ma200][i]).map((lab,i) => {
+              const colors = ['#e66b00','#9c27b0',INK];
+              const dashes = [false,false,true];
+              return `<span><span style="display:inline-block;width:14px;height:${dashes[i]?'1.5px':'1.5px'};background:${colors[i]};vertical-align:middle;margin-right:3px;${dashes[i]?'border-top:1.5px dashed '+colors[i]+';background:transparent':''}"></span>${lab}</span>`;
+            }).join('')}
+          </div>
         </div>
         <div id="chart" class="active"></div>
         <div id="chart2"></div>
+        <div id="chart-excess"></div>
       </div>
 
       <!-- technicals -->
@@ -421,18 +472,47 @@ if (!q) {
           <div class="metrics">
             ${q.mc   ? `<div class="metric"><div class="metric-label">市值</div><div class="metric-val">$${fM(q.mc)}</div></div>` : ''}
             ${q.aum  ? `<div class="metric"><div class="metric-label">规模 AUM</div><div class="metric-val">$${fM(q.aum)}</div></div>` : ''}
-            ${q.pe   ? `<div class="metric"><div class="metric-label">PE (TTM)</div><div class="metric-val">${q.pe.toFixed(1)}x</div></div>` : ''}
-            ${q.fpe  ? `<div class="metric"><div class="metric-label">预期 PE</div><div class="metric-val">${q.fpe.toFixed(1)}x</div></div>` : ''}
-            ${q.pb   ? `<div class="metric"><div class="metric-label">PB</div><div class="metric-val">${q.pb.toFixed(1)}x</div></div>` : ''}
-            ${q.dy  != null ? `<div class="metric"><div class="metric-label">股息率</div><div class="metric-val">${q.dy.toFixed(2)}%</div></div>` : ''}
             ${q.beta ? `<div class="metric"><div class="metric-label">Beta</div><div class="metric-val">${q.beta.toFixed(2)}</div></div>` : ''}
             ${q.eps  ? `<div class="metric"><div class="metric-label">EPS (TTM)</div><div class="metric-val">$${q.eps.toFixed(2)}</div></div>` : ''}
-            ${q.pm  != null ? `<div class="metric"><div class="metric-label">净利率</div><div class="metric-val">${q.pm.toFixed(1)}%</div></div>` : ''}
-            ${q.roe != null ? `<div class="metric"><div class="metric-label">ROE</div><div class="metric-val">${q.roe.toFixed(1)}%</div></div>` : ''}
+            ${q.dy  != null ? `<div class="metric"><div class="metric-label">股息率</div><div class="metric-val">${q.dy.toFixed(2)}%</div></div>` : ''}
             ${q.tgt  ? `<div class="metric"><div class="metric-label">分析师目标价</div><div class="metric-val">$${q.tgt.toFixed(0)}<span class="metric-sub" style="display:inline;margin-left:6px;font-size:var(--text-2xs);color:${upside>=0?'var(--accent-2)':'var(--warn)'}">${upside>=0?'+':''}${upside.toFixed(1)}%</span></div></div>` : ''}
           </div>
         </div>
       </div>
+      <!-- valuation vs peer median -->
+      ${q.kind !== 'ETF' && (q.pe || q.fpe || q.pb || q.pm != null || q.roe != null) ? `
+      <div class="section">
+        <div class="sec-head"><span>估值 vs 同类中位</span><span class="sec-head-note">竖线 = 同类中位数 · 蓝点 = 当前值</span></div>
+        <div style="padding:0">
+          <div class="metrics">
+            ${q.pe != null ? `<div class="metric">
+              <div class="metric-label">PE (TTM)</div>
+              <div class="metric-val">${q.pe.toFixed(1)}x</div>
+              ${cmpBar(q.pe, peerMedian('pe'), v => v.toFixed(1)+'x')}
+            </div>` : ''}
+            ${q.fpe != null ? `<div class="metric">
+              <div class="metric-label">预期 PE</div>
+              <div class="metric-val">${q.fpe.toFixed(1)}x</div>
+              ${cmpBar(q.fpe, peerMedian('fpe'), v => v.toFixed(1)+'x')}
+            </div>` : ''}
+            ${q.pb != null ? `<div class="metric">
+              <div class="metric-label">PB</div>
+              <div class="metric-val">${q.pb.toFixed(1)}x</div>
+              ${cmpBar(q.pb, peerMedian('pb'), v => v.toFixed(1)+'x')}
+            </div>` : ''}
+            ${q.pm != null ? `<div class="metric">
+              <div class="metric-label">净利率</div>
+              <div class="metric-val">${q.pm.toFixed(1)}%</div>
+              ${cmpBar(q.pm, peerMedian('pm'), v => v.toFixed(1)+'%')}
+            </div>` : ''}
+            ${q.roe != null ? `<div class="metric">
+              <div class="metric-label">ROE</div>
+              <div class="metric-val">${q.roe.toFixed(1)}%</div>
+              ${cmpBar(q.roe, peerMedian('roe'), v => v.toFixed(1)+'%')}
+            </div>` : ''}
+          </div>
+        </div>
+      </div>` : ''}
 
       <!-- target price bar -->
       ${q.tgt && q.p && q.l52 && q.h52 ? (() => {
@@ -520,8 +600,8 @@ if (!q) {
 </div>`;
 
   /* ---- charts ---- */
-  let chart1 = null, chart2 = null, chart3 = null;
-  const resizeAll = () => { chart1?.resize(); chart2?.resize(); chart3?.resize(); };
+  let chart1 = null, chart2 = null, chart3 = null, chartExcess = null;
+  const resizeAll = () => { chart1?.resize(); chart2?.resize(); chart3?.resize(); chartExcess?.resize(); };
   window.addEventListener('resize', resizeAll);
 
   /* tab switcher */
@@ -530,26 +610,59 @@ if (!q) {
     btn.classList.add('on');
     document.getElementById('chart').classList.toggle('active', tab === 'price');
     document.getElementById('chart2').classList.toggle('active', tab === 'vs');
+    document.getElementById('chart-excess').classList.toggle('active', tab === 'excess');
+    const maLeg = document.getElementById('maLegend');
+    if (maLeg) maLeg.style.display = tab === 'price' ? '' : 'none';
     if (tab === 'vs' && !chart2) initVsChart();
+    if (tab === 'excess' && !chartExcess) initExcessChart();
     setTimeout(resizeAll, 50);
   };
 
-  /* price chart */
+  /* build MA series from price history */
+  function buildMA(data, period) {
+    return data.map((_, i) => {
+      if (i < period - 1) return null;
+      const slice = data.slice(i - period + 1, i + 1);
+      if (slice.some(v => v == null)) return null;
+      return +(slice.reduce((s, v) => s + v, 0) / period).toFixed(2);
+    });
+  }
+
+  /* price chart with MA lines */
   requestAnimationFrame(() => {
     const el = document.getElementById('chart');
     if (!el || !q.hist || !D.hist_dates) return;
     chart1 = echarts.init(el);
+    const ma20  = buildMA(q.hist, 20);
+    const ma50  = buildMA(q.hist, 50);
+    const ma200 = buildMA(q.hist, 200);
     chart1.setOption({
       tooltip:{...TIP,trigger:'axis',axisPointer:{type:'line',lineStyle:{color:LINE}},
-        valueFormatter:v=>v==null?'—':'$'+v.toFixed(2)},
+        formatter(params) {
+          const date = params[0]?.axisValue || '';
+          const lines = params.map(p => {
+            const v = p.value;
+            const str = v == null ? '—' : '$' + v.toFixed(2);
+            return `<span style="display:inline-block;width:8px;height:8px;background:${p.color};margin-right:4px"></span>${p.seriesName}: <b>${str}</b>`;
+          });
+          return `<div style="font-size:10px;color:${MUTE};margin-bottom:4px">${date}</div>` + lines.join('<br/>');
+        }
+      },
       grid:{left:58,right:16,top:14,bottom:28},
       xAxis:{type:'category',data:D.hist_dates,boundaryGap:false,...AXIS,splitLine:{show:false}},
       yAxis:{type:'value',scale:true,...AXIS},
-      series:[{
-        name:TICKER,type:'line',data:q.hist,showSymbol:false,cursor:'default',
-        lineStyle:{width:1.8,color},itemStyle:{color},
-        areaStyle:{color,opacity:.07}
-      }]
+      legend:{show:false},
+      series:[
+        {name:TICKER,type:'line',data:q.hist,showSymbol:false,cursor:'default',
+          lineStyle:{width:1.8,color},itemStyle:{color},
+          areaStyle:{color,opacity:.07}},
+        {name:'MA20',type:'line',data:ma20,showSymbol:false,
+          lineStyle:{width:1,color:'#e66b00',type:'solid'},itemStyle:{color:'#e66b00'},z:3},
+        {name:'MA50',type:'line',data:ma50,showSymbol:false,
+          lineStyle:{width:1,color:'#9c27b0',type:'solid'},itemStyle:{color:'#9c27b0'},z:3},
+        {name:'MA200',type:'line',data:ma200,showSymbol:false,
+          lineStyle:{width:1.2,color:INK,type:'dashed'},itemStyle:{color:INK},z:4},
+      ]
     });
   });
 
@@ -587,13 +700,64 @@ if (!q) {
     });
   }
 
+  /* excess return vs sector ETF chart */
+  function initExcessChart() {
+    const el = document.getElementById('chart-excess');
+    if (!el || !q.hist || !D.hist_dates) return;
+    const secPx = D.px?.[q.sec];
+    if (!secPx) {
+      el.innerHTML = `<div class="state-msg" style="height:100%;font-size:var(--text-xs)">无板块ETF价格数据</div>`;
+      return;
+    }
+    chartExcess = echarts.init(el);
+    const n = q.hist.length;
+    const stock = q.hist;
+    const sector = secPx.slice(-n);
+    /* rolling relative return: stock daily return - sector daily return, cumulated */
+    const excess = [];
+    let cumExcess = 0;
+    for (let i = 0; i < n; i++) {
+      if (i === 0 || stock[i] == null || stock[i-1] == null || sector[i] == null || sector[i-1] == null) {
+        excess.push(i === 0 ? 0 : null);
+      } else {
+        const stkRet = stock[i] / stock[i-1] - 1;
+        const secRet = sector[i] / sector[i-1] - 1;
+        cumExcess += (stkRet - secRet) * 100;
+        excess.push(+cumExcess.toFixed(2));
+      }
+    }
+    const maxAbs = Math.max(...excess.filter(v => v != null).map(Math.abs));
+    chartExcess.setOption({
+      tooltip:{...TIP,trigger:'axis',axisPointer:{type:'line',lineStyle:{color:LINE}},
+        formatter(params) {
+          const v = params[0]?.value;
+          const str = v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+          return `<div style="font-size:10px;color:${MUTE};margin-bottom:2px">${params[0]?.axisValue}</div>` +
+            `<span style="display:inline-block;width:8px;height:8px;background:${v>=0?UP:DOWN};margin-right:4px"></span>` +
+            `超额: <b style="color:${v>=0?UP:DOWN}">${str}</b>`;
+        }
+      },
+      grid:{left:58,right:16,top:24,bottom:28},
+      xAxis:{type:'category',data:D.hist_dates,boundaryGap:false,...AXIS,splitLine:{show:false}},
+      yAxis:{type:'value',scale:true,...AXIS,
+        min:-maxAbs*1.05, max:maxAbs*1.05,
+        axisLabel:{...AXIS.axisLabel,formatter:v=>(v>=0?'+':'')+v.toFixed(0)+'%'}},
+      series:[{
+        name:`${TICKER} 超额 vs ${q.sec}`,type:'bar',data:excess.map(v=>({
+          value:v,
+          itemStyle:{color:v==null?LINE:v>=0?UP:DOWN,opacity:.75,borderRadius:0}
+        })),barMaxWidth:4,
+      }]
+    });
+  }
+
   /* peer ranking chart */
   const rankEl = document.getElementById('rankChart');
   if (rankEl && peersSorted.length > 1) {
     chart3 = echarts.init(rankEl);
     chart3.setOption({
       tooltip:{...TIP,trigger:'item',formatter:p=>`${p.name}<br/>近1月: <b>${fmt(p.value)}</b>`},
-      grid:{left:72,right:40,top:8,bottom:12},
+      grid:{left:72,right:52,top:8,bottom:12},
       xAxis:{type:'value',...AXIS,
         axisLabel:{...AXIS.axisLabel,formatter:v=>v+'%'},splitLine:{show:false},axisLine:{show:false}},
       yAxis:{type:'category',data:peersSorted.map(p=>p.t),
