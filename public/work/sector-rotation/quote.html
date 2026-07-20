@@ -273,7 +273,7 @@ const q = QMAP[TICKER];
 
 if (!q) {
   document.getElementById('app').innerHTML =
-    `<div class="state-msg">找不到标的 "${TICKER}" — <a href="/work/sector-rotation">← 返回看板</a></div>`;
+    `<div class="state-msg">找不到标的 "${TICKER}" — <a href="/work/sector-rotation" onclick="window.top.location.href='/work/sector-rotation';return false">← 返回看板</a></div>`;
 } else {
   const sec   = D.sectors.find(s => s.ticker === q.sec) || {};
   const grp   = sec.group === 'cyc' ? '顺周期' : '防御';
@@ -331,7 +331,7 @@ if (!q) {
   <div class="masthead">
     <div class="masthead-top">
       <nav class="breadcrumb">
-        <a href="/work/sector-rotation">美股板块轮动</a>
+        <a href="/work/sector-rotation" onclick="window.top.location.href='/work/sector-rotation';return false">美股板块轮动</a>
         <span class="breadcrumb-sep">/</span>
         <span>${sec.name || q.sec}</span>
         <span class="breadcrumb-sep">/</span>
@@ -555,7 +555,7 @@ if (!q) {
           <div class="peers-list">
             ${peers.map(p => `
               <div class="peer-row${p.t === TICKER ? ' is-self' : ''}">
-                <a href="/work/sector-rotation/${p.t}">
+                <a href="/work/sector-rotation/${p.t}" onclick="window.top.location.href='/work/sector-rotation/${p.t}';return false">
                   <div style="min-width:0">
                     <div class="peer-name">${p.n}</div>
                     <div class="peer-code">${p.t}</div>

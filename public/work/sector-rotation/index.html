@@ -138,14 +138,17 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 /* ======= CONTROL BAR (pills) ======= */
 .control-bar{
   border-bottom:1px solid var(--line);
-  display:flex;flex-wrap:wrap;gap:6px;padding:14px 0
+  display:flex;flex-wrap:nowrap;gap:6px;padding:14px 0;
+  overflow-x:auto;scrollbar-width:none;
 }
+.control-bar::-webkit-scrollbar{display:none}
 .pill{
   font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--track-label);
   text-transform:uppercase;
   border:1.5px solid var(--ink);background:var(--card);color:var(--ink-soft);
   padding:5px 12px;display:inline-flex;align-items:center;gap:8px;
-  cursor:pointer;transition:background var(--duration) var(--ease),color var(--duration) var(--ease)
+  cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:background var(--duration) var(--ease),color var(--duration) var(--ease)
 }
 .pill:hover,.pill.on{background:var(--accent);border-color:var(--accent);color:var(--card)}
 .pill .pn{font-weight:var(--w-semibold)}
