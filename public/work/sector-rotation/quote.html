@@ -270,6 +270,18 @@ const pct  = (a, b) => b == null || a == null ? null : ((a - b) / Math.abs(b) * 
 const QMAP = {};
 Object.entries(D.stocks).forEach(([sec,list]) => list.forEach(q => QMAP[q.t] = {...q, kind:'个股', sec}));
 Object.entries(D.etfs  ).forEach(([sec,list]) => list.forEach(q => QMAP[q.t] = {...q, kind:'ETF',  sec}));
+/* also include sector ETFs themselves */
+D.sectors.forEach(s => {
+  const px = D.px[s.ticker];
+  QMAP[s.ticker] = {
+    t: s.ticker, n: s.name, kind: 'ETF', sec: s.ticker,
+    p: s.price, chg: s.day_chg,
+    w1: s.returns?.['1周'], m1: s.returns?.['1月'], m3: s.returns?.['3月'],
+    m6: s.returns?.['6月'], ytd: s.returns?.['YTD'], y1: s.returns?.['1年'],
+    hist: px ? px.slice(-252) : null,
+    aum: s.aum,
+  };
+});
 
 const q = QMAP[TICKER];
 
@@ -401,7 +413,7 @@ if (!q) {
         return `<div class="ret-cell">
           <div class="ret-label">${lab}</div>
           <div class="ret-val ${cls(v)}">${v == null ? '—' : fmt(v)}</div>
-          ${ex != null ? `<div class="ret-sub" style="color:${ex>=0?'var(--up)':'var(--down)'}">${ex>=0?'+':''}${ex.toFixed(1)}% vs ${sec.name||'板块'}</div>` : ''}
+          ${ex != null && Math.abs(ex) >= 0.05 ? `<div class="ret-sub" style="color:${ex>=0?'var(--up)':'var(--down)'}">${ex>=0?'+':''}${ex.toFixed(1)}% vs ${sec.name||'板块'}</div>` : ''}
         </div>`;
       }).join('')}
     <div class="ret-cell">
@@ -442,7 +454,7 @@ if (!q) {
       </div>
 
       <!-- technicals -->
-      <div class="section">
+      ${(q.h52 || q.ma20 || q.vol || q.vola != null) ? `<div class="section">
         <div class="sec-head">
           <span>技术面</span>
           ${q.ma200 && q.p ? `<span class="sec-head-note">${q.p >= q.ma200 ? '✓ 站上 MA200' : '✗ 跌破 MA200'}</span>` : ''}
@@ -462,10 +474,10 @@ if (!q) {
             ].filter(Boolean).join('')}
           </div>
         </div>
-      </div>
+      </div>` : ''}
 
       <!-- fundamentals -->
-      <div class="section">
+      ${(q.mc || q.aum || q.beta || q.eps || q.dy != null || q.tgt) ? `<div class="section">
         <div class="sec-head">
           <span>基本面与估值</span>
           ${q.tgt && q.p ? `<span class="sec-head-note">分析师目标价 $${q.tgt.toFixed(0)} · 空间 ${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%</span>` : ''}
@@ -480,7 +492,7 @@ if (!q) {
             ${q.tgt  ? `<div class="metric"><div class="metric-label">分析师目标价</div><div class="metric-val">$${q.tgt.toFixed(0)}<span class="metric-sub" style="display:inline;margin-left:6px;font-size:var(--text-2xs);color:${upside>=0?'var(--accent-2)':'var(--warn)'}">${upside>=0?'+':''}${upside.toFixed(1)}%</span></div></div>` : ''}
           </div>
         </div>
-      </div>
+      </div>` : ''}
       <!-- valuation vs peer median -->
       ${q.kind !== 'ETF' && (q.pe || q.fpe || q.pb || q.pm != null || q.roe != null) ? `
       <div class="section">

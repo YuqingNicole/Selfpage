@@ -760,7 +760,7 @@ document.querySelectorAll('.pill').forEach(p=>{
       yAxis:{type:'category',data:rows.map(s=>`${s.name} ${s.ticker}`),
         ...AXIS,splitLine:{show:false},axisLine:{show:false},
         axisLabel:{color:INK,fontSize:11.5,fontFamily:'"IBM Plex Mono",monospace'}},
-      series:[{type:'bar',barWidth:11,cursor:'pointer',
+      series:[{type:'bar',barWidth:11,clip:false,cursor:'pointer',
         data:rows.map(s=>({value:s.returns[h],
           itemStyle:{color:s.returns[h]>=0?UP:DOWN,borderRadius:0},
           label:{position:s.returns[h]>=0?'right':'left'}})),
