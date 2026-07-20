@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个股全景筛选</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f7f8f4; --paper-deep:#e9ece4; --card:#fff;
+  --ink:#080a0f; --ink-soft:#3d4652; --ink-mute:#7b8491;
+  --line:#d9ded4; --line-dark:#080a0f;
+  --accent:#3157ff; --accent-deep:#1536d1; --accent-soft:#88a0ff;
+  --accent-2:#00a676; --warn:#e66b00;
+  --accent-dim:#3157ff17;
+  --up:#d32f2f; --down:#00a676;
+  --hairline:#080a0f14;
+  --font-display:"Bricolage Grotesque","Hanken Grotesk",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --font-text:"Hanken Grotesk",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --text-2xs:.625rem; --text-xs:.6875rem; --text-sm:.78125rem;
+  --text-base:.9375rem; --text-lg:1.1875rem; --text-xl:1.375rem;
+  --text-2xl:1.875rem;
+  --w-body:400; --w-semibold:600; --w-bold:700; --w-display:800;
+  --lh-base:1.6; --track-label:.12em; --track-wide:.18em;
+  --rule-heavy:3px solid var(--ink); --rule-bold:2px solid var(--ink);
+  --rule-card:1.5px solid var(--ink);
+  --duration:.18s; --ease:cubic-bezier(.22,1,.36,1);
+  --pp:clamp(14px,2.8vw,36px);
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;height:100%}
+body{
+  height:100%;overflow:hidden;
+  background:linear-gradient(90deg,#080a0f09 1px,transparent 1px),
+             linear-gradient(0deg,#080a0f07 1px,transparent 1px),var(--paper);
+  background-size:48px 48px;
+  color:var(--ink-soft);
+  font:var(--w-body) var(--text-base)/var(--lh-base) var(--font-text);
+  font-variant-numeric:tabular-nums;
+  display:flex;flex-direction:column;
+}
+button{font-family:inherit;cursor:pointer;border:none}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- SHELL ---- */
+.shell{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.controls{flex-shrink:0;padding:0 var(--pp);background:var(--paper)}
+
+/* ---- MASTHEAD ---- */
+.mast{
+  border-bottom:var(--rule-heavy);
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 0 11px;gap:12px;flex-wrap:wrap
+}
+.mast-left{display:flex;align-items:center;gap:14px}
+.mast-title{
+  font-family:var(--font-display);font-size:var(--text-xl);
+  font-weight:var(--w-display);color:var(--ink);letter-spacing:-.01em
+}
+.mast-sub{
+  font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--ink-mute);letter-spacing:var(--track-label);margin-top:3px
+}
+.back-btn{
+  font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--track-label);
+  color:var(--ink-mute);padding:4px 12px;
+  border:1.5px solid var(--line);background:transparent;
+  transition:color var(--duration) var(--ease),border-color var(--duration) var(--ease)
+}
+.back-btn:hover{color:var(--accent);border-color:var(--accent)}
+.mast-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.asof-lbl{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)}
+.asof-lbl b{color:var(--accent);font-weight:var(--w-semibold)}
+.spy-ref{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)}
+.spy-ref b{color:var(--ink);font-weight:var(--w-semibold)}
+.chip{
+  font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--w-semibold);
+  letter-spacing:var(--track-label);text-transform:uppercase;
+  border:1.5px solid;padding:2px 7px;display:inline-block
+}
+.chip.up{color:var(--up);border-color:var(--up)}
+.chip.down{color:var(--down);border-color:var(--down)}
+
+/* ---- SECTOR TABS ---- */
+.sector-tabs{
+  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+  border-bottom:1px solid var(--line);padding-top:9px
+}
+.sector-tabs::-webkit-scrollbar{display:none}
+.stab{
+  font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--track-label);
+  text-transform:uppercase;border:1.5px solid var(--ink);border-right:0;
+  background:var(--card);color:var(--ink-mute);padding:5px 14px;
+  white-space:nowrap;display:flex;align-items:center;gap:6px;
+  transition:background var(--duration) var(--ease),color var(--duration) var(--ease)
+}
+.stab:last-child{border-right:1.5px solid var(--ink)}
+.stab:hover{background:var(--accent-dim);color:var(--accent)}
+.stab.on{background:var(--ink);color:var(--paper);font-weight:var(--w-semibold)}
+.stab.on .sdot{opacity:.9}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;opacity:.7}
+.scount{opacity:.45;font-size:var(--text-2xs)}
+
+/* ---- FILTER BAR ---- */
+.filter-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap
+}
+.kind-tabs{display:flex;gap:0}
+.ktab{
+  font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);
+  text-transform:uppercase;border:1.5px solid var(--ink);border-right:0;
+  background:var(--card);color:var(--ink-mute);padding:4px 12px;
+  transition:background var(--duration) var(--ease),color var(--duration) var(--ease)
+}
+.ktab:last-child{border-right:1.5px solid var(--ink)}
+.ktab:hover{background:var(--accent-dim);color:var(--accent)}
+.ktab.on{background:var(--accent);border-color:var(--accent);color:var(--card);font-weight:var(--w-semibold)}
+.search-box{
+  flex:1;min-width:130px;max-width:240px;
+  font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink);
+  border:1.5px solid var(--line);background:var(--card);
+  padding:4px 10px;outline:none;
+  transition:border-color var(--duration) var(--ease)
+}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--ink-mute)}
+.row-count{
+  font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);
+  letter-spacing:var(--track-label);margin-left:auto
+}
+.sort-hint{
+  font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);
+  letter-spacing:var(--track-label)
+}
+
+/* ---- TABLE WRAP ---- */
+.table-wrap{
+  flex:1;overflow-y:auto;overflow-x:auto;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent
+}
+.table-wrap::-webkit-scrollbar{width:4px;height:4px}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--line)}
+
+/* ---- SCREENER TABLE ---- */
+.stbl{width:100%;border-collapse:collapse;min-width:860px}
+.stbl thead{position:sticky;top:0;z-index:10;background:var(--paper)}
+.stbl thead tr{border-bottom:var(--rule-bold)}
+.stbl th{
+  font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--ink-mute);font-weight:var(--w-semibold);
+  padding:9px 11px;white-space:nowrap;
+  border-right:1px solid var(--line);user-select:none
+}
+.stbl th:last-child{border-right:0}
+.stbl th.sortable{cursor:pointer;transition:color var(--duration) var(--ease)}
+.stbl th.sortable:hover{color:var(--accent)}
+.stbl th.sort-on{color:var(--ink)}
+.sort-arrow{display:inline-block;margin-left:3px;font-size:.6rem;opacity:.7;vertical-align:middle}
+.th-name{text-align:left;min-width:190px;padding-left:var(--pp) !important}
+.th-num{text-align:right}
+
+.stbl tbody tr{
+  border-bottom:1px solid var(--hairline);cursor:pointer;
+  transition:filter var(--duration) var(--ease)
+}
+.stbl tbody tr:hover td{filter:brightness(.93);color:var(--ink) !important}
+.stbl td{
+  padding:8px 11px;border-right:1px solid var(--hairline);
+  white-space:nowrap;vertical-align:middle
+}
+.stbl td:last-child{border-right:0}
+.td-name{padding-left:var(--pp) !important;text-align:left}
+.td-num{
+  text-align:right;font-family:var(--font-mono);font-size:var(--text-sm);
+  font-variant-numeric:tabular-nums
+}
+
+/* name cell sub-parts */
+.rn{font-weight:var(--w-semibold);color:var(--ink);font-size:var(--text-sm)}
+.rt{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-left:5px}
+.rm{display:flex;align-items:center;gap:5px;margin-top:3px}
+.sdot-sm{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rsect{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)}
+.rkind{
+  font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--w-semibold);
+  letter-spacing:var(--track-label);text-transform:uppercase;
+  border:1px solid var(--line);padding:1px 5px;color:var(--ink-mute)
+}
+
+/* empty */
+.empty-row td{
+  text-align:center;padding:56px;
+  font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);
+  border-right:0 !important;cursor:default
+}
+.stbl tbody .empty-row:hover td{filter:none}
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:640px){
+  .mast-title{font-size:var(--text-lg)}
+  .stbl{min-width:720px}
+  .mast-sub{display:none}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="controls">
+
+    <!-- masthead -->
+    <div class="mast">
+      <div class="mast-left">
+        <div>
+          <div class="mast-title">个股全景筛选</div>
+          <div class="mast-sub">按板块纵向筛选 · 按时间跨度横向对比</div>
+        </div>
+        <button class="back-btn" onclick="window.top.location.href='/work/sector-rotation'">← 看板</button>
+      </div>
+      <div class="mast-right">
+        <div class="asof-lbl">截至 <b id="asofVal"></b></div>
+        <div id="spyChip"></div>
+      </div>
+    </div>
+
+    <!-- sector tabs -->
+    <div class="sector-tabs" id="sectorTabs"></div>
+
+    <!-- filter bar -->
+    <div class="filter-bar">
+      <div class="kind-tabs" id="kindTabs">
+        <button class="ktab on" data-k="ALL">全部</button>
+        <button class="ktab" data-k="个股">个股</button>
+        <button class="ktab" data-k="ETF">ETF</button>
+      </div>
+      <input class="search-box" id="searchBox" type="text" placeholder="搜索 ticker 或名称…" autocomplete="off" spellcheck="false">
+      <div class="row-count" id="rowCount"></div>
+      <div class="sort-hint" id="sortHint"></div>
+    </div>
+
+  </div>
+
+  <!-- table -->
+  <div class="table-wrap">
+    <table class="stbl">
+      <thead><tr id="theadRow"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const D = window.SECTOR_DATA;
+
+const COLOR = {
+  XLK:'#3157ff', XLC:'#7c70ec', XLY:'#e66b00', XLF:'#00a676',
+  XLI:'#7b8491', XLB:'#b08900', XLE:'#d32f2f', XLV:'#9c27b0',
+  XLP:'#0d87a5', XLU:'#558b2f', XLRE:'#8d6e63'
+};
+
+const fmt = v => v==null ? '—' : (v>0?'+':'')+v.toFixed(2)+'%';
+
+/* ---- build unified item list ---- */
+const ALL_ITEMS = [];
+Object.entries(D.stocks).forEach(([sec,list]) => list.forEach(q => ALL_ITEMS.push({...q, kind:'个股', sec})));
+Object.entries(D.etfs  ).forEach(([sec,list]) => list.forEach(q => ALL_ITEMS.push({...q, kind:'ETF',  sec})));
+
+/* ---- column definitions ---- */
+const COLS = [
+  {key:'chg',  label:'今日',  tip:'日涨跌幅'},
+  {key:'w1',   label:'1周',   tip:'近1周收益'},
+  {key:'m1',   label:'1月',   tip:'近1月收益'},
+  {key:'m3',   label:'3月',   tip:'近3月收益'},
+  {key:'m6',   label:'6月',   tip:'近6月收益'},
+  {key:'ytd',  label:'YTD',   tip:'今年以来收益'},
+  {key:'y1',   label:'1年',   tip:'近1年收益'},
+  {key:'vola', label:'波动率', tip:'年化波动率'},
+];
+
+/* ---- state ---- */
+let activeSector = 'ALL';
+let activeKind   = 'ALL';
+let sortCol      = 'm1';
+let sortDir      = -1;   // -1 = 降序（最大在上）, 1 = 升序
+let searchQ      = '';
+
+/* ---- color helpers ---- */
+function retCellStyle(v, maxAbs) {
+  if (v == null || maxAbs < 0.01) {
+    return v == null ? 'color:var(--ink-mute)' : (v >= 0 ? 'color:var(--up)' : 'color:var(--down)');
+  }
+  const t  = Math.max(-1, Math.min(1, v / maxAbs));
+  const a  = Math.pow(Math.abs(t), 0.7) * 0.82;
+  const base = [247, 248, 244];
+  const pos  = [211,  47,  47];
+  const neg  = [  0, 166, 118];
+  const c    = t >= 0 ? pos : neg;
+  const rgb  = base.map((x, i) => Math.round(x + (c[i] - x) * a));
+  const light = a < 0.48;
+  const textColor = light ? (v >= 0 ? 'var(--up)' : 'var(--down)') : 'rgba(255,255,255,.93)';
+  return `background:rgb(${rgb.join(',')});color:${textColor}`;
+}
+
+function volaCellStyle(v, maxV) {
+  if (v == null || maxV < 0.01) return 'color:var(--ink-mute)';
+  const t   = Math.min(1, v / maxV);
+  const a   = Math.pow(t, 0.7) * 0.7;
+  const base = [247, 248, 244];
+  const hot  = [230, 107,   0];
+  const rgb  = base.map((x, i) => Math.round(x + (hot[i] - x) * a));
+  const light = a < 0.5;
+  const textColor = light ? 'var(--warn)' : 'rgba(255,255,255,.93)';
+  return `background:rgb(${rgb.join(',')});color:${textColor}`;
+}
+
+/* ---- build column header ---- */
+function buildHeader() {
+  const tr = document.getElementById('theadRow');
+  tr.innerHTML =
+    `<th class="th-name">名称 / Ticker</th>` +
+    COLS.map(c => {
+      const isActive = c.key === sortCol;
+      const arrow = isActive ? (sortDir === -1 ? ' ↓' : ' ↑') : '';
+      return `<th class="th-num sortable${isActive ? ' sort-on' : ''}" data-key="${c.key}" title="${c.tip}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+    }).join('');
+
+  tr.querySelectorAll('th.sortable').forEach(th => {
+    th.onclick = () => {
+      const k = th.dataset.key;
+      if (sortCol === k) sortDir *= -1;
+      else { sortCol = k; sortDir = -1; }
+      buildHeader();
+      renderRows();
+    };
+  });
+}
+
+/* ---- render rows ---- */
+function renderRows() {
+  let rows = ALL_ITEMS;
+  if (activeSector !== 'ALL') rows = rows.filter(r => r.sec === activeSector);
+  if (activeKind   !== 'ALL') rows = rows.filter(r => r.kind === activeKind);
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    rows = rows.filter(r =>
+      r.t.toLowerCase().includes(q) ||
+      r.n.includes(searchQ) ||
+      (r.full || '').toLowerCase().includes(q)
+    );
+  }
+
+  rows = [...rows].sort((a, b) => {
+    const av = a[sortCol] ?? -1e9;
+    const bv = b[sortCol] ?? -1e9;
+    return sortDir * (av - bv);
+  });
+
+  /* per-column max absolute for color scaling (from visible rows only) */
+  const maxAbs = {};
+  ['chg','w1','m1','m3','m6','ytd','y1'].forEach(f => {
+    const vals = rows.map(r => r[f]).filter(v => v != null);
+    maxAbs[f] = Math.max(0.01, ...vals.map(Math.abs));
+  });
+  const maxVola = Math.max(0.01, ...rows.map(r => r.vola).filter(v => v != null));
+
+  document.getElementById('rowCount').textContent = `${rows.length} 只`;
+
+  const colLabel = COLS.find(c => c.key === sortCol)?.label || '';
+  document.getElementById('sortHint').textContent = `排序: ${colLabel} ${sortDir === -1 ? '高 → 低' : '低 → 高'}`;
+
+  const tbody = document.getElementById('tbody');
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="${1 + COLS.length}">没有匹配的标的</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const sec  = D.sectors.find(s => s.ticker === r.sec) || {};
+    const dot  = COLOR[r.sec] || '#999';
+
+    const numCells = COLS.map(c => {
+      if (c.key === 'vola') {
+        const s = volaCellStyle(r.vola, maxVola);
+        return `<td class="td-num" style="${s}">${r.vola == null ? '—' : r.vola.toFixed(1) + '%'}</td>`;
+      }
+      const v = r[c.key];
+      const s = retCellStyle(v, maxAbs[c.key]);
+      return `<td class="td-num" style="${s}">${fmt(v)}</td>`;
+    }).join('');
+
+    return `<tr data-t="${r.t}">
+      <td class="td-name">
+        <span class="rn">${r.n}</span><span class="rt">${r.t}</span>
+        <div class="rm">
+          <span class="sdot-sm" style="background:${dot}"></span>
+          <span class="rsect">${sec.name || r.sec}</span>
+          <span class="rkind">${r.kind}</span>
+        </div>
+      </td>
+      ${numCells}
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('tr[data-t]').forEach(tr => {
+    tr.onclick = () => { window.top.location.href = '/work/sector-rotation/' + tr.dataset.t; };
+  });
+}
+
+/* ---- sector tabs ---- */
+function buildSectorTabs() {
+  const container = document.getElementById('sectorTabs');
+
+  const tabs = [
+    { ticker: 'ALL', name: '全部', color: null },
+    ...D.sectors.map(s => ({ ticker: s.ticker, name: s.name, color: COLOR[s.ticker] }))
+  ];
+
+  const countFor = tk => tk === 'ALL'
+    ? ALL_ITEMS.length
+    : (D.stocks[tk] || []).length + (D.etfs[tk] || []).length;
+
+  container.innerHTML = tabs.map(s => {
+    const on  = activeSector === s.ticker;
+    const dot = s.color ? `<span class="sdot" style="background:${s.color}"></span>` : '';
+    return `<button class="stab${on ? ' on' : ''}" data-sec="${s.ticker}">
+      ${dot}<span>${s.name}</span><span class="scount">${countFor(s.ticker)}</span>
+    </button>`;
+  }).join('');
+
+  container.querySelectorAll('.stab').forEach(b => {
+    b.onclick = () => {
+      activeSector = b.dataset.sec;
+      buildSectorTabs();
+      renderRows();
+    };
+  });
+}
+
+/* ---- kind tabs ---- */
+document.getElementById('kindTabs').querySelectorAll('.ktab').forEach(b => {
+  b.onclick = () => {
+    activeKind = b.dataset.k;
+    document.querySelectorAll('.ktab').forEach(x => x.classList.toggle('on', x === b));
+    renderRows();
+  };
+});
+
+/* ---- search ---- */
+let searchTimer;
+document.getElementById('searchBox').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { searchQ = e.target.value.trim(); renderRows(); }, 120);
+});
+
+/* ---- SPY header ---- */
+document.getElementById('asofVal').textContent = D.asof;
+const spyFmt = v => (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+document.getElementById('spyChip').innerHTML =
+  `<span class="spy-ref">SPY <b>$${D.spy.price.toFixed(2)}</b></span>` +
+  `<span class="chip ${D.spy.day_chg >= 0 ? 'up' : 'down'}">${spyFmt(D.spy.day_chg)}</span>`;
+
+/* ---- init ---- */
+buildHeader();
+buildSectorTabs();
+renderRows();
+</script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个股详情</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f7f8f4; --paper-deep:#e9ece4; --card:#fff;
+  --ink:#080a0f; --ink-soft:#3d4652; --ink-mute:#7b8491;
+  --line:#d9ded4; --line-dark:#080a0f;
+  --accent:#3157ff; --accent-2:#00a676; --warn:#e66b00;
+  --accent-dim:#3157ff17;
+  --up:#d32f2f; --down:#00a676;
+  --hairline:#080a0f14; --grid-line:#080a0f1a;
+  --font-display:"Bricolage Grotesque","Hanken Grotesk",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --font-text:"Hanken Grotesk",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --text-2xs:.625rem; --text-xs:.6875rem; --text-sm:.78125rem;
+  --text-base:.9375rem; --text-lg:1.1875rem; --text-xl:1.375rem;
+  --text-2xl:1.875rem; --text-hero:clamp(1.75rem,3vw+.5rem,2.75rem);
+  --w-body:400; --w-semibold:600; --w-bold:700; --w-display:800;
+  --lh-tight:1.15; --lh-snug:1.4; --lh-base:1.6;
+  --track-label:.12em; --track-wide:.18em;
+  --rule-heavy:3px solid var(--ink); --rule-bold:2px solid var(--ink);
+  --rule-card:1.5px solid var(--ink);
+  --duration:.18s; --ease:cubic-bezier(.22,1,.36,1);
+  --page-pad:clamp(16px,3.2vw,48px); --page-max:1280px;
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{
+  background:linear-gradient(90deg,#080a0f09 1px,transparent 1px),
+             linear-gradient(0deg,#080a0f07 1px,transparent 1px),var(--paper);
+  background-size:48px 48px;
+  color:var(--ink-soft);
+  font:var(--w-body) var(--text-base)/var(--lh-base) var(--font-text);
+  font-variant-numeric:tabular-nums;
+}
+.page{max-width:var(--page-max);padding:0 var(--page-pad);margin:0 auto}
+h1,h2,h3{font-family:var(--font-display);color:var(--ink);font-weight:var(--w-bold)}
+.pos{color:var(--up)} .neg{color:var(--down)}
+a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--line);transition:color var(--duration) var(--ease)}
+a:hover{color:var(--accent);text-decoration-color:var(--accent)}
+
+/* ---- MASTHEAD ---- */
+.masthead{padding-top:20px;border-bottom:var(--rule-heavy)}
+.masthead-top{
+  border-bottom:1px solid var(--ink);
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;padding-bottom:10px
+}
+.breadcrumb{
+  font-family:var(--font-mono);font-size:var(--text-xs);
+  letter-spacing:var(--track-label);color:var(--ink-mute);
+  display:flex;align-items:center;gap:6px
+}
+.breadcrumb a{color:var(--ink-mute);text-decoration:none}
+.breadcrumb a:hover{color:var(--accent)}
+.breadcrumb-sep{opacity:.4}
+.masthead-main{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:0;align-items:end;padding:20px 0 22px
+}
+.masthead-left{display:flex;flex-direction:column;gap:6px}
+.ticker-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.h1-name{font-family:var(--font-display);font-size:var(--text-hero);font-weight:var(--w-display);color:var(--ink);line-height:.94;letter-spacing:-.02em}
+.h1-ticker{font-family:var(--font-mono);font-size:var(--text-xl);color:var(--ink-mute);font-weight:400}
+.badge{
+  font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--w-semibold);
+  letter-spacing:var(--track-label);text-transform:uppercase;
+  border:1.5px solid var(--ink);padding:2px 8px;color:var(--ink-mute)
+}
+.sub-line{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)}
+.masthead-right{text-align:right;padding-bottom:2px}
+.price-big{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:var(--w-display);color:var(--ink);line-height:1}
+.chip{
+  font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--w-semibold);
+  letter-spacing:var(--track-label);text-transform:uppercase;
+  border:1.5px solid;padding:2px 7px;display:inline-block;margin-top:6px
+}
+.chip.up{color:var(--up);border-color:var(--up)}
+.chip.down{color:var(--down);border-color:var(--down)}
+
+/* ---- RETURNS STRIP ---- */
+.rets-strip{
+  border-bottom:var(--rule-bold);
+  display:grid;grid-template-columns:repeat(9,1fr)
+}
+.ret-cell{border-right:1px solid var(--line);padding:11px 14px}
+.ret-cell:last-child{border-right:0}
+.ret-label{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute)}
+.ret-val{font-family:var(--font-display);font-size:var(--text-lg);font-weight:var(--w-bold);margin-top:3px;line-height:1}
+.ret-sub{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-top:3px}
+
+/* ---- 52W RANGE BAR ---- */
+.range-bar-wrap{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+.range-bar-labels{display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);margin-bottom:6px}
+.range-bar-labels strong{color:var(--ink);font-weight:var(--w-semibold)}
+.range-track{position:relative;height:6px;background:var(--paper-deep)}
+.range-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-soft))}
+.range-dot{position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:12px;height:12px;background:var(--ink);border:2px solid var(--paper)}
+.range-pct{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-top:5px;text-align:center}
+
+/* ---- BODY GRID ---- */
+.body-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;margin-top:0}
+.main-col{border-right:1px solid var(--line)}
+.side-col{}
+
+/* ---- SECTION ---- */
+.section{border-bottom:1px solid var(--line)}
+.sec-head{
+  border-bottom:1px solid var(--line);padding:11px 16px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:var(--text-xs);font-weight:var(--w-semibold);
+  letter-spacing:var(--track-wide);text-transform:uppercase;color:var(--accent)
+}
+.sec-head-note{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);font-weight:400;letter-spacing:0;text-transform:none}
+
+/* ---- CHART TABS ---- */
+.chart-tabs{display:flex;gap:0;border-bottom:1px solid var(--line)}
+.chart-tab{
+  font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);
+  text-transform:uppercase;border:0;border-right:1px solid var(--line);
+  background:var(--card);color:var(--ink-mute);
+  padding:8px 14px;cursor:pointer;
+  transition:background var(--duration) var(--ease),color var(--duration) var(--ease)
+}
+.chart-tab:hover{color:var(--accent)}
+.chart-tab.on{background:var(--ink);color:var(--paper);font-weight:var(--w-semibold)}
+#chart,#chart2{height:260px;background:var(--card);display:none}
+#chart.active,#chart2.active{display:block}
+
+/* ---- METRICS GRID ---- */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:var(--rule-card)}
+.metric{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 14px;min-width:0}
+.metrics .metric:nth-child(3n){border-right:0}
+.metric.wide{grid-column:span 3;border-right:0}
+.metric.wide2{grid-column:span 2}
+.metric-label{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute)}
+.metric-val{font-size:var(--text-base);font-weight:var(--w-semibold);color:var(--ink);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.metric-sub{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-top:2px}
+
+/* ---- SIDE ---- */
+.side-section{border-bottom:1px solid var(--line)}
+.side-head{border-bottom:1px solid var(--line);padding:11px 14px;font-family:var(--font-mono);font-size:var(--text-xs);font-weight:var(--w-semibold);letter-spacing:var(--track-wide);text-transform:uppercase;color:var(--accent)}
+.side-body{padding:0}
+
+/* peers list */
+.peers-list{display:grid;gap:0}
+.peer-row{
+  display:grid;grid-template-columns:minmax(0,1fr) 58px 56px;
+  align-items:center;gap:6px;
+  border-bottom:1px solid var(--hairline);padding:9px 14px;
+  font-size:var(--text-sm);
+  transition:background var(--duration) var(--ease)
+}
+.peer-row:last-child{border-bottom:0}
+.peer-row:hover{background:var(--accent-dim)}
+.peer-name{font-weight:var(--w-semibold);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-sm)}
+.peer-code{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)}
+.peer-price{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-soft);text-align:right}
+.peer-chg{font-family:var(--font-mono);font-size:var(--text-xs);text-align:right;font-weight:var(--w-semibold)}
+.peer-row.is-self{background:var(--accent-dim)}
+.peer-row.is-self .peer-name,.peer-row.is-self .peer-code{color:var(--accent)}
+.peer-row a{text-decoration:none;display:contents}
+
+/* peer ranking chart */
+#rankChart{height:200px;background:var(--card)}
+
+/* sector rets table */
+.sec-rets{width:100%;border-collapse:collapse;font-size:var(--text-xs);padding:12px 14px;display:block}
+.sec-rets th{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);color:var(--ink-mute);font-weight:600;padding:4px 6px 6px;text-align:right}
+.sec-rets th:first-child{text-align:left;padding-left:0}
+.sec-rets td{padding:5px 6px;border-top:1px solid var(--hairline);text-align:right;font-family:var(--font-mono);font-size:var(--text-xs);font-weight:600}
+.sec-rets td:first-child{text-align:left;font-family:var(--font-text);font-weight:400;color:var(--ink-mute);padding-left:0}
+
+/* ---- TARGET BAR ---- */
+.tgt-bar-wrap{padding:12px 14px}
+.tgt-bar-track{position:relative;height:5px;background:var(--paper-deep);margin:6px 0 4px}
+.tgt-bar-fill{position:absolute;top:0;left:0;height:100%;background:var(--accent-2)}
+.tgt-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:var(--ink);border:2px solid var(--paper)}
+.tgt-labels{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)}
+
+/* ---- FOOTER ---- */
+footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);padding:14px 0 28px;border-top:1px solid var(--line)}
+
+/* ---- LOADING ---- */
+.state-msg{display:flex;align-items:center;justify-content:center;height:60vh;
+  font-family:var(--font-mono);font-size:var(--text-sm);color:var(--ink-mute)}
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:860px){
+  .body-grid{grid-template-columns:1fr}
+  .main-col{border-right:0}
+  .rets-strip{grid-template-columns:repeat(3,1fr)}
+  .ret-cell:nth-child(3n){border-right:0}
+  .ret-cell:nth-child(n+4){border-top:1px solid var(--line)}
+}
+@media(max-width:540px){
+  .rets-strip{grid-template-columns:repeat(3,1fr)}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .metric:nth-child(3n){border-right:1px solid var(--line)}
+  .metric:nth-child(2n){border-right:0}
+  .metric.wide{grid-column:span 2}
+  .metric.wide2{grid-column:span 2;border-right:0}
+  .masthead-main{grid-template-columns:1fr}
+  .masthead-right{text-align:left;margin-top:12px}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="state-msg">Loading…</div></div>
+
+<script src="vendor/echarts.min.js"></script>
+<script src="data.js"></script>
+<script>
+const D = window.SECTOR_DATA;
+const params = new URLSearchParams(location.search);
+const TICKER = (params.get('t') || '').toUpperCase();
+
+const ACCENT = '#3157ff';
+const MUTE   = '#7b8491';
+const LINE   = '#d9ded4';
+const PAPER  = '#f7f8f4';
+const INK    = '#080a0f';
+const UP     = '#d32f2f';
+const DOWN   = '#00a676';
+
+const SEC_COLOR = {
+  XLK:'#3157ff',XLC:'#7c70ec',XLY:'#e66b00',XLF:'#00a676',
+  XLI:'#7b8491',XLB:'#b08900',XLE:'#d32f2f',XLV:'#9c27b0',
+  XLP:'#0d87a5',XLU:'#558b2f',XLRE:'#8d6e63'
+};
+
+const AXIS = {
+  axisLine:{lineStyle:{color:LINE}},
+  axisLabel:{color:MUTE,fontSize:11,fontFamily:'"IBM Plex Mono",monospace'},
+  splitLine:{lineStyle:{color:'rgba(8,10,15,.07)'}},
+  axisTick:{show:false}
+};
+const TIP = {
+  backgroundColor:PAPER,borderColor:INK,borderWidth:1.5,
+  textStyle:{color:INK,fontSize:12,fontFamily:'"IBM Plex Mono",monospace'},
+  extraCssText:'box-shadow:3px 3px 0 '+LINE+';border-radius:0;'
+};
+
+const fmt  = v => v == null ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+const cls  = v => v == null ? '' : (v >= 0 ? 'pos' : 'neg');
+const fM   = v => v == null ? '—' : (v >= 1e12 ? (v/1e12).toFixed(2)+'T' : v >= 1e9 ? (v/1e9).toFixed(1)+'B' : (v/1e6).toFixed(0)+'M');
+const fVol = v => v == null ? '—' : (v >= 1e8 ? (v/1e8).toFixed(2)+'亿' : v >= 1e4 ? Math.round(v/1e4)+'万' : String(v));
+const pct  = (a, b) => b == null || a == null ? null : ((a - b) / Math.abs(b) * 100);
+
+/* collect all tickers */
+const QMAP = {};
+Object.entries(D.stocks).forEach(([sec,list]) => list.forEach(q => QMAP[q.t] = {...q, kind:'个股', sec}));
+Object.entries(D.etfs  ).forEach(([sec,list]) => list.forEach(q => QMAP[q.t] = {...q, kind:'ETF',  sec}));
+
+const q = QMAP[TICKER];
+
+if (!q) {
+  document.getElementById('app').innerHTML =
+    `<div class="state-msg">找不到标的 "${TICKER}" — <a href="/work/sector-rotation">← 返回看板</a></div>`;
+} else {
+  const sec   = D.sectors.find(s => s.ticker === q.sec) || {};
+  const grp   = sec.group === 'cyc' ? '顺周期' : '防御';
+  const color = SEC_COLOR[q.sec] || ACCENT;
+  const peers = (q.kind === 'ETF' ? D.etfs[q.sec] : D.stocks[q.sec]) || [];
+
+  /* 52w range */
+  const rangePos = (q.h52 && q.l52 && q.p)
+    ? Math.max(0, Math.min(100, (q.p - q.l52) / (q.h52 - q.l52) * 100))
+    : null;
+
+  /* analyst upside */
+  const upside = (q.tgt && q.p) ? ((q.tgt - q.p) / q.p * 100) : null;
+
+  /* peer 1M ranking */
+  const peersSorted = [...peers].filter(p => p.m1 != null).sort((a,b) => b.m1 - a.m1);
+  const myRank = peersSorted.findIndex(p => p.t === TICKER) + 1;
+
+  /* sec ETF returns vs SPY */
+  const spyR = D.spy;
+  const secRetRows = [['今日', sec.day_chg, spyR.day_chg],
+    ...D.horizons.map(h => [h, sec.returns?.[h], spyR.returns?.[h]])];
+
+  /* build page HTML */
+  document.title = `${q.n} (${TICKER}) — 美股板块轮动看板`;
+
+  document.getElementById('app').innerHTML = `
+<div class="page">
+  <div class="masthead">
+    <div class="masthead-top">
+      <nav class="breadcrumb">
+        <a href="/work/sector-rotation">美股板块轮动</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>${sec.name || q.sec}</span>
+        <span class="breadcrumb-sep">/</span>
+        <span style="color:var(--ink)">${TICKER}</span>
+      </nav>
+      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)">截至 ${D.asof}</span>
+    </div>
+    <div class="masthead-main">
+      <div class="masthead-left">
+        <div class="ticker-line">
+          <span class="h1-name">${q.n}</span>
+          <span class="h1-ticker">${TICKER}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+          <span class="badge">${q.kind}</span>
+          <span class="badge">${sec.name || q.sec}</span>
+          <span class="badge">${grp}</span>
+          ${myRank && peersSorted.length ? `<span class="badge" style="border-color:var(--accent);color:var(--accent)">同类 #${myRank}/${peersSorted.length} (近1月)</span>` : ''}
+        </div>
+        ${q.ind ? `<div class="sub-line" style="margin-top:5px">${q.ind}${q.full ? ' · ' + q.full : ''}</div>` : (q.full ? `<div class="sub-line" style="margin-top:5px">${q.full}</div>` : '')}
+      </div>
+      <div class="masthead-right">
+        <div class="price-big">${q.p == null ? '—' : '$' + q.p.toFixed(2)}</div>
+        <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:6px;flex-wrap:wrap">
+          <span class="chip ${cls(q.chg) === 'pos' ? 'up' : 'down'}">${fmt(q.chg)} 今日</span>
+          ${upside != null ? `<span class="chip" style="border-color:${upside >= 0 ? 'var(--accent-2)' : 'var(--warn)'};color:${upside >= 0 ? 'var(--accent-2)' : 'var(--warn)'}">目标 ${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%</span>` : ''}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 52w range bar -->
+  ${rangePos != null ? `
+  <div class="range-bar-wrap">
+    <div class="range-bar-labels">
+      <span>52周低 <strong>$${q.l52.toFixed(2)}</strong></span>
+      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)">
+        当前 <strong style="color:var(--ink)">$${q.p.toFixed(2)}</strong>
+        &nbsp;·&nbsp; 距高点 <strong class="neg">${((q.p/q.h52-1)*100).toFixed(1)}%</strong>
+      </span>
+      <span>52周高 <strong>$${q.h52.toFixed(2)}</strong></span>
+    </div>
+    <div class="range-track">
+      <div class="range-fill" style="width:${rangePos.toFixed(1)}%"></div>
+      <div class="range-dot" style="left:${rangePos.toFixed(1)}%"></div>
+    </div>
+    <div class="range-pct">处于年度区间 <strong style="color:var(--ink)">${rangePos.toFixed(0)}%</strong> 分位</div>
+  </div>` : ''}
+
+  <!-- returns strip -->
+  <div class="rets-strip">
+    ${[['1周',q.w1,sec.returns?.['1周']],['1月',q.m1,sec.returns?.['1月']],['3月',q.m3,sec.returns?.['3月']],
+       ['6月',q.m6,sec.returns?.['6月']],['YTD',q.ytd,sec.returns?.['YTD']],['1年',q.y1,sec.returns?.['1年']]]
+      .map(([lab,v,sv]) => {
+        const ex = (v != null && sv != null) ? (v - sv) : null;
+        return `<div class="ret-cell">
+          <div class="ret-label">${lab}</div>
+          <div class="ret-val ${cls(v)}">${v == null ? '—' : fmt(v)}</div>
+          ${ex != null ? `<div class="ret-sub" style="color:${ex>=0?'var(--up)':'var(--down)'}">${ex>=0?'+':''}${ex.toFixed(1)}% vs ${sec.name||'板块'}</div>` : ''}
+        </div>`;
+      }).join('')}
+    <div class="ret-cell">
+      <div class="ret-label">量比</div>
+      <div class="ret-val" style="font-size:var(--text-base)">${q.vr == null ? '—' : q.vr.toFixed(2)+'x'}</div>
+    </div>
+    <div class="ret-cell">
+      <div class="ret-label">成交额</div>
+      <div class="ret-val" style="font-size:var(--text-base)">$${fM(q.tvr)}</div>
+    </div>
+    <div class="ret-cell">
+      <div class="ret-label">年化波动</div>
+      <div class="ret-val" style="font-size:var(--text-base)">${q.vola != null ? q.vola.toFixed(1)+'%' : '—'}</div>
+    </div>
+  </div>
+
+  <!-- body -->
+  <div class="body-grid">
+    <div class="main-col">
+
+      <!-- price chart with tabs -->
+      <div class="section">
+        <div class="chart-tabs">
+          <button class="chart-tab on" onclick="switchTab('price',this)">价格走势</button>
+          <button class="chart-tab" onclick="switchTab('vs',this)">vs 板块 ETF</button>
+        </div>
+        <div id="chart" class="active"></div>
+        <div id="chart2"></div>
+      </div>
+
+      <!-- technicals -->
+      <div class="section">
+        <div class="sec-head">
+          <span>技术面</span>
+          ${q.ma200 && q.p ? `<span class="sec-head-note">${q.p >= q.ma200 ? '✓ 站上 MA200' : '✗ 跌破 MA200'}</span>` : ''}
+        </div>
+        <div style="padding:0">
+          <div class="metrics">
+            ${[
+              q.h52  ? `<div class="metric"><div class="metric-label">52周最高</div><div class="metric-val">$${q.h52.toFixed(2)}</div></div>` : '',
+              q.l52  ? `<div class="metric"><div class="metric-label">52周最低</div><div class="metric-val">$${q.l52.toFixed(2)}</div></div>` : '',
+              (q.h52&&q.p) ? `<div class="metric"><div class="metric-label">距52周高点</div><div class="metric-val neg">${((q.p/q.h52-1)*100).toFixed(1)}%</div></div>` : '',
+              q.ma20  ? `<div class="metric"><div class="metric-label">MA 20</div><div class="metric-val"><span class="${q.p>=q.ma20?'pos':'neg'}">$${q.ma20.toFixed(2)}</span><span style="font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-left:5px">${q.p>=q.ma20?'↑ 站上':'↓ 跌破'}</span></div></div>` : '',
+              q.ma50  ? `<div class="metric"><div class="metric-label">MA 50</div><div class="metric-val"><span class="${q.p>=q.ma50?'pos':'neg'}">$${q.ma50.toFixed(2)}</span><span style="font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-left:5px">${q.p>=q.ma50?'↑ 站上':'↓ 跌破'}</span></div></div>` : '',
+              q.ma200 ? `<div class="metric"><div class="metric-label">MA 200</div><div class="metric-val"><span class="${q.p>=q.ma200?'pos':'neg'}">$${q.ma200.toFixed(2)}</span><span style="font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-left:5px">${q.p>=q.ma200?'↑ 站上':'↓ 跌破'}</span></div></div>` : '',
+              q.vol   ? `<div class="metric"><div class="metric-label">成交量</div><div class="metric-val">${fVol(q.vol)}</div></div>` : '',
+              q.tvr   ? `<div class="metric"><div class="metric-label">成交额</div><div class="metric-val">$${fM(q.tvr)}</div></div>` : '',
+              q.vola != null ? `<div class="metric"><div class="metric-label">年化波动率</div><div class="metric-val">${q.vola.toFixed(1)}%</div></div>` : '',
+            ].filter(Boolean).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- fundamentals -->
+      <div class="section">
+        <div class="sec-head">
+          <span>基本面与估值</span>
+          ${q.tgt && q.p ? `<span class="sec-head-note">分析师目标价 $${q.tgt.toFixed(0)} · 空间 ${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%</span>` : ''}
+        </div>
+        <div style="padding:0">
+          <div class="metrics">
+            ${q.mc   ? `<div class="metric"><div class="metric-label">市值</div><div class="metric-val">$${fM(q.mc)}</div></div>` : ''}
+            ${q.aum  ? `<div class="metric"><div class="metric-label">规模 AUM</div><div class="metric-val">$${fM(q.aum)}</div></div>` : ''}
+            ${q.pe   ? `<div class="metric"><div class="metric-label">PE (TTM)</div><div class="metric-val">${q.pe.toFixed(1)}x</div></div>` : ''}
+            ${q.fpe  ? `<div class="metric"><div class="metric-label">预期 PE</div><div class="metric-val">${q.fpe.toFixed(1)}x</div></div>` : ''}
+            ${q.pb   ? `<div class="metric"><div class="metric-label">PB</div><div class="metric-val">${q.pb.toFixed(1)}x</div></div>` : ''}
+            ${q.dy  != null ? `<div class="metric"><div class="metric-label">股息率</div><div class="metric-val">${q.dy.toFixed(2)}%</div></div>` : ''}
+            ${q.beta ? `<div class="metric"><div class="metric-label">Beta</div><div class="metric-val">${q.beta.toFixed(2)}</div></div>` : ''}
+            ${q.eps  ? `<div class="metric"><div class="metric-label">EPS (TTM)</div><div class="metric-val">$${q.eps.toFixed(2)}</div></div>` : ''}
+            ${q.pm  != null ? `<div class="metric"><div class="metric-label">净利率</div><div class="metric-val">${q.pm.toFixed(1)}%</div></div>` : ''}
+            ${q.roe != null ? `<div class="metric"><div class="metric-label">ROE</div><div class="metric-val">${q.roe.toFixed(1)}%</div></div>` : ''}
+            ${q.tgt  ? `<div class="metric"><div class="metric-label">分析师目标价</div><div class="metric-val">$${q.tgt.toFixed(0)}<span class="metric-sub" style="display:inline;margin-left:6px;font-size:var(--text-2xs);color:${upside>=0?'var(--accent-2)':'var(--warn)'}">${upside>=0?'+':''}${upside.toFixed(1)}%</span></div></div>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <!-- target price bar -->
+      ${q.tgt && q.p && q.l52 && q.h52 ? (() => {
+        const lo = Math.min(q.l52, q.p) * 0.97;
+        const hi = Math.max(q.h52, q.tgt) * 1.02;
+        const curPct = (q.p - lo) / (hi - lo) * 100;
+        const tgtPct = (q.tgt - lo) / (hi - lo) * 100;
+        return `<div class="section">
+          <div class="sec-head"><span>目标价区间</span></div>
+          <div class="tgt-bar-wrap">
+            <div class="tgt-bar-track">
+              <div class="tgt-bar-fill" style="left:${Math.min(curPct,tgtPct).toFixed(1)}%;width:${Math.abs(tgtPct-curPct).toFixed(1)}%"></div>
+              <div class="tgt-dot" style="left:${curPct.toFixed(1)}%;background:var(--ink)" title="当前价 $${q.p.toFixed(2)}"></div>
+              <div class="tgt-dot" style="left:${tgtPct.toFixed(1)}%;background:var(--accent-2);border-color:var(--card)" title="目标价 $${q.tgt.toFixed(0)}"></div>
+            </div>
+            <div class="tgt-labels">
+              <span>$${lo.toFixed(0)}</span>
+              <span style="color:var(--ink)">当前 $${q.p.toFixed(2)}&nbsp;&nbsp;<span style="color:var(--accent-2)">目标 $${q.tgt.toFixed(0)}</span></span>
+              <span>$${hi.toFixed(0)}</span>
+            </div>
+          </div>
+        </div>`;
+      })() : ''}
+    </div>
+
+    <!-- sidebar -->
+    <div class="side-col">
+
+      <!-- peer ranking chart -->
+      ${peersSorted.length > 1 ? `
+      <div class="side-section">
+        <div class="side-head">同类近1月收益排名</div>
+        <div id="rankChart"></div>
+      </div>` : ''}
+
+      <!-- peer list -->
+      <div class="side-section">
+        <div class="side-head">${sec.name || q.sec} ${q.kind === 'ETF' ? 'ETF' : '个股'}</div>
+        <div class="side-body">
+          <div class="peers-list">
+            ${peers.map(p => `
+              <div class="peer-row${p.t === TICKER ? ' is-self' : ''}">
+                <a href="/work/sector-rotation/${p.t}">
+                  <div style="min-width:0">
+                    <div class="peer-name">${p.n}</div>
+                    <div class="peer-code">${p.t}</div>
+                  </div>
+                  <div class="peer-price">${p.p == null ? '—' : '$' + p.p.toFixed(2)}</div>
+                  <div class="peer-chg ${cls(p.chg)}">${fmt(p.chg)}</div>
+                </a>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- sector returns -->
+      ${sec.ticker ? `
+      <div class="side-section">
+        <div class="side-head">板块 vs SPY</div>
+        <div class="side-body">
+          <table class="sec-rets">
+            <tr>
+              <th>周期</th>
+              <th>${sec.name}</th>
+              <th>SPY</th>
+              <th>超额</th>
+            </tr>
+            ${secRetRows.map(([lab, sv, pv]) => {
+              const ex = (sv != null && pv != null) ? sv - pv : null;
+              return `<tr>
+                <td>${lab}</td>
+                <td class="${cls(sv)}">${fmt(sv)}</td>
+                <td style="color:var(--ink-mute)">${fmt(pv)}</td>
+                <td class="${cls(ex)}">${fmt(ex)}</td>
+              </tr>`;
+            }).join('')}
+          </table>
+        </div>
+      </div>` : ''}
+
+    </div>
+  </div>
+
+  <footer>数据源: Yahoo Finance · 数据截至 ${D.asof} · 页面生成于 ${D.generated}</footer>
+</div>`;
+
+  /* ---- charts ---- */
+  let chart1 = null, chart2 = null, chart3 = null;
+  const resizeAll = () => { chart1?.resize(); chart2?.resize(); chart3?.resize(); };
+  window.addEventListener('resize', resizeAll);
+
+  /* tab switcher */
+  window.switchTab = (tab, btn) => {
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('chart').classList.toggle('active', tab === 'price');
+    document.getElementById('chart2').classList.toggle('active', tab === 'vs');
+    if (tab === 'vs' && !chart2) initVsChart();
+    setTimeout(resizeAll, 50);
+  };
+
+  /* price chart */
+  requestAnimationFrame(() => {
+    const el = document.getElementById('chart');
+    if (!el || !q.hist || !D.hist_dates) return;
+    chart1 = echarts.init(el);
+    chart1.setOption({
+      tooltip:{...TIP,trigger:'axis',axisPointer:{type:'line',lineStyle:{color:LINE}},
+        valueFormatter:v=>v==null?'—':'$'+v.toFixed(2)},
+      grid:{left:58,right:16,top:14,bottom:28},
+      xAxis:{type:'category',data:D.hist_dates,boundaryGap:false,...AXIS,splitLine:{show:false}},
+      yAxis:{type:'value',scale:true,...AXIS},
+      series:[{
+        name:TICKER,type:'line',data:q.hist,showSymbol:false,cursor:'default',
+        lineStyle:{width:1.8,color},itemStyle:{color},
+        areaStyle:{color,opacity:.07}
+      }]
+    });
+  });
+
+  /* vs-sector chart: normalize both to 100 at start */
+  function initVsChart() {
+    const el = document.getElementById('chart2');
+    if (!el || !q.hist || !D.hist_dates) return;
+    chart2 = echarts.init(el);
+    const secPx = D.px?.[q.sec];
+    const n = q.hist.length;
+    const base  = q.hist[0];
+    const baseS = secPx ? secPx[secPx.length - n] : null;
+    const norm  = q.hist.map(v => v == null || base == null ? null : +((v / base * 100).toFixed(2)));
+    const normS = secPx && baseS ? secPx.slice(-n).map(v => v == null ? null : +((v / baseS * 100).toFixed(2))) : null;
+    const series = [{
+      name: TICKER, type:'line', data:norm, showSymbol:false,
+      lineStyle:{width:2,color}, itemStyle:{color},
+      areaStyle:{color,opacity:.06}
+    }];
+    if (normS) series.push({
+      name: q.sec, type:'line', data:normS, showSymbol:false,
+      lineStyle:{width:1.4,color:'#7b8491',type:'dashed'}, itemStyle:{color:'#7b8491'}, z:1
+    });
+    chart2.setOption({
+      tooltip:{...TIP,trigger:'axis',axisPointer:{type:'line',lineStyle:{color:LINE}},
+        valueFormatter:v=>v==null?'—':v.toFixed(1)},
+      legend:{top:4,icon:'roundRect',itemWidth:12,itemHeight:3,
+        textStyle:{color:MUTE,fontSize:11,fontFamily:'"IBM Plex Mono",monospace'},
+        inactiveColor:LINE},
+      grid:{left:52,right:16,top:28,bottom:28},
+      xAxis:{type:'category',data:D.hist_dates,boundaryGap:false,...AXIS,splitLine:{show:false}},
+      yAxis:{type:'value',scale:true,...AXIS,
+        axisLabel:{...AXIS.axisLabel,formatter:v=>v.toFixed(0)}},
+      series,
+    });
+  }
+
+  /* peer ranking chart */
+  const rankEl = document.getElementById('rankChart');
+  if (rankEl && peersSorted.length > 1) {
+    chart3 = echarts.init(rankEl);
+    chart3.setOption({
+      tooltip:{...TIP,trigger:'item',formatter:p=>`${p.name}<br/>近1月: <b>${fmt(p.value)}</b>`},
+      grid:{left:72,right:40,top:8,bottom:12},
+      xAxis:{type:'value',...AXIS,
+        axisLabel:{...AXIS.axisLabel,formatter:v=>v+'%'},splitLine:{show:false},axisLine:{show:false}},
+      yAxis:{type:'category',data:peersSorted.map(p=>p.t),
+        ...AXIS,splitLine:{show:false},axisLine:{show:false},
+        axisLabel:{color:INK,fontSize:11.5,fontFamily:'"IBM Plex Mono",monospace',
+          rich:{self:{color:ACCENT,fontWeight:'bold'}},
+          formatter:v=>v===TICKER?`{self|${v}}`:v}},
+      series:[{type:'bar',barWidth:9,cursor:'pointer',
+        data:peersSorted.map(p=>({
+          value:p.m1,
+          itemStyle:{color:p.t===TICKER?ACCENT:(p.m1>=0?'#d32f2f':'#00a676'),borderRadius:0,
+            opacity:p.t===TICKER?1:0.55},
+          label:{show:true,position:p.m1>=0?'right':'left',
+            fontSize:9.5,fontFamily:'"IBM Plex Mono",monospace',color:MUTE,
+            formatter:params=>fmt(params.value)}
+        }))}]
+    });
+    chart3.on('click', p => {
+      if (p.seriesType === 'bar' && p.name) window.top.location.href = '/work/sector-rotation/' + p.name;
+    });
+  }
+}
+</script>
+</body>
+</html>
