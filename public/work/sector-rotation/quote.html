@@ -73,8 +73,10 @@ a:hover{color:var(--accent);text-decoration-color:var(--accent)}
 .badge{
   font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--w-semibold);
   letter-spacing:var(--track-label);text-transform:uppercase;
-  border:1.5px solid var(--ink);padding:2px 8px;color:var(--ink-mute)
+  border:1.5px solid var(--ink);padding:2px 8px;color:var(--ink-mute);
+  text-decoration:none;display:inline-block;
 }
+a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .sub-line{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)}
 .masthead-right{text-align:right;padding-bottom:2px}
 .price-big{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:var(--w-display);color:var(--ink);line-height:1}
@@ -333,7 +335,7 @@ if (!q) {
       <nav class="breadcrumb">
         <a href="/work/sector-rotation" onclick="window.top.location.href='/work/sector-rotation';return false">美股板块轮动</a>
         <span class="breadcrumb-sep">/</span>
-        <span>${sec.name || q.sec}</span>
+        ${sec.ticker ? `<a href="/work/sector-rotation/${sec.ticker}" onclick="window.top.location.href='/work/sector-rotation/${sec.ticker}';return false">${sec.name || q.sec}</a>` : `<span>${sec.name || q.sec}</span>`}
         <span class="breadcrumb-sep">/</span>
         <span style="color:var(--ink)">${TICKER}</span>
       </nav>
@@ -347,7 +349,7 @@ if (!q) {
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
           <span class="badge">${q.kind}</span>
-          <span class="badge">${sec.name || q.sec}</span>
+          ${sec.ticker && sec.ticker !== TICKER ? `<a class="badge" style="cursor:pointer" href="/work/sector-rotation/${sec.ticker}" onclick="window.top.location.href='/work/sector-rotation/${sec.ticker}';return false">${sec.name || q.sec}</a>` : `<span class="badge">${sec.name || q.sec}</span>`}
           <span class="badge">${grp}</span>
           ${myRank && peersSorted.length ? `<span class="badge" style="border-color:var(--accent);color:var(--accent)">同类 #${myRank}/${peersSorted.length} (近1月)</span>` : ''}
         </div>
@@ -765,7 +767,7 @@ if (!q) {
         axisLabel:{color:INK,fontSize:11.5,fontFamily:'"IBM Plex Mono",monospace',
           rich:{self:{color:ACCENT,fontWeight:'bold'}},
           formatter:v=>v===TICKER?`{self|${v}}`:v}},
-      series:[{type:'bar',barWidth:9,cursor:'pointer',
+      series:[{type:'bar',barWidth:9,clip:false,cursor:'pointer',
         data:peersSorted.map(p=>({
           value:p.m1,
           itemStyle:{color:p.t===TICKER?ACCENT:(p.m1>=0?'#d32f2f':'#00a676'),borderRadius:0,
