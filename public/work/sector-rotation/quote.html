@@ -94,6 +94,7 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
   border-bottom:var(--rule-bold);
   display:grid;grid-template-columns:repeat(9,1fr)
 }
+.intraday-strip{grid-template-columns:repeat(5,1fr)}
 .ret-cell{border-right:1px solid var(--line);padding:11px 14px}
 .ret-cell:last-child{border-right:0}
 .ret-label{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute)}
@@ -212,11 +213,14 @@ footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mu
   .body-grid{grid-template-columns:1fr}
   .main-col{border-right:0}
   .rets-strip{grid-template-columns:repeat(3,1fr)}
-  .ret-cell:nth-child(3n){border-right:0}
-  .ret-cell:nth-child(n+4){border-top:1px solid var(--line)}
+  .rets-strip:not(.intraday-strip) .ret-cell:nth-child(3n){border-right:0}
+  .rets-strip:not(.intraday-strip) .ret-cell:nth-child(n+4){border-top:1px solid var(--line)}
 }
 @media(max-width:540px){
   .rets-strip{grid-template-columns:repeat(3,1fr)}
+  .intraday-strip{grid-template-columns:repeat(3,1fr)}
+  .intraday-strip .ret-cell:nth-child(3n){border-right:0}
+  .intraday-strip .ret-cell:nth-child(n+4){border-top:1px solid var(--line)}
   .metrics{grid-template-columns:repeat(2,1fr)}
   .metric:nth-child(3n){border-right:1px solid var(--line)}
   .metric:nth-child(2n){border-right:0}
@@ -414,6 +418,31 @@ if (!q) {
     </div>
   </div>` : ''}
 
+  <!-- intraday strip (open / high / low / prev close / change vs prev) -->
+  ${(q.d_open || q.d_high || q.d_low || q.prev_c) ? `
+  <div class="rets-strip intraday-strip" style="background:#fff;border-top:none">
+    <div class="ret-cell">
+      <div class="ret-label">今开</div>
+      <div class="ret-val" style="font-size:var(--text-base);font-weight:600">${q.d_open == null ? '—' : '$'+q.d_open.toFixed(2)}</div>
+    </div>
+    <div class="ret-cell">
+      <div class="ret-label">今高</div>
+      <div class="ret-val pos" style="font-size:var(--text-base);font-weight:600">${q.d_high == null ? '—' : '$'+q.d_high.toFixed(2)}</div>
+    </div>
+    <div class="ret-cell">
+      <div class="ret-label">今低</div>
+      <div class="ret-val neg" style="font-size:var(--text-base);font-weight:600">${q.d_low == null ? '—' : '$'+q.d_low.toFixed(2)}</div>
+    </div>
+    <div class="ret-cell">
+      <div class="ret-label">昨收</div>
+      <div class="ret-val" style="font-size:var(--text-base);font-weight:600">${q.prev_c == null ? '—' : '$'+q.prev_c.toFixed(2)}</div>
+    </div>
+    <div class="ret-cell">
+      <div class="ret-label">均量 10日</div>
+      <div class="ret-val" style="font-size:var(--text-base)">${q.avg_vol10 == null ? '—' : fVol(q.avg_vol10)}</div>
+    </div>
+  </div>` : ''}
+
   <!-- returns strip -->
   <div class="rets-strip">
     ${[['1周',q.w1,sec.returns?.['1周']],['1月',q.m1,sec.returns?.['1月']],['3月',q.m3,sec.returns?.['3月']],
@@ -536,6 +565,57 @@ if (!q) {
             </div>` : ''}
           </div>
         </div>
+      </div>` : ''}
+
+      <!-- 成长性 -->
+      ${q.kind !== 'ETF' && (q.rev_g != null || q.eg != null || q.eg_q != null || q.gross_m != null || q.op_m != null || q.rev != null) ? `
+      <div class="section">
+        <div class="sec-head"><span>成长性</span></div>
+        <div style="padding:0"><div class="metrics">
+          ${q.rev    != null ? `<div class="metric"><div class="metric-label">营收 (TTM)</div><div class="metric-val">$${fM(q.rev)}</div></div>` : ''}
+          ${q.rev_g  != null ? `<div class="metric"><div class="metric-label">营收增速 (YoY)</div><div class="metric-val ${cls(q.rev_g)}">${q.rev_g > 0 ? '+' : ''}${q.rev_g.toFixed(1)}%</div></div>` : ''}
+          ${q.eg     != null ? `<div class="metric"><div class="metric-label">盈利增速 (TTM)</div><div class="metric-val ${cls(q.eg)}">${q.eg > 0 ? '+' : ''}${q.eg.toFixed(1)}%</div></div>` : ''}
+          ${q.eg_q   != null ? `<div class="metric"><div class="metric-label">盈利增速 (季)</div><div class="metric-val ${cls(q.eg_q)}">${q.eg_q > 0 ? '+' : ''}${q.eg_q.toFixed(1)}%</div></div>` : ''}
+          ${q.gross_m != null ? `<div class="metric"><div class="metric-label">毛利率</div><div class="metric-val">${q.gross_m.toFixed(1)}%${cmpBar(q.gross_m, peerMedian('gross_m'), v => v.toFixed(1)+'%')}</div></div>` : ''}
+          ${q.op_m   != null ? `<div class="metric"><div class="metric-label">营业利润率</div><div class="metric-val">${q.op_m.toFixed(1)}%${cmpBar(q.op_m, peerMedian('op_m'), v => v.toFixed(1)+'%')}</div></div>` : ''}
+        </div></div>
+      </div>` : ''}
+
+      <!-- 财务健康 -->
+      ${q.kind !== 'ETF' && (q.de != null || q.cr != null || q.fcf != null || q.ocf != null || q.bv != null) ? `
+      <div class="section">
+        <div class="sec-head"><span>财务健康</span></div>
+        <div style="padding:0"><div class="metrics">
+          ${q.de   != null ? `<div class="metric"><div class="metric-label">负债权益比 D/E</div><div class="metric-val">${q.de.toFixed(1)}</div>${cmpBar(q.de, peerMedian('de'), v => v.toFixed(1))}</div>` : ''}
+          ${q.cr   != null ? `<div class="metric"><div class="metric-label">流动比率</div><div class="metric-val">${q.cr.toFixed(2)}x</div>${cmpBar(q.cr, peerMedian('cr'), v => v.toFixed(2)+'x')}</div>` : ''}
+          ${q.fcf  != null ? `<div class="metric"><div class="metric-label">自由现金流</div><div class="metric-val">$${fM(q.fcf)}</div></div>` : ''}
+          ${q.ocf  != null ? `<div class="metric"><div class="metric-label">经营现金流</div><div class="metric-val">$${fM(q.ocf)}</div></div>` : ''}
+          ${q.bv   != null ? `<div class="metric"><div class="metric-label">每股净资产</div><div class="metric-val">$${q.bv.toFixed(2)}</div></div>` : ''}
+        </div></div>
+      </div>` : ''}
+
+      <!-- 估值倍数扩展 -->
+      ${q.kind !== 'ETF' && (q.peg != null || q.ps != null || q.ev_rev != null || q.ev_ebitda != null) ? `
+      <div class="section">
+        <div class="sec-head"><span>估值倍数</span></div>
+        <div style="padding:0"><div class="metrics">
+          ${q.peg      != null ? `<div class="metric"><div class="metric-label">PEG</div><div class="metric-val">${q.peg.toFixed(2)}x</div>${cmpBar(q.peg, peerMedian('peg'), v => v.toFixed(2)+'x')}</div>` : ''}
+          ${q.ps       != null ? `<div class="metric"><div class="metric-label">P/S</div><div class="metric-val">${q.ps.toFixed(1)}x</div>${cmpBar(q.ps, peerMedian('ps'), v => v.toFixed(1)+'x')}</div>` : ''}
+          ${q.ev_rev   != null ? `<div class="metric"><div class="metric-label">EV/Revenue</div><div class="metric-val">${q.ev_rev.toFixed(1)}x</div>${cmpBar(q.ev_rev, peerMedian('ev_rev'), v => v.toFixed(1)+'x')}</div>` : ''}
+          ${q.ev_ebitda!= null ? `<div class="metric"><div class="metric-label">EV/EBITDA</div><div class="metric-val">${q.ev_ebitda.toFixed(1)}x</div>${cmpBar(q.ev_ebitda, peerMedian('ev_ebitda'), v => v.toFixed(1)+'x')}</div>` : ''}
+        </div></div>
+      </div>` : ''}
+
+      <!-- 分析师 & 市场情绪 -->
+      ${(q.rec || q.rec_n || q.short_r != null || q.short_f != null || q.inst_pct != null) ? `
+      <div class="section">
+        <div class="sec-head"><span>分析师 & 持仓结构</span></div>
+        <div style="padding:0"><div class="metrics">
+          ${q.rec       ? `<div class="metric"><div class="metric-label">分析师评级</div><div class="metric-val" style="text-transform:uppercase;letter-spacing:.06em;color:${q.rec==='buy'||q.rec==='strong_buy'?'var(--accent-2)':q.rec==='sell'||q.rec==='strong_sell'?'var(--up)':'var(--ink)'}">${q.rec.replace('_',' ')}</div>${q.rec_n ? `<div class="metric-sub">${q.rec_n} 家覆盖${q.rec_score ? ' · 评分 ' + q.rec_score.toFixed(1) : ''}</div>` : ''}</div>` : ''}
+          ${q.inst_pct  != null ? `<div class="metric"><div class="metric-label">机构持仓</div><div class="metric-val">${q.inst_pct.toFixed(1)}%</div></div>` : ''}
+          ${q.short_r   != null ? `<div class="metric"><div class="metric-label">做空比率 (天)</div><div class="metric-val">${q.short_r.toFixed(1)}</div></div>` : ''}
+          ${q.short_f   != null ? `<div class="metric"><div class="metric-label">空头占流通</div><div class="metric-val">${q.short_f.toFixed(1)}%</div></div>` : ''}
+        </div></div>
       </div>` : ''}
 
       <!-- target price bar -->
