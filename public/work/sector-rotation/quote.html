@@ -326,16 +326,18 @@ if (!q) {
     const mid = Math.floor(vals.length / 2);
     return vals.length % 2 === 0 ? (vals[mid-1] + vals[mid]) / 2 : vals[mid];
   }
-  function cmpBar(val, med, fmt2) {
+  function cmpBar(val, med, fmt2, higherIsBetter) {
     if (val == null || med == null) return '';
-    const lo = Math.min(val, med) * 0.85;
-    const hi = Math.max(val, med) * 1.15;
+    const span = Math.abs(Math.max(val, med) - Math.min(val, med)) || Math.abs(med) * 0.1 || 1;
+    const lo = Math.min(val, med) - span * 0.4;
+    const hi = Math.max(val, med) + span * 0.4;
     const range = hi - lo || 1;
     const vPct = Math.max(0, Math.min(100, (val - lo) / range * 100));
     const mPct = Math.max(0, Math.min(100, (med - lo) / range * 100));
-    const diff = med > 0 ? ((val - med) / med * 100) : null;
+    const diff = med !== 0 ? ((val - med) / Math.abs(med) * 100) : null;
     const diffStr = diff == null ? '' : (diff >= 0 ? '+' : '') + diff.toFixed(0) + '% vs 中位';
-    const diffColor = diff == null ? MUTE : (diff > 0 ? UP : DOWN);
+    const hib = higherIsBetter !== false;
+    const diffColor = diff == null ? MUTE : (diff > 0 ? (hib ? DOWN : UP) : (hib ? UP : DOWN));
     return `<div class="cmp-wrap">
       <div class="cmp-track">
         <div class="cmp-med" style="left:${mPct.toFixed(1)}%" title="同类中位 ${fmt2(med)}"></div>
