@@ -54,10 +54,12 @@
     border-top:1px solid var(--hairline);padding-top:7px}
 
   /* ================= 板块 pill 条 ================= */
-  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .pills{display:flex;flex-wrap:nowrap;gap:8px;margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+  .pills::-webkit-scrollbar{display:none}
   .pill{background:var(--card);border:1.5px solid var(--ink);
     padding:7px 13px;display:flex;align-items:center;gap:8px;
-    cursor:pointer;transition:all var(--dur) var(--ease)}
+    cursor:pointer;white-space:nowrap;flex-shrink:0;
+    transition:all var(--dur) var(--ease)}
   .pill:hover{border-color:var(--accent);background:var(--accent-dim);transform:translateY(-1px)}
   .pill:active{transform:translateY(0)}
   .pill .pn{font-size:12.5px;font-weight:700;color:var(--ink)}
@@ -123,8 +125,6 @@
   .modal.open{opacity:1;visibility:visible;transform:translate(-50%,-50%)}
   .modal::-webkit-scrollbar{width:4px}
   .modal::-webkit-scrollbar-thumb{background:var(--line)}
-  .smodal{z-index:903;width:min(720px,calc(100% - 28px))}
-  .solvl{z-index:902}
 
   .m-head{position:sticky;top:0;z-index:2;background:var(--ink);color:#fff;
     padding:13px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
@@ -160,7 +160,7 @@
   .dtable .rlab{color:var(--ink-mute);font-family:var(--mono);font-size:10.5px;font-weight:700}
   .dtable tr.clk{cursor:pointer;transition:background var(--dur) var(--ease)}
   .dtable tr.clk:hover td{background:var(--accent-dim)}
-  #mChart,#sChart{height:230px;background:#fff;border:1.5px solid var(--ink)}
+  #mChart{height:230px;background:#fff;border:1.5px solid var(--ink)}
 
   /* ================= 指标格子 ================= */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -171,7 +171,7 @@
   .stat .sv{font-size:14px;font-weight:800;margin-top:3px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .nod{color:var(--ink-mute);font-family:var(--mono);font-size:11px;padding:4px 0}
-  #mRets,#sRets,#mEtfs,#mStocks{overflow-x:auto}
+  #mRets,#mEtfs,#mStocks{overflow-x:auto}
 
   /* ================= 响应式 ================= */
   @media(max-width:1080px){
@@ -183,6 +183,9 @@
     .modal{left:0;right:0;bottom:0;top:auto;transform:translateY(100%);
       width:100%;max-height:88vh}
     .modal.open{transform:translateY(0)}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .pill{flex-shrink:0}
+    .footer-cmd{display:none}
   }
 </style>
 </head>
@@ -259,21 +262,6 @@
   </div>
 </div>
 
-<!-- 个股 / ETF 详情弹层 -->
-<div class="overlay solvl" id="solvl"></div>
-<div class="modal smodal" id="smodal">
-  <div class="m-head" id="sHead"></div>
-  <div class="m-body">
-    <div class="sec-t">近期表现</div>
-    <div id="sRets"></div>
-    <div class="sec-t">近一年价格走势</div>
-    <div id="sChart"></div>
-    <div class="sec-t">基本面与估值</div>
-    <div id="sFund"></div>
-    <div class="sec-t">技术面</div>
-    <div id="sTech"></div>
-  </div>
-</div>
 
 <script src="vendor/echarts.min.js"></script>
 <script src="data.js"></script>
@@ -296,7 +284,7 @@ const fMoney = v => v==null?'—':(v>=1e12?(v/1e12).toFixed(2)+'万亿':v>=1e8?(
 const fVol = v => v==null?'—':(v>=1e8?(v/1e8).toFixed(2)+'亿股':v>=1e4?Math.round(v/1e4)+'万股':String(v));
 const charts = [];
 function mk(id){const c=echarts.init(document.getElementById(id));charts.push(c);return c;}
-window.addEventListener('resize',()=>{charts.forEach(c=>c.resize()); if(mChart)mChart.resize(); if(sChart)sChart.resize();});
+window.addEventListener('resize',()=>{charts.forEach(c=>c.resize()); if(mChart)mChart.resize();});
 
 /* ---------- 路由同步: 通知父页面更新地址栏 ---------- */
 function syncRoute(tk){
@@ -618,9 +606,8 @@ document.querySelectorAll('.pill').forEach(p=>{
 })();
 
 /* ---------- 板块详情弹层 ---------- */
-const ovl=document.getElementById('ovl'), modal=document.getElementById('modal'),
-      smodal=document.getElementById('smodal'), solvl=document.getElementById('solvl');
-let mChart=null, sChart=null;
+const ovl=document.getElementById('ovl'), modal=document.getElementById('modal');
+let mChart=null;
 
 /* 全部标的索引: ticker -> {行情..., kind, sec} */
 const QMAP={};
@@ -690,7 +677,6 @@ function openSector(tk){
   });
 }
 function closeModal(){
-  closeQuote();
   const wasOpen=modal.classList.contains('open');
   ovl.classList.remove('open'); modal.classList.remove('open');
   document.body.style.overflow='';
@@ -708,93 +694,16 @@ function stats(items){
 }
 
 function openQuote(t){
-  const q=QMAP[t];
-  if(!q) return;
-  const secName=D.sectors.find(s=>s.ticker===q.sec)?.name||'';
-  document.getElementById('sHead').innerHTML=
-    `<button class="m-back" onclick="closeQuote()">‹ 返回</button>
-     <span class="m-title">${q.n}</span><span class="m-ticker">${q.t}</span>
-     <span class="m-badge">${q.kind}</span><span class="m-badge">${secName}</span>
-     <span class="m-spacer"></span>
-     <span class="m-price">${q.p==null?'—':q.p.toFixed(2)}</span>
-     <span class="chip ${cls(q.chg)==='pos'?'up':'down'}">${fmt(q.chg)}</span>
-     <button class="m-close" onclick="closeModal()">✕</button>`;
-
-  // 近期表现: 7 个周期 + 量比
-  const rets=[['今日',q.chg],['1周',q.w1],['1月',q.m1],['3月',q.m3],['6月',q.m6],['YTD',q.ytd],['1年',q.y1]];
-  document.getElementById('sRets').innerHTML=
-    `<table class="dtable"><tr><th></th>${rets.map(c=>`<th>${c[0]}</th>`).join('')}<th>量比</th></tr>
-     <tr><td class="rlab">${q.n}</td>${rets.map(([,v])=>
-       `<td class="${cls(v)}" style="font-weight:700">${fmt(v)}</td>`).join('')}
-       <td style="color:var(--ink-mute)">${q.vr==null?'—':q.vr.toFixed(2)+'x'}</td></tr></table>`;
-
-  // 基本面与估值
-  const small=v=>`<span style="font-size:12px;font-weight:700">${v}</span>`;
-  const fund=[
-    ['公司', q.full&&small(q.full), 1],
-    ['行业', q.ind&&small(q.ind), 1],
-    ['市值', q.mc&&('$'+fMoney(q.mc))],
-    ['规模 (AUM)', q.aum&&('$'+fMoney(q.aum))],
-    ['PE (TTM)', q.pe&&q.pe.toFixed(1)],
-    ['预期 PE', q.fpe&&q.fpe.toFixed(1)],
-    ['PB', q.pb&&q.pb.toFixed(1)],
-    ['股息率', q.dy!=null?q.dy.toFixed(2)+'%':null],
-    ['Beta', q.beta&&q.beta.toFixed(2)],
-    ['EPS (TTM)', q.eps&&('$'+q.eps.toFixed(2))],
-    ['净利率', q.pm!=null?q.pm.toFixed(1)+'%':null],
-    ['ROE', q.roe!=null?q.roe.toFixed(1)+'%':null],
-    ['分析师目标价', q.tgt&&('$'+q.tgt.toFixed(0))],
-  ];
-  document.getElementById('sFund').innerHTML=stats(fund);
-
-  // 技术面
-  const maCell=v=>v==null?null:`<span class="${q.p>=v?'pos':'neg'}">$${v.toFixed(2)} ${q.p>=v?'↑':'↓'}</span>`;
-  const tech=[
-    ['52周最高', q.h52&&('$'+q.h52.toFixed(2))],
-    ['52周最低', q.l52&&('$'+q.l52.toFixed(2))],
-    ['距52周高点', (q.h52&&q.p)?`<span class="neg">${((q.p/q.h52-1)*100).toFixed(1)}%</span>`:null],
-    ['MA20', maCell(q.ma20)],
-    ['MA50', maCell(q.ma50)],
-    ['MA200', maCell(q.ma200)],
-    ['年化波动率', q.vola!=null?q.vola.toFixed(1)+'%':null],
-    ['成交额', q.tvr&&('$'+fMoney(q.tvr))],
-    ['成交量', q.vol&&fVol(q.vol)],
-  ];
-  document.getElementById('sTech').innerHTML=stats(tech);
-
-  smodal.classList.add('open');
-  solvl.classList.add('open');
-  requestAnimationFrame(()=>{
-    const el=document.getElementById('sChart');
-    if(!sChart) sChart=echarts.init(el);
-    sChart.setOption({
-      tooltip:{...TIP,trigger:'axis',axisPointer:{type:'line',lineStyle:{color:'#c3c7bb'}},
-        valueFormatter:v=>v==null?'—':'$'+v.toFixed(2)},
-      grid:{left:56,right:16,top:16,bottom:26},
-      xAxis:{type:'category',data:D.hist_dates,boundaryGap:false,...AXIS,splitLine:{show:false}},
-      yAxis:{type:'value',scale:true,...AXIS},
-      series:[{type:'line',data:q.hist,showSymbol:false,cursor:'default',
-        lineStyle:{width:1.8,color:ACCENT},itemStyle:{color:ACCENT},
-        areaStyle:{color:ACCENT,opacity:.08}}]
-    },true);
-    sChart.resize();
-  });
+  window.top.location.href = '/work/sector-rotation/' + t;
 }
-function closeQuote(){
-  smodal.classList.remove('open');
-  solvl.classList.remove('open');
-}
-solvl.onclick=closeQuote;
 
 document.addEventListener('keydown',e=>{
-  if(e.key!=='Escape') return;
-  if(smodal.classList.contains('open')) closeQuote();
-  else closeModal();
+  if(e.key==='Escape') closeModal();
 });
 
 document.getElementById('foot').innerHTML =
-  `数据源: YAHOO FINANCE · 板块代理为 SPDR 行业 ETF · RRG 为周频标准化指标，以 100 为中心，轨迹通常顺时针旋转: 改善 → 领先 → 转弱 → 落后<br/>
-   更新数据: <code>cd scripts/sector-rotation && .venv/bin/python fetch_data.py</code> · 页面生成于 ${D.generated}`;
+  `数据源: YAHOO FINANCE · 板块代理为 SPDR 行业 ETF · RRG 为周频标准化指标，以 100 为中心，轨迹通常顺时针旋转: 改善 → 领先 → 转弱 → 落后
+   <span class="footer-cmd"><br/>更新数据: <code>cd scripts/sector-rotation && .venv/bin/python fetch_data.py</code></span> · 页面生成于 ${D.generated}`;
 
 /* ---------- 路由: ?sector=XLK 直达板块详情 ---------- */
 (function(){
