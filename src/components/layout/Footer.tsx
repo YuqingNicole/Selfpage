@@ -123,18 +123,34 @@ export function Footer() {
               © {currentYear} {photographerInfo.name}
             </p>
 
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBuyCoffee}
-                disabled={loading}
-                className="gap-2 font-light tracking-wide"
+            <div className="flex items-center gap-3">
+              <motion.a
+                href="https://docs.google.com/spreadsheets/d/1_xv9pPrxhx9A4OyhrvyTTJuKNXk8rn0m-eAWvnbdXWI/edit?pli=1&gid=1224425390#gid=1224425390"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
-                <Coffee className="size-4" />
-                {loading ? 'Loading...' : 'Buy Me a Coffee'}
-              </Button>
-            </motion.div>
+                <Button variant="outline" size="sm" className="gap-2 font-light tracking-wide">
+                  <svg className="size-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.9 3H4.1C3.5 3 3 3.5 3 4.1v15.8c0 .6.5 1.1 1.1 1.1h15.8c.6 0 1.1-.5 1.1-1.1V4.1C21 3.5 20.5 3 19.9 3zM8 17H6v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                  </svg>
+                  板块轮动跟踪
+                </Button>
+              </motion.a>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBuyCoffee}
+                  disabled={loading}
+                  className="gap-2 font-light tracking-wide"
+                >
+                  <Coffee className="size-4" />
+                  {loading ? 'Loading...' : 'Buy Me a Coffee'}
+                </Button>
+              </motion.div>
+            </div>
 
             <div className="flex items-center gap-6">
               {socialLinks.map((link, i) => (
