@@ -573,11 +573,11 @@ if (!q) {
         <div class="sec-head"><span>成长性</span></div>
         <div style="padding:0"><div class="metrics">
           ${q.rev    != null ? `<div class="metric"><div class="metric-label">营收 (TTM)</div><div class="metric-val">$${fM(q.rev)}</div></div>` : ''}
-          ${q.rev_g  != null ? `<div class="metric"><div class="metric-label">营收增速 (YoY)</div><div class="metric-val ${cls(q.rev_g)}">${q.rev_g > 0 ? '+' : ''}${q.rev_g.toFixed(1)}%</div></div>` : ''}
-          ${q.eg     != null ? `<div class="metric"><div class="metric-label">盈利增速 (TTM)</div><div class="metric-val ${cls(q.eg)}">${q.eg > 0 ? '+' : ''}${q.eg.toFixed(1)}%</div></div>` : ''}
-          ${q.eg_q   != null ? `<div class="metric"><div class="metric-label">盈利增速 (季)</div><div class="metric-val ${cls(q.eg_q)}">${q.eg_q > 0 ? '+' : ''}${q.eg_q.toFixed(1)}%</div></div>` : ''}
-          ${q.gross_m != null ? `<div class="metric"><div class="metric-label">毛利率</div><div class="metric-val">${q.gross_m.toFixed(1)}%${cmpBar(q.gross_m, peerMedian('gross_m'), v => v.toFixed(1)+'%')}</div></div>` : ''}
-          ${q.op_m   != null ? `<div class="metric"><div class="metric-label">营业利润率</div><div class="metric-val">${q.op_m.toFixed(1)}%${cmpBar(q.op_m, peerMedian('op_m'), v => v.toFixed(1)+'%')}</div></div>` : ''}
+          ${q.rev_g  != null ? `<div class="metric"><div class="metric-label">营收增速 (YoY)</div><div class="metric-val ${cls(q.rev_g)}">${q.rev_g > 0 ? '+' : ''}${q.rev_g.toFixed(1)}%</div>${cmpBar(q.rev_g, peerMedian('rev_g'), v => (v>0?'+':'')+v.toFixed(1)+'%')}</div>` : ''}
+          ${q.eg     != null ? `<div class="metric"><div class="metric-label">盈利增速 (TTM)</div><div class="metric-val ${cls(q.eg)}">${q.eg > 0 ? '+' : ''}${q.eg.toFixed(1)}%</div>${cmpBar(q.eg, peerMedian('eg'), v => (v>0?'+':'')+v.toFixed(1)+'%')}</div>` : ''}
+          ${q.eg_q   != null ? `<div class="metric"><div class="metric-label">盈利增速 (季)</div><div class="metric-val ${cls(q.eg_q)}">${q.eg_q > 0 ? '+' : ''}${q.eg_q.toFixed(1)}%</div>${cmpBar(q.eg_q, peerMedian('eg_q'), v => (v>0?'+':'')+v.toFixed(1)+'%')}</div>` : ''}
+          ${q.gross_m != null ? `<div class="metric"><div class="metric-label">毛利率</div><div class="metric-val">${q.gross_m.toFixed(1)}%</div>${cmpBar(q.gross_m, peerMedian('gross_m'), v => v.toFixed(1)+'%')}</div>` : ''}
+          ${q.op_m   != null ? `<div class="metric"><div class="metric-label">营业利润率</div><div class="metric-val">${q.op_m.toFixed(1)}%</div>${cmpBar(q.op_m, peerMedian('op_m'), v => v.toFixed(1)+'%')}</div>` : ''}
         </div></div>
       </div>` : ''}
 
