@@ -35,11 +35,13 @@
     padding:14px 0 20px}
   h1{font-size:clamp(28px,3.4vw,40px);font-weight:900;letter-spacing:-.02em;line-height:1.05}
   .lede{color:var(--ink-soft);font-size:12.5px;margin-top:8px}
-  .spybox{display:flex;align-items:baseline;gap:10px}
-  .spybox b{font-size:26px;font-weight:800}
-  .chip{padding:3px 10px;font-family:var(--mono);font-size:11.5px;font-weight:700;
+  .spybox{display:flex;align-items:center;gap:12px;background:var(--card);
+    border:2px solid var(--ink);padding:8px 16px}
+  .spybox b{font-size:28px;font-weight:900;letter-spacing:-.02em}
+  .chip{padding:4px 11px;font-family:var(--mono);font-size:11.5px;font-weight:700;
     background:#fff;border:1.5px solid var(--ink)}
-  .chip.up{color:var(--up)} .chip.down{color:var(--down)}
+  .chip.up{color:var(--up);background:rgba(214,48,38,.06);border-color:var(--up)}
+  .chip.down{color:var(--down);background:rgba(0,166,118,.06);border-color:var(--down)}
 
   .wrap{max-width:1400px;margin:0 auto;padding:20px 24px}
 
@@ -187,9 +189,65 @@
     .pill{flex-shrink:0}
     .footer-cmd{display:none}
   }
+
+  /* ================= 走马灯 ================= */
+  .ticker-wrap{background:var(--ink);overflow:hidden;height:32px;display:flex;align-items:center}
+  .ticker-track{display:flex;gap:0;white-space:nowrap;will-change:transform;
+    animation:ticker-scroll 46s linear infinite}
+  .ticker-track:hover{animation-play-state:paused}
+  @keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .tk-item{display:inline-flex;align-items:center;gap:7px;padding:0 20px;
+    border-right:1px solid rgba(255,255,255,.07);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.05em}
+  .tk-sym{color:rgba(255,255,255,.55);font-weight:700;letter-spacing:.1em}
+  .tk-sn{color:rgba(255,255,255,.28);font-size:9.5px}
+  .tk-val{font-weight:700;font-size:11px}
+  .tk-val.up{color:#f87171}.tk-val.down{color:#34d399}
+
+  /* ================= KPI 升级 ================= */
+  .kpi{transition:box-shadow var(--dur) var(--ease),transform var(--dur) var(--ease)}
+  .kpi:hover{box-shadow:4px 4px 0 rgba(8,10,15,.08);transform:translateY(-1px)}
+  .kpi.kup{border-left:3px solid var(--up)}
+  .kpi.kdn{border-left:3px solid var(--down)}
+  .kpi.kac{border-left:3px solid var(--accent)}
+  .kpi .val{font-size:28px}
+  .kpi .arrow{font-size:12px;margin-right:2px;vertical-align:1px;opacity:.65}
+
+  /* ================= Pill 期限迷你热力 ================= */
+  .pmini{display:flex;gap:2px;align-items:flex-end;height:20px;
+    margin-left:4px;pointer-events:none;flex-shrink:0}
+
+  /* ================= 今日板块排行 ================= */
+  .dayrank-card{margin-bottom:14px}
+  .dayrank-rows{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+  .dr-row{display:flex;align-items:center;gap:9px;cursor:pointer;padding:2px 0;
+    transition:opacity var(--dur) var(--ease)}
+  .dr-row:hover{opacity:.7}
+  .dr-name{font-size:12px;font-weight:700;min-width:68px;white-space:nowrap}
+  .dr-tk{font-family:var(--mono);font-size:9.5px;color:var(--ink-mute);
+    min-width:30px;letter-spacing:.04em}
+  .dr-track{flex:1;height:11px;background:var(--paper-deep);position:relative;overflow:hidden}
+  .dr-bar{position:absolute;top:0;height:100%}
+  .dr-zero{position:absolute;top:0;bottom:0;width:1px;left:50%;background:rgba(8,10,15,.2)}
+  .dr-val{font-family:var(--mono);font-size:11px;font-weight:700;min-width:54px;text-align:right}
+
+  /* ================= 卡片悬浮 ================= */
+  .card{transition:box-shadow var(--dur) var(--ease)}
+  .card:hover{box-shadow:4px 4px 0 rgba(8,10,15,.06)}
+
+  /* ================= 入场动画 ================= */
+  @keyframes fadeInUp{
+    from{opacity:0;transform:translateY(7px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .kpi:nth-child(1){animation:fadeInUp .3s var(--ease) 0s both}
+  .kpi:nth-child(2){animation:fadeInUp .3s var(--ease) .07s both}
+  .kpi:nth-child(3){animation:fadeInUp .3s var(--ease) .14s both}
+  .kpi:nth-child(4){animation:fadeInUp .3s var(--ease) .21s both}
 </style>
 </head>
 <body>
+<div class="ticker-wrap" id="tickerWrap"><div class="ticker-track" id="tickerTrack"></div></div>
 <header class="page-header">
   <div class="hwrap">
     <div class="meta-top">
@@ -198,10 +256,13 @@
     </div>
     <div class="hero">
       <div>
-        <h1>美股板块轮动看板</h1>
-        <p class="lede">红涨绿跌 · 收益热力 / RRG 相对强弱 / 超额收益 / 分周期对比 · 点击板块查看个股与 ETF 详情</p>
+        <h1>美股板块轮动</h1>
+        <p class="lede">11 GICS 板块 · 热力图 / RRG 相对强弱 / 超额收益 · 点击板块查看个股详情</p>
       </div>
-      <div class="spybox" id="spybox"></div>
+      <div class="spybox" id="spybox">
+        <div><div class="mlab" style="margin-bottom:3px">标普500 · SPY</div><b id="spyPrice"></b></div>
+        <div id="spyChip"></div>
+      </div>
     </div>
   </div>
 </header>
@@ -209,6 +270,15 @@
 <div class="wrap">
   <div class="kpis" id="kpis"></div>
   <div class="pills" id="pills"></div>
+
+  <!-- 今日板块涨跌幅排行 -->
+  <div class="card dayrank-card">
+    <div class="chead" style="margin-bottom:10px">
+      <div><h2>今日板块涨跌排行</h2><span class="hint">11 GICS 板块 · 点击查看详情</span></div>
+      <span class="mlab" id="dayrank-asof"></span>
+    </div>
+    <div class="dayrank-rows" id="dayrankRows"></div>
+  </div>
 
   <div class="grid">
     <div class="card span7">
@@ -291,38 +361,99 @@ function syncRoute(tk){
   try{ window.parent.postMessage({type:'sector-nav',sector:tk}, window.location.origin); }catch(e){}
 }
 
+/* ---------- 走马灯 ---------- */
+(function(){
+  const items = [
+    ...D.sectors.map(s=>({sym:s.ticker, n:s.name, v:s.price, chg:s.day_chg})),
+    {sym:'SPY', n:'标普500', v:D.spy.price, chg:D.spy.day_chg},
+  ];
+  const html = items.map(it=>`
+    <span class="tk-item">
+      <span class="tk-sym">${it.sym}</span>
+      <span class="tk-sn">${it.n}</span>
+      <span class="tk-val ${it.chg>=0?'up':'down'}">${it.v.toFixed(2)}&nbsp;<span>${it.chg>=0?'▲':'▼'}${Math.abs(it.chg).toFixed(2)}%</span></span>
+    </span>`).join('');
+  // 双份以支持无缝滚动
+  document.getElementById('tickerTrack').innerHTML = html + html;
+})();
+
 /* ---------- 头部 & KPI ---------- */
 document.getElementById('asof').textContent = `UPDATED ${D.asof} · 红涨绿跌`;
-document.getElementById('spybox').innerHTML =
-  `<span class="mlab">标普500 (SPY)</span><b>${D.spy.price.toFixed(2)}</b>
-   <span class="chip ${D.spy.day_chg>=0?'up':'down'}">${fmt(D.spy.day_chg)}</span>`;
+document.getElementById('spyPrice').textContent = D.spy.price.toFixed(2);
+document.getElementById('spyChip').innerHTML =
+  `<span class="chip ${D.spy.day_chg>=0?'up':'down'}">${D.spy.day_chg>=0?'▲':'▼'} ${Math.abs(D.spy.day_chg).toFixed(2)}%</span>`;
 
 const K = D.kpi;
 document.getElementById('kpis').innerHTML = [
-  {lab:'近1月领涨', val:`${K.best.name}`, vcls:'pos', suf:fmt(K.best.ret),
-   note:`${K.best.ticker} · 近1月收益`},
-  {lab:'近1月领跌', val:`${K.worst.name}`, vcls:'neg', suf:fmt(K.worst.ret),
-   note:`${K.worst.ticker} · 近1月收益`},
+  {lab:'近1月领涨', val:`${K.best.name}`, vcls:'pos', suf:fmt(K.best.ret), kmod:'kup',
+   note:`${K.best.ticker} · 近1月收益`, arrow:'▲'},
+  {lab:'近1月领跌', val:`${K.worst.name}`, vcls:'neg', suf:fmt(K.worst.ret), kmod:'kdn',
+   note:`${K.worst.ticker} · 近1月收益`, arrow:'▼'},
   {lab:'风险偏好', val:(K.risk_spread>=0?'偏进攻':'偏防御'),
    vcls:K.risk_spread>=0?'pos':'neg', suf:fmt(K.risk_spread),
-   note:'近1月顺周期 − 防御板块收益差'},
-  {lab:'轮动强度 (离散度)', val:K.dispersion.toFixed(2)+'%', vcls:'', suf:'',
-   note:`跑赢大盘的板块 ${K.beat_spy}/${K.total} (近1月)`},
-].map(k=>`<div class="kpi">
+   kmod:K.risk_spread>=0?'kup':'kdn',
+   note:'近1月顺周期 − 防御板块收益差', arrow:K.risk_spread>=0?'▲':'▼'},
+  {lab:'轮动强度 (离散度)', val:K.dispersion.toFixed(2)+'%', vcls:'', suf:'', kmod:'kac',
+   note:`跑赢大盘板块 ${K.beat_spy}/${K.total} (近1月)`, arrow:''},
+].map(k=>`<div class="kpi ${k.kmod}">
     <div class="lab"><span>${k.lab}</span><span class="suf ${k.vcls}">${k.suf||''}</span></div>
-    <div class="val ${k.vcls}">${k.val}</div>
+    <div class="val ${k.vcls}">${k.arrow?`<span class="arrow">${k.arrow}</span>`:''}${k.val}</div>
     <div class="note">${k.note}</div></div>`).join('');
 
 /* ---------- 板块 pill 条 ---------- */
-document.getElementById('pills').innerHTML = D.sectors.map(s=>
-  `<div class="pill" data-tk="${s.ticker}" tabindex="0">
-     <span class="pn">${s.name}</span><span class="pt">${s.ticker}</span>
-     <span class="pc ${cls(s.day_chg)}">${fmt(s.day_chg)}</span>
-   </div>`).join('');
-document.querySelectorAll('.pill').forEach(p=>{
-  p.onclick=()=>openSector(p.dataset.tk);
-  p.onkeydown=e=>{if(e.key==='Enter')openSector(p.dataset.tk);};
-});
+(function(){
+  /* 迷你多期热力点：今日 + 5D + 1M + 3M */
+  const miniHorizons = ['今日','1周','1月','3月'];
+  const getV = (s,h) => h==='今日' ? s.day_chg : s.returns[h];
+  const maxAbs = miniHorizons.map(h => Math.max(0.01, ...D.sectors.map(s=>Math.abs(getV(s,h)??0))));
+  function barColor(v,ma){
+    if(v==null) return 'rgba(0,0,0,.12)';
+    const t=Math.max(-1,Math.min(1,v/ma)), a=Math.min(1,.25+Math.pow(Math.abs(t),.6)*.75);
+    return t>=0?`rgba(214,48,38,${a})`:`rgba(0,166,118,${a})`;
+  }
+  function miniDots(s){
+    return '<span class="pmini">' + miniHorizons.map((h,i)=>{
+      const v=getV(s,h);
+      const ht = v==null?8:4+Math.round(Math.pow(Math.abs(v/maxAbs[i]),.5)*12);
+      return `<span style="width:5px;height:${ht}px;background:${barColor(v,maxAbs[i])};display:inline-block;align-self:flex-end" title="${h}: ${fmt(v)}"></span>`;
+    }).join('') + '</span>';
+  }
+
+  document.getElementById('pills').innerHTML = D.sectors.map(s=>
+    `<div class="pill" data-tk="${s.ticker}" tabindex="0">
+       <span class="pn">${s.name}</span><span class="pt">${s.ticker}</span>
+       <span class="pc ${cls(s.day_chg)}">${fmt(s.day_chg)}</span>
+       ${miniDots(s)}
+     </div>`).join('');
+  document.querySelectorAll('.pill').forEach(p=>{
+    p.onclick=()=>openSector(p.dataset.tk);
+    p.onkeydown=e=>{if(e.key==='Enter')openSector(p.dataset.tk);};
+  });
+})();
+
+/* ---------- 今日板块涨跌排行 ---------- */
+(function(){
+  document.getElementById('dayrank-asof').textContent = D.asof;
+  const rows = [...D.sectors].sort((a,b)=>b.day_chg - a.day_chg);
+  const maxAbs = Math.max(0.01, ...rows.map(r=>Math.abs(r.day_chg)));
+  const mid = 50; // 50% = 零轴位置
+  document.getElementById('dayrankRows').innerHTML = rows.map(s=>{
+    const v = s.day_chg;
+    const pct = Math.abs(v)/maxAbs * 48; // 最大延伸 48%
+    const barLeft = v>=0 ? mid : (mid-pct);
+    const barW = pct;
+    const barCol = v>=0 ? 'var(--up)' : 'var(--down)';
+    return `<div class="dr-row" onclick="openSector('${s.ticker}')">
+      <span class="dr-name">${s.name}</span>
+      <span class="dr-tk">${s.ticker}</span>
+      <div class="dr-track">
+        <div class="dr-zero"></div>
+        <div class="dr-bar" style="left:${barLeft}%;width:${barW}%;background:${barCol};opacity:.82"></div>
+      </div>
+      <span class="dr-val ${cls(v)}">${fmt(v)}</span>
+    </div>`;
+  }).join('');
+})();
 
 /* ---------- 热力图 (每列独立归一) ---------- */
 (function(){
@@ -351,10 +482,11 @@ document.querySelectorAll('.pill').forEach(p=>{
            axisLabel:{color:'#7b8491',fontSize:12}},
     yAxis:{type:'category',inverse:true,...AXIS,splitLine:{show:false},axisLine:{show:false},
            data:rows.map(s=>`${s.name} ${s.ticker}`),axisLabel:{color:'#3d4652',fontSize:12}},
-    series:[{type:'heatmap',data,cursor:'pointer',label:{show:true,fontSize:11.5,
-             formatter:p=>p.data.real.toFixed(1)},
-             itemStyle:{borderColor:'#f7f8f4',borderWidth:3},
-             emphasis:{itemStyle:{shadowBlur:8,shadowColor:'rgba(8,10,15,.3)'}}}]
+    series:[{type:'heatmap',data,cursor:'pointer',
+             label:{show:true,fontSize:12,fontWeight:'700',
+               formatter:p=>(p.data.real>0?'+':'')+p.data.real.toFixed(1)+'%'},
+             itemStyle:{borderColor:'#f7f8f4',borderWidth:4},
+             emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(8,10,15,.25)',borderWidth:0}}}]
   });
   chart.on('click', p=>{ if(p.seriesType==='heatmap') openSector(rows[p.value[1]].ticker); });
 })();
@@ -556,9 +688,11 @@ document.querySelectorAll('.pill').forEach(p=>{
     xAxis:{type:'category',data:D.excess.dates,boundaryGap:false,...AXIS,
       splitLine:{show:false}},
     yAxis:{type:'value',...AXIS,axisLabel:{...AXIS.axisLabel,formatter:'{value}%'}},
-    series:[...series.slice(0,-1),{...series[series.length-1],
+    series:[...series.slice(0,-1).map(s=>({...s,
+      areaStyle:{color:COLOR[s.name],opacity:.04}})),
+      {...series[series.length-1],
       markLine:{silent:true,symbol:'none',label:{show:false},
-        lineStyle:{color:'#c3c7bb',width:1},data:[{yAxis:0}]}}]
+        lineStyle:{color:'rgba(8,10,15,.25)',width:1},data:[{yAxis:0}]}}]
   });
 })();
 
@@ -578,11 +712,11 @@ document.querySelectorAll('.pill').forEach(p=>{
       yAxis:{type:'category',data:rows.map(s=>`${s.name} ${s.ticker}`),
         ...AXIS,splitLine:{show:false},axisLine:{show:false},
         axisLabel:{color:'#3d4652',fontSize:11.5}},
-      series:[{type:'bar',barWidth:13,cursor:'pointer',
+      series:[{type:'bar',barWidth:16,cursor:'pointer',
         data:rows.map(s=>({value:s.returns[h],
           itemStyle:{color:s.returns[h]>=0?UP:DOWN,borderRadius:0},
           label:{position:s.returns[h]>=0?'right':'left'}})),
-        label:{show:true,fontSize:10.5,color:'#7b8491',
+        label:{show:true,fontSize:11,fontWeight:'bold',color:'#7b8491',
           formatter:p=>fmt(p.value)},
         markLine:{silent:true,symbol:'none',
           lineStyle:{color:ACCENT,type:'dashed',width:1.2},

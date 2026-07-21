@@ -75,7 +75,46 @@ def arti_quote(ticker: str) -> dict:
         "d_high":  r2(d.get("high")),
         "d_low":   r2(d.get("low")),
         "prev_c":  r2(d.get("prev_close")),
-        # ARTI change_pct is 0.0 for US EOD — skip, keep yfinance value
+    }
+
+
+def arti_indicator(ticker: str) -> dict:
+    """Return ARTI financial indicator (latest period) for a US ticker, or {}."""
+    body = arti_get(f"/internal/market/financial-reports/{ticker}?report_type=indicator&limit=1")
+    rows = body.get("data") or []
+    if not rows or not isinstance(rows, list):
+        return {}
+    d = rows[0]
+    def f(k):
+        v = d.get(k)
+        return r2(float(v)) if v not in (None, "") else None
+    return {
+        "a_eps":       f("basic_eps"),
+        "a_eps_d":     f("diluted_eps"),
+        "a_gross_m":   f("gross_profit_ratio"),   # %
+        "a_net_m":     f("net_profit_ratio"),      # %
+        "a_roe":       f("roe_avg"),               # %
+        "a_roa":       f("roa"),                   # %
+        "a_cr":        f("current_ratio"),
+        "a_qr":        f("quick_ratio"),
+        "a_debt_r":    f("debt_asset_ratio"),      # %
+        "a_rev":       f("operate_income"),        # 营收 (元)
+        "a_gross":     f("gross_profit"),
+        "a_net":       f("parent_holder_netprofit"),
+        "a_end_date":  d.get("end_date"),
+    }
+
+
+def arti_profile(ticker: str) -> dict:
+    """Return ARTI company profile extras, or {}."""
+    body = arti_get(f"/internal/market/company-profile/{ticker}")
+    d = body.get("data") or {}
+    if not d or d.get("market") != "US":
+        return {}
+    return {
+        "a_exchange":  d.get("exchange"),
+        "a_list_date": d.get("list_date"),
+        "a_currency":  d.get("currency"),
     }
 
 # 代码 -> (中文名, 风格分组: cyc=顺周期/进攻, def=防御)
@@ -420,19 +459,27 @@ def main():
         if (i + 1) % 30 == 0:
             print(f"  基本面 {i + 1}/{len(extra)}")
 
-    # ---- ARTI 技术指标补充 (如已配置) ----
-    arti_tech_map: dict[str, dict] = {}
+    # ---- ARTI 数据补充 (技术指标 + 财务指标 + 公司信息) ----
+    arti_tech_map:    dict[str, dict] = {}
+    arti_ind_map:     dict[str, dict] = {}
+    arti_profile_map: dict[str, dict] = {}
     if ARTI_ENABLED:
-        print(f"ARTI: 抓取 {len(extra)} 只标的技术指标 ...")
+        print(f"ARTI: 抓取 {len(extra)} 只标的 (技术/财务/公司信息) ...")
         for i, t in enumerate(extra):
             tech = arti_technicals(t)
             if tech:
                 arti_tech_map[t] = tech
+            ind = arti_indicator(t)
+            if ind:
+                arti_ind_map[t] = ind
+            prof = arti_profile(t)
+            if prof:
+                arti_profile_map[t] = prof
             if (i + 1) % 50 == 0:
-                print(f"  ARTI tech {i + 1}/{len(extra)}")
-        print(f"  ARTI 技术指标覆盖 {len(arti_tech_map)}/{len(extra)} 只")
+                print(f"  ARTI {i + 1}/{len(extra)}")
+        print(f"  技术指标 {len(arti_tech_map)} · 财务指标 {len(arti_ind_map)} · 公司信息 {len(arti_profile_map)} 只")
     else:
-        print("ARTI_BASE_URL/ARTI_API_KEY 未设置，跳过实时技术指标补充")
+        print("ARTI_BASE_URL/ARTI_API_KEY 未设置，跳过 ARTI 数据补充")
 
     def pack(lst):
         out = []
@@ -440,9 +487,13 @@ def main():
             q = quote(t)
             if q:
                 entry = {"t": t, "n": n, **q, **info_map.get(t, {})}
-                # ARTI 技术指标覆盖 (RSI/MACD/BOLL/KDJ/ATR)
                 if t in arti_tech_map:
                     entry.update(arti_tech_map[t])
+                if t in arti_ind_map:
+                    # a_ 前缀字段: ARTI 财务指标 (覆盖或补充 yfinance)
+                    entry.update(arti_ind_map[t])
+                if t in arti_profile_map:
+                    entry.update(arti_profile_map[t])
                 out.append(entry)
         return out
 

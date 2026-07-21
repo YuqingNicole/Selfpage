@@ -534,7 +534,7 @@ if (!q) {
       </div>` : ''}
 
       <!-- fundamentals -->
-      ${(q.mc || q.aum || q.beta || q.eps || q.dy != null || q.tgt) ? `<div class="section">
+      ${(q.mc || q.aum || q.beta || q.eps || q.a_eps || q.dy != null || q.tgt) ? `<div class="section">
         <div class="sec-head">
           <span>基本面与估值</span>
           ${q.tgt && q.p ? `<span class="sec-head-note">分析师目标价 $${q.tgt.toFixed(0)} · 空间 ${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%</span>` : ''}
@@ -544,8 +544,9 @@ if (!q) {
             ${q.mc   ? `<div class="metric"><div class="metric-label">市值</div><div class="metric-val">$${fM(q.mc)}</div></div>` : ''}
             ${q.aum  ? `<div class="metric"><div class="metric-label">规模 AUM</div><div class="metric-val">$${fM(q.aum)}</div></div>` : ''}
             ${q.beta ? `<div class="metric"><div class="metric-label">Beta</div><div class="metric-val">${q.beta.toFixed(2)}</div></div>` : ''}
-            ${q.eps  ? `<div class="metric"><div class="metric-label">EPS (TTM)</div><div class="metric-val">$${q.eps.toFixed(2)}</div></div>` : ''}
+            ${(q.a_eps || q.eps) ? `<div class="metric"><div class="metric-label">EPS${q.a_end_date ? ' (' + q.a_end_date.slice(0,7) + ')' : ' (TTM)'}</div><div class="metric-val">$${(q.a_eps || q.eps).toFixed(2)}</div>${q.a_eps_d ? `<div class="metric-sub">摊薄 $${q.a_eps_d.toFixed(2)}</div>` : ''}</div>` : ''}
             ${q.dy  != null ? `<div class="metric"><div class="metric-label">股息率</div><div class="metric-val">${q.dy.toFixed(2)}%</div></div>` : ''}
+            ${q.a_currency || q.a_exchange ? `<div class="metric"><div class="metric-label">交易所</div><div class="metric-val">${q.a_exchange || '—'}</div><div class="metric-sub">${q.a_currency || ''} · 上市 ${q.a_list_date ? q.a_list_date.slice(0,4) : '—'}</div></div>` : ''}
             ${q.tgt  ? `<div class="metric"><div class="metric-label">分析师目标价</div><div class="metric-val">$${q.tgt.toFixed(0)}<span class="metric-sub" style="display:inline;margin-left:6px;font-size:var(--text-2xs);color:${upside>=0?'var(--accent-2)':'var(--warn)'}">${upside>=0?'+':''}${upside.toFixed(1)}%</span></div></div>` : ''}
           </div>
         </div>
@@ -559,53 +560,47 @@ if (!q) {
             ${q.pe != null ? `<div class="metric">
               <div class="metric-label">PE (TTM)</div>
               <div class="metric-val">${q.pe.toFixed(1)}x</div>
-              ${cmpBar(q.pe, peerMedian('pe'), v => v.toFixed(1)+'x')}
+              ${cmpBar(q.pe, peerMedian('pe'), v => v.toFixed(1)+'x', false)}
             </div>` : ''}
             ${q.fpe != null ? `<div class="metric">
               <div class="metric-label">预期 PE</div>
               <div class="metric-val">${q.fpe.toFixed(1)}x</div>
-              ${cmpBar(q.fpe, peerMedian('fpe'), v => v.toFixed(1)+'x')}
+              ${cmpBar(q.fpe, peerMedian('fpe'), v => v.toFixed(1)+'x', false)}
             </div>` : ''}
             ${q.pb != null ? `<div class="metric">
               <div class="metric-label">PB</div>
               <div class="metric-val">${q.pb.toFixed(1)}x</div>
-              ${cmpBar(q.pb, peerMedian('pb'), v => v.toFixed(1)+'x')}
+              ${cmpBar(q.pb, peerMedian('pb'), v => v.toFixed(1)+'x', false)}
             </div>` : ''}
-            ${q.pm != null ? `<div class="metric">
-              <div class="metric-label">净利率</div>
-              <div class="metric-val">${q.pm.toFixed(1)}%</div>
-              ${cmpBar(q.pm, peerMedian('pm'), v => v.toFixed(1)+'%')}
-            </div>` : ''}
-            ${q.roe != null ? `<div class="metric">
-              <div class="metric-label">ROE</div>
-              <div class="metric-val">${q.roe.toFixed(1)}%</div>
-              ${cmpBar(q.roe, peerMedian('roe'), v => v.toFixed(1)+'%')}
-            </div>` : ''}
+            ${(q.a_net_m ?? q.pm) != null ? (() => { const v = q.a_net_m ?? q.pm; return `<div class="metric"><div class="metric-label">净利率</div><div class="metric-val">${v.toFixed(1)}%</div>${cmpBar(v, peerMedian('a_net_m') ?? peerMedian('pm'), x => x.toFixed(1)+'%', true)}</div>`; })() : ''}
+            ${(q.a_roe ?? q.roe) != null ? (() => { const v = q.a_roe ?? q.roe; return `<div class="metric"><div class="metric-label">ROE</div><div class="metric-val">${v.toFixed(1)}%</div>${cmpBar(v, peerMedian('a_roe') ?? peerMedian('roe'), x => x.toFixed(1)+'%', true)}</div>`; })() : ''}
+            ${q.a_roa != null ? `<div class="metric"><div class="metric-label">ROA</div><div class="metric-val">${q.a_roa.toFixed(1)}%</div>${cmpBar(q.a_roa, peerMedian('a_roa'), v => v.toFixed(1)+'%', true)}</div>` : ''}
           </div>
         </div>
       </div>` : ''}
 
       <!-- 成长性 -->
-      ${q.kind !== 'ETF' && (q.rev_g != null || q.eg != null || q.eg_q != null || q.gross_m != null || q.op_m != null || q.rev != null) ? `
+      ${q.kind !== 'ETF' && (q.rev_g != null || q.eg != null || q.eg_q != null || q.gross_m != null || q.a_gross_m != null || q.op_m != null || q.a_net_m != null || q.rev != null || q.a_rev != null) ? `
       <div class="section">
-        <div class="sec-head"><span>成长性</span></div>
+        <div class="sec-head"><span>成长性</span>${q.a_end_date ? `<span class="sec-head-note">财报截至 ${q.a_end_date}</span>` : ''}</div>
         <div style="padding:0"><div class="metrics">
-          ${q.rev    != null ? `<div class="metric"><div class="metric-label">营收 (TTM)</div><div class="metric-val">$${fM(q.rev)}</div></div>` : ''}
-          ${q.rev_g  != null ? `<div class="metric"><div class="metric-label">营收增速 (YoY)</div><div class="metric-val ${cls(q.rev_g)}">${q.rev_g > 0 ? '+' : ''}${q.rev_g.toFixed(1)}%</div>${cmpBar(q.rev_g, peerMedian('rev_g'), v => (v>0?'+':'')+v.toFixed(1)+'%')}</div>` : ''}
-          ${q.eg     != null ? `<div class="metric"><div class="metric-label">盈利增速 (TTM)</div><div class="metric-val ${cls(q.eg)}">${q.eg > 0 ? '+' : ''}${q.eg.toFixed(1)}%</div>${cmpBar(q.eg, peerMedian('eg'), v => (v>0?'+':'')+v.toFixed(1)+'%')}</div>` : ''}
-          ${q.eg_q   != null ? `<div class="metric"><div class="metric-label">盈利增速 (季)</div><div class="metric-val ${cls(q.eg_q)}">${q.eg_q > 0 ? '+' : ''}${q.eg_q.toFixed(1)}%</div>${cmpBar(q.eg_q, peerMedian('eg_q'), v => (v>0?'+':'')+v.toFixed(1)+'%')}</div>` : ''}
-          ${q.gross_m != null ? `<div class="metric"><div class="metric-label">毛利率</div><div class="metric-val">${q.gross_m.toFixed(1)}%</div>${cmpBar(q.gross_m, peerMedian('gross_m'), v => v.toFixed(1)+'%')}</div>` : ''}
-          ${q.op_m   != null ? `<div class="metric"><div class="metric-label">营业利润率</div><div class="metric-val">${q.op_m.toFixed(1)}%</div>${cmpBar(q.op_m, peerMedian('op_m'), v => v.toFixed(1)+'%')}</div>` : ''}
+          ${(q.a_rev || q.rev) != null ? (() => { const v = q.a_rev || q.rev; return `<div class="metric"><div class="metric-label">营收</div><div class="metric-val">$${fM(v)}</div>${q.a_net != null ? `<div class="metric-sub">净利润 $${fM(q.a_net)}</div>` : ''}</div>`; })() : ''}
+          ${q.rev_g  != null ? `<div class="metric"><div class="metric-label">营收增速 (YoY)</div><div class="metric-val ${cls(q.rev_g)}">${q.rev_g > 0 ? '+' : ''}${q.rev_g.toFixed(1)}%</div>${cmpBar(q.rev_g, peerMedian('rev_g'), v => (v>0?'+':'')+v.toFixed(1)+'%', true)}</div>` : ''}
+          ${q.eg     != null ? `<div class="metric"><div class="metric-label">盈利增速 (TTM)</div><div class="metric-val ${cls(q.eg)}">${q.eg > 0 ? '+' : ''}${q.eg.toFixed(1)}%</div>${cmpBar(q.eg, peerMedian('eg'), v => (v>0?'+':'')+v.toFixed(1)+'%', true)}</div>` : ''}
+          ${q.eg_q   != null ? `<div class="metric"><div class="metric-label">盈利增速 (季)</div><div class="metric-val ${cls(q.eg_q)}">${q.eg_q > 0 ? '+' : ''}${q.eg_q.toFixed(1)}%</div>${cmpBar(q.eg_q, peerMedian('eg_q'), v => (v>0?'+':'')+v.toFixed(1)+'%', true)}</div>` : ''}
+          ${(q.a_gross_m ?? q.gross_m) != null ? (() => { const v = q.a_gross_m ?? q.gross_m; return `<div class="metric"><div class="metric-label">毛利率</div><div class="metric-val">${v.toFixed(1)}%</div>${cmpBar(v, peerMedian('a_gross_m') ?? peerMedian('gross_m'), x => x.toFixed(1)+'%', true)}</div>`; })() : ''}
+          ${(q.a_net_m ?? q.op_m) != null ? (() => { const v = q.a_net_m ?? q.op_m; const lab = q.a_net_m != null ? '净利率' : '营业利润率'; return `<div class="metric"><div class="metric-label">${lab}</div><div class="metric-val">${v.toFixed(1)}%</div>${cmpBar(v, peerMedian('a_net_m') ?? peerMedian('op_m'), x => x.toFixed(1)+'%', true)}</div>`; })() : ''}
         </div></div>
       </div>` : ''}
 
       <!-- 财务健康 -->
-      ${q.kind !== 'ETF' && (q.de != null || q.cr != null || q.fcf != null || q.ocf != null || q.bv != null) ? `
+      ${q.kind !== 'ETF' && (q.de != null || q.cr != null || q.a_cr != null || q.a_qr != null || q.a_debt_r != null || q.fcf != null || q.ocf != null || q.bv != null) ? `
       <div class="section">
-        <div class="sec-head"><span>财务健康</span></div>
+        <div class="sec-head"><span>财务健康</span>${q.a_end_date ? `<span class="sec-head-note">财报截至 ${q.a_end_date}</span>` : ''}</div>
         <div style="padding:0"><div class="metrics">
-          ${q.de   != null ? `<div class="metric"><div class="metric-label">负债权益比 D/E</div><div class="metric-val">${q.de.toFixed(1)}</div>${cmpBar(q.de, peerMedian('de'), v => v.toFixed(1))}</div>` : ''}
-          ${q.cr   != null ? `<div class="metric"><div class="metric-label">流动比率</div><div class="metric-val">${q.cr.toFixed(2)}x</div>${cmpBar(q.cr, peerMedian('cr'), v => v.toFixed(2)+'x')}</div>` : ''}
+          ${(q.a_cr ?? q.cr) != null ? (() => { const v = q.a_cr ?? q.cr; return `<div class="metric"><div class="metric-label">流动比率</div><div class="metric-val">${v.toFixed(2)}x</div>${cmpBar(v, peerMedian('a_cr') ?? peerMedian('cr'), x => x.toFixed(2)+'x', true)}</div>`; })() : ''}
+          ${q.a_qr != null ? `<div class="metric"><div class="metric-label">速动比率</div><div class="metric-val">${q.a_qr.toFixed(2)}x</div>${cmpBar(q.a_qr, peerMedian('a_qr'), v => v.toFixed(2)+'x', true)}</div>` : ''}
+          ${(q.a_debt_r ?? q.de) != null ? (() => { const v = q.a_debt_r ?? q.de; const lab = q.a_debt_r != null ? '资产负债率' : '负债权益比 D/E'; return `<div class="metric"><div class="metric-label">${lab}</div><div class="metric-val">${v.toFixed(1)}${q.a_debt_r != null ? '%' : ''}</div>${cmpBar(v, peerMedian('a_debt_r') ?? peerMedian('de'), x => x.toFixed(1)+(q.a_debt_r != null ? '%' : ''), false)}</div>`; })() : ''}
           ${q.fcf  != null ? `<div class="metric"><div class="metric-label">自由现金流</div><div class="metric-val">$${fM(q.fcf)}</div></div>` : ''}
           ${q.ocf  != null ? `<div class="metric"><div class="metric-label">经营现金流</div><div class="metric-val">$${fM(q.ocf)}</div></div>` : ''}
           ${q.bv   != null ? `<div class="metric"><div class="metric-label">每股净资产</div><div class="metric-val">$${q.bv.toFixed(2)}</div></div>` : ''}
@@ -617,10 +612,10 @@ if (!q) {
       <div class="section">
         <div class="sec-head"><span>估值倍数</span></div>
         <div style="padding:0"><div class="metrics">
-          ${q.peg      != null ? `<div class="metric"><div class="metric-label">PEG</div><div class="metric-val">${q.peg.toFixed(2)}x</div>${cmpBar(q.peg, peerMedian('peg'), v => v.toFixed(2)+'x')}</div>` : ''}
-          ${q.ps       != null ? `<div class="metric"><div class="metric-label">P/S</div><div class="metric-val">${q.ps.toFixed(1)}x</div>${cmpBar(q.ps, peerMedian('ps'), v => v.toFixed(1)+'x')}</div>` : ''}
-          ${q.ev_rev   != null ? `<div class="metric"><div class="metric-label">EV/Revenue</div><div class="metric-val">${q.ev_rev.toFixed(1)}x</div>${cmpBar(q.ev_rev, peerMedian('ev_rev'), v => v.toFixed(1)+'x')}</div>` : ''}
-          ${q.ev_ebitda!= null ? `<div class="metric"><div class="metric-label">EV/EBITDA</div><div class="metric-val">${q.ev_ebitda.toFixed(1)}x</div>${cmpBar(q.ev_ebitda, peerMedian('ev_ebitda'), v => v.toFixed(1)+'x')}</div>` : ''}
+          ${q.peg      != null ? `<div class="metric"><div class="metric-label">PEG</div><div class="metric-val">${q.peg.toFixed(2)}x</div>${cmpBar(q.peg, peerMedian('peg'), v => v.toFixed(2)+'x', false)}</div>` : ''}
+          ${q.ps       != null ? `<div class="metric"><div class="metric-label">P/S</div><div class="metric-val">${q.ps.toFixed(1)}x</div>${cmpBar(q.ps, peerMedian('ps'), v => v.toFixed(1)+'x', false)}</div>` : ''}
+          ${q.ev_rev   != null ? `<div class="metric"><div class="metric-label">EV/Revenue</div><div class="metric-val">${q.ev_rev.toFixed(1)}x</div>${cmpBar(q.ev_rev, peerMedian('ev_rev'), v => v.toFixed(1)+'x', false)}</div>` : ''}
+          ${q.ev_ebitda!= null ? `<div class="metric"><div class="metric-label">EV/EBITDA</div><div class="metric-val">${q.ev_ebitda.toFixed(1)}x</div>${cmpBar(q.ev_ebitda, peerMedian('ev_ebitda'), v => v.toFixed(1)+'x', false)}</div>` : ''}
         </div></div>
       </div>` : ''}
 
