@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export function SectorRotation({ sector }: { sector?: string }) {
+export function SectorRotation({ sector, topOffset = 65 }: { sector?: string; topOffset?: number }) {
   // 监听 iframe 内看板打开/关闭板块详情的消息，同步地址栏路由
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
@@ -23,10 +23,10 @@ export function SectorRotation({ sector }: { sector?: string }) {
       src={`/work/sector-rotation/index.html${sector ? `?sector=${sector}` : ""}`}
       style={{
         position: "fixed",
-        top: 65, // 站点固定头部高度 (h-16 + 下边框)，避免遮挡看板内容
+        top: topOffset,
         left: 0,
         width: "100%",
-        height: "calc(100% - 65px)",
+        height: `calc(100% - ${topOffset}px)`,
         border: "none",
         zIndex: 10,
       }}

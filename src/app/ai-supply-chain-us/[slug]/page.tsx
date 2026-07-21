@@ -169,18 +169,17 @@ export default async function ChainDetailPage({ params }: { params: Promise<{ sl
               <article key={point.symbol} style={{ borderRadius: 20, border: '1px solid #EAECF0', background: '#FFFFFF', padding: 18, boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '140px minmax(0,1fr) auto', gap: 14, alignItems: 'center' }}>
                   <div>
-                    <a
-                      href={`https://finance.yahoo.com/quote/${encodeURIComponent(point.symbol)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      title={`在 Yahoo Finance 查看 ${point.symbol}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#6D5EF5' }}>{point.symbol} ↗</div>
-                      <div style={{ fontSize: 13, color: '#667085', marginTop: 3 }}>{point.shortName}</div>
-                    </a>
-                    <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: '#6D5EF5' }}>{point.symbol}</div>
+                    <div style={{ fontSize: 13, color: '#667085', marginTop: 3 }}>{point.shortName}</div>
+                    <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       <Badge label={role} fg={roleTone.fg} bg={roleTone.bg} />
+                      <Link
+                        href={`/work/sector-rotation/${point.symbol}`}
+                        title={`查看 ${point.symbol} 的 GICS 板块走势`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '4px 8px', borderRadius: 999, fontSize: 10, fontWeight: 600, color: '#475467', background: '#F9FAFB', border: '1px solid #EAECF0', textDecoration: 'none' }}
+                      >
+                        GICS 走势 ↗
+                      </Link>
                     </div>
                   </div>
                   <div>

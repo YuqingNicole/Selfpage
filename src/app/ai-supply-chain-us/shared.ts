@@ -283,6 +283,20 @@ export const benchmarkNames: Record<string, string> = {
   XLU: '公用事业',
 }
 
+// 个股 → 所属 AI 链的反向索引，用于两套系统互跳导航。
+// 以股票为中心：NVDA 同时出现在 gpu-ai-chips 和 XLK 板块——
+// 通过这张表，个股 quote 页能知道自己属于哪条 AI 链。
+export const symbolToChains: Record<string, string[]> = (() => {
+  const map: Record<string, string[]> = {}
+  for (const chain of chainDefs) {
+    for (const symbol of chain.symbols) {
+      if (!map[symbol]) map[symbol] = []
+      map[symbol].push(chain.slug)
+    }
+  }
+  return map
+})()
+
 export function formatPct(value: number) {
   const sign = value > 0 ? '+' : ''
   return `${sign}${value.toFixed(2)}%`
