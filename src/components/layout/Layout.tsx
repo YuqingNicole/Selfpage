@@ -19,6 +19,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isHomepage = pathname === '/';
+  const isSectorRotation = pathname.startsWith('/work/sector-rotation');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,8 +31,8 @@ export function Layout({ children }: LayoutProps) {
       >
         {children}
       </main>
-      <Footer />
-      <NewsletterBar />
+      {!isSectorRotation && <Footer />}
+      {!isSectorRotation && <NewsletterBar />}
       <ScrollToTop />
     </div>
   );
