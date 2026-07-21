@@ -154,6 +154,32 @@ td:last-child{border-right:0}
 .mini-fill{position:absolute;top:0;height:100%}
 .no-results{padding:48px;text-align:center;font-family:var(--font-mono);font-size:var(--text-sm);color:var(--ink-mute)}
 footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);padding:14px 0 28px;border-top:1px solid var(--line)}
+
+@media(max-width:640px){
+  .search-box{width:100%;flex-shrink:1}
+  .controls-row1{flex-wrap:wrap}
+  /* mobile: 名称(1) · 今日(4) · 近1月(6) — everything else hidden */
+  th:nth-child(2),td:nth-child(2),
+  th:nth-child(3),td:nth-child(3),
+  th:nth-child(5),td:nth-child(5),
+  th:nth-child(7),td:nth-child(7),
+  th:nth-child(8),td:nth-child(8),
+  th:nth-child(9),td:nth-child(9),
+  th:nth-child(10),td:nth-child(10),
+  th:nth-child(11),td:nth-child(11),
+  th:nth-child(12),td:nth-child(12),
+  th:nth-child(13),td:nth-child(13){display:none}
+  /* clamp name col; truncate long text */
+  th:first-child{min-width:0;max-width:160px}
+  td:first-child{max-width:160px}
+  .td-name .name{overflow:hidden;text-overflow:ellipsis;max-width:140px}
+  .td-name .sub{overflow:hidden;text-overflow:ellipsis;max-width:140px}
+  /* hide mini-bar, just show number */
+  .mini-bar{display:none}
+  .bar-cell{justify-content:flex-end}
+  td,th{padding:7px 7px}
+  td:first-child,th:first-child{padding-left:10px}
+}
 </style>
 </head>
 <body>

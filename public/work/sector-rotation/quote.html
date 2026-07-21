@@ -83,7 +83,8 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .chip{
   font-family:var(--font-mono);font-size:var(--text-2xs);font-weight:var(--w-semibold);
   letter-spacing:var(--track-label);text-transform:uppercase;
-  border:1.5px solid;padding:2px 7px;display:inline-block;margin-top:6px
+  border:1.5px solid;padding:2px 7px;display:inline-block;margin-top:6px;
+  white-space:nowrap
 }
 .chip.up{color:var(--up);border-color:var(--up)}
 .chip.down{color:var(--down);border-color:var(--down)}
@@ -109,6 +110,7 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .range-dot{position:absolute;top:50%;transform:translate(-50%,-50%);
   width:12px;height:12px;background:var(--ink);border:2px solid var(--paper)}
 .range-pct{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);margin-top:5px;text-align:center}
+.range-pct-mid{display:none}
 
 /* ---- BODY GRID ---- */
 .body-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;margin-top:0}
@@ -126,16 +128,18 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .sec-head-note{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);font-weight:400;letter-spacing:0;text-transform:none}
 
 /* ---- CHART TABS ---- */
-.chart-tabs{display:flex;gap:0;border-bottom:1px solid var(--line)}
+.chart-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.chart-tabs::-webkit-scrollbar{display:none}
 .chart-tab{
   font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);
   text-transform:uppercase;border:0;border-right:1px solid var(--line);
   background:var(--card);color:var(--ink-mute);
-  padding:8px 14px;cursor:pointer;
+  padding:8px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;
   transition:background var(--duration) var(--ease),color var(--duration) var(--ease)
 }
 .chart-tab:hover{color:var(--accent)}
 .chart-tab.on{background:var(--ink);color:var(--paper);font-weight:var(--w-semibold)}
+#maLegend{flex-shrink:0}
 #chart,#chart2,#chart-excess{height:260px;background:var(--card);display:none}
 #chart.active,#chart2.active,#chart-excess.active{display:block}
 
@@ -221,6 +225,10 @@ footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mu
   .metric.wide2{grid-column:span 2;border-right:0}
   .masthead-main{grid-template-columns:1fr}
   .masthead-right{text-align:left;margin-top:12px}
+  /* on mobile: hide middle range label and show its content in the pct row */
+  .range-mid-label{display:none}
+  .range-pct-mid{display:inline}
+  .range-pct{white-space:normal;line-height:1.8}
 }
 </style>
 </head>
@@ -382,7 +390,7 @@ if (!q) {
   <div class="range-bar-wrap">
     <div class="range-bar-labels">
       <span>52周低 <strong>$${q.l52.toFixed(2)}</strong></span>
-      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)">
+      <span class="range-mid-label" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute)">
         当前 <strong style="color:var(--ink)">$${q.p.toFixed(2)}</strong>
         &nbsp;·&nbsp; 距高点 <strong class="neg">${((q.p/q.h52-1)*100).toFixed(1)}%</strong>
       </span>
@@ -398,6 +406,7 @@ if (!q) {
       <div class="range-dot" style="left:${rangePos.toFixed(1)}%"></div>
     </div>
     <div class="range-pct">处于年度区间 <strong style="color:var(--ink)">${rangePos.toFixed(0)}%</strong> 分位
+      <span class="range-pct-mid" style="margin-left:10px">当前 <strong style="color:var(--ink)">$${q.p.toFixed(2)}</strong> · 距高点 <strong class="neg">${((q.p/q.h52-1)*100).toFixed(1)}%</strong></span>
       ${[['MA20','#e66b00','ma20'],['MA50','#9c27b0','ma50'],['MA200',INK,'ma200']].map(([lab,c,k]) =>
         q[k] ? `<span style="margin-left:10px;font-size:var(--text-2xs);font-family:var(--font-mono)"><span style="display:inline-block;width:8px;height:2px;background:${c};vertical-align:middle;margin-right:3px"></span><span style="color:${c}">${lab}</span> $${q[k].toFixed(0)}</span>` : ''
       ).join('')}
