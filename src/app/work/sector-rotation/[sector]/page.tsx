@@ -24,6 +24,20 @@ export async function generateMetadata({ params }: Params) {
 export default async function SectorDetailPage({ params }: Params) {
   const { sector } = await params;
   const tk = sector.toUpperCase();
-  if (!(tk in NAMES)) notFound();
-  return <SectorRotation sector={tk} />;
+  if (tk in NAMES) return <SectorRotation sector={tk} />;
+  return (
+    <iframe
+      src={`/work/sector-rotation/quote.html?t=${tk}`}
+      style={{
+        position: "fixed",
+        top: 65,
+        left: 0,
+        width: "100%",
+        height: "calc(100% - 65px)",
+        border: "none",
+        zIndex: 10,
+      }}
+      title={`${tk} 个股详情`}
+    />
+  );
 }
