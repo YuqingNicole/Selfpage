@@ -139,7 +139,6 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 }
 .chart-tab:hover{color:var(--accent)}
 .chart-tab.on{background:var(--ink);color:var(--paper);font-weight:var(--w-semibold)}
-#maLegend{flex-shrink:0}
 #chart,#chart2,#chart-excess{height:260px;background:var(--card);display:none}
 #chart.active,#chart2.active,#chart-excess.active{display:block}
 
@@ -229,6 +228,8 @@ footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mu
   .range-mid-label{display:none}
   .range-pct-mid{display:inline}
   .range-pct{white-space:normal;line-height:1.8}
+  /* holdings table: hide price/YTD/mktcap, keep name + 近1月 */
+  .h-hide-sm{display:none}
 }
 </style>
 </head>
@@ -449,13 +450,13 @@ if (!q) {
           <button class="chart-tab on" onclick="switchTab('price',this)">价格走势</button>
           ${sec.ticker && sec.ticker !== TICKER ? `<button class="chart-tab" onclick="switchTab('vs',this)">vs 板块 ETF</button>` : ''}
           ${sec.ticker && sec.ticker !== TICKER ? `<button class="chart-tab" onclick="switchTab('excess',this)">超额收益</button>` : ''}
-          <div id="maLegend" style="margin-left:auto;display:flex;gap:10px;align-items:center;padding:0 14px;font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)">
-            ${['MA20','MA50','MA200'].filter((_,i)=>[q.ma20,q.ma50,q.ma200][i]).map((lab,i) => {
-              const colors = ['#e66b00','#9c27b0',INK];
-              const dashes = [false,false,true];
-              return `<span><span style="display:inline-block;width:14px;height:${dashes[i]?'1.5px':'1.5px'};background:${colors[i]};vertical-align:middle;margin-right:3px;${dashes[i]?'border-top:1.5px dashed '+colors[i]+';background:transparent':''}"></span>${lab}</span>`;
-            }).join('')}
-          </div>
+        </div>
+        <div id="maLegend" style="display:flex;gap:12px;align-items:center;padding:5px 14px;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);flex-wrap:wrap">
+          ${['MA20','MA50','MA200'].filter((_,i)=>[q.ma20,q.ma50,q.ma200][i]).map((lab,i) => {
+            const colors = ['#e66b00','#9c27b0',INK];
+            const dashes = [false,false,true];
+            return `<span><span style="display:inline-block;width:14px;height:1.5px;background:${colors[i]};vertical-align:middle;margin-right:3px;${dashes[i]?'border-top:1.5px dashed '+colors[i]+';background:transparent':''}"></span>${lab} <span style="color:var(--ink)">$${[q.ma20,q.ma50,q.ma200][i].toFixed(0)}</span></span>`;
+          }).join('')}
         </div>
         <div id="chart" class="active"></div>
         <div id="chart2"></div>
@@ -571,34 +572,35 @@ if (!q) {
           const barLeft = item.m1 == null ? '50%' : item.m1 >= 0 ? '50%' : (50 - pct/2) + '%';
           const barW = pct / 2 + '%';
           return `<tr onclick="window.top.location.href='/work/sector-rotation/${item.t}'" style="cursor:pointer">
-            <td style="text-align:left;padding:7px 14px">
-              <div style="font-weight:600;color:var(--ink);font-size:var(--text-sm)">${item.n || item.t}</div>
-              <div style="font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)">${item.t}${item.ind ? ' · '+item.ind : ''}</div>
+            <td style="text-align:left;padding:7px 14px;min-width:130px">
+              <div style="font-weight:600;color:var(--ink);font-size:var(--text-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${item.n || item.t}</div>
+              <div style="font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);white-space:nowrap">${item.t}</div>
             </td>
-            <td style="font-family:var(--font-mono);font-size:var(--text-xs);padding:7px 10px">${item.p == null ? '—' : '$'+item.p.toFixed(2)}</td>
-            <td style="padding:7px 10px">
+            <td class="h-hide-sm" style="font-family:var(--font-mono);font-size:var(--text-xs);padding:7px 10px;text-align:right;white-space:nowrap">${item.p == null ? '—' : '$'+item.p.toFixed(2)}</td>
+            <td style="padding:7px 10px;text-align:right">
               <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
-                <span style="font-family:var(--font-mono);font-size:var(--text-xs);font-weight:600;color:${item.m1==null?'var(--ink-mute)':item.m1>=0?'var(--up)':'var(--down)'}">${item.m1==null?'—':fmt(item.m1)}</span>
+                <span style="font-family:var(--font-mono);font-size:var(--text-xs);font-weight:600;color:${item.m1==null?'var(--ink-mute)':item.m1>=0?'var(--up)':'var(--down)'};white-space:nowrap">${item.m1==null?'—':fmt(item.m1)}</span>
                 <div style="width:36px;height:4px;background:var(--paper-deep);position:relative;flex-shrink:0">
                   <div style="position:absolute;top:0;height:100%;left:${barLeft};width:${barW};background:${col}"></div>
                 </div>
               </div>
             </td>
-            <td style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);padding:7px 10px">${item.ytd==null?'—':fmt(item.ytd)}</td>
-            <td style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);padding:7px 10px">${item.mc?'$'+fM(item.mc):item.aum?'$'+fM(item.aum):'—'}</td>
+            <td class="h-hide-sm" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);padding:7px 10px;text-align:right;white-space:nowrap">${item.ytd==null?'—':fmt(item.ytd)}</td>
+            <td class="h-hide-sm" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-mute);padding:7px 10px;text-align:right;white-space:nowrap">${item.mc?'$'+fM(item.mc):item.aum?'$'+fM(item.aum):'—'}</td>
           </tr>`;
         };
         const mkTable = (list, kind) => !list.length ? '' : `
-          <table style="width:100%;border-collapse:collapse;font-size:var(--text-sm)">
+          <div style="overflow-x:auto">
+          <table class="holdings-tbl" style="width:100%;border-collapse:collapse;font-size:var(--text-sm)">
             <thead><tr style="border-bottom:1.5px solid var(--ink)">
               <th style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 14px;text-align:left">${kind === 'etf' ? 'ETF' : '个股'}</th>
-              <th style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">价格</th>
+              <th class="h-hide-sm" style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">价格</th>
               <th style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">近1月</th>
-              <th style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">YTD</th>
-              <th style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">市值/AUM</th>
+              <th class="h-hide-sm" style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">YTD</th>
+              <th class="h-hide-sm" style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);font-weight:600;padding:8px 10px;text-align:right">市值/AUM</th>
             </tr></thead>
             <tbody style="border-bottom:1px solid var(--line)">${list.map(r => mkRow(r, kind)).join('')}</tbody>
-          </table>`;
+          </table></div>`;
         return `<div class="section">
           <div class="sec-head"><span>板块成分</span><span class="sec-head-note">按近1月收益排序 · 点击进入个股详情</span></div>
           ${mkTable(stocks, 'stock')}

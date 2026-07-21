@@ -316,6 +316,7 @@ footer code{
   .masthead-meta{border-left:0;border-top:1px solid var(--ink);text-align:left;padding:12px 0 16px;align-items:flex-start}
   .spy-block{justify-content:flex-start}
   .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .footer-cmd{display:none}
 }
 @media(prefers-reduced-motion:no-preference){
   .pill,.tabs button,.dtable tr.clk{transition:background var(--duration) var(--ease),color var(--duration) var(--ease),border-color var(--duration) var(--ease)}
@@ -870,8 +871,8 @@ document.addEventListener('keydown',e=>{
 });
 
 document.getElementById('foot').innerHTML=
-  `数据源: Yahoo Finance · 板块代理为 SPDR 行业 ETF · RRG 为周频标准化指标，以 100 为中心，轨迹通常顺时针旋转: 改善 → 领先 → 转弱 → 落后<br/>
-   更新数据: <code>cd scripts/sector-rotation && .venv/bin/python fetch_data.py</code> 后刷新本页 · 页面生成于 ${D.generated}`;
+  `数据源: Yahoo Finance · 板块代理为 SPDR 行业 ETF · RRG 为周频标准化指标，以 100 为中心，轨迹通常顺时针旋转: 改善 → 领先 → 转弱 → 落后
+   <span class="footer-cmd"><br/>更新数据: <code>cd scripts/sector-rotation && .venv/bin/python fetch_data.py</code> 后刷新本页</span> · 页面生成于 ${D.generated}`;
 </script>
 </body>
 </html>
