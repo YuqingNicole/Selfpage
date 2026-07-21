@@ -6,15 +6,77 @@
 用法:
     .venv/bin/python fetch_data.py
 
-数据源: Yahoo Finance (yfinance)。输出: public/work/sector-rotation/data.js (window.SECTOR_DATA)。
+数据源:
+  - 主力: Yahoo Finance (yfinance) — 历史日线、基本面
+  - 可选: ARTI Data API — 补充实时技术指标 (RSI/MACD/BOLL/KDJ/ATR)
+    设置环境变量 ARTI_BASE_URL 和 ARTI_API_KEY 后自动启用。
+
+输出: public/work/sector-rotation/data.js (window.SECTOR_DATA)。
 """
 import json
+import os
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
+
+# ---- ARTI Data API (可选) ----
+ARTI_BASE_URL = os.getenv("ARTI_BASE_URL", "").rstrip("/")
+ARTI_API_KEY  = os.getenv("ARTI_API_KEY", "")
+ARTI_ENABLED  = bool(ARTI_BASE_URL and ARTI_API_KEY)
+
+
+def arti_get(path: str) -> dict:
+    """GET ARTI endpoint, return parsed body or {}. Never raises."""
+    if not ARTI_ENABLED:
+        return {}
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            ARTI_BASE_URL + path,
+            headers={"X-Internal-Key": ARTI_API_KEY},
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = json.loads(resp.read())
+        return body if body.get("ok") else {}
+    except Exception:
+        return {}
+
+
+def arti_technicals(ticker: str) -> dict:
+    """Return ARTI technicals dict for a US ticker, or {} if unavailable."""
+    body = arti_get(f"/internal/market/technicals/{ticker}")
+    d = body.get("data") or {}
+    if not d:
+        return {}
+    out = {}
+    # scalars
+    for k in ("rsi6", "rsi14", "atr14"):
+        if d.get(k) is not None:
+            out[k] = r2(d[k])
+    # nested objects
+    for obj_key in ("macd", "boll", "kdj"):
+        obj = d.get(obj_key)
+        if isinstance(obj, dict):
+            out[obj_key] = {k: r2(v) for k, v in obj.items() if v is not None}
+    return out
+
+
+def arti_quote(ticker: str) -> dict:
+    """Return ARTI real-time quote fields for a US ticker, or {}."""
+    body = arti_get(f"/internal/market/quote/{ticker}")
+    d = body.get("data") or {}
+    if not d or d.get("market") != "US":
+        return {}
+    return {
+        "d_open":  r2(d.get("open")),
+        "d_high":  r2(d.get("high")),
+        "d_low":   r2(d.get("low")),
+        "prev_c":  r2(d.get("prev_close")),
+        # ARTI change_pct is 0.0 for US EOD — skip, keep yfinance value
+    }
 
 # 代码 -> (中文名, 风格分组: cyc=顺周期/进攻, def=防御)
 SECTORS = {
@@ -34,28 +96,83 @@ BENCH = "SPY"
 
 # 各板块代表个股 (代码, 中文名) —— 静态清单, 行情每日自动更新
 STOCKS = {
-    "XLK": [("AAPL","苹果"),("MSFT","微软"),("NVDA","英伟达"),("AVGO","博通"),
-            ("ORCL","甲骨文"),("CRM","赛富时"),("AMD","超微半导体"),("CSCO","思科")],
-    "XLC": [("GOOGL","谷歌"),("META","Meta"),("NFLX","奈飞"),("DIS","迪士尼"),
-            ("TMUS","T-Mobile"),("VZ","威瑞森"),("T","美国电话电报"),("CMCSA","康卡斯特")],
-    "XLY": [("AMZN","亚马逊"),("TSLA","特斯拉"),("HD","家得宝"),("MCD","麦当劳"),
-            ("NKE","耐克"),("BKNG","Booking"),("LOW","劳氏"),("SBUX","星巴克")],
-    "XLF": [("BRK-B","伯克希尔"),("JPM","摩根大通"),("V","Visa"),("MA","万事达"),
-            ("BAC","美国银行"),("WFC","富国银行"),("GS","高盛"),("MS","摩根士丹利")],
-    "XLI": [("GE","通用电气"),("RTX","雷神技术"),("CAT","卡特彼勒"),("BA","波音"),
-            ("HON","霍尼韦尔"),("UNP","联合太平洋"),("UPS","联合包裹"),("DE","迪尔")],
-    "XLB": [("LIN","林德"),("SHW","宣伟"),("FCX","自由港麦克莫兰"),("NEM","纽蒙特"),
-            ("NUE","纽柯钢铁"),("DOW","陶氏"),("DD","杜邦"),("APD","空气化工")],
-    "XLE": [("XOM","埃克森美孚"),("CVX","雪佛龙"),("COP","康菲石油"),("SLB","斯伦贝谢"),
-            ("EOG","EOG资源"),("MPC","马拉松石油"),("PSX","菲利普66"),("OXY","西方石油")],
-    "XLV": [("LLY","礼来"),("UNH","联合健康"),("JNJ","强生"),("ABBV","艾伯维"),
-            ("MRK","默克"),("TMO","赛默飞"),("ABT","雅培"),("PFE","辉瑞")],
-    "XLP": [("WMT","沃尔玛"),("COST","好市多"),("PG","宝洁"),("KO","可口可乐"),
-            ("PEP","百事"),("PM","菲利普莫里斯"),("MO","奥驰亚"),("CL","高露洁")],
-    "XLU": [("NEE","新纪元能源"),("SO","南方电力"),("DUK","杜克能源"),("CEG","星座能源"),
-            ("VST","维斯特拉"),("SRE","桑普拉能源"),("AEP","美国电力"),("EXC","爱克斯龙")],
-    "XLRE":[("PLD","安博"),("AMT","美国铁塔"),("EQIX","Equinix"),("WELL","Welltower"),
-            ("SPG","西蒙地产"),("O","Realty Income"),("DLR","数字地产"),("CCI","冠城国际")],
+    "XLK": [
+        ("AAPL","苹果"),("MSFT","微软"),("NVDA","英伟达"),("AVGO","博通"),
+        ("ORCL","甲骨文"),("CRM","赛富时"),("AMD","超微半导体"),("CSCO","思科"),
+        ("INTC","英特尔"),("QCOM","高通"),("TXN","德州仪器"),("ADBE","Adobe"),
+        ("NOW","ServiceNow"),("INTU","Intuit"),("MU","美光科技"),("AMAT","应用材料"),
+        ("PANW","Palo Alto"),("CRWD","CrowdStrike"),("PLTR","Palantir"),("ACN","埃森哲"),
+        ("LRCX","泛林集团"),("KLAC","科磊半导体"),("SNPS","新思科技"),("CDNS","楷登电子"),
+        ("ANET","Arista Networks"),("DELL","戴尔"),("HPE","惠普企业"),("FTNT","Fortinet"),
+    ],
+    "XLC": [
+        ("GOOGL","谷歌"),("META","Meta"),("NFLX","奈飞"),("DIS","迪士尼"),
+        ("TMUS","T-Mobile"),("VZ","威瑞森"),("T","美国电话电报"),("CMCSA","康卡斯特"),
+        ("CHTR","Charter通信"),("WBD","华纳兄弟探索"),("SNAP","Snap"),("PINS","Pinterest"),
+        ("EA","艺电"),("SPOT","Spotify"),("MTCH","Match集团"),("RBLX","Roblox"),
+    ],
+    "XLY": [
+        ("AMZN","亚马逊"),("TSLA","特斯拉"),("HD","家得宝"),("MCD","麦当劳"),
+        ("NKE","耐克"),("BKNG","Booking"),("LOW","劳氏"),("SBUX","星巴克"),
+        ("TGT","塔吉特"),("GM","通用汽车"),("F","福特"),("EXPE","Expedia"),
+        ("TJX","TJX公司"),("ROST","罗斯百货"),("CMG","Chipotle"),("YUM","百胜餐饮"),
+        ("MAR","万豪国际"),("HLT","希尔顿"),("ORLY","O'Reilly汽配"),("AZO","AutoZone"),
+        ("DHI","DR Horton"),("LEN","莱纳房屋"),("PHM","Pulte Group"),("CCL","嘉年华邮轮"),
+    ],
+    "XLF": [
+        ("BRK-B","伯克希尔"),("JPM","摩根大通"),("V","Visa"),("MA","万事达"),
+        ("BAC","美国银行"),("WFC","富国银行"),("GS","高盛"),("MS","摩根士丹利"),
+        ("C","花旗集团"),("AXP","美国运通"),("BLK","贝莱德"),("SCHW","嘉信理财"),
+        ("COF","Capital One"),("PNC","PNC金融"),("SPGI","标普全球"),("MCO","穆迪"),
+        ("CME","芝商所"),("ICE","洲际交易所"),("PYPL","PayPal"),("FIS","Fidelity National"),
+        ("FISV","Fiserv"),("USB","美国合众银行"),("TFC","Truist金融"),("CB","Chubb"),
+    ],
+    "XLI": [
+        ("GE","通用电气"),("RTX","雷神技术"),("CAT","卡特彼勒"),("BA","波音"),
+        ("HON","霍尼韦尔"),("UNP","联合太平洋"),("UPS","联合包裹"),("DE","迪尔"),
+        ("LMT","洛克希德马丁"),("NOC","诺思罗普格鲁曼"),("GD","通用动力"),("MMM","3M"),
+        ("ETN","伊顿"),("FDX","联邦快递"),("NSC","诺福克南方"),("WM","废物管理"),
+        ("CARR","开利全球"),("OTIS","奥的斯"),("ROK","罗克韦尔自动化"),("PH","派克汉尼汾"),
+        ("EMR","艾默生电气"),("CSX","CSX铁路"),("AME","安福集团"),("VRSK","Verisk"),
+    ],
+    "XLB": [
+        ("LIN","林德"),("SHW","宣伟"),("FCX","自由港麦克莫兰"),("NEM","纽蒙特"),
+        ("NUE","纽柯钢铁"),("DOW","陶氏"),("DD","杜邦"),("APD","空气化工"),
+        ("ECL","艺康"),("PPG","PPG工业"),("ALB","雅保/锂业"),("GOLD","巴里克黄金"),
+        ("VMC","火神材料"),("MLM","Martin Marietta"),("CF","CF工业"),("MOS","美盛"),
+    ],
+    "XLE": [
+        ("XOM","埃克森美孚"),("CVX","雪佛龙"),("COP","康菲石油"),("SLB","斯伦贝谢"),
+        ("EOG","EOG资源"),("MPC","马拉松石油"),("PSX","菲利普66"),("OXY","西方石油"),
+        ("HAL","哈里伯顿"),("DVN","戴文能源"),("VLO","瓦莱罗能源"),("WMB","威廉姆斯"),
+        ("HES","赫斯"),("KMI","金德摩根"),("BKR","贝克休斯"),("FANG","钻石后背"),
+    ],
+    "XLV": [
+        ("LLY","礼来"),("UNH","联合健康"),("JNJ","强生"),("ABBV","艾伯维"),
+        ("MRK","默克"),("TMO","赛默飞"),("ABT","雅培"),("PFE","辉瑞"),
+        ("BMY","百时美施贵宝"),("AMGN","安进"),("GILD","吉利德"),("REGN","再生元"),
+        ("VRTX","福泰制药"),("ISRG","直觉外科"),("DHR","丹纳赫"),("MDT","美敦力"),
+        ("ELV","Elevance Health"),("CVS","CVS健康"),("HUM","人本医疗"),("CI","信诺"),
+        ("BSX","波士顿科学"),("EW","爱德华兹生命科学"),("DXCM","德康医疗"),("ZTS","硕腾"),
+    ],
+    "XLP": [
+        ("WMT","沃尔玛"),("COST","好市多"),("PG","宝洁"),("KO","可口可乐"),
+        ("PEP","百事"),("PM","菲利普莫里斯"),("MO","奥驰亚"),("CL","高露洁"),
+        ("MDLZ","亿滋国际"),("KHC","卡夫亨氏"),("GIS","通用磨坊"),("HSY","好时"),
+        ("KR","克罗格"),("STZ","星座品牌"),("SYY","西斯科"),("CHD","Church & Dwight"),
+    ],
+    "XLU": [
+        ("NEE","新纪元能源"),("SO","南方电力"),("DUK","杜克能源"),("CEG","星座能源"),
+        ("VST","维斯特拉"),("SRE","桑普拉能源"),("AEP","美国电力"),("EXC","爱克斯龙"),
+        ("ED","Consolidated Edison"),("D","多米尼能源"),("WEC","WEC能源"),
+        ("AWK","美国水务"),("PCG","太平洋燃气电力"),("XEL","萨诺科能源"),("ETR","安特吉"),
+    ],
+    "XLRE":[
+        ("PLD","安博"),("AMT","美国铁塔"),("EQIX","Equinix"),("WELL","Welltower"),
+        ("SPG","西蒙地产"),("O","Realty Income"),("DLR","数字地产"),("CCI","冠城国际"),
+        ("PSA","公共储存"),("EXR","Extra Space储存"),("VICI","VICI地产"),
+        ("AVB","Avalon Bay"),("EQR","股权住宅"),("IRM","铁山"),("VTR","Ventas"),
+    ],
 }
 
 # 各板块相关 ETF (代码, 中文名)
@@ -303,12 +420,30 @@ def main():
         if (i + 1) % 30 == 0:
             print(f"  基本面 {i + 1}/{len(extra)}")
 
+    # ---- ARTI 技术指标补充 (如已配置) ----
+    arti_tech_map: dict[str, dict] = {}
+    if ARTI_ENABLED:
+        print(f"ARTI: 抓取 {len(extra)} 只标的技术指标 ...")
+        for i, t in enumerate(extra):
+            tech = arti_technicals(t)
+            if tech:
+                arti_tech_map[t] = tech
+            if (i + 1) % 50 == 0:
+                print(f"  ARTI tech {i + 1}/{len(extra)}")
+        print(f"  ARTI 技术指标覆盖 {len(arti_tech_map)}/{len(extra)} 只")
+    else:
+        print("ARTI_BASE_URL/ARTI_API_KEY 未设置，跳过实时技术指标补充")
+
     def pack(lst):
         out = []
         for t, n in lst:
             q = quote(t)
             if q:
-                out.append({"t": t, "n": n, **q, **info_map.get(t, {})})
+                entry = {"t": t, "n": n, **q, **info_map.get(t, {})}
+                # ARTI 技术指标覆盖 (RSI/MACD/BOLL/KDJ/ATR)
+                if t in arti_tech_map:
+                    entry.update(arti_tech_map[t])
+                out.append(entry)
         return out
 
     stocks = {tk: pack(lst) for tk, lst in STOCKS.items()}

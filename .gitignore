@@ -1,6 +1,12 @@
 # Logs
 logs
 *.log
+
+# Env files with secrets
+.env
+.env.local
+.env*.local
+scripts/**/.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

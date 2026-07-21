@@ -510,9 +510,25 @@ if (!q) {
               q.vol   ? `<div class="metric"><div class="metric-label">成交量</div><div class="metric-val">${fVol(q.vol)}</div></div>` : '',
               q.tvr   ? `<div class="metric"><div class="metric-label">成交额</div><div class="metric-val">$${fM(q.tvr)}</div></div>` : '',
               q.vola != null ? `<div class="metric"><div class="metric-label">年化波动率</div><div class="metric-val">${q.vola.toFixed(1)}%</div></div>` : '',
+              q.atr14 != null ? `<div class="metric"><div class="metric-label">ATR 14</div><div class="metric-val">$${q.atr14.toFixed(2)}</div></div>` : '',
             ].filter(Boolean).join('')}
           </div>
         </div>
+      </div>` : ''}
+
+      <!-- 动量指标 (ARTI 数据源) -->
+      ${(q.rsi14 != null || q.macd || q.boll || q.kdj) ? `
+      <div class="section">
+        <div class="sec-head"><span>动量指标</span><span class="sec-head-note">来源: ARTI Data</span></div>
+        <div style="padding:0"><div class="metrics">
+          ${q.rsi6  != null ? `<div class="metric"><div class="metric-label">RSI 6</div><div class="metric-val" style="color:${q.rsi6>80?'var(--up)':q.rsi6<20?'var(--down)':'var(--ink)'}">${q.rsi6.toFixed(1)}</div><div class="metric-sub">${q.rsi6>80?'超买区':q.rsi6<20?'超卖区':'中性'}</div></div>` : ''}
+          ${q.rsi14 != null ? `<div class="metric"><div class="metric-label">RSI 14</div><div class="metric-val" style="color:${q.rsi14>70?'var(--up)':q.rsi14<30?'var(--down)':'var(--ink)'}">${q.rsi14.toFixed(1)}</div><div class="metric-sub">${q.rsi14>70?'超买区':q.rsi14<30?'超卖区':'中性'}</div></div>` : ''}
+          ${q.macd  ? `<div class="metric"><div class="metric-label">MACD DIF</div><div class="metric-val ${q.macd.dif>=0?'pos':'neg'}">${q.macd.dif!=null?q.macd.dif.toFixed(3):'—'}</div><div class="metric-sub">DEA ${q.macd.dea!=null?q.macd.dea.toFixed(3):'—'}</div></div>` : ''}
+          ${q.macd  ? `<div class="metric"><div class="metric-label">MACD 柱</div><div class="metric-val ${q.macd.hist>=0?'pos':'neg'}">${q.macd.hist!=null?q.macd.hist.toFixed(3):'—'}</div><div class="metric-sub">${q.macd.hist>0?'多头动能':'空头动能'}</div></div>` : ''}
+          ${q.boll  ? `<div class="metric"><div class="metric-label">布林上轨</div><div class="metric-val">$${q.boll.upper!=null?q.boll.upper.toFixed(2):'—'}</div><div class="metric-sub">中轨 $${q.boll.mid!=null?q.boll.mid.toFixed(2):'—'}</div></div>` : ''}
+          ${q.boll  ? `<div class="metric"><div class="metric-label">布林下轨</div><div class="metric-val">$${q.boll.lower!=null?q.boll.lower.toFixed(2):'—'}</div><div class="metric-sub">${q.p&&q.boll.upper&&q.boll.lower?(((q.p-q.boll.lower)/(q.boll.upper-q.boll.lower)*100).toFixed(0)+'% 位置'):'—'}</div></div>` : ''}
+          ${q.kdj   ? `<div class="metric"><div class="metric-label">KDJ · K</div><div class="metric-val" style="color:${q.kdj.k>80?'var(--up)':q.kdj.k<20?'var(--down)':'var(--ink)'}">${q.kdj.k!=null?q.kdj.k.toFixed(1):'—'}</div><div class="metric-sub">D ${q.kdj.d!=null?q.kdj.d.toFixed(1):'—'} · J ${q.kdj.j!=null?q.kdj.j.toFixed(1):'—'}</div></div>` : ''}
+        </div></div>
       </div>` : ''}
 
       <!-- fundamentals -->
