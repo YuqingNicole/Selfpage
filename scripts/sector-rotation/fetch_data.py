@@ -263,9 +263,42 @@ def main():
             "full": inf.get("longName"), "ind": inf.get("industry"),
             "mc": num("marketCap"), "aum": num("totalAssets"),
             "pe": num("trailingPE"), "fpe": num("forwardPE"), "pb": num("priceToBook"),
-            "dy": dy, "beta": num("beta"), "eps": num("trailingEps"),
+            "dy": num("dividendYield", 100) if t not in etf_set else (num("yield", 100) or num("dividendYield", 100)),
+            "beta": num("beta"), "eps": num("trailingEps"),
             "pm": num("profitMargins", 100), "roe": num("returnOnEquity", 100),
             "tgt": num("targetMeanPrice"),
+            # 成长性
+            "rev":    num("totalRevenue"),
+            "rev_g":  num("revenueGrowth", 100),
+            "eg":     num("earningsGrowth", 100),
+            "eg_q":   num("earningsQuarterlyGrowth", 100),
+            "gross_m":num("grossMargins", 100),
+            "op_m":   num("operatingMargins", 100),
+            # 资产负债 / 现金流
+            "fcf":    num("freeCashflow"),
+            "ocf":    num("operatingCashflow"),
+            "de":     num("debtToEquity"),
+            "cr":     num("currentRatio"),
+            # 估值倍数
+            "peg":    num("pegRatio"),
+            "ps":     num("priceToSalesTrailing12Months"),
+            "ev_rev": num("enterpriseToRevenue"),
+            "ev_ebitda": num("enterpriseToEbitda"),
+            "bv":     num("bookValue"),
+            # 分析师 & 市场情绪
+            "rec":      inf.get("recommendationKey"),
+            "rec_n":    inf.get("numberOfAnalystOpinions"),
+            "rec_score":num("recommendationMean"),
+            "short_r":  num("shortRatio"),
+            "short_f":  num("shortPercentOfFloat", 100),
+            "inst_pct": num("heldPercentInstitutions", 100),
+            # 实时行情 (当日, 来自 .info)
+            "cur_p":    num("currentPrice") or num("regularMarketPrice"),
+            "d_open":   num("open"),
+            "d_high":   num("dayHigh"),
+            "d_low":    num("dayLow"),
+            "prev_c":   num("previousClose"),
+            "avg_vol10":int(inf["averageVolume10days"]) if isinstance(inf.get("averageVolume10days"), (int, float)) else None,
         }
         if (i + 1) % 30 == 0:
             print(f"  基本面 {i + 1}/{len(extra)}")
