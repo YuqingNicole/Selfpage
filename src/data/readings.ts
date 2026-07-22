@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '微信文章（待补标题）',
+    author: '微信公众号',
+    url: 'https://mp.weixin.qq.com/s/Humku-Qw54NhhNq41BaGuw',
+    description: '已加入 selfpage/readings；当前因微信验证页拦截，标题与摘要待后续补全。',
+  },
+  {
     title: 'Grok Build 源码拆解：xAI 编码 Agent 的设计智慧与提效手册',
     author: '向阳乔木',
     url: 'https://xiangyangqiaomu.feishu.cn/docx/OAoYdiZ1eoc2HTxmmZ3clWIPnLf',
