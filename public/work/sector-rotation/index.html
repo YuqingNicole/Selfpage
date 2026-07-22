@@ -78,6 +78,9 @@
     margin-bottom:8px;padding-bottom:9px;border-bottom:1.5px solid var(--ink)}
   .chart{width:100%}
   #cHeat{height:452px} #cSlope{height:406px} #cEx{height:420px} #cBar{height:420px}
+  #cMomentum{height:340px} #cStocks{height:440px}
+  .span12{grid-column:span 12}
+  #mChart{height:300px;background:#fff;border:1.5px solid var(--ink)}
 
   /* 周期切换 */
   .tabs{display:flex;gap:0}
@@ -286,6 +289,29 @@
       </div>
       <div id="cBar" class="chart"></div>
     </div>
+
+    <!-- 动量象限 -->
+    <div class="card span12">
+      <div class="chead">
+        <div><h2>动量象限</h2><span class="hint">X轴=中期动量 · Y轴=短期动量 · 气泡大小=今日超额绝对值 · 点击板块</span></div>
+        <div class="tabs" id="momTabs"></div>
+      </div>
+      <div id="cMomentum" class="chart"></div>
+    </div>
+
+    <!-- 全板块个股散点 -->
+    <div class="card span12">
+      <div class="chead">
+        <div><h2>全板块个股一览</h2><span class="hint">气泡大小=量比 · Y轴可切换 · 点击个股进入详情</span></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="stockSec" style="font-family:var(--mono);font-size:11px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);padding:3px 8px;cursor:pointer">
+            <option value="">全部板块</option>
+          </select>
+          <div class="tabs" id="stockTabs"></div>
+        </div>
+      </div>
+      <div id="cStocks" class="chart"></div>
+    </div>
   </div>
 
   <footer id="foot"></footer>
@@ -298,7 +324,10 @@
   <div class="m-body">
     <div class="sec-t">分周期收益 vs 标普500</div>
     <div id="mRets"></div>
-    <div class="sec-t">近一年价格走势</div>
+    <div class="sec-t" style="display:flex;justify-content:space-between;align-items:center">
+      <span>K线走势 <span class="lite">/ TradingView</span></span>
+      <div class="tabs" id="tvTabs" style="margin:0"></div>
+    </div>
     <div id="mChart"></div>
     <div class="sec-t">相关 ETF <span class="lite">/ 点击查看详情</span></div>
     <div id="mEtfs"></div>
@@ -329,7 +358,7 @@ const fMoney = v => v==null?'—':(v>=1e12?(v/1e12).toFixed(2)+'万亿':v>=1e8?(
 const fVol = v => v==null?'—':(v>=1e8?(v/1e8).toFixed(2)+'亿股':v>=1e4?Math.round(v/1e4)+'万股':String(v));
 const charts = [];
 function mk(id){const c=echarts.init(document.getElementById(id));charts.push(c);return c;}
-window.addEventListener('resize',()=>{charts.forEach(c=>c.resize()); if(mChart)mChart.resize();});
+window.addEventListener('resize',()=>{ charts.forEach(c=>c.resize()); });
 
 /* ---------- 路由同步: 通知父页面更新地址栏 ---------- */
 function syncRoute(tk){
@@ -687,9 +716,233 @@ document.getElementById('kpis').innerHTML = [
   render('1月');
 })();
 
+/* ---------- 动量象限 ---------- */
+(function(){
+  // X = 中期动量（近4周超额），Y = 短期动量（近1周超额）
+  // 气泡大小 = |今日超额| 放大后，气泡颜色 = 板块色
+  const MOM_WINDOWS = [
+    { label:'1W/4W',  slow:20, fast:5  },
+    { label:'2W/8W',  slow:40, fast:10 },
+    { label:'1M/3M',  slow:63, fast:21 },
+  ];
+  let curMom = MOM_WINDOWS[0];
+  const chart = mk('cMomentum');
+
+  function buildMomData(slow, fast) {
+    return D.sectors.map(s => {
+      const full  = D.excess.series[s.ticker] || [];
+      const slowV = (full[full.length-1]??0) - (full[full.length-1-slow]??0);
+      const fastV = (full[full.length-1]??0) - (full[full.length-1-fast]??0);
+      const todayEx = Math.abs(s.day_chg - D.spy.day_chg);
+      return { tk:s.ticker, name:s.name, slow:slowV, fast:fastV, todayEx,
+               color:COLOR[s.ticker] };
+    });
+  }
+
+  function renderMom(slow, fast) {
+    const data = buildMomData(slow, fast);
+    const allX = data.map(d=>d.slow), allY = data.map(d=>d.fast);
+    const xPad = (Math.max(...allX)-Math.min(...allX))*0.18 || 1;
+    const yPad = (Math.max(...allY)-Math.min(...allY))*0.18 || 1;
+
+    chart.setOption({
+      tooltip:{ ...TIP, trigger:'item',
+        formatter: p => {
+          const d = p.data;
+          return `<b>${d[3]}</b> <span style="opacity:.5">${d[4]}</span><br/>`
+            + `中期超额 <b style="color:${d[2]>=0?'var(--up)':'var(--down)'}">${d[2]>=0?'+':''}${d[2].toFixed(2)}%</b><br/>`
+            + `短期超额 <b style="color:${d[1]>=0?'var(--up)':'var(--down)'}">${d[1]>=0?'+':''}${d[1].toFixed(2)}%</b>`;
+        }
+      },
+      grid:{ left:60, right:20, top:20, bottom:40 },
+      xAxis:{ type:'value', name:'中期动量 →', nameLocation:'middle', nameGap:26,
+        nameTextStyle:{color:'#7b8491',fontSize:10,fontFamily:'IBM Plex Mono,monospace'},
+        min: Math.min(...allX)-xPad, max: Math.max(...allX)+xPad,
+        ...AXIS, axisLabel:{...AXIS.axisLabel, formatter:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},
+        splitLine:{ show:true, lineStyle:{color:'rgba(8,10,15,.06)'} },
+      },
+      yAxis:{ type:'value', name:'短期动量 →',
+        nameTextStyle:{color:'#7b8491',fontSize:10,fontFamily:'IBM Plex Mono,monospace'},
+        min: Math.min(...allY)-yPad, max: Math.max(...allY)+yPad,
+        ...AXIS, axisLabel:{...AXIS.axisLabel, formatter:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},
+        splitLine:{ show:true, lineStyle:{color:'rgba(8,10,15,.06)'} },
+      },
+      series:[
+        // 零轴参考线（markLine放在哑series上）
+        { type:'scatter', data:[], silent:true, symbolSize:0,
+          markLine:{ silent:true, symbol:'none', label:{show:false},
+            lineStyle:{color:'#c3c7bb',type:'dashed',width:1},
+            data:[{xAxis:0},{yAxis:0}] } },
+        // 象限标签
+        { type:'scatter', data:[
+            {value:[Math.max(...allX)+xPad*.6, Math.max(...allY)+yPad*.7],
+             label:{show:true,formatter:'双强',color:'rgba(214,48,38,.6)',fontSize:11,fontWeight:700,position:'inside'}},
+            {value:[Math.min(...allX)-xPad*.6, Math.max(...allY)+yPad*.7],
+             label:{show:true,formatter:'反弹?',color:'rgba(49,87,255,.5)',fontSize:11,fontWeight:700,position:'inside'}},
+            {value:[Math.min(...allX)-xPad*.6, Math.min(...allY)-yPad*.7],
+             label:{show:true,formatter:'双弱',color:'rgba(0,166,118,.6)',fontSize:11,fontWeight:700,position:'inside'}},
+            {value:[Math.max(...allX)+xPad*.6, Math.min(...allY)-yPad*.7],
+             label:{show:true,formatter:'回调?',color:'rgba(123,132,145,.7)',fontSize:11,fontWeight:700,position:'inside'}},
+          ], silent:true, symbolSize:0 },
+        // 气泡
+        ...data.map(d => ({
+          name: d.tk,
+          type:'scatter',
+          cursor:'pointer',
+          data:[{ value:[d.slow, d.fast, d.fast, d.name, d.tk], symbolSize: 12+Math.min(d.todayEx*6,18) }],
+          itemStyle:{ color:d.color, borderColor:'#fff', borderWidth:1.5 },
+          label:{
+            show:true, position:'right', formatter:d.name,
+            fontSize:11, fontWeight:700, color:d.color,
+          },
+          labelLayout:{ hideOverlap:true },
+          emphasis:{ scale:1.3 },
+        })),
+      ],
+    }, true);
+  }
+
+  renderMom(curMom.slow, curMom.fast);
+  chart.on('click', p => { if(p.seriesName && COLOR[p.seriesName]) openSector(p.seriesName); });
+
+  const tabs = document.getElementById('momTabs');
+  MOM_WINDOWS.forEach((w,i) => {
+    const btn = document.createElement('button');
+    btn.textContent = w.label;
+    if(i===0) btn.classList.add('on');
+    btn.onclick = () => {
+      tabs.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      curMom = w;
+      renderMom(w.slow, w.fast);
+    };
+    tabs.appendChild(btn);
+  });
+})();
+
+/* ---------- 全板块个股散点 ---------- */
+(function(){
+  const YMODES = [
+    { label:'今日%',  key:'chg'  },
+    { label:'近1月',  key:'m1'   },
+    { label:'量比',   key:'vr'   },
+  ];
+  let curSec = '', curY = YMODES[0];
+
+  // 合并所有个股，附加板块信息
+  const allStocks = [];
+  Object.entries(D.stocks).forEach(([sec, list]) => {
+    const sName = D.sectors.find(s=>s.ticker===sec)?.name || sec;
+    list.forEach(q => allStocks.push({ ...q, sec, sName }));
+  });
+
+  const chart = mk('cStocks');
+
+  function renderStocks(sec, yMode) {
+    const rows = (sec ? allStocks.filter(q=>q.sec===sec) : allStocks)
+      .filter(q => q[yMode.key] != null && q.vr != null);
+    if (!rows.length) return;
+
+    const series = [];
+    const grouped = {};
+    rows.forEach(q => {
+      if (!grouped[q.sec]) grouped[q.sec] = [];
+      grouped[q.sec].push(q);
+    });
+
+    Object.entries(grouped).forEach(([sec, list]) => {
+      series.push({
+        name: sec,
+        type: 'scatter',
+        cursor: 'pointer',
+        data: list.map(q => ({
+          value: [q.chg, q[yMode.key], q.vr, q.t, q.n, sec],
+          symbolSize: Math.max(6, Math.min(28, (q.vr||1)*8)),
+        })),
+        itemStyle: { color: COLOR[sec]||'#999', opacity:0.78, borderColor:'#fff', borderWidth:1 },
+        label: {
+          show: list.length <= 8,
+          formatter: p => p.data.value[4],
+          fontSize: 9.5, color:'#3d4652', position:'right',
+        },
+        emphasis:{ scale:1.3 },
+      });
+    });
+
+    const allY = rows.map(q=>q[yMode.key]);
+    const allX = rows.map(q=>q.chg);
+    const xPad = (Math.max(...allX)-Math.min(...allX))*0.08||1;
+    const yPad = (Math.max(...allY)-Math.min(...allY))*0.08||1;
+
+    chart.setOption({
+      tooltip:{ ...TIP, trigger:'item',
+        formatter: p => {
+          const [xv,yv,vr,t,n,sec] = p.data.value;
+          const sn = D.sectors.find(s=>s.ticker===sec)?.name||sec;
+          return `<b>${n}</b> <span style="opacity:.5">${t} · ${sn}</span><br/>`
+            + `今日 <b class="${xv>=0?'pos':'neg'}">${fmt(xv)}</b> &nbsp;`
+            + `${yMode.label} <b>${fmt(yv)}</b> &nbsp; 量比 <b>${vr==null?'—':vr.toFixed(2)+'x'}</b>`;
+        }
+      },
+      legend:{ type:'scroll', bottom:0, icon:'circle', itemWidth:8, itemHeight:8,
+        textStyle:{color:'#7b8491',fontSize:10.5}, inactiveColor:'#ddd' },
+      grid:{ left:56, right:16, top:16, bottom:40 },
+      xAxis:{ type:'value', name:'今日涨跌% →', nameLocation:'middle', nameGap:26,
+        nameTextStyle:{color:'#7b8491',fontSize:10,fontFamily:'IBM Plex Mono,monospace'},
+        min: Math.min(...allX)-xPad, max: Math.max(...allX)+xPad,
+        ...AXIS, axisLabel:{...AXIS.axisLabel,formatter:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},
+        splitLine:{show:true,lineStyle:{color:'rgba(8,10,15,.06)'}},
+      },
+      yAxis:{ type:'value', name: yMode.label+' →',
+        nameTextStyle:{color:'#7b8491',fontSize:10,fontFamily:'IBM Plex Mono,monospace'},
+        min: Math.min(...allY)-yPad, max: Math.max(...allY)+yPad,
+        ...AXIS, axisLabel:{...AXIS.axisLabel,formatter:v=>yMode.key==='vr'?v.toFixed(1)+'x':(v>=0?'+':'')+v.toFixed(1)+'%'},
+        splitLine:{show:true,lineStyle:{color:'rgba(8,10,15,.06)'}},
+      },
+      series:[
+        { type:'scatter',data:[],silent:true,symbolSize:0,
+          markLine:{silent:true,symbol:'none',label:{show:false},
+            lineStyle:{color:'#c3c7bb',type:'dashed',width:1},data:[{xAxis:0},{yAxis:yMode.key==='vr'?1:0}]} },
+        ...series,
+      ],
+    }, true);
+  }
+
+  renderStocks('', curY);
+
+  chart.on('click', p => {
+    if (!p.data?.value) return;
+    const t = p.data.value[3];
+    if (t) openQuote(t);
+  });
+
+  // 板块过滤
+  const sel = document.getElementById('stockSec');
+  D.sectors.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.ticker; opt.textContent = `${s.name} (${s.ticker})`;
+    sel.appendChild(opt);
+  });
+  sel.onchange = () => { curSec = sel.value; renderStocks(curSec, curY); };
+
+  // Y轴切换
+  const tabs = document.getElementById('stockTabs');
+  YMODES.forEach((m,i) => {
+    const btn = document.createElement('button');
+    btn.textContent = m.label;
+    if(i===0) btn.classList.add('on');
+    btn.onclick = () => {
+      tabs.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      curY = m;
+      renderStocks(curSec, curY);
+    };
+    tabs.appendChild(btn);
+  });
+})();
+
 /* ---------- 板块详情弹层 ---------- */
 const ovl=document.getElementById('ovl'), modal=document.getElementById('modal');
-let mChart=null;
 
 /* 全部标的索引: ticker -> {行情..., kind, sec} */
 const QMAP={};
@@ -741,22 +994,42 @@ function openSector(tk){
   document.body.style.overflow='hidden';
   syncRoute(tk);
 
-  requestAnimationFrame(()=>{
-    const el=document.getElementById('mChart');
-    if(!mChart) mChart=echarts.init(el);
-    const hex=COLOR[tk];
-    mChart.setOption({
-      tooltip:{...TIP,trigger:'axis',axisPointer:{type:'line',lineStyle:{color:'#c3c7bb'}},
-        valueFormatter:v=>v==null?'—':'$'+v.toFixed(2)},
-      grid:{left:56,right:16,top:16,bottom:26},
-      xAxis:{type:'category',data:D.excess.dates,boundaryGap:false,...AXIS,splitLine:{show:false}},
-      yAxis:{type:'value',scale:true,...AXIS},
-      series:[{type:'line',data:D.px[tk],showSymbol:false,cursor:'default',
-        lineStyle:{width:1.8,color:hex},itemStyle:{color:hex},
-        areaStyle:{color:hex,opacity:.08}}]
-    },true);
-    mChart.resize();
+  // TradingView K线嵌入
+  const TV_INTERVALS = [
+    { label:'日线', interval:'D' },
+    { label:'周线', interval:'W' },
+    { label:'月线', interval:'M' },
+  ];
+  let tvInterval = 'D';
+
+  function renderTV(sym, interval) {
+    const el = document.getElementById('mChart');
+    el.innerHTML = `<iframe
+      src="https://www.tradingview.com/widgetbar-chart/?symbol=${encodeURIComponent(sym)}&interval=${interval}&theme=light&locale=zh_CN&hide_top_toolbar=0&hide_legend=0&save_image=0&style=1&backgroundColor=%23ffffff&gridColor=%23f7f8f4"
+      style="width:100%;height:100%;border:none"
+      allowtransparency="true"
+      frameborder="0"
+      scrolling="no"
+      allow="clipboard-write"
+    ></iframe>`;
+  }
+
+  const tvTabs = document.getElementById('tvTabs');
+  tvTabs.innerHTML = '';
+  TV_INTERVALS.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = t.label;
+    if (i === 0) btn.classList.add('on');
+    btn.onclick = () => {
+      tvTabs.querySelectorAll('button').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      tvInterval = t.interval;
+      renderTV(tk, tvInterval);
+    };
+    tvTabs.appendChild(btn);
   });
+
+  requestAnimationFrame(() => renderTV(tk, tvInterval));
 }
 function closeModal(){
   const wasOpen=modal.classList.contains('open');
