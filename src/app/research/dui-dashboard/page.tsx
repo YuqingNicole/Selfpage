@@ -6,16 +6,26 @@ export const metadata = {
 
 export default function DUIDashboardPage() {
   return (
-    <iframe
-      src="/research/dui-dashboard/index.html"
+    <div
       style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        border: "none",
+        position: "fixed",
+        top: 64,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 10,
       }}
-      title="DUI × Innovation Efficiency Dashboard"
-    />
+    >
+      <iframe
+        src="/research/dui-dashboard/index.html"
+        style={{
+          width: "100%",
+          height: "100%",
+          border: "none",
+          display: "block",
+        }}
+        title="DUI × Innovation Efficiency Dashboard"
+      />
+    </div>
   );
 }
