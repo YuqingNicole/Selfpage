@@ -312,6 +312,33 @@
       </div>
       <div id="cStocks" class="chart"></div>
     </div>
+
+    <!-- 板块相关性矩阵 -->
+    <div class="card span7">
+      <div class="chead">
+        <div><h2>板块相关性矩阵</h2><span class="hint">日收益率 Pearson 相关 · 深红=高度同向 · 深绿=反向</span></div>
+        <div class="tabs" id="corrTabs"></div>
+      </div>
+      <div id="cCorr" class="chart" style="height:420px"></div>
+    </div>
+
+    <!-- 超额胜率 & 连胜/连跌 -->
+    <div class="card span5">
+      <div class="chead">
+        <div><h2>超额胜率 & 连续性</h2><span class="hint">按周计算跑赢SPY胜率 · 柱=胜率 · 标注=当前连赢/连败</span></div>
+        <div class="tabs" id="winTabs"></div>
+      </div>
+      <div id="cWin" class="chart" style="height:420px"></div>
+    </div>
+
+    <!-- 轮动强度 (截面离散度) -->
+    <div class="card span12">
+      <div class="chead">
+        <div><h2>板块轮动强度</h2><span class="hint">截面离散度 = 11板块日收益率标准差 · 越高代表板块间分化越剧烈 · 灰色=历史均值</span></div>
+        <div class="tabs" id="dispTabs"></div>
+      </div>
+      <div id="cDisp" class="chart" style="height:240px"></div>
+    </div>
   </div>
 
   <footer id="foot"></footer>
@@ -939,6 +966,303 @@ document.getElementById('kpis').innerHTML = [
     };
     tabs.appendChild(btn);
   });
+})();
+
+/* ---------- 板块相关性矩阵 ---------- */
+(function(){
+  const tks = D.sectors.map(s => s.ticker);
+  const names = D.sectors.map(s => s.name);
+  const CORR_WINDOWS = [
+    { label:'近1月', days:21 },
+    { label:'近3月', days:63 },
+    { label:'近1年', days:252 },
+  ];
+
+  function dailyRets(px) {
+    const r = [];
+    for (let i = 1; i < px.length; i++) {
+      r.push(px[i] == null || px[i-1] == null || px[i-1] === 0
+        ? null : (px[i] / px[i-1] - 1) * 100);
+    }
+    return r;
+  }
+
+  function pearson(a, b) {
+    const pairs = a.map((v,i) => [v, b[i]]).filter(([x,y]) => x!=null && y!=null);
+    if (pairs.length < 5) return null;
+    const n = pairs.length;
+    const mx = pairs.reduce((s,[x])=>s+x,0)/n;
+    const my = pairs.reduce((s,[,y])=>s+y,0)/n;
+    let num=0, da=0, db=0;
+    pairs.forEach(([x,y]) => { const dx=x-mx, dy=y-my; num+=dx*dy; da+=dx*dx; db+=dy*dy; });
+    const denom = Math.sqrt(da*db);
+    return denom === 0 ? null : +(num/denom).toFixed(3);
+  }
+
+  const chart = mk('cCorr');
+
+  function render(days) {
+    const rets = tks.map(tk => {
+      const full = D.px[tk] || [];
+      return dailyRets(full.slice(-days-1));
+    });
+
+    const data = [];
+    tks.forEach((_, yi) => {
+      tks.forEach((_, xi) => {
+        const r = pearson(rets[yi], rets[xi]);
+        data.push({ value: [xi, yi, r],
+          itemStyle: { borderColor: '#f7f8f4', borderWidth: 3 } });
+      });
+    });
+
+    chart.setOption({
+      tooltip: { ...TIP,
+        formatter: p => {
+          const r = p.data.value[2];
+          return `${names[p.data.value[1]]} × ${names[p.data.value[0]]}<br/>`
+            + `相关系数: <b style="color:${r==null?'#7b8491':r>=0?'var(--up)':'var(--down)'}">
+              ${r==null?'—':r.toFixed(3)}</b>`;
+        }
+      },
+      grid: { left: 80, right: 14, top: 50, bottom: 70 },
+      xAxis: { type:'category', data:names, position:'top', ...AXIS,
+        splitLine:{show:false}, axisLine:{show:false},
+        axisLabel: { rotate:40, fontSize:11, color:'#3d4652', interval:0 } },
+      yAxis: { type:'category', data:names, inverse:true, ...AXIS,
+        splitLine:{show:false}, axisLine:{show:false},
+        axisLabel: { fontSize:11, color:'#3d4652' } },
+      visualMap: {
+        min:-1, max:1, calculable:false, show:true,
+        orient:'horizontal', left:'center', bottom:4,
+        itemWidth:14, itemHeight:120, textGap:4,
+        text:['1.0 同向','-1.0 反向'],
+        textStyle:{color:'#7b8491',fontSize:10,fontFamily:'IBM Plex Mono,monospace'},
+        inRange:{ color:['#00a676','#e9ece4','#d63026'] },
+      },
+      series:[{ type:'heatmap', data, cursor:'default',
+        label: { show:true, fontSize:9.5, fontWeight:700,
+          fontFamily:'IBM Plex Mono,monospace',
+          formatter: p => {
+            const r = p.data.value[2];
+            return r == null ? '' : r.toFixed(2);
+          },
+          color: '#3d4652',
+        },
+        emphasis:{ itemStyle:{shadowBlur:8,shadowColor:'rgba(8,10,15,.2)',borderWidth:0} }
+      }]
+    });
+  }
+
+  const tabs = document.getElementById('corrTabs');
+  CORR_WINDOWS.forEach((w,i) => {
+    const btn = document.createElement('button');
+    btn.textContent = w.label;
+    if(i===0) btn.classList.add('on');
+    btn.onclick = () => {
+      tabs.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      render(w.days);
+    };
+    tabs.appendChild(btn);
+  });
+  render(CORR_WINDOWS[0].days);
+})();
+
+/* ---------- 超额胜率 & 连续性 ---------- */
+(function(){
+  const WIN_WINDOWS = [
+    { label:'近3月', weeks:13 },
+    { label:'近6月', weeks:26 },
+    { label:'近1年', weeks:52 },
+  ];
+
+  function buildWinData(weeks) {
+    return D.sectors.map(s => {
+      const excess = D.excess.series[s.ticker] || [];
+      const spyCum = D.excess.spy_cum || [];
+      const n = excess.length;
+
+      // 按5日为一周切片，计算每周超额变化
+      const weeklyWins = [];
+      const step = 5;
+      const maxWeeks = Math.min(weeks, Math.floor((n-1) / step));
+      for (let w = 0; w < maxWeeks; w++) {
+        const end = n - 1 - w * step;
+        const start = end - step;
+        if (start < 0) break;
+        const secChg = excess[end] - excess[start];
+        weeklyWins.unshift(secChg > 0); // 超额为正 = 跑赢
+      }
+
+      const total = weeklyWins.length;
+      const wins  = weeklyWins.filter(Boolean).length;
+      const rate  = total > 0 ? (wins / total * 100) : 0;
+
+      // 当前连胜/连败
+      let streak = 0;
+      for (let i = weeklyWins.length - 1; i >= 0; i--) {
+        if (i === weeklyWins.length - 1) { streak = weeklyWins[i] ? 1 : -1; }
+        else if (weeklyWins[i] === (streak > 0)) { streak += streak > 0 ? 1 : -1; }
+        else break;
+      }
+
+      return { tk: s.ticker, name: s.name, rate, streak, wins, total };
+    }).sort((a, b) => b.rate - a.rate);
+  }
+
+  const chart = mk('cWin');
+
+  function render(weeks) {
+    const rows = buildWinData(weeks);
+    const yNames = rows.map(r => r.name);
+
+    chart.setOption({
+      tooltip: { ...TIP, trigger:'item',
+        formatter: p => {
+          const row = rows.find(x => x.name === p.name) || rows[p.dataIndex];
+          if (!row) return '';
+          return `<b>${row.name}</b> (${row.tk})<br/>`
+            + `胜率 <b style="color:${row.rate>=50?'var(--up)':'var(--down)'}">` +
+              `${row.rate.toFixed(1)}%</b> (${row.wins}/${row.total} 周)<br/>`
+            + `当前: <b style="color:${row.streak>0?'var(--up)':'var(--down)'}">` +
+              `${row.streak>0?'连赢'+row.streak+'周':'连跌'+Math.abs(row.streak)+'周'}</b>`;
+        }
+      },
+      grid: { left:80, right:90, top:8, bottom:8 },
+      xAxis: { type:'value', min:0, max:100, ...AXIS,
+        axisLabel:{...AXIS.axisLabel, formatter:v=>v+'%'} },
+      yAxis: { type:'category', data:yNames, ...AXIS,
+        splitLine:{show:false}, axisLine:{show:false},
+        axisLabel:{color:'#3d4652', fontSize:11.5, fontWeight:700} },
+      series:[{
+        type:'bar', barWidth:14,
+        data: rows.map(r => ({
+          value: r.rate,
+          name: r.name,
+          itemStyle: { color: r.rate >= 50 ? UP : DOWN, borderRadius:0, opacity:.85 },
+          label: {
+            show: true, position:'right', distance:6,
+            fontSize:11, fontFamily:'IBM Plex Mono,monospace',
+            color: r.rate >= 50 ? UP : DOWN,
+            fontWeight:700,
+            formatter: () => {
+              const streakStr = r.streak > 0
+                ? `↑${r.streak}W` : `↓${Math.abs(r.streak)}W`;
+              return r.rate.toFixed(0)+'%  ' + streakStr;
+            },
+          },
+        })),
+      }]
+    });
+  }
+
+  const tabs = document.getElementById('winTabs');
+  WIN_WINDOWS.forEach((w,i) => {
+    const btn = document.createElement('button');
+    btn.textContent = w.label;
+    if(i===0) btn.classList.add('on');
+    btn.onclick = () => {
+      tabs.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      render(w.weeks);
+    };
+    tabs.appendChild(btn);
+  });
+  render(WIN_WINDOWS[0].weeks);
+})();
+
+/* ---------- 轮动强度 (截面离散度) ---------- */
+(function(){
+  const DISP_WINDOWS = [
+    { label:'近1月', days:21 },
+    { label:'近3月', days:63 },
+    { label:'近1年', days:252 },
+  ];
+
+  const tks = D.sectors.map(s => s.ticker);
+
+  // 从 D.px 计算每个交易日的截面标准差
+  function buildDisp(days) {
+    const maxLen = D.px[tks[0]]?.length || 252;
+    const start = Math.max(1, maxLen - days);
+    const dates = D.excess.dates.slice(-days);
+
+    const dispArr = [];
+    for (let i = start; i < maxLen; i++) {
+      const dayRets = tks.map(tk => {
+        const px = D.px[tk];
+        if (!px || px[i] == null || px[i-1] == null || px[i-1] === 0) return null;
+        return (px[i] / px[i-1] - 1) * 100;
+      }).filter(v => v != null);
+
+      if (dayRets.length < 3) { dispArr.push(null); continue; }
+      const mean = dayRets.reduce((s,v)=>s+v,0) / dayRets.length;
+      const std = Math.sqrt(dayRets.reduce((s,v)=>s+(v-mean)**2,0) / dayRets.length);
+      dispArr.push(+std.toFixed(3));
+    }
+
+    const valid = dispArr.filter(v=>v!=null);
+    const avg = valid.length ? +(valid.reduce((s,v)=>s+v,0) / valid.length).toFixed(3) : 0;
+    const ma10 = dispArr.map((_,i) => {
+      const sl = dispArr.slice(Math.max(0,i-9), i+1).filter(v=>v!=null);
+      return sl.length ? +(sl.reduce((s,v)=>s+v,0)/sl.length).toFixed(3) : null;
+    });
+
+    return { dates, dispArr, avg, ma10 };
+  }
+
+  const chart = mk('cDisp');
+
+  function render(days) {
+    const { dates, dispArr, avg, ma10 } = buildDisp(days);
+
+    chart.setOption({
+      tooltip: { ...TIP, trigger:'axis',
+        axisPointer:{type:'line',lineStyle:{color:'#c3c7bb'}},
+        formatter: params => {
+          const d = params[0]?.axisValue||'';
+          const v = params.find(p=>p.seriesName==='截面离散度')?.data;
+          const m = params.find(p=>p.seriesName==='10日均值')?.data;
+          return `<div style="font-size:10px;color:#7b8491;margin-bottom:2px">${d}</div>`
+            + (v!=null ? `截面离散度: <b>${v.toFixed(3)}%</b><br/>` : '')
+            + (m!=null ? `10日均: <b>${m.toFixed(3)}%</b>` : '');
+        }
+      },
+      grid: { left:52, right:16, top:14, bottom:28 },
+      xAxis: { type:'category', data:dates, boundaryGap:false, ...AXIS,
+        splitLine:{show:false},
+        axisLabel:{...AXIS.axisLabel, interval: Math.floor(dates.length/6)} },
+      yAxis: { type:'value', ...AXIS,
+        axisLabel:{...AXIS.axisLabel, formatter:v=>v.toFixed(1)+'%'} },
+      series: [
+        { name:'截面离散度', type:'bar', data:dispArr, barMaxWidth:6,
+          itemStyle:{ color: '#3157ff', opacity:0.55 } },
+        { name:'10日均值', type:'line', data:ma10, showSymbol:false,
+          lineStyle:{width:2, color:ACCENT}, itemStyle:{color:ACCENT}, z:3 },
+        { name:'历史均值', type:'line',
+          data: dispArr.map(() => avg), showSymbol:false, silent:true,
+          lineStyle:{width:1.2, color:'#7b8491', type:'dashed'},
+          itemStyle:{color:'#7b8491'} },
+      ],
+      legend:{ bottom:0, icon:'rect', itemWidth:10, itemHeight:3,
+        textStyle:{color:'#7b8491',fontSize:10.5}, inactiveColor:'#c3c7bb' },
+    }, true);
+  }
+
+  const tabs = document.getElementById('dispTabs');
+  DISP_WINDOWS.forEach((w,i) => {
+    const btn = document.createElement('button');
+    btn.textContent = w.label;
+    if(i===0) btn.classList.add('on');
+    btn.onclick = () => {
+      tabs.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      render(w.days);
+    };
+    tabs.appendChild(btn);
+  });
+  render(DISP_WINDOWS[0].days);
 })();
 
 /* ---------- 板块详情弹层 ---------- */

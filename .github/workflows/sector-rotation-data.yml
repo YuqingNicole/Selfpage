@@ -1,0 +1,58 @@
+# 每个交易日收盘后自动更新板块轮动看板数据 (data.js)
+# 触发时机: 周一至周五 UTC 21:30 (美东 16:30, 盘后30分钟)
+# 手动触发: Actions → Run workflow
+#
+# 所需 Secrets (Settings → Secrets and variables → Actions):
+#   ARTI_BASE_URL   （可选，ARTI Data API 基础地址，空值则跳过）
+#   ARTI_API_KEY    （可选，ARTI Data API 密钥）
+
+name: Update sector-rotation data
+
+on:
+  schedule:
+    - cron: '30 21 * * 1-5'   # 每个工作日 UTC 21:30 (EST 16:30)
+  workflow_dispatch: {}        # 允许手动触发
+
+concurrency:
+  group: sector-rotation-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write        # 需要 push data.js
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/sector-rotation/requirements.txt
+
+      - name: Install dependencies
+        run: pip install yfinance pandas requests
+
+      - name: Run fetch_data.py
+        working-directory: scripts/sector-rotation
+        env:
+          ARTI_BASE_URL: ${{ secrets.ARTI_BASE_URL }}
+          ARTI_API_KEY:  ${{ secrets.ARTI_API_KEY }}
+        run: python fetch_data.py
+
+      - name: Commit updated data.js
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/work/sector-rotation/data.js
+          if git diff --cached --quiet; then
+            echo "data.js unchanged, skipping commit"
+          else
+            git commit -m "data: sector-rotation daily update $(date -u '+%Y-%m-%d')"
+            git push
+          fi
