@@ -7,7 +7,7 @@ import { benchmarkNames, formatPct, type BoardConclusion, type ChainData, type C
 
 type LiveQuote = { price: number; chg: number; pchg: number }
 
-function useLiveQuotes(symbols: string[]): Map<string, LiveQuote> {
+function useLiveQuotes(symbolsKey: string): Map<string, LiveQuote> {
   const [liveMap, setLiveMap] = useState<Map<string, LiveQuote>>(new Map())
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -19,20 +19,20 @@ function useLiveQuotes(symbols: string[]): Map<string, LiveQuote> {
       return !isWeekend && utcMin >= 13 * 60 && utcMin <= 20 * 60 + 15
     }
 
-    const fetch_ = async () => {
+    const doFetch = async () => {
       if (!isTrading()) return
       try {
-        const res = await fetch(`/api/live-quotes?symbols=${symbols.join(',')}`, { cache: 'no-store' })
+        const res = await fetch(`/api/live-quotes?symbols=${symbolsKey}`, { cache: 'no-store' })
         if (!res.ok) return
         const data = await res.json() as Record<string, LiveQuote>
         setLiveMap(new Map(Object.entries(data)))
       } catch { /* silent */ }
     }
 
-    fetch_()
-    timerRef.current = setInterval(fetch_, 60_000)
+    doFetch()
+    timerRef.current = setInterval(doFetch, 60_000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [symbols.join(',')])
+  }, [symbolsKey])
 
   return liveMap
 }
@@ -105,8 +105,8 @@ function ConclusionTile({ label, chain, accent }: { label: string; chain?: Chain
 /* ---------- 基准条 ---------- */
 
 export function BenchmarkStrip({ benchmarks, baseline }: { benchmarks: TickerPoint[]; baseline?: TickerPoint }) {
-  const symbols = useMemo(() => benchmarks.map((b) => b.symbol), [benchmarks])
-  const liveMap = useLiveQuotes(symbols)
+  const symbolsKey = useMemo(() => benchmarks.map((b) => b.symbol).join(','), [benchmarks])
+  const liveMap = useLiveQuotes(symbolsKey)
   const isLive = liveMap.size > 0
 
   return (
@@ -135,7 +135,7 @@ export function BenchmarkStrip({ benchmarks, baseline }: { benchmarks: TickerPoi
           >
             <span style={{ fontSize: 13, fontWeight: 700, color: '#101828' }}>{bench.symbol}</span>
             <span style={{ fontSize: 11, color: '#667085' }}>{benchmarkNames[bench.symbol] ?? bench.shortName}</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#667085' }}>${price.toFixed(2)}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#667085' }}>{price ? `$${price.toFixed(2)}` : ''}</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: chgPct >= 0 ? '#027A48' : '#D92D20' }}>{formatPct(chgPct)}</span>
             <span style={{ fontSize: 11, color: '#667085' }}>5日 {formatPct(bench.fiveDayChangePct)}</span>
           </a>

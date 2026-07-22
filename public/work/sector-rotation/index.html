@@ -1138,7 +1138,7 @@ document.getElementById('foot').innerHTML =
     // 4. 走马灯 — 重建
     const items = [
       ...D.sectors.map(s => {const q=live[s.ticker]||{};return {sym:s.ticker,n:s.name,v:q.price??s.price,chg:q.chg??s.day_chg};}),
-      {sym:'SPY',n:'标普500',v:(live['SPY']?.price??D.spy.price),(chg:(live['SPY']?.chg??D.spy.day_chg))},
+      {sym:'SPY',n:'标普500',v:(live['SPY']?.price??D.spy.price),chg:(live['SPY']?.chg??D.spy.day_chg)},
     ];
     const tkHtml = items.map(it=>
       `<span class="tk-item"><span class="tk-sym">${it.sym}</span><span class="tk-sn">${it.n}</span>`+
