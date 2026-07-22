@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUI × Innovation Efficiency</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+/* ─── Palette (dark, validated) ─── */
+:root {
+  --surface:        #1a1a19;
+  --page:           #0d0d0d;
+  --ink-primary:    #ffffff;
+  --ink-secondary:  #c3c2b7;
+  --ink-muted:      #898781;
+  --gridline:       #2c2c2a;
+  --baseline:       #383835;
+  --border:         rgba(255,255,255,0.10);
+
+  --s1-blue:    #3987e5;
+  --s2-aqua:    #199e70;
+  --s3-yellow:  #c98500;
+  --s4-green:   #008300;
+  --s5-violet:  #9085e9;
+  --s6-red:     #e66767;
+
+  --good:     #0ca30c;
+  --warning:  #fab219;
+  --serious:  #ec835a;
+  --critical: #d03b3b;
+
+  --radius: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page);
+  color: var(--ink-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dashboard {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* ─── Header ─── */
+.header { margin-bottom: 40px; }
+.header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.header p {
+  color: var(--ink-secondary);
+  font-size: 0.8rem;
+}
+
+/* ─── Stat tiles (KPI row) ─── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.stat-tile .label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.stat-tile .value {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+.stat-tile .delta {
+  font-size: 0.72rem;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.delta-good { color: var(--good); }
+.delta-bad  { color: var(--critical); }
+.delta-neutral { color: var(--ink-muted); }
+
+/* ─── Chart cards ─── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.grid-1 {
+  margin-bottom: 16px;
+}
+@media (max-width: 780px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px 16px;
+}
+.card-title {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 16px;
+}
+.card canvas {
+  width: 100% !important;
+}
+
+/* ─── Section divider ─── */
+.section {
+  margin-top: 36px;
+  margin-bottom: 16px;
+  padding-left: 12px;
+  border-left: 2px solid var(--s1-blue);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Tables ─── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+.data-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--ink-muted);
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--baseline);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--gridline);
+  color: var(--ink-secondary);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table .val { color: var(--ink-primary); font-weight: 500; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-pass { background: rgba(12,163,12,0.12); color: var(--good); }
+.badge-warn { background: rgba(250,178,25,0.12); color: var(--warning); }
+
+/* ─── Scrollable tables ─── */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table.compact td,
+.data-table.compact th { padding: 6px 8px; font-size: 0.72rem; }
+.data-table .row-dim { opacity: 0.55; }
+.data-table .row-highlight td { background: rgba(57,135,229,0.04); }
+
+/* ─── Tooltip (custom) ─── */
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--baseline);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  color: var(--ink-secondary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 100;
+  transition: opacity 0.12s;
+}
+.chart-tooltip .tt-title {
+  color: var(--ink-primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.chart-tooltip .tt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 0;
+}
+.chart-tooltip .tt-key {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+.chart-tooltip .tt-val {
+  color: var(--ink-primary);
+  font-weight: 500;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Footer ─── */
+.footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gridline);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+/* ─── Scatter filter tabs ─── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--gridline);
+  background: transparent;
+  color: var(--ink-muted);
+  transition: all 0.12s;
+}
+.tab-btn:hover { border-color: var(--baseline); color: var(--ink-secondary); }
+.tab-btn.active {
+  background: var(--s1-blue);
+  border-color: var(--s1-blue);
+  color: #fff;
+}
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <div class="header">
+    <h1>Decoupling Uncertainty &times; Innovation Efficiency</h1>
+    <p>A-share listed firms, 2013&ndash;2024 &mdash; Panel regression diagnostics</p>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- Time Series -->
+  <div class="section">Time Series</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">DUI Index (firm-year mean &amp; IQR)</div>
+      <canvas id="cDUI" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Innovation Efficiency (ln_eff3)</div>
+      <canvas id="cEff" height="200"></canvas>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Investment Intensity (% assets)</div>
+      <canvas id="cInv" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">R&amp;D Intensity (% revenue)</div>
+      <canvas id="cRD" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Heterogeneity -->
+  <div class="section">Heterogeneity</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Efficiency by Ownership</div>
+      <canvas id="cSOE" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Efficiency by Industry Concentration</div>
+      <canvas id="cHHI" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Scatter -->
+  <div class="grid-2">
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-title">DUI vs Efficiency (N=3,000 random sample)</div>
+      <div class="tabs" id="scatterTabs">
+        <button class="tab-btn active" data-f="all">All</button>
+        <button class="tab-btn" data-f="soe">By ownership</button>
+        <button class="tab-btn" data-f="hhi">By concentration</button>
+      </div>
+      <canvas id="cScatter" height="240"></canvas>
+    </div>
+  </div>
+
+  <!-- Identification -->
+  <div class="section">Identification &amp; Robustness</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Coefficient Estimates (95% CI)</div>
+      <canvas id="cCoef" height="180"></canvas>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Robustness Summary</div>
+      <table class="data-table" id="tRobust"></table>
+    </div>
+    <div class="card">
+      <div class="card-title">Exclusion Restriction Evidence</div>
+      <table class="data-table" id="tExcl"></table>
+    </div>
+  </div>
+
+  <!-- Mediation -->
+  <div class="section">Mediation Path</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">a-path: DUI &rarr; INV_shao</div>
+      <canvas id="cMedA" height="140"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Mediation proportion (%)</div>
+      <canvas id="cMedP" height="140"></canvas>
+    </div>
+  </div>
+
+  <!-- Data Tables -->
+  <div class="section">Data Tables</div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Descriptive Statistics</div>
+      <div class="table-scroll">
+        <table class="data-table compact" id="tDesc"></table>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Panel Structure by Year</div>
+      <div class="table-scroll">
+        <table class="data-table compact" id="tPanel"></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Heterogeneity (Subgroup Regressions)</div>
+      <div class="table-scroll">
+        <table class="data-table compact" id="tHet"></table>
+      </div>
+    </div>
+  </div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Full Regression Results</div>
+      <div class="table-scroll">
+        <table class="data-table compact" id="tRegFull"></table>
+      </div>
+    </div>
+  </div>
+  <div class="grid-1">
+    <div class="card">
+      <div class="card-title">Identification Tests (Full Detail)</div>
+      <div class="table-scroll">
+        <table class="data-table compact" id="tIdFull"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    4,599 firms &bull; 33,855 firm-year observations &bull; 12 years &bull; Main regression N = 24,309
+  </div>
+
+</div>
+
+<script>
+fetch('./data.json').then(r=>r.json()).then(D => {
+
+// ─── Chart.js global config ───
+Chart.defaults.color = '#898781';
+Chart.defaults.borderColor = '#2c2c2a';
+Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.boxHeight = 2;
+Chart.defaults.plugins.legend.labels.useBorderRadius = true;
+Chart.defaults.plugins.legend.labels.borderRadius = 1;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1a1a19';
+Chart.defaults.plugins.tooltip.borderColor = '#383835';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleFont = {weight:'600', size:11};
+Chart.defaults.plugins.tooltip.bodyFont = {size:11};
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
+Chart.defaults.plugins.tooltip.displayColors = true;
+Chart.defaults.plugins.tooltip.boxWidth = 12;
+Chart.defaults.plugins.tooltip.boxHeight = 2;
+Chart.defaults.elements.line.borderWidth = 2;
+Chart.defaults.elements.line.tension = 0.3;
+Chart.defaults.elements.point.radius = 0;
+Chart.defaults.elements.point.hoverRadius = 5;
+Chart.defaults.elements.point.hitRadius = 20;
+
+const S1='#3987e5', S2='#199e70', S3='#c98500', S4='#008300', S5='#9085e9', S6='#e66767';
+const MUTED='#898781', GRID='#2c2c2a';
+
+// Trade war annotation
+const TWA = { type:'line', borderColor:'rgba(230,103,103,0.35)', borderWidth:1,
+  borderDash:[4,3], xMin:5, xMax:5, label:{display:true, content:'2018',
+  position:'start', font:{size:9,weight:'400'}, color:'rgba(230,103,103,0.6)',
+  backgroundColor:'transparent', padding:2}};
+
+// ─── KPI Row ───
+document.getElementById('kpiRow').innerHTML = `
+  <div class="stat-tile">
+    <div class="label">Firms</div>
+    <div class="value">${D.sample.n_firms.toLocaleString()}</div>
+    <div class="delta delta-neutral">${D.sample.year_range}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Main &beta;</div>
+    <div class="value">&minus;2.80e-5</div>
+    <div class="delta delta-good">p = 0.010</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">2SLS &beta;</div>
+    <div class="value">&minus;6.01e-5</div>
+    <div class="delta delta-good">p = 0.027</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Direct Path &beta;&sub2;</div>
+    <div class="value">p = 0.110</div>
+    <div class="delta delta-good">Exclusion supported</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">CAPEX Confounder</div>
+    <div class="value">&Delta;&beta; = &minus;0.5%</div>
+    <div class="delta delta-good">Not a confounder</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Mediation</div>
+    <div class="value">0.8%</div>
+    <div class="delta delta-neutral">With Year FE</div>
+  </div>
+`;
+
+// ─── DUI Trend ───
+new Chart(document.getElementById('cDUI'), {
+  type:'line',
+  data:{
+    labels: D.dui_trend.years,
+    datasets:[
+      {label:'p75', data:D.dui_trend.p75, borderColor:'transparent',
+       backgroundColor:'rgba(57,135,229,0.08)', fill:true, pointRadius:0, order:3},
+      {label:'p25', data:D.dui_trend.p25, borderColor:'transparent',
+       backgroundColor:'rgba(57,135,229,0.08)', fill:'-1', pointRadius:0, order:3},
+      {label:'Mean', data:D.dui_trend.mean, borderColor:S1,
+       pointRadius:0, pointHoverRadius:4, order:1},
+      {label:'Median', data:D.dui_trend.median, borderColor:S2,
+       borderDash:[5,3], borderWidth:1.5, pointRadius:0, order:2},
+    ]
+  },
+  options:{
+    plugins:{
+      legend:{display:true, labels:{filter:i=>i.text==='Mean'||i.text==='Median'}},
+      annotation:{annotations:{tw:TWA}}
+    },
+    scales:{
+      y:{title:{display:true,text:'DUI',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+// ─── Efficiency Trend ───
+new Chart(document.getElementById('cEff'), {
+  type:'line',
+  data:{
+    labels: D.eff_trend.years,
+    datasets:[
+      {label:'Mean', data:D.eff_trend.mean, borderColor:S1, pointRadius:0, pointHoverRadius:4},
+      {label:'Median', data:D.eff_trend.median, borderColor:S2,
+       borderDash:[5,3], borderWidth:1.5, pointRadius:0},
+    ]
+  },
+  options:{
+    plugins:{
+      legend:{display:true},
+      annotation:{annotations:{tw:{...TWA, xMin:4, xMax:4}}}
+    },
+    scales:{
+      y:{title:{display:true,text:'ln_eff3',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+// ─── Investment (one axis, no dual) ───
+new Chart(document.getElementById('cInv'), {
+  type:'line',
+  data:{
+    labels: D.inv_trend.years,
+    datasets:[
+      {label:'Total (INV)', data:D.inv_trend.inv, borderColor:S1, pointRadius:0, pointHoverRadius:4},
+      {label:'CAPEX', data:D.inv_trend.capx, borderColor:S5, pointRadius:0, pointHoverRadius:4},
+    ]
+  },
+  options:{
+    plugins:{
+      legend:{display:true},
+      annotation:{annotations:{tw:{...TWA, xMin:4, xMax:4}}}
+    },
+    scales:{
+      y:{title:{display:true,text:'% of prior assets',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+// ─── R&D Intensity (separate chart, not dual-axis) ───
+new Chart(document.getElementById('cRD'), {
+  type:'line',
+  data:{
+    labels: D.inv_trend.years,
+    datasets:[
+      {label:'R&D / Revenue', data:D.inv_trend.rd.map(x=>x?x*100:null),
+       borderColor:S3, pointRadius:0, pointHoverRadius:4,
+       backgroundColor:'rgba(201,133,0,0.06)', fill:true},
+    ]
+  },
+  options:{
+    plugins:{
+      legend:{display:false},
+      annotation:{annotations:{tw:{...TWA, xMin:4, xMax:4}}}
+    },
+    scales:{
+      y:{title:{display:true,text:'%',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+// ─── SOE Heterogeneity ───
+new Chart(document.getElementById('cSOE'), {
+  type:'line',
+  data:{
+    labels: D.soe_eff.years,
+    datasets:[
+      {label:'Private (β=−2.91e-5**)', data:D.soe_eff.private,
+       borderColor:S1, pointRadius:0, pointHoverRadius:4},
+      {label:'SOE (β=−1.20e-5, n.s.)', data:D.soe_eff.soe,
+       borderColor:S3, pointRadius:0, pointHoverRadius:4},
+    ]
+  },
+  options:{
+    plugins:{legend:{display:true}, annotation:{annotations:{tw:{...TWA, xMin:4, xMax:4}}}},
+    scales:{
+      y:{title:{display:true,text:'Mean ln_eff3',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+// ─── HHI Heterogeneity ───
+new Chart(document.getElementById('cHHI'), {
+  type:'line',
+  data:{
+    labels: D.hhi_eff.years,
+    datasets:[
+      {label:'Low HHI (β=−3.24e-5**)', data:D.hhi_eff.low,
+       borderColor:S2, pointRadius:0, pointHoverRadius:4},
+      {label:'High HHI (β=−1.78e-5, n.s.)', data:D.hhi_eff.high,
+       borderColor:S5, pointRadius:0, pointHoverRadius:4},
+    ]
+  },
+  options:{
+    plugins:{legend:{display:true}, annotation:{annotations:{tw:{...TWA, xMin:4, xMax:4}}}},
+    scales:{
+      y:{title:{display:true,text:'Mean ln_eff3',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+// ─── Scatter ───
+let scatterChart;
+function drawScatter(filter){
+  if(scatterChart) scatterChart.destroy();
+  const x=D.scatter.x, y=D.scatter.y;
+  let datasets;
+  if(filter==='soe'){
+    const priv=[], soe=[];
+    for(let i=0;i<x.length;i++) (D.scatter.soe[i]?soe:priv).push({x:x[i],y:y[i]});
+    datasets=[
+      {label:'Private', data:priv, backgroundColor:'rgba(57,135,229,0.35)', pointRadius:2.5, pointHoverRadius:5},
+      {label:'SOE', data:soe, backgroundColor:'rgba(201,133,0,0.4)', pointRadius:2.5, pointHoverRadius:5},
+    ];
+  } else if(filter==='hhi'){
+    const lo=[], hi=[];
+    for(let i=0;i<x.length;i++) (D.scatter.hhi[i]==='high'?hi:lo).push({x:x[i],y:y[i]});
+    datasets=[
+      {label:'Low HHI', data:lo, backgroundColor:'rgba(25,158,112,0.4)', pointRadius:2.5, pointHoverRadius:5},
+      {label:'High HHI', data:hi, backgroundColor:'rgba(144,133,233,0.4)', pointRadius:2.5, pointHoverRadius:5},
+    ];
+  } else {
+    datasets=[{label:'Firms', data:x.map((xi,i)=>({x:xi,y:y[i]})),
+      backgroundColor:'rgba(57,135,229,0.25)', pointRadius:2, pointHoverRadius:5}];
+  }
+  scatterChart = new Chart(document.getElementById('cScatter'),{
+    type:'scatter', data:{datasets},
+    options:{
+      plugins:{legend:{display:filter!=='all'}},
+      scales:{
+        x:{title:{display:true,text:'ln(DUI)',color:MUTED,font:{size:10}},
+           grid:{color:GRID}, border:{color:'#383835'}},
+        y:{title:{display:true,text:'ln_eff3',color:MUTED,font:{size:10}},
+           grid:{color:GRID}, border:{color:'#383835'}}
+      }
+    }
+  });
+}
+drawScatter('all');
+document.getElementById('scatterTabs').addEventListener('click',e=>{
+  if(!e.target.classList.contains('tab-btn'))return;
+  document.querySelectorAll('#scatterTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  drawScatter(e.target.dataset.f);
+});
+
+// ─── Coefficient Forest Plot ───
+const specs = [
+  {label:'OLS + Firm FE', b:-2.795e-5, se:1.078e-5, p:0.010},
+  {label:'+ Year FE',     b:-2.899e-5, se:1.190e-5, p:0.015},
+  {label:'2SLS (DUI_t-2)',b:-6.014e-5, se:2.726e-5, p:0.027},
+  {label:'PSM',           b:-2.186e-5, se:1.130e-5, p:0.054},
+  {label:'Direct path β₂',b:-1.654e-5, se:1.035e-5, p:0.110},
+];
+const coefLabels = specs.map(s=>s.label);
+const coefVals = specs.map(s=>s.b*1e5);
+const coefLo = specs.map(s=>(s.b-1.96*s.se)*1e5);
+const coefHi = specs.map(s=>(s.b+1.96*s.se)*1e5);
+
+new Chart(document.getElementById('cCoef'),{
+  type:'bar',
+  data:{
+    labels:coefLabels,
+    datasets:[{
+      data:coefVals,
+      backgroundColor: specs.map(s=>s.p<0.05?'rgba(57,135,229,0.55)':'rgba(137,135,129,0.3)'),
+      borderColor: specs.map(s=>s.p<0.05?S1:MUTED),
+      borderWidth:1,
+      borderRadius:{topLeft:4,topRight:4,bottomLeft:4,bottomRight:4},
+      barThickness:20,
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>{
+        const s=specs[ctx.dataIndex];
+        return `β = ${s.b.toExponential(3)}, p = ${s.p.toFixed(3)}`;
+      }}}
+    },
+    scales:{
+      x:{title:{display:true,text:'β × 10⁵',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}, suggestedMin:-12, suggestedMax:2},
+      y:{grid:{display:false}, border:{display:false}}
+    }
+  },
+  plugins:[{
+    id:'ciWhiskers',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx, meta=chart.getDatasetMeta(0);
+      meta.data.forEach((bar,i)=>{
+        const lo=chart.scales.x.getPixelForValue(coefLo[i]);
+        const hi=chart.scales.x.getPixelForValue(coefHi[i]);
+        const cy=bar.y;
+        ctx.save();
+        ctx.strokeStyle=specs[i].p<0.05?'#c3c2b7':'#52514e';
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        ctx.moveTo(lo,cy); ctx.lineTo(hi,cy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(lo,cy-3); ctx.lineTo(lo,cy+3);
+        ctx.moveTo(hi,cy-3); ctx.lineTo(hi,cy+3);
+        ctx.stroke();
+        ctx.restore();
+      });
+      // zero line
+      const zx=chart.scales.x.getPixelForValue(0);
+      const {top,bottom}=chart.chartArea;
+      ctx.save();
+      ctx.strokeStyle='rgba(230,103,103,0.4)';
+      ctx.lineWidth=1;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(zx,top); ctx.lineTo(zx,bottom); ctx.stroke();
+      ctx.restore();
+    }
+  }]
+});
+
+// ─── Robustness Table ───
+const robRows=[
+  ['OLS + Firm FE','−2.795e-5','0.010','***'],
+  ['+ Year FE','−2.899e-5','0.015','**'],
+  ['2SLS (DUI_t-2)','−6.014e-5','0.027','**'],
+  ['2SLS (Dual IV)','−6.386e-5','0.021','**'],
+  ['PSM','−2.186e-5','0.054','†'],
+  ['+ CAPEX growth','−2.823e-5','0.012','**'],
+  ['Placebo','≈ 0','emp. 0.000','—'],
+];
+let rHTML='<tr><th>Specification</th><th>β(DUI)</th><th>p</th><th></th></tr>';
+robRows.forEach(r=>{
+  const dim=r[3]==='†'||r[3]==='—'?' style="opacity:0.6"':'';
+  rHTML+=`<tr${dim}><td>${r[0]}</td><td class="val">${r[1]}</td><td>${r[2]}</td><td style="color:${S1}">${r[3]}</td></tr>`;
+});
+document.getElementById('tRobust').innerHTML=rHTML;
+
+// ─── Exclusion Table ───
+const exRows=[
+  ['Direct path β₂ (ctrl DUI_t)','−1.65e-5','0.110','pass'],
+  ['Direct path β₂ (ctrl DUI_t-1)','−1.03e-5','0.271','pass'],
+  ['CAPEX confounder test','Δβ = −0.5%','—','pass'],
+  ['Hansen J (dual IV)','—','0.9998','pass'],
+  ['Mediation a-path + Year FE','+0.35','0.596','warn'],
+];
+let eHTML='<tr><th>Test</th><th>Estimate</th><th>p</th><th>Status</th></tr>';
+exRows.forEach(r=>{
+  const badge=r[3]==='pass'?'<span class="badge badge-pass">PASS</span>':'<span class="badge badge-warn">WARN</span>';
+  eHTML+=`<tr><td>${r[0]}</td><td class="val">${r[1]}</td><td>${r[2]}</td><td>${badge}</td></tr>`;
+});
+document.getElementById('tExcl').innerHTML=eHTML;
+
+// ─── Mediation a-path comparison ───
+new Chart(document.getElementById('cMedA'),{
+  type:'bar',
+  data:{
+    labels:['Firm FE only','+ Year FE'],
+    datasets:[{
+      data:[1.774, 0.353],
+      backgroundColor:['rgba(201,133,0,0.5)','rgba(57,135,229,0.5)'],
+      borderColor:[S3, S1], borderWidth:1,
+      borderRadius:4, barThickness:28,
+    }]
+  },
+  options:{
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>{
+        const ps=['p = 0.009','p = 0.596'];
+        return `a = ${ctx.raw.toFixed(3)}, ${ps[ctx.dataIndex]}`;
+      }}}
+    },
+    scales:{
+      y:{title:{display:true,text:'a-path coefficient',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}, beginAtZero:true},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    }
+  }
+});
+
+// ─── Mediation proportion ───
+new Chart(document.getElementById('cMedP'),{
+  type:'bar',
+  data:{
+    labels:['Firm FE only','+ Year FE'],
+    datasets:[{
+      data:[3.8, 0.8],
+      backgroundColor:['rgba(201,133,0,0.5)','rgba(57,135,229,0.5)'],
+      borderColor:[S3, S1], borderWidth:1,
+      borderRadius:4, barThickness:28,
+    }]
+  },
+  options:{
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.raw}% mediation`}}
+    },
+    scales:{
+      y:{title:{display:true,text:'%',color:MUTED,font:{size:10}},
+         grid:{color:GRID}, border:{color:'#383835'}, beginAtZero:true, max:5},
+      x:{grid:{display:false}, border:{color:'#383835'}}
+    }
+  }
+});
+
+// ─── Data Tables ───
+if(D.tables){
+  // Descriptive Statistics
+  const desc = D.tables.descriptive;
+  let dH='<tr><th>Variable</th><th>N</th><th>Mean</th><th>SD</th><th>P25</th><th>Median</th><th>P75</th></tr>';
+  desc.forEach(r=>{
+    const hl = (r.var.includes('DUI')||r.var.includes('Efficiency'))?' class="row-highlight"':'';
+    dH+=`<tr${hl}><td>${r.var}</td><td class="val">${r.n.toLocaleString()}</td><td class="val">${r.mean}</td><td>${r.sd}</td><td>${r.p25}</td><td>${r.p50}</td><td>${r.p75}</td></tr>`;
+  });
+  document.getElementById('tDesc').innerHTML=dH;
+
+  // Panel by Year
+  const pan = D.tables.panel_by_year;
+  let pH='<tr><th>Year</th><th>N</th><th>Firms</th><th>DUI mean</th><th>ln_eff3 mean</th><th>INV (% assets)</th><th>R&D (%)</th></tr>';
+  pan.forEach(r=>{
+    const hl = r.year>=2018&&r.year<=2021?' class="row-highlight"':'';
+    pH+=`<tr${hl}><td class="val">${r.year}</td><td class="val">${r.n_obs.toLocaleString()}</td><td>${r.n_firms.toLocaleString()}</td><td>${r.dui_mean??'—'}</td><td>${r.eff3_mean??'—'}</td><td>${r.inv_mean??'—'}</td><td>${r.rd_mean??'—'}</td></tr>`;
+  });
+  document.getElementById('tPanel').innerHTML=pH;
+
+  // Heterogeneity
+  const het = D.tables.heterogeneity;
+  let hH='<tr><th>Subgroup</th><th>β(DUI)</th><th>p</th><th>N</th><th></th></tr>';
+  het.forEach(r=>{
+    const dim = !r.sig?' class="row-dim"':'';
+    const star = r.sig?'<span style="color:#3987e5">**</span>':'';
+    hH+=`<tr${dim}><td>${r.group}</td><td class="val">${r.beta}</td><td>${r.p}</td><td>${r.n?r.n.toLocaleString():'—'}</td><td>${star}</td></tr>`;
+  });
+  document.getElementById('tHet').innerHTML=hH;
+
+  // Full Regression
+  const reg = D.tables.regression;
+  let rgH='<tr><th>Specification</th><th>β(DUI)</th><th>SE</th><th>p</th><th>N</th><th>FE</th><th>Note</th></tr>';
+  reg.forEach(r=>{
+    const sig = r.p!==null&&r.p<0.05;
+    const cls = sig?'':' class="row-dim"';
+    rgH+=`<tr${cls}><td>${r.spec}</td><td class="val">${r.beta}</td><td>${r.se}</td><td>${r.p!==null?r.p:'—'}</td><td class="val">${r.n.toLocaleString()}</td><td>${r.fe}</td><td style="color:var(--ink-muted)">${r.note}</td></tr>`;
+  });
+  document.getElementById('tRegFull').innerHTML=rgH;
+
+  // Identification Tests Full
+  const ids = D.tables.identification;
+  let iH='<tr><th>Test</th><th>Estimate</th><th>p</th><th>Verdict</th><th>Interpretation</th></tr>';
+  ids.forEach(r=>{
+    const badge=r.verdict==='pass'?'<span class="badge badge-pass">PASS</span>':'<span class="badge badge-warn">WARN</span>';
+    iH+=`<tr><td>${r.test}</td><td class="val">${r.est}</td><td>${r.p!==null?r.p:'—'}</td><td>${badge}</td><td style="color:var(--ink-muted)">${r.interp}</td></tr>`;
+  });
+  document.getElementById('tIdFull').innerHTML=iH;
+}
+
+}).catch(err=>{
+  document.querySelector('.dashboard').innerHTML=`
+    <div style="padding:60px 20px;text-align:center">
+      <p style="color:#e66767;font-size:0.9rem;margin-bottom:12px">Failed to load data</p>
+      <p style="color:#898781;font-size:0.78rem">Run from project root:<br>
+      <code style="color:#c3c2b7">python3 -m http.server 8080</code><br>
+      then open <code style="color:#c3c2b7">localhost:8080/dashboard.html</code></p>
+      <p style="color:#52514e;font-size:0.72rem;margin-top:16px">${err.message}</p>
+    </div>`;
+});
+</script>
+</body>
+</html>
