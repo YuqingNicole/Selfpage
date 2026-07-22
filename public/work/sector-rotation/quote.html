@@ -178,7 +178,7 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .peer-row a{text-decoration:none;display:contents}
 
 /* peer ranking chart */
-#rankChart{height:200px;background:var(--card)}
+#rankChart{background:var(--card)}
 
 /* sector rets table */
 .sec-rets{width:100%;border-collapse:collapse;font-size:var(--text-xs);padding:12px 14px;display:block}
@@ -918,28 +918,54 @@ if (!q) {
   /* peer ranking chart */
   const rankEl = document.getElementById('rankChart');
   if (rankEl && peersSorted.length > 1) {
+    const ROW_H = 22; // px per bar row
+    const chartH = Math.max(180, peersSorted.length * ROW_H + 32);
+    rankEl.style.height = chartH + 'px';
     chart3 = echarts.init(rankEl);
+
+    // 计算 x 轴范围，留出足够空间显示右侧数值标签
+    const vals = peersSorted.map(p => p.m1 ?? 0);
+    const xMin = Math.floor(Math.min(...vals) * 1.18);
+    const xMax = Math.ceil(Math.max(...vals) * 1.35 + 2); // 右侧留 label 空间
+
     chart3.setOption({
-      tooltip:{...TIP,trigger:'item',formatter:p=>`${p.name}<br/>近1月: <b>${fmt(p.value)}</b>`},
-      grid:{left:72,right:52,top:8,bottom:12},
-      xAxis:{type:'value',...AXIS,
-        axisLabel:{...AXIS.axisLabel,formatter:v=>v+'%'},splitLine:{show:false},axisLine:{show:false}},
+      tooltip:{...TIP,trigger:'item',
+        formatter:p=>`<b>${p.name}</b><br/>近1月: <b>${fmt(p.value)}</b>`},
+      grid:{left:58,right:60,top:6,bottom:24},
+      xAxis:{type:'value',min:xMin,max:xMax,...AXIS,
+        axisLabel:{...AXIS.axisLabel,fontSize:10,formatter:v=>v+'%'},
+        splitLine:{show:true,lineStyle:{color:'rgba(8,10,15,.05)'}},
+        axisLine:{show:false}},
       yAxis:{type:'category',data:peersSorted.map(p=>p.t),
         ...AXIS,splitLine:{show:false},axisLine:{show:false},
-        axisLabel:{color:INK,fontSize:11.5,fontFamily:'"IBM Plex Mono",monospace',
-          rich:{self:{color:ACCENT,fontWeight:'bold'}},
+        axisLabel:{color:INK,fontSize:11,fontFamily:'"IBM Plex Mono",monospace',
+          interval:0,
+          rich:{self:{color:ACCENT,fontWeight:'bold',fontSize:11}},
           formatter:v=>v===TICKER?`{self|${v}}`:v}},
-      series:[{type:'bar',barWidth:9,clip:false,cursor:'pointer',
+      series:[{
+        type:'bar',
+        barMaxWidth:14,
+        clip:true,
+        cursor:'pointer',
         data:peersSorted.map(p=>({
           value:p.m1,
-          itemStyle:{color:p.t===TICKER?ACCENT:(p.m1>=0?'#d32f2f':'#00a676'),borderRadius:0,
-            opacity:p.t===TICKER?1:0.55},
-          label:{show:true,
-            position:p.m1>12?'insideLeft':p.m1>=0?'right':p.m1<-12?'insideRight':'left',
-            fontSize:9.5,fontFamily:'"IBM Plex Mono",monospace',
-            color:(p.m1>12||p.m1<-12)?'rgba(255,255,255,0.82)':MUTE,
-            formatter:params=>fmt(params.value)}
-        }))}]
+          itemStyle:{
+            color:p.t===TICKER?ACCENT:(p.m1>=0?'#d32f2f':'#00a676'),
+            borderRadius:0,
+            opacity:p.t===TICKER?1:0.6
+          },
+          label:{
+            show:true,
+            position:'right',
+            distance:4,
+            fontSize:10,
+            fontFamily:'"IBM Plex Mono",monospace',
+            color:p.t===TICKER?ACCENT:MUTE,
+            fontWeight:p.t===TICKER?700:400,
+            formatter:params=>fmt(params.value)
+          }
+        }))
+      }]
     });
     chart3.on('click', p => {
       if (p.seriesType === 'bar' && p.name) window.top.location.href = '/work/sector-rotation/' + p.name;
