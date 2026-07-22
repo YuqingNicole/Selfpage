@@ -7,10 +7,10 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
-    title: '微信文章（待补标题）',
-    author: '微信公众号',
+    title: "Netflix产品与技术负责人：AI时代为什么更需要系统型人才丨Lenny's Podcast",
+    author: '晚点再听',
     url: 'https://mp.weixin.qq.com/s/Humku-Qw54NhhNq41BaGuw',
-    description: '已加入 selfpage/readings；当前因微信验证页拦截，标题与摘要待后续补全。',
+    description: '围绕 Lenny\'s Podcast 的一期内容，讨论在 AI 时代为什么反而更需要能跨产品、技术与组织协同的系统型人才。',
   },
   {
     title: 'Grok Build 源码拆解：xAI 编码 Agent 的设计智慧与提效手册',
