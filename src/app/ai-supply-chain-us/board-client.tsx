@@ -1,9 +1,41 @@
 'use client'
 
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 
 import { benchmarkNames, formatPct, type BoardConclusion, type ChainData, type ChainQuality, type TickerPoint } from './shared'
+
+type LiveQuote = { price: number; chg: number; pchg: number }
+
+function useLiveQuotes(symbols: string[]): Map<string, LiveQuote> {
+  const [liveMap, setLiveMap] = useState<Map<string, LiveQuote>>(new Map())
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    const isTrading = () => {
+      const now = new Date()
+      const utcMin = now.getUTCHours() * 60 + now.getUTCMinutes()
+      const isWeekend = now.getUTCDay() === 0 || now.getUTCDay() === 6
+      return !isWeekend && utcMin >= 13 * 60 && utcMin <= 20 * 60 + 15
+    }
+
+    const fetch_ = async () => {
+      if (!isTrading()) return
+      try {
+        const res = await fetch(`/api/live-quotes?symbols=${symbols.join(',')}`, { cache: 'no-store' })
+        if (!res.ok) return
+        const data = await res.json() as Record<string, LiveQuote>
+        setLiveMap(new Map(Object.entries(data)))
+      } catch { /* silent */ }
+    }
+
+    fetch_()
+    timerRef.current = setInterval(fetch_, 60_000)
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [symbols.join(',')])
+
+  return liveMap
+}
 
 function badge(label: string, fg: string, bg: string) {
   return (
@@ -73,24 +105,42 @@ function ConclusionTile({ label, chain, accent }: { label: string; chain?: Chain
 /* ---------- 基准条 ---------- */
 
 export function BenchmarkStrip({ benchmarks, baseline }: { benchmarks: TickerPoint[]; baseline?: TickerPoint }) {
+  const symbols = useMemo(() => benchmarks.map((b) => b.symbol), [benchmarks])
+  const liveMap = useLiveQuotes(symbols)
+  const isLive = liveMap.size > 0
+
   return (
     <section style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: '#667085' }}>基准（超额收益均相对 QQQ）</div>
-      {benchmarks.map((bench) => (
-        <a
-          key={bench.symbol}
-          href={yahooUrl(bench.symbol)}
-          target="_blank"
-          rel="noreferrer"
-          title={`在 Yahoo Finance 查看 ${bench.symbol}`}
-          style={{ display: 'flex', gap: 10, alignItems: 'baseline', borderRadius: 14, border: '1px solid #EAECF0', background: '#FFFFFF', padding: '10px 14px', textDecoration: 'none' }}
-        >
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#101828' }}>{bench.symbol}</span>
-          <span style={{ fontSize: 11, color: '#667085' }}>{benchmarkNames[bench.symbol] ?? bench.shortName}</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: bench.dayChangePct >= 0 ? '#027A48' : '#D92D20' }}>{formatPct(bench.dayChangePct)}</span>
-          <span style={{ fontSize: 11, color: '#667085' }}>5日 {formatPct(bench.fiveDayChangePct)}</span>
-        </a>
-      ))}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#667085' }}>基准（超额收益均相对 QQQ）</span>
+        {isLive && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 600, color: '#027A48', background: 'rgba(18,183,106,0.10)', borderRadius: 999, padding: '2px 7px' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#12B76A', display: 'inline-block' }} />
+            LIVE
+          </span>
+        )}
+      </div>
+      {benchmarks.map((bench) => {
+        const live = liveMap.get(bench.symbol)
+        const chgPct = live ? live.chg : bench.dayChangePct
+        const price = live ? live.price : bench.price
+        return (
+          <a
+            key={bench.symbol}
+            href={yahooUrl(bench.symbol)}
+            target="_blank"
+            rel="noreferrer"
+            title={`在 Yahoo Finance 查看 ${bench.symbol}`}
+            style={{ display: 'flex', gap: 10, alignItems: 'baseline', borderRadius: 14, border: '1px solid #EAECF0', background: '#FFFFFF', padding: '10px 14px', textDecoration: 'none' }}
+          >
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#101828' }}>{bench.symbol}</span>
+            <span style={{ fontSize: 11, color: '#667085' }}>{benchmarkNames[bench.symbol] ?? bench.shortName}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#667085' }}>${price.toFixed(2)}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: chgPct >= 0 ? '#027A48' : '#D92D20' }}>{formatPct(chgPct)}</span>
+            <span style={{ fontSize: 11, color: '#667085' }}>5日 {formatPct(bench.fiveDayChangePct)}</span>
+          </a>
+        )
+      })}
       {!baseline && <div style={{ fontSize: 12, color: '#B54708' }}>QQQ 数据暂不可用，超额收益退化为绝对涨幅。</div>}
     </section>
   )

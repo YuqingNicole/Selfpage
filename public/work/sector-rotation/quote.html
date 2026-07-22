@@ -945,6 +945,45 @@ if (!q) {
       if (p.seriesType === 'bar' && p.name) window.top.location.href = '/work/sector-rotation/' + p.name;
     });
   }
+
+  /* -------- 实时行情刷新 -------- */
+  (function(){
+    const now = new Date();
+    const utcMin = now.getUTCHours()*60 + now.getUTCMinutes();
+    const isWeekend = now.getUTCDay()===0 || now.getUTCDay()===6;
+    if(isWeekend || utcMin < 13*60 || utcMin > 20*60+15) return;
+
+    async function refresh() {
+      try {
+        const resp = await fetch('/api/live-quotes?symbols='+TICKER, {cache:'no-store'});
+        if(!resp.ok) return;
+        const data = await resp.json();
+        const lq = data[TICKER];
+        if(!lq) return;
+
+        // 价格
+        const priceEl = document.querySelector('.price-big');
+        if(priceEl) priceEl.textContent = '$' + lq.price.toFixed(2);
+
+        // 今日涨跌 chip
+        const chipEl = document.querySelector('.chip.up, .chip.down');
+        if(chipEl) {
+          chipEl.className = 'chip ' + (lq.chg>=0?'up':'down');
+          chipEl.textContent = (lq.chg>=0?'+':'') + lq.chg.toFixed(2) + '% 今日';
+        }
+
+        // 时间戳
+        const tsEl = document.querySelector('[style*="color:var(--ink-mute)"]');
+        if(tsEl && tsEl.textContent.startsWith('截至')) {
+          const hhmm = new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+          tsEl.innerHTML = `实时 <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#12b76a;vertical-align:middle"></span> ${hhmm}`;
+        }
+      } catch { /* 静默 */ }
+    }
+
+    refresh();
+    setInterval(refresh, 60_000);
+  })();
 }
 </script>
 </body>

@@ -1079,6 +1079,119 @@ document.getElementById('foot').innerHTML =
   const tk=(new URLSearchParams(location.search).get('sector')||'').toUpperCase();
   if(tk && D.sectors.some(s=>s.ticker===tk)) openSector(tk);
 })();
+
+/* ========== 实时行情刷新 ========== */
+(function(){
+  // 需要刷新的代码: 11 个板块 ETF + SPY + QQQ
+  const LIVE_SYMS = [...D.sectors.map(s=>s.ticker), 'SPY', 'QQQ'];
+
+  // 用可变镜像保存最新行情
+  const live = {};
+  LIVE_SYMS.forEach(t => {
+    const s = D.sectors.find(x=>x.ticker===t);
+    live[t] = s ? {price: s.price, chg: s.day_chg} : {price: null, chg: null};
+  });
+  if(D.spy) live['SPY'] = {price: D.spy.price, chg: D.spy.day_chg};
+
+  let liveAsof = null;
+
+  function applyLive(quotes) {
+    let changed = false;
+    for(const [sym, q] of Object.entries(quotes)) {
+      if(!live[sym]) live[sym] = {};
+      if(live[sym].price !== q.price || live[sym].chg !== q.chg) {
+        live[sym].price = q.price;
+        live[sym].chg = q.chg;
+        changed = true;
+      }
+    }
+    if(!changed) return;
+
+    const now = new Date();
+    const hhmm = now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+    liveAsof = hhmm;
+
+    // 1. 头部 asof 标记
+    document.getElementById('asof').innerHTML =
+      `LIVE ${hhmm} · 红涨绿跌 <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#12b76a;margin-left:4px;vertical-align:middle"></span>`;
+
+    // 2. SPY 价格 + chip
+    const spy = live['SPY'];
+    if(spy && spy.price) {
+      document.getElementById('spyPrice').textContent = spy.price.toFixed(2);
+      document.getElementById('spyChip').innerHTML =
+        `<span class="chip ${spy.chg>=0?'up':'down'}">${spy.chg>=0?'▲':'▼'} ${Math.abs(spy.chg).toFixed(2)}%</span>`;
+    }
+
+    // 3. Pill 条 — 只更新 pc 文字颜色
+    document.querySelectorAll('.pill[data-tk]').forEach(el => {
+      const tk = el.dataset.tk;
+      const q = live[tk];
+      if(!q || q.chg==null) return;
+      const pc = el.querySelector('.pc');
+      if(pc) {
+        pc.className = 'pc ' + (q.chg>=0?'up':'down');
+        pc.textContent = (q.chg>=0?'+':(q.chg<0?'':''))+q.chg.toFixed(2)+'%';
+      }
+    });
+
+    // 4. 走马灯 — 重建
+    const items = [
+      ...D.sectors.map(s => {const q=live[s.ticker]||{};return {sym:s.ticker,n:s.name,v:q.price??s.price,chg:q.chg??s.day_chg};}),
+      {sym:'SPY',n:'标普500',v:(live['SPY']?.price??D.spy.price),(chg:(live['SPY']?.chg??D.spy.day_chg))},
+    ];
+    const tkHtml = items.map(it=>
+      `<span class="tk-item"><span class="tk-sym">${it.sym}</span><span class="tk-sn">${it.n}</span>`+
+      `<span class="tk-val ${it.chg>=0?'up':'down'}">${it.v.toFixed(2)}&nbsp;<span>${it.chg>=0?'▲':'▼'}${Math.abs(it.chg).toFixed(2)}%</span></span></span>`
+    ).join('');
+    const tt = document.getElementById('tickerTrack');
+    if(tt) tt.innerHTML = tkHtml + tkHtml;
+
+    // 5. 今日涨跌排行 (dr-val + dr-bar)
+    const drRows = document.querySelectorAll('.dr-row');
+    if(drRows.length) {
+      const sorted = [...D.sectors]
+        .map(s=>({...s, day_chg: live[s.ticker]?.chg ?? s.day_chg}))
+        .sort((a,b)=>b.day_chg-a.day_chg);
+      const maxAbs2 = Math.max(0.01,...sorted.map(r=>Math.abs(r.day_chg)));
+      const mid = 50;
+      document.getElementById('dayrankRows').innerHTML = sorted.map(s=>{
+        const v=s.day_chg;
+        const pct=Math.abs(v)/maxAbs2*48;
+        const barLeft=v>=0?mid:(mid-pct);
+        return `<div class="dr-row" onclick="openSector('${s.ticker}')">
+          <span class="dr-name">${s.name}</span><span class="dr-tk">${s.ticker}</span>
+          <div class="dr-track"><div class="dr-zero"></div>
+            <div class="dr-bar" style="left:${barLeft}%;width:${pct}%;background:${v>=0?'var(--up)':'var(--down)'};opacity:.82"></div>
+          </div>
+          <span class="dr-val ${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}%</span>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  async function fetchLive() {
+    // 仅在美股交易时段轮询 (ET 9:30-16:00 = UTC 13:30-20:00)
+    const now = new Date();
+    const utcH = now.getUTCHours(), utcM = now.getUTCMinutes();
+    const utcMin = utcH * 60 + utcM;
+    const isWeekend = now.getUTCDay() === 0 || now.getUTCDay() === 6;
+    // 13:30–20:15 UTC (盘前30分 + 正式交易 + 盘后15分)
+    if(isWeekend || utcMin < 13*60+0 || utcMin > 20*60+15) return;
+
+    try {
+      const url = '/api/live-quotes?symbols=' + LIVE_SYMS.join(',');
+      const resp = await fetch(url, {cache:'no-store'});
+      if(!resp.ok) return;
+      const quotes = await resp.json();
+      applyLive(quotes);
+    } catch { /* 静默失败 */ }
+  }
+
+  // 页面加载后立即拉一次，然后每 60 秒一次
+  fetchLive();
+  setInterval(fetchLive, 60_000);
+})();
 </script>
 </body>
 </html>

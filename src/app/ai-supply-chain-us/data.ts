@@ -60,7 +60,7 @@ async function fetchYahooQuotes(symbols: string[]): Promise<Map<string, QuoteMet
   try {
     const plain = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`, {
       headers: { 'user-agent': YAHOO_UA },
-      next: { revalidate: 1800 },
+      next: { revalidate: 300 },
       signal: AbortSignal.timeout(6000),
     })
     const plainMap = await parse(plain).catch(() => null)
@@ -175,7 +175,7 @@ async function fetchWithRetry(url: string, headers: Record<string, string>, retr
       const res = await fetch(url, {
         headers,
         signal: AbortSignal.timeout(6000),
-        ...(attempt === 0 ? { next: { revalidate: 1800 } } : { cache: 'no-store' as const }),
+        ...(attempt === 0 ? { next: { revalidate: 300 } } : { cache: 'no-store' as const }),
       })
       if (res.ok) return res
       if (res.status === 404) return null
@@ -599,7 +599,7 @@ export async function fetchBoardData() {
     storedMap.set(row.symbol, point)
   }
 
-  const storedIsFresh = newestSyncMs > 0 && Date.now() - newestSyncMs < 45 * 60_000
+  const storedIsFresh = newestSyncMs > 0 && Date.now() - newestSyncMs < 10 * 60_000
   let tickerMap: Map<string, TickerPoint>
   if (storedIsFresh && storedMap.size >= allSymbols.length * 0.9) {
     tickerMap = storedMap
