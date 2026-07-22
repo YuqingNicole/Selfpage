@@ -143,6 +143,14 @@ STOCKS = {
         ("PANW","Palo Alto"),("CRWD","CrowdStrike"),("PLTR","Palantir"),("ACN","埃森哲"),
         ("LRCX","泛林集团"),("KLAC","科磊半导体"),("SNPS","新思科技"),("CDNS","楷登电子"),
         ("ANET","Arista Networks"),("DELL","戴尔"),("HPE","惠普企业"),("FTNT","Fortinet"),
+        # AI 供应链补充
+        ("TSM","台积电"),("ARM","ARM Holdings"),("ASML","ASML"),
+        ("MRVL","Marvell Technology"),("CIEN","Ciena"),
+        ("LITE","Lumentum"),("COHR","Coherent"),("CRDO","Credo Technology"),
+        ("SMCI","超微电脑"),
+        ("TER","泰瑞达"),("WDC","西部数据"),("STX","希捷"),
+        ("AMKR","安靠科技"),("UMC","联华电子"),
+        ("SNOW","Snowflake"),("DDOG","Datadog"),
     ],
     "XLC": [
         ("GOOGL","谷歌"),("META","Meta"),("NFLX","奈飞"),("DIS","迪士尼"),
@@ -173,6 +181,9 @@ STOCKS = {
         ("ETN","伊顿"),("FDX","联邦快递"),("NSC","诺福克南方"),("WM","废物管理"),
         ("CARR","开利全球"),("OTIS","奥的斯"),("ROK","罗克韦尔自动化"),("PH","派克汉尼汾"),
         ("EMR","艾默生电气"),("CSX","CSX铁路"),("AME","安福集团"),("VRSK","Verisk"),
+        # AI 基础设施电力/冷却相关
+        ("VRT","Vertiv"),("NVT","nVent Electric"),("HUBB","Hubbell"),
+        ("PWR","Quanta Services"),("TT","特灵科技"),
     ],
     "XLB": [
         ("LIN","林德"),("SHW","宣伟"),("FCX","自由港麦克莫兰"),("NEM","纽蒙特"),
@@ -184,7 +195,7 @@ STOCKS = {
         ("XOM","埃克森美孚"),("CVX","雪佛龙"),("COP","康菲石油"),("SLB","斯伦贝谢"),
         ("EOG","EOG资源"),("MPC","马拉松石油"),("PSX","菲利普66"),("OXY","西方石油"),
         ("HAL","哈里伯顿"),("DVN","戴文能源"),("VLO","瓦莱罗能源"),("WMB","威廉姆斯"),
-        ("HES","赫斯"),("KMI","金德摩根"),("BKR","贝克休斯"),("FANG","钻石后背"),
+        ("KMI","金德摩根"),("BKR","贝克休斯"),("FANG","钻石后背"),
     ],
     "XLV": [
         ("LLY","礼来"),("UNH","联合健康"),("JNJ","强生"),("ABBV","艾伯维"),
@@ -211,6 +222,9 @@ STOCKS = {
         ("SPG","西蒙地产"),("O","Realty Income"),("DLR","数字地产"),("CCI","冠城国际"),
         ("PSA","公共储存"),("EXR","Extra Space储存"),("VICI","VICI地产"),
         ("AVB","Avalon Bay"),("EQR","股权住宅"),("IRM","铁山"),("VTR","Ventas"),
+        # AI 算力基础设施运营商
+        ("CRWV","CoreWeave"),("NBIS","Nebius"),
+        ("IREN","Iris Energy"),("APLD","Applied Digital"),("TLN","Talen Energy"),
     ],
 }
 
