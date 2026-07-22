@@ -114,7 +114,7 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .range-pct-mid{display:none}
 
 /* ---- BODY GRID ---- */
-.body-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;margin-top:0}
+.body-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:0;margin-top:0}
 .main-col{border-right:1px solid var(--line)}
 .side-col{}
 
@@ -200,6 +200,28 @@ a.badge:hover{border-color:var(--accent);color:var(--accent)}
 .cmp-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--accent);border:1.5px solid var(--paper)}
 .cmp-med{position:absolute;top:0;height:100%;width:1.5px;background:var(--ink);opacity:.35;transform:translateX(-50%)}
 .cmp-note{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute)}
+
+/* ---- PRICE CHANGE LINE ---- */
+.price-chg-line{font-family:var(--font-mono);font-size:var(--text-lg);font-weight:var(--w-semibold);margin-top:5px;white-space:nowrap;letter-spacing:-.01em}
+.price-chg-line.pos{color:var(--up)}
+.price-chg-line.neg{color:var(--down)}
+.price-chg-line.flat{color:var(--ink-mute)}
+
+/* ---- KEY METRICS TABLE ---- */
+.km-table{display:grid;grid-template-columns:1fr 1fr;background:var(--card)}
+.km-cell{padding:10px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--hairline)}
+.km-table .km-cell:nth-child(2n){border-right:0}
+.km-table .km-cell:nth-last-child(-n+2){border-bottom:0}
+.km-label{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute)}
+.km-val{font-size:var(--text-sm);font-weight:var(--w-semibold);color:var(--ink);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- COMPANY PROFILE ---- */
+.profile-grid{padding:10px 14px 0;display:grid;gap:0}
+.profile-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--hairline)}
+.profile-row:last-child{border-bottom:0}
+.profile-key{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink-mute);flex-shrink:0}
+.profile-val{font-family:var(--font-mono);font-size:var(--text-xs);font-weight:var(--w-semibold);color:var(--ink);text-align:right;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-desc{padding:10px 14px 12px;font-size:var(--text-xs);color:var(--ink-soft);line-height:var(--lh-snug);border-top:1px solid var(--hairline)}
 
 /* ---- FOOTER ---- */
 footer{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-mute);padding:14px 0 28px;border-top:1px solid var(--line)}
@@ -384,8 +406,14 @@ if (!q) {
       </div>
       <div class="masthead-right">
         <div class="price-big">${q.p == null ? '—' : '$' + q.p.toFixed(2)}</div>
+        ${q.chg != null && q.prev_c != null ? (() => {
+          const dolChg = (q.p - q.prev_c);
+          const sign = dolChg >= 0;
+          return `<div class="price-chg-line ${sign ? 'pos' : 'neg'}">
+            ${sign ? '+' : ''}${dolChg.toFixed(2)} (${fmt(q.chg)})
+          </div>`;
+        })() : q.chg != null ? `<div class="price-chg-line ${cls(q.chg)}">${fmt(q.chg)} 今日</div>` : ''}
         <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:6px;flex-wrap:wrap">
-          <span class="chip ${cls(q.chg) === 'pos' ? 'up' : 'down'}">${fmt(q.chg)} 今日</span>
           ${upside != null ? `<span class="chip" style="border-color:${upside >= 0 ? 'var(--accent-2)' : 'var(--warn)'};color:${upside >= 0 ? 'var(--accent-2)' : 'var(--warn)'}">目标 ${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%</span>` : ''}
         </div>
       </div>
@@ -420,30 +448,6 @@ if (!q) {
     </div>
   </div>` : ''}
 
-  <!-- intraday strip (open / high / low / prev close / change vs prev) -->
-  ${(q.d_open || q.d_high || q.d_low || q.prev_c) ? `
-  <div class="rets-strip intraday-strip" style="background:#fff;border-top:none">
-    <div class="ret-cell">
-      <div class="ret-label">今开</div>
-      <div class="ret-val" style="font-size:var(--text-base);font-weight:600">${q.d_open == null ? '—' : '$'+q.d_open.toFixed(2)}</div>
-    </div>
-    <div class="ret-cell">
-      <div class="ret-label">今高</div>
-      <div class="ret-val pos" style="font-size:var(--text-base);font-weight:600">${q.d_high == null ? '—' : '$'+q.d_high.toFixed(2)}</div>
-    </div>
-    <div class="ret-cell">
-      <div class="ret-label">今低</div>
-      <div class="ret-val neg" style="font-size:var(--text-base);font-weight:600">${q.d_low == null ? '—' : '$'+q.d_low.toFixed(2)}</div>
-    </div>
-    <div class="ret-cell">
-      <div class="ret-label">昨收</div>
-      <div class="ret-val" style="font-size:var(--text-base);font-weight:600">${q.prev_c == null ? '—' : '$'+q.prev_c.toFixed(2)}</div>
-    </div>
-    <div class="ret-cell">
-      <div class="ret-label">均量 10日</div>
-      <div class="ret-val" style="font-size:var(--text-base)">${q.avg_vol10 == null ? '—' : fVol(q.avg_vol10)}</div>
-    </div>
-  </div>` : ''}
 
   <!-- returns strip -->
   <div class="rets-strip">
@@ -492,6 +496,23 @@ if (!q) {
         <div id="chart" class="active"></div>
         <div id="chart2"></div>
         <div id="chart-excess"></div>
+      </div>
+
+      <!-- key metrics (Perplexity style table) -->
+      <div class="section">
+        <div class="sec-head"><span>关键指标</span></div>
+        <div class="km-table">
+          <div class="km-cell"><div class="km-label">昨收</div><div class="km-val">${q.prev_c != null ? '$'+q.prev_c.toFixed(2) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">市值</div><div class="km-val">${q.mc ? '$'+fM(q.mc) : q.aum ? '$'+fM(q.aum) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">今开</div><div class="km-val">${q.d_open != null ? '$'+q.d_open.toFixed(2) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">PE (TTM)</div><div class="km-val">${q.pe != null ? q.pe.toFixed(1)+'x' : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">日内区间</div><div class="km-val">${(q.d_low != null && q.d_high != null) ? '$'+q.d_low.toFixed(2)+' – $'+q.d_high.toFixed(2) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">股息率</div><div class="km-val">${q.dy != null ? q.dy.toFixed(2)+'%' : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">52周区间</div><div class="km-val">${(q.l52 != null && q.h52 != null) ? '$'+q.l52.toFixed(2)+' – $'+q.h52.toFixed(2) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">EPS (TTM)</div><div class="km-val">${q.eps != null ? '$'+q.eps.toFixed(2) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">成交量</div><div class="km-val">${q.vol ? fVol(q.vol) : '—'}</div></div>
+          <div class="km-cell"><div class="km-label">Beta</div><div class="km-val">${q.beta != null ? q.beta.toFixed(2) : '—'}</div></div>
+        </div>
       </div>
 
       <!-- technicals -->
@@ -704,6 +725,26 @@ if (!q) {
 
     <!-- sidebar -->
     <div class="side-col">
+
+      <!-- company profile -->
+      <div class="side-section">
+        <div class="side-head">${q.kind === 'ETF' ? 'ETF 信息' : '公司信息'}</div>
+        <div class="profile-grid">
+          <div class="profile-row"><span class="profile-key">代码</span><span class="profile-val">${TICKER}</span></div>
+          ${q.a_exchange ? `<div class="profile-row"><span class="profile-key">交易所</span><span class="profile-val">${q.a_exchange}</span></div>` : ''}
+          ${q.a_list_date ? `<div class="profile-row"><span class="profile-key">上市日期</span><span class="profile-val">${q.a_list_date.slice(0,10)}</span></div>` : ''}
+          ${q.a_ceo ? `<div class="profile-row"><span class="profile-key">CEO</span><span class="profile-val">${q.a_ceo}</span></div>` : ''}
+          ${q.a_employees ? `<div class="profile-row"><span class="profile-key">员工数</span><span class="profile-val">${Number(q.a_employees).toLocaleString()}</span></div>` : ''}
+          ${q.ind ? `<div class="profile-row"><span class="profile-key">行业</span><span class="profile-val" title="${q.ind}">${q.ind}</span></div>` : ''}
+          ${sec.name ? `<div class="profile-row"><span class="profile-key">板块</span><span class="profile-val">${sec.name}</span></div>` : ''}
+          ${q.a_country ? `<div class="profile-row"><span class="profile-key">注册地</span><span class="profile-val">${q.a_country}</span></div>` : ''}
+          ${q.mc ? `<div class="profile-row"><span class="profile-key">市值</span><span class="profile-val">$${fM(q.mc)}</span></div>` : ''}
+          ${q.aum ? `<div class="profile-row"><span class="profile-key">AUM</span><span class="profile-val">$${fM(q.aum)}</span></div>` : ''}
+          ${q.beta != null ? `<div class="profile-row"><span class="profile-key">Beta</span><span class="profile-val">${q.beta.toFixed(2)}</span></div>` : ''}
+          ${myRank && peersSorted.length ? `<div class="profile-row"><span class="profile-key">同类排名</span><span class="profile-val" style="color:var(--accent)">#${myRank} / ${peersSorted.length}</span></div>` : ''}
+        </div>
+        ${q.a_desc ? `<div class="profile-desc">${q.a_desc.slice(0,280)}${q.a_desc.length > 280 ? '…' : ''}</div>` : ''}
+      </div>
 
       <!-- peer ranking chart -->
       ${peersSorted.length > 1 ? `
@@ -991,11 +1032,14 @@ if (!q) {
         const priceEl = document.querySelector('.price-big');
         if(priceEl) priceEl.textContent = '$' + lq.price.toFixed(2);
 
-        // 今日涨跌 chip
-        const chipEl = document.querySelector('.chip.up, .chip.down');
-        if(chipEl) {
-          chipEl.className = 'chip ' + (lq.chg>=0?'up':'down');
-          chipEl.textContent = (lq.chg>=0?'+':'') + lq.chg.toFixed(2) + '% 今日';
+        // 涨跌幅行 (dollar + pct)
+        const chgLineEl = document.querySelector('.price-chg-line');
+        if(chgLineEl) {
+          const prevC = lq.price / (1 + lq.chg/100); // estimate prev from live pchg
+          const dolChg = lq.price - prevC;
+          const sign = lq.chg >= 0;
+          chgLineEl.className = 'price-chg-line ' + (sign ? 'pos' : 'neg');
+          chgLineEl.textContent = (sign?'+':'') + dolChg.toFixed(2) + ' (' + (sign?'+':'') + lq.chg.toFixed(2) + '%)';
         }
 
         // 时间戳

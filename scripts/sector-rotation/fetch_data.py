@@ -431,6 +431,7 @@ def main():
             dy = num("dividendYield")
         info_map[t] = {
             "full": inf.get("longName"), "ind": inf.get("industry"),
+            "a_exchange": inf.get("exchange") or inf.get("exchangeName"),
             "mc": num("marketCap"), "aum": num("totalAssets"),
             "pe": num("trailingPE"), "fpe": num("forwardPE"), "pb": num("priceToBook"),
             "dy": num("dividendYield", 100) if t not in etf_set else (num("yield", 100) or num("dividendYield", 100)),
@@ -469,6 +470,11 @@ def main():
             "d_low":    num("dayLow"),
             "prev_c":   num("previousClose"),
             "avg_vol10":int(inf["averageVolume10days"]) if isinstance(inf.get("averageVolume10days"), (int, float)) else None,
+            # 公司简介 (Perplexity 风格侧边栏)
+            "a_ceo":      inf.get("companyOfficers", [{}])[0].get("name") if inf.get("companyOfficers") else None,
+            "a_employees":inf.get("fullTimeEmployees"),
+            "a_country":  inf.get("country"),
+            "a_desc":     inf.get("longBusinessSummary"),
         }
         if (i + 1) % 30 == 0:
             print(f"  基本面 {i + 1}/{len(extra)}")
