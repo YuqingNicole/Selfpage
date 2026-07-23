@@ -80,7 +80,7 @@
   #cHeat{height:452px} #cSlope{height:406px} #cEx{height:420px} #cBar{height:420px}
   #cMomentum{height:340px} #cStocks{height:440px}
   .span12{grid-column:span 12}
-  #mChart{height:300px;background:#fff;border:1.5px solid var(--ink)}
+  #mChart{height:480px;background:#fff;border:1.5px solid var(--ink)}
 
   /* 周期切换 */
   .tabs{display:flex;gap:0}
@@ -101,7 +101,7 @@
     opacity:0;visibility:hidden;transition:opacity .22s var(--ease),visibility .22s}
   .overlay.open{opacity:1;visibility:visible}
   .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-49%);
-    width:min(780px,calc(100% - 28px));max-height:86vh;overflow-y:auto;
+    width:min(1100px,calc(100% - 28px));max-height:92vh;overflow-y:auto;
     background:var(--paper);border:2px solid var(--ink);z-index:901;
     box-shadow:8px 8px 0 rgba(8,10,15,.15);
     opacity:0;visibility:hidden;
@@ -144,7 +144,7 @@
   .dtable .rlab{color:var(--ink-mute);font-family:var(--mono);font-size:10.5px;font-weight:700}
   .dtable tr.clk{cursor:pointer;transition:background var(--dur) var(--ease)}
   .dtable tr.clk:hover td{background:var(--accent-dim)}
-  #mChart{height:230px;background:#fff;border:1.5px solid var(--ink)}
+  #mChart{height:480px;background:#fff;border:1.5px solid var(--ink)}
 
   /* ================= 指标格子 ================= */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
