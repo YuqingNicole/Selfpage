@@ -205,6 +205,41 @@ export default function ArtiBenchmark() {
 
         </div>
 
+        {/* Sub-page navigation */}
+        <div className="mt-16 border-t" style={{ borderColor: 'var(--border)' }} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 mb-4">
+          {[
+            { href: '/work/arti-benchmark/scoring', label: '评分体系', desc: 'D × Q × R 三维度，七个子指标' },
+            { href: '/work/arti-benchmark/dataset', label: '测试集', desc: '100+ 道分级投研题，三难度层级' },
+            { href: '/work/arti-benchmark/architecture', label: '架构方案 v1.0', desc: '动态路由 · 结构化证据包 · 分级调度' },
+            { href: '/work/arti-benchmark/leaderboard', label: '排行榜', desc: 'irab.rabyte.cn 实时榜单' },
+          ].map((item, i) => (
+            <motion.div
+              key={item.href}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.07 }}
+            >
+              <a
+                href={item.href}
+                className="group flex items-start justify-between p-5 rounded-lg transition-colors"
+                style={{ border: '1px solid var(--border)', background: 'transparent' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--muted)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <div>
+                  <p className="text-sm font-medium mb-1" style={{ color: 'var(--foreground)', fontFamily: 'var(--font-sans)' }}>{item.label}</p>
+                  <p className="text-xs font-light" style={{ color: 'var(--muted-foreground)', fontFamily: 'var(--font-sans)' }}>{item.desc}</p>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="mt-0.5 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--foreground)' }}>
+                  <path d="M2 12L12 2M12 2H5M12 2V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </motion.div>
+          ))}
+        </div>
+
         <div className="h-24" />
       </div>
     </>
