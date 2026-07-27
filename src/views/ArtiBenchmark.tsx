@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 
