@@ -221,12 +221,10 @@ export default function ArtiBenchmark() {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.07 }}
             >
-              <a
+              <Link
                 href={item.href}
-                className="group flex items-start justify-between p-5 rounded-lg transition-colors"
-                style={{ border: '1px solid var(--border)', background: 'transparent' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--muted)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                className="group flex items-start justify-between p-5 rounded-lg transition-colors hover:bg-[var(--muted)]"
+                style={{ border: '1px solid var(--border)' }}
               >
                 <div>
                   <p className="text-sm font-medium mb-1" style={{ color: 'var(--foreground)', fontFamily: 'var(--font-sans)' }}>{item.label}</p>
@@ -235,7 +233,7 @@ export default function ArtiBenchmark() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="mt-0.5 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--foreground)' }}>
                   <path d="M2 12L12 2M12 2H5M12 2V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </a>
+              </Link>
             </motion.div>
           ))}
         </div>
