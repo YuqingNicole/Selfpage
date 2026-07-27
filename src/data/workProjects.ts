@@ -1,3 +1,8 @@
+export interface RelatedLink {
+  label: string;
+  href: string;
+}
+
 export interface WorkProject {
   slug: string;
   name: string;
@@ -10,6 +15,7 @@ export interface WorkProject {
   highlights: string[];
   externalUrl?: string;
   coverImage?: string;
+  relatedLinks?: RelatedLink[];
 }
 
 export const workProjects: WorkProject[] = [
@@ -32,6 +38,12 @@ export const workProjects: WorkProject[] = [
     externalUrl: "https://artifin.ai",
     coverImage:
       "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80",
+    relatedLinks: [
+      {
+        label: "投研报告 Benchmark 方案 v1.0",
+        href: "/work/arti-benchmark",
+      },
+    ],
   },
   {
     slug: "botearn",

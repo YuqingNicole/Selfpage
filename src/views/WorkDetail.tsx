@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { WorkProject } from "@/data/workProjects";
 
 export function WorkDetail({ project }: { project: WorkProject }) {
@@ -146,6 +146,37 @@ export function WorkDetail({ project }: { project: WorkProject }) {
                 Visit {project.name}
                 <ExternalLink size={13} />
               </a>
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* Related Links */}
+      {project.relatedLinks && project.relatedLinks.length > 0 && (
+        <>
+          <div className="max-w-3xl mx-auto px-6" style={{ borderTop: "1px solid var(--border)" }} />
+          <section className="max-w-3xl mx-auto px-6 py-14">
+            <div className="grid grid-cols-[120px_1fr] gap-12">
+              <p
+                className="text-xs tracking-[0.12em] uppercase pt-1"
+                style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
+              >
+                Related
+              </p>
+              <ul className="space-y-3">
+                {project.relatedLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
+                      style={{ color: "var(--foreground)", fontFamily: "var(--font-sans)" }}
+                    >
+                      <FileText size={13} style={{ color: "var(--muted-foreground)" }} />
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
         </>
