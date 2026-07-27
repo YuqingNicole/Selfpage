@@ -5,6 +5,77 @@ const nicoleAvatar = 'https://substackcdn.com/image/fetch/w_80,h_80,c_fill,f_aut
 
 export const blogPosts: BlogPost[] = [
   {
+    id: '7',
+    title: 'Arti 投研报告 Benchmark 方案 v1.0',
+    slug: 'arti-benchmark-v1',
+    excerpt: '动态分析师路由、结构化证据包、层间压缩传递、模型分级调度、报告自动评分修复——一套降本提质的 AI 投研报告架构方案。',
+    content: `## 架构优化（降本提质）
+
+### 1. 动态分析师选择
+
+在 Layer 0 加一个"路由器"，解析问题意图后只激活必要的分析师。估值问题不需要宏观分析师，宏观判断不需要个股分析师，以此类推。
+
+### 2. Layer 1 只输出结构化证据
+
+每个分析师不再写完整文段，统一输出 JSON 格式的证据包（claim + evidence + confidence），后续层只处理结构化数据。预计 Token 消耗降低 40-60%。
+
+\`\`\`json
+{
+  "claim": "NVDA 数据中心收入同比增长 122%",
+  "evidence": "2024Q4 财报，Revenue $35.1B，YoY +122%",
+  "confidence": 0.95,
+  "source": "SEC 10-K 2024-02-21"
+}
+\`\`\`
+
+### 3. 层间压缩传递
+
+进入下一层前做一次合并：提取各分析师共识、保留核心分歧、删除冗余。Context 长度恒定可控，不会越传越长。
+
+### 4. 模型分级调度
+
+- 简单归纳 → Haiku / mini（低成本）
+- 冲突判断 → Sonnet（中等推理）
+- 最终合成 + 修复 → Opus（按需调用）
+
+### 5. 报告自动评分 + 按需修复
+
+五个维度打分（数据可追溯性、结论完整性、失效条件、逻辑一致性、覆盖度）：
+
+- ≥80 分：直接输出
+- 60-79：Sonnet 轻修
+- <60：Opus 深修
+
+---
+
+## Benchmark 评测
+
+四个核心维度：
+
+1. **完整性** — 一次提问能否产出完整投研分析
+2. **数据准确性** — 关键数据是否可追溯
+3. **结论质量** — 是否给出结论、依据和失效条件
+4. **持续跟踪** — 能否跟踪原有投资判断的变化
+
+**方法：** 同一组问题（普通用户原话，不加复杂 Prompt）同时打给 arti 和竞品，横向打分对比。
+
+---
+
+## 优先级
+
+| 优先级 | 事项 |
+|--------|------|
+| P0 | Layer 1 结构化输出 + 自动评分修复 |
+| P1 | 路由器 + 层间压缩 |
+| P2 | Benchmark 问题集 + 竞品横向对比 |`,
+    coverImage: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80',
+    category: 'ai',
+    tags: ['Arti', 'AI Research', 'LLM Architecture', 'Benchmark'],
+    publishedAt: '2026-07-27',
+    readingTime: '6 min read',
+    author: { name: photographerInfo.name, avatar: nicoleAvatar },
+  },
+  {
     id: '1',
     title: 'Is OpenClaw really worth this wave of hype? Why it might be ending the Chatbot era',
     slug: 'is-openclaw-really-worth-this-wave',
