@@ -133,4 +133,10 @@ export const readings: Reading[] = [
     url: 'https://alibaba-cloud-design.github.io/vibe-designing-playbook/',
     description: '一份关于 Vibe Designing 的实战手册，聚焦如何把设计意图、协作方式与 AI 时代的新工作流结合起来。',
   },
+  {
+    title: 'Investment Research Agent Leaderboard & Benchmark | IRAB',
+    author: 'Rabyte',
+    url: 'https://irab.rabyte.cn/leaderboard/',
+    description: 'AI 模型投研能力排行榜——用标准化测试集跑所有模型配置，按 D×Q×R 三维评分（数据质量、分析深度、可靠性），公开展示成本、耗时与 head-to-head 胜率。',
+  },
 ];
