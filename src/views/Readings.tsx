@@ -3,11 +3,12 @@
 import { readings } from '@/data/readings';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
+import { ArrowUpRight, Bookmark, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/data/translations';
 import { Suspense, useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import {
   Pagination,
   PaginationContent,
@@ -78,6 +79,14 @@ function ReadingsContent() {
               <p className="text-lg md:text-xl text-muted-foreground font-light tracking-wide max-w-2xl mx-auto">
                 {tr.pageSub}
               </p>
+              <Link
+                href="/readings/bookmarks"
+                className="group mx-auto mt-8 inline-flex items-center gap-3 rounded-full border border-border px-5 py-2.5 text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+              >
+                <Bookmark className="size-3.5" />
+                X bookmark library
+                <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
             </motion.div>
           </div>
         </section>
