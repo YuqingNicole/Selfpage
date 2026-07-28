@@ -51,6 +51,8 @@ export function Header() {
   
   // Header is transparent only on homepage hero when not scrolled
   const isTransparent = pathname === '/' && !isScrolled;
+  const isActivePath = (path: string) =>
+    pathname === path || (path !== '/' && pathname.startsWith(`${path}/`));
 
   return (
     <motion.header
@@ -111,7 +113,7 @@ export function Header() {
                     )}
                   >
                     {link.name}
-                    {pathname === link.path && (
+                    {isActivePath(link.path) && (
                       <motion.div
                         layoutId="activeNav"
                         className={cn(
