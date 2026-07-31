@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '好内容的保质期：如何录制值得回听的对话',
+    author: '范阳',
+    url: 'https://mp.weixin.qq.com/s/12iqny0FdrvAg_PE5NtH9Q',
+    description: '关于什么样的对话值得被录下、回听与长期保存，以及如何提升对话内容的耐久度与复听价值。',
+  },
+  {
     title: "Netflix产品与技术负责人：AI时代为什么更需要系统型人才丨Lenny's Podcast",
     author: '晚点再听',
     url: 'https://mp.weixin.qq.com/s/Humku-Qw54NhhNq41BaGuw',
