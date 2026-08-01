@@ -145,4 +145,10 @@ export const readings: Reading[] = [
     url: 'https://irab.rabyte.cn/leaderboard/',
     description: 'AI 模型投研能力排行榜——用标准化测试集跑所有模型配置，按 D×Q×R 三维评分（数据质量、分析深度、可靠性），公开展示成本、耗时与 head-to-head 胜率。',
   },
+  {
+    title: '中国大类资产投资 2025 年报 - 前言',
+    author: '陈鹏博士 / 有知有行',
+    url: 'https://youzhiyouxing.cn/sbbi2025/preface/',
+    description: '用 R=A+B-C（Alpha + Beta - Cost）拆解投资收益，解释为何对绝大多数投资者而言，长期最重要的收益来源仍是 Beta，以及理解中国大类资产风险与收益框架的意义。',
+  },
 ];
