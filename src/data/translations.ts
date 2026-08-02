@@ -4,6 +4,7 @@ export const t = {
     nav: {
       home: 'Home',
       journal: 'Journal',
+      book: 'Book',
       skills: 'Skills',
       partnerLinks: 'Partner',
       readings: 'Readings',
@@ -62,6 +63,7 @@ export const t = {
     nav: {
       home: '首页',
       journal: '日志',
+      book: '书',
       skills: '技能',
       partnerLinks: '合作伙伴',
       readings: '阅读',
