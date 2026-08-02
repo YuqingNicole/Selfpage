@@ -12,8 +12,15 @@ import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer } from './LessonPlayer';
 
 export function OptionsCourseApp() {
-  const { progress, loaded, completeLesson, resetProgress, isUnlocked, streakAlive } =
-    useCourseProgress();
+  const {
+    progress,
+    loaded,
+    completeLesson,
+    resetProgress,
+    toggleDeveloperMode,
+    isUnlocked,
+    streakAlive,
+  } = useCourseProgress();
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
 
   const active = activeLessonId ? findLesson(activeLessonId) : null;
@@ -34,6 +41,18 @@ export function OptionsCourseApp() {
 
       {/* 统计栏 */}
       <div className="sticky top-16 z-40 mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] px-4 py-3 shadow-sm">
+        <div className="mb-3 flex items-center justify-end">
+          <button
+            onClick={toggleDeveloperMode}
+            className={`rounded-full border px-3 py-1 text-xs font-bold transition ${
+              progress.developerMode
+                ? 'border-[#ff9600] bg-[#fff3e0] text-[#ff9600]'
+                : 'border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]'
+            }`}
+          >
+            开发者模式 {progress.developerMode ? '开' : '关'}
+          </button>
+        </div>
         <div className="flex items-center justify-around text-sm font-extrabold">
           <div className="flex items-center gap-1.5" title="连胜天数">
             <span className="text-xl" aria-hidden>
@@ -108,8 +127,14 @@ export function OptionsCourseApp() {
         </div>
       )}
 
+      {loaded && progress.developerMode && (
+        <div className="mb-8 rounded-2xl border border-[#ff9600] bg-[#fff7ed] px-4 py-3 text-sm text-[#9a5a00]">
+          开发者模式已开启：当前允许直接进入任意章节，不再受上一课完成状态限制。
+        </div>
+      )}
+
       {/* 重置 */}
-      {loaded && (completedCount > 0 || progress.xp > 0) && (
+      {loaded && (completedCount > 0 || progress.xp > 0 || progress.developerMode) && (
         <div className="mt-16 text-center">
           <button
             onClick={() => {
@@ -133,6 +158,7 @@ export function OptionsCourseApp() {
           unit={active.unit}
           lesson={active.lesson}
           isReview={progress.completed.includes(active.lesson.id)}
+          developerMode={progress.developerMode}
           onExit={() => setActiveLessonId(null)}
           onComplete={(perfectRun) => completeLesson(active.lesson.id, perfectRun)}
         />

@@ -17,6 +17,7 @@ interface LessonPlayerProps {
   unit: Unit;
   lesson: Lesson;
   isReview: boolean;
+  developerMode?: boolean;
   onExit: () => void;
   onComplete: (perfectRun: boolean) => number;
 }
@@ -40,7 +41,7 @@ function shuffled<T>(arr: T[], seed: number): T[] {
   return a;
 }
 
-export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: LessonPlayerProps) {
+export function LessonPlayer({ unit, lesson, isReview, developerMode = false, onExit, onComplete }: LessonPlayerProps) {
   const [phase, setPhase] = useState<Phase>('tips');
   const [queue, setQueue] = useState<Exercise[]>(() => [...lesson.exercises]);
   const [qIndex, setQIndex] = useState(0);
@@ -105,7 +106,13 @@ export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: Les
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 pb-40">
         {phase === 'tips' && (
-          <TipsCard unit={unit} lesson={lesson} isReview={isReview} onStart={() => setPhase('question')} />
+          <TipsCard
+            unit={unit}
+            lesson={lesson}
+            isReview={isReview}
+            developerMode={developerMode}
+            onStart={() => setPhase('question')}
+          />
         )}
 
         {(phase === 'question' || phase === 'feedback') && current && (
@@ -162,11 +169,13 @@ function TipsCard({
   unit,
   lesson,
   isReview,
+  developerMode,
   onStart,
 }: {
   unit: Unit;
   lesson: Lesson;
   isReview: boolean;
+  developerMode: boolean;
   onStart: () => void;
 }) {
   return (
@@ -203,13 +212,24 @@ function TipsCard({
           </div>
         ))}
       </div>
-      <button
-        onClick={onStart}
-        className="mt-8 w-full rounded-2xl border-b-4 py-4 text-lg font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2"
-        style={{ backgroundColor: unit.color, borderColor: unit.colorDark }}
-      >
-        开始练习
-      </button>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <button
+          onClick={onStart}
+          className="flex-1 rounded-2xl border-b-4 py-4 text-lg font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2"
+          style={{ backgroundColor: unit.color, borderColor: unit.colorDark }}
+        >
+          开始练习
+        </button>
+        {developerMode && (
+          <button
+            onClick={() => onStart()}
+            className="rounded-2xl border-2 border-dashed border-[var(--border)] px-5 py-4 text-sm font-extrabold text-[var(--muted-foreground)]"
+            title="当前开发者模式只解锁任意章节；不跳过本课练习。"
+          >
+            已解锁任意章节
+          </button>
+        )}
+      </div>
     </div>
   );
 }

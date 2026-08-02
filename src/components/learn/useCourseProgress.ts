@@ -16,6 +16,7 @@ export interface CourseProgress {
   perfect: string[];
   streak: number;
   lastPracticeDay: string; // YYYY-MM-DD
+  developerMode: boolean;
 }
 
 const emptyProgress: CourseProgress = {
@@ -24,6 +25,7 @@ const emptyProgress: CourseProgress = {
   perfect: [],
   streak: 0,
   lastPracticeDay: '',
+  developerMode: false,
 };
 
 function todayString(): string {
@@ -52,6 +54,7 @@ function load(): CourseProgress {
       perfect: Array.isArray(parsed.perfect) ? parsed.perfect : [],
       streak: typeof parsed.streak === 'number' ? parsed.streak : 0,
       lastPracticeDay: typeof parsed.lastPracticeDay === 'string' ? parsed.lastPracticeDay : '',
+      developerMode: Boolean(parsed.developerMode),
     };
   } catch {
     return emptyProgress;
@@ -99,6 +102,7 @@ export function useCourseProgress() {
             : current.perfect,
         streak,
         lastPracticeDay: today,
+        developerMode: current.developerMode,
       });
       return earned;
     },
@@ -109,18 +113,31 @@ export function useCourseProgress() {
     persist(emptyProgress);
   }, [persist]);
 
+  const toggleDeveloperMode = useCallback(() => {
+    persist({ ...progress, developerMode: !progress.developerMode });
+  }, [persist, progress]);
+
   const isUnlocked = useCallback(
     (lessonId: string): boolean => {
+      if (progress.developerMode) return true;
       const idx = lessonOrder.indexOf(lessonId);
       if (idx <= 0) return true;
       return progress.completed.includes(lessonOrder[idx - 1]);
     },
-    [progress.completed],
+    [progress.completed, progress.developerMode],
   );
 
   /** 连胜是否因为昨天没练习而中断（仅用于展示） */
   const streakAlive =
     progress.lastPracticeDay === todayString() || progress.lastPracticeDay === yesterdayString();
 
-  return { progress, loaded, completeLesson, resetProgress, isUnlocked, streakAlive };
+  return {
+    progress,
+    loaded,
+    completeLesson,
+    resetProgress,
+    toggleDeveloperMode,
+    isUnlocked,
+    streakAlive,
+  };
 }
