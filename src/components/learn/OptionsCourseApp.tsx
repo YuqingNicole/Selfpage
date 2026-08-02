@@ -63,14 +63,24 @@ export function OptionsCourseApp() {
       {/* 课程地图 */}
       <div className="space-y-12">
         {optionsCourse.map((unit) => (
-          <UnitSection
-            key={unit.id}
-            unit={unit}
-            completed={progress.completed}
-            perfect={progress.perfect}
-            isUnlocked={isUnlocked}
-            onOpen={setActiveLessonId}
-          />
+          <div key={unit.id}>
+            {unit.id === 'u9' && (
+              <div className="mb-12 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+                <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+                  ⚔️ 进阶篇
+                </span>
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+              </div>
+            )}
+            <UnitSection
+              unit={unit}
+              completed={progress.completed}
+              perfect={progress.perfect}
+              isUnlocked={isUnlocked}
+              onOpen={setActiveLessonId}
+            />
+          </div>
         ))}
       </div>
 
