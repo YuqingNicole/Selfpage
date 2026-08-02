@@ -9,12 +9,16 @@ export type BookChapter = {
   description: string;
   status: string;
   body: string;
+  filePath: string;
+  editUrl: string;
 };
 
 const chaptersDir = path.join(process.cwd(), 'content/book/chapters');
+const repoEditBase = 'https://github.com/YuqingNicole/Selfpage/edit/main';
 
 function readChapterFile(fileName: string): BookChapter {
   const fullPath = path.join(chaptersDir, fileName);
+  const relativePath = `content/book/chapters/${fileName}`;
   const raw = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(raw);
 
@@ -25,6 +29,8 @@ function readChapterFile(fileName: string): BookChapter {
     description: String(data.description),
     status: String(data.status ?? 'Draft'),
     body: content.trim(),
+    filePath: relativePath,
+    editUrl: `${repoEditBase}/${relativePath}`,
   };
 }
 
@@ -40,4 +46,3 @@ export function getBookChapterBySlug(slug: string): BookChapter | null {
   const chapters = getAllBookChapters();
   return chapters.find((chapter) => chapter.slug === slug) ?? null;
 }
-
