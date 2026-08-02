@@ -11,6 +11,7 @@ import type {
   Unit,
 } from '@/data/optionsCourse';
 import { MAX_HEARTS } from '@/data/optionsCourse';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { LessonDiagram } from './diagrams';
 
 interface LessonPlayerProps {
@@ -42,6 +43,7 @@ function shuffled<T>(arr: T[], seed: number): T[] {
 }
 
 export function LessonPlayer({ unit, lesson, isReview, developerMode = false, onExit, onComplete }: LessonPlayerProps) {
+  const { lang } = useLanguage();
   const [phase, setPhase] = useState<Phase>('tips');
   const [queue, setQueue] = useState<Exercise[]>(() => [...lesson.exercises]);
   const [qIndex, setQIndex] = useState(0);
@@ -111,6 +113,7 @@ export function LessonPlayer({ unit, lesson, isReview, developerMode = false, on
             lesson={lesson}
             isReview={isReview}
             developerMode={developerMode}
+            lang={lang}
             onStart={() => setPhase('question')}
           />
         )}
@@ -121,15 +124,15 @@ export function LessonPlayer({ unit, lesson, isReview, developerMode = false, on
             exercise={current}
             locked={phase === 'feedback'}
             onAnswer={handleAnswer}
-            onMatchDone={() => handleAnswer(true, '全部配对成功！')}
+            onMatchDone={() => handleAnswer(true, lang === 'en' ? 'All pairs matched correctly!' : '全部配对成功！')}
           />
         )}
 
         {phase === 'complete' && (
-          <CompleteCard unit={unit} lesson={lesson} xp={earnedXp} mistakes={mistakes} onExit={onExit} />
+          <CompleteCard unit={unit} lesson={lesson} xp={earnedXp} mistakes={mistakes} onExit={onExit} lang={lang} />
         )}
 
-        {phase === 'failed' && <FailedCard onExit={onExit} />}
+        {phase === 'failed' && <FailedCard onExit={onExit} lang={lang} />}
       </div>
 
       {/* 底部反馈条 */}
@@ -143,7 +146,9 @@ export function LessonPlayer({ unit, lesson, isReview, developerMode = false, on
         >
           <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center">
             <div className="flex-1">
-              <p className="text-lg font-extrabold">{feedback.correct ? '答对了！' : '不对哦'}</p>
+              <p className="text-lg font-extrabold">
+                {feedback.correct ? (lang === 'en' ? 'Correct!' : '答对了！') : lang === 'en' ? 'Not quite' : '不对哦'}
+              </p>
               <p className="mt-1 text-sm leading-relaxed">{feedback.explain}</p>
             </div>
             <button
@@ -154,7 +159,7 @@ export function LessonPlayer({ unit, lesson, isReview, developerMode = false, on
                   : 'border-[#d33131] bg-[#ff4b4b] hover:bg-[#ff5f5f]'
               }`}
             >
-              继续
+              {lang === 'en' ? 'Continue' : '继续'}
             </button>
           </div>
         </div>
@@ -170,31 +175,33 @@ function TipsCard({
   lesson,
   isReview,
   developerMode,
+  lang,
   onStart,
 }: {
   unit: Unit;
   lesson: Lesson;
   isReview: boolean;
   developerMode: boolean;
+  lang: 'en' | 'zh';
   onStart: () => void;
 }) {
   return (
     <div className="flex flex-1 flex-col justify-center py-8">
       <div className="mb-2 text-sm font-bold uppercase tracking-wide" style={{ color: unit.color }}>
-        {unit.title} {isReview && '· 复习'}
+        {unit.title} {isReview && (lang === 'en' ? '· Review' : '· 复习')}
       </div>
       <h1 className="mb-6 text-3xl font-extrabold">{lesson.title}</h1>
       {lesson.analogy && (
         <div className="mb-4 rounded-2xl border-2 border-[#ffc800] bg-[#fff7e0] p-4 dark:bg-[#3a3000]">
           <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-[#b58900]">
-            🌰 打个比方
+            {lang === 'en' ? '🌰 Analogy' : '🌰 打个比方'}
           </p>
           <p className="text-sm leading-relaxed text-[#7a5c00] dark:text-[#ffe58a] sm:text-base">
             {lesson.analogy}
           </p>
         </div>
       )}
-      {lesson.diagram && (
+      {lesson.diagram && lang === 'zh' && (
         <div className="mb-4">
           <LessonDiagram id={lesson.diagram} />
         </div>
@@ -218,15 +225,15 @@ function TipsCard({
           className="flex-1 rounded-2xl border-b-4 py-4 text-lg font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2"
           style={{ backgroundColor: unit.color, borderColor: unit.colorDark }}
         >
-          开始练习
+          {lang === 'en' ? 'Start Practice' : '开始练习'}
         </button>
         {developerMode && (
           <button
             onClick={() => onStart()}
             className="rounded-2xl border-2 border-dashed border-[var(--border)] px-5 py-4 text-sm font-extrabold text-[var(--muted-foreground)]"
-            title="当前开发者模式只解锁任意章节；不跳过本课练习。"
+            title={lang === 'en' ? 'Developer mode only unlocks all lessons; it does not skip this lesson’s exercises.' : '当前开发者模式只解锁任意章节；不跳过本课练习。'}
           >
-            已解锁任意章节
+            {lang === 'en' ? 'All lessons unlocked' : '已解锁任意章节'}
           </button>
         )}
       </div>
@@ -298,7 +305,9 @@ function ChoiceView({
 
   return (
     <div className="py-8">
-      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">选出正确答案</p>
+      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">
+        {/[\u4e00-\u9fff]/.test(ex.question) ? '选出正确答案' : 'Choose the correct answer'}
+      </p>
       <h2 className="mb-6 text-xl font-extrabold sm:text-2xl">{ex.question}</h2>
       <div className="space-y-3">
         {ex.options.map((opt, i) => {
@@ -343,7 +352,9 @@ function TrueFalseView({
 
   return (
     <div className="py-8">
-      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">判断对错</p>
+      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">
+        {/[\u4e00-\u9fff]/.test(ex.statement) ? '判断对错' : 'True or False'}
+      </p>
       <div className="mb-8 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
         <p className="text-lg font-bold leading-relaxed">{ex.statement}</p>
       </div>
@@ -362,7 +373,7 @@ function TrueFalseView({
               onClick={() => pick(v)}
               className={`${optionClass(state)} text-center text-lg`}
             >
-              {v ? '✅ 正确' : '❌ 错误'}
+              {/[^\x00-\x7F]/.test(ex.statement) ? (v ? '✅ 正确' : '❌ 错误') : v ? '✅ True' : '❌ False'}
             </button>
           );
         })}
@@ -407,7 +418,9 @@ function FillView({
 
   return (
     <div className="py-8">
-      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">补全句子</p>
+      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">
+        {/[\u4e00-\u9fff]/.test(ex.before + ex.after) ? '补全句子' : 'Complete the sentence'}
+      </p>
       <div className="mb-8 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
         <p className="text-lg font-bold leading-loose">
           {ex.before}
@@ -493,7 +506,9 @@ function MatchView({ ex, onDone }: { ex: MatchExercise; onDone: () => void }) {
 
   return (
     <div className="py-8">
-      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">配对练习（不扣红心）</p>
+      <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">
+        {/[\u4e00-\u9fff]/.test(ex.prompt) ? '配对练习（不扣红心）' : 'Matching exercise (no hearts lost)'}
+      </p>
       <h2 className="mb-6 text-xl font-extrabold sm:text-2xl">{ex.prompt}</h2>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-3">
@@ -531,12 +546,14 @@ function CompleteCard({
   xp,
   mistakes,
   onExit,
+  lang,
 }: {
   unit: Unit;
   lesson: Lesson;
   xp: number;
   mistakes: number;
   onExit: () => void;
+  lang: 'en' | 'zh';
 }) {
   const total = lesson.exercises.length;
   const accuracy = Math.round((total / (total + mistakes)) * 100);
@@ -546,19 +563,19 @@ function CompleteCard({
         {mistakes === 0 ? '🏆' : '🎉'}
       </div>
       <h1 className="mb-2 text-3xl font-extrabold" style={{ color: unit.color }}>
-        {mistakes === 0 ? '完美通关！' : '完成本课！'}
+        {mistakes === 0 ? (lang === 'en' ? 'Perfect Clear!' : '完美通关！') : lang === 'en' ? 'Lesson Complete!' : '完成本课！'}
       </h1>
       <p className="mb-8 text-[var(--muted-foreground)]">{lesson.title}</p>
       <div className="mb-10 flex gap-4">
         <div className="w-32 rounded-2xl border-2 border-[#ffc800] p-1">
           <div className="rounded-t-xl bg-[#ffc800] py-1 text-xs font-extrabold uppercase text-white">
-            经验值
+            {lang === 'en' ? 'XP' : '经验值'}
           </div>
           <div className="py-3 text-2xl font-extrabold text-[#ffc800]">+{xp} XP</div>
         </div>
         <div className="w-32 rounded-2xl border-2 border-[#1cb0f6] p-1">
           <div className="rounded-t-xl bg-[#1cb0f6] py-1 text-xs font-extrabold uppercase text-white">
-            正确率
+            {lang === 'en' ? 'Accuracy' : '正确率'}
           </div>
           <div className="py-3 text-2xl font-extrabold text-[#1cb0f6]">{accuracy}%</div>
         </div>
@@ -567,27 +584,29 @@ function CompleteCard({
         onClick={onExit}
         className="w-full max-w-sm rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] py-4 text-lg font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
       >
-        返回课程地图
+        {lang === 'en' ? 'Back to Course Map' : '返回课程地图'}
       </button>
     </div>
   );
 }
 
-function FailedCard({ onExit }: { onExit: () => void }) {
+function FailedCard({ onExit, lang }: { onExit: () => void; lang: 'en' | 'zh' }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
       <div className="mb-4 text-7xl" aria-hidden>
         💔
       </div>
-      <h1 className="mb-2 text-3xl font-extrabold text-[#ff4b4b]">红心用完了</h1>
+      <h1 className="mb-2 text-3xl font-extrabold text-[#ff4b4b]">{lang === 'en' ? 'Out of Hearts' : '红心用完了'}</h1>
       <p className="mb-10 max-w-sm text-[var(--muted-foreground)]">
-        别灰心！重新阅读知识卡片，再挑战一次吧。答错的知识点才是进步最快的地方。
+        {lang === 'en'
+          ? 'No worries—review the lesson cards and try again. The questions you miss are usually where you improve the fastest.'
+          : '别灰心！重新阅读知识卡片，再挑战一次吧。答错的知识点才是进步最快的地方。'}
       </p>
       <button
         onClick={onExit}
         className="w-full max-w-sm rounded-2xl border-b-4 border-[#d33131] bg-[#ff4b4b] py-4 text-lg font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ff5f5f] active:translate-y-0.5 active:border-b-2"
       >
-        返回课程地图
+        {lang === 'en' ? 'Back to Course Map' : '返回课程地图'}
       </button>
     </div>
   );
