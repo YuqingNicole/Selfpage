@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getAllBookChapters } from '@/lib/book';
+import { bookEditLinks, getAllBookChapters } from '@/lib/book';
 
 export const metadata: Metadata = {
   title: '书',
@@ -35,6 +35,32 @@ export default function BookPage() {
           <p className="max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
             一本关于 AI、context、判断、组织，以及当模型能力变得充裕后价值如何被重新定价的书。
           </p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <a
+              href={bookEditLinks.createChapter}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/40 hover:bg-card/50"
+            >
+              新建章节
+            </a>
+            <a
+              href={bookEditLinks.editChapterTemplateFolder}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/40 hover:bg-card/50"
+            >
+              编辑章节目录
+            </a>
+            <a
+              href={bookEditLinks.editBookHome}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/40 hover:bg-card/50"
+            >
+              编辑书页说明
+            </a>
+          </div>
         </div>
       </section>
 
@@ -58,7 +84,6 @@ export default function BookPage() {
           <div className="space-y-4">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-light">Chapter navigation</h2>
                 <h2 className="text-2xl font-light">章节导航</h2>
                 <p className="mt-1 text-sm text-muted-foreground">现在已经可以在站内继续加正文。第一章已开入口。</p>
               </div>
@@ -67,9 +92,8 @@ export default function BookPage() {
             <div className="grid gap-4">
               {chapters.map((chapter) => {
                 return (
-                  <Link
+                  <div
                     key={chapter.number}
-                    href={`/book/${chapter.slug}`}
                     className="group rounded-2xl border border-border bg-background px-5 py-5 transition-colors hover:border-foreground/30"
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -82,10 +106,27 @@ export default function BookPage() {
                       </div>
                       <div className="text-sm text-muted-foreground md:text-right">
                         <div>{chapter.status}</div>
-                        <div className="mt-2 text-foreground">进入 →</div>
+                        <div className="mt-2">
+                          <Link
+                            href={`/book/${chapter.slug}`}
+                            className="text-foreground transition-colors hover:text-foreground/80"
+                          >
+                            进入 →
+                          </Link>
+                        </div>
+                        <div className="mt-2">
+                          <a
+                            href={chapter.editUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-foreground/80 transition-colors hover:text-foreground"
+                          >
+                            编辑 Markdown
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
