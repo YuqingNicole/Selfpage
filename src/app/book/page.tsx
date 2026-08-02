@@ -1,45 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getAllBookChapters } from '@/lib/book';
 
 export const metadata: Metadata = {
   title: 'Book',
   description: 'Notes and progress for Nicole Chen’s book on AI, context, judgment, work, and value.',
 };
-
-const chapters = [
-  {
-    number: '01',
-    title: 'AI 越强，什么越便宜',
-    slug: '/book/chapter-1',
-    status: 'Drafting',
-    description:
-      '从通用能力贬值开始，解释为什么信息整理、标准表达、初级分析会越来越便宜，而判断、context 与责任反而更贵。',
-  },
-  {
-    number: '02',
-    title: '什么不会被模型吞掉',
-    slug: '/book',
-    status: 'Outlined',
-    description:
-      '围绕 context、认知、关系密度与责任密度，写清楚 AI 时代真正不容易被压缩的能力到底是什么。',
-  },
-  {
-    number: '03',
-    title: '公司如何避免给模型层打工',
-    slug: '/book',
-    status: 'Outlined',
-    description:
-      '从工作流、组织嵌入和结果价值出发，判断什么样的公司是在创造价值，什么样的公司只是在替模型分销。',
-  },
-  {
-    number: '04',
-    title: '个体如何与 AI 一起升级',
-    slug: '/book',
-    status: 'Outlined',
-    description:
-      '不是学会几个工具，而是把 AI 接入自己的认知、执行与成长系统。',
-  },
-];
 
 const keyPoints = [
   '这本书的定位已经清楚：它是一本关于 AI 时代价值重估的商业思考书，不是工具手册。',
@@ -48,6 +14,8 @@ const keyPoints = [
 ];
 
 export default function BookPage() {
+  const chapters = getAllBookChapters();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <section className="border-b border-border px-6 pt-28 pb-10">
@@ -98,13 +66,10 @@ export default function BookPage() {
 
             <div className="grid gap-4">
               {chapters.map((chapter) => {
-                const clickable = chapter.slug !== '/book';
-                const Wrapper = clickable ? Link : 'div';
-
                 return (
-                  <Wrapper
+                  <Link
                     key={chapter.number}
-                    {...(clickable ? { href: chapter.slug } : {})}
+                    href={`/book/${chapter.slug}`}
                     className="group rounded-2xl border border-border bg-background px-5 py-5 transition-colors hover:border-foreground/30"
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -117,10 +82,10 @@ export default function BookPage() {
                       </div>
                       <div className="text-sm text-muted-foreground md:text-right">
                         <div>{chapter.status}</div>
-                        {clickable && <div className="mt-2 text-foreground">Open →</div>}
+                        <div className="mt-2 text-foreground">Open →</div>
                       </div>
                     </div>
-                  </Wrapper>
+                  </Link>
                 );
               })}
             </div>
