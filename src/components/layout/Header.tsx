@@ -169,7 +169,7 @@ export function Header() {
                       <img
                         src="/wechat-qr.jpg"
                         alt="WeChat QR code"
-                        className="w-48 h-48 rounded-lg object-cover"
+                        className="w-48 h-auto rounded-lg"
                       />
                       <p className="text-xs text-center text-muted-foreground mt-2 font-light">
                         {tr.nav.scanToTip}
