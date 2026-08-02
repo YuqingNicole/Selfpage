@@ -514,6 +514,41 @@ export const DIAGRAMS: Record<string, DiagramSpec> = {
     vlines: [{ x: 100, label: '行权价 100' }],
   },
 
+  onesd: {
+    title: '一倍标准差与 16 Delta 宽跨式',
+    caption: '钟形曲线是市场定价的到期股价分布：中间 ±1σ 区间覆盖约 68% 的结局。在两侧 16 Delta（≈±1σ）卖出宽跨式，赌的就是股价落在两条虚线之间。',
+    xDomain: [70, 130],
+    yDomain: [0, 1.18],
+    xLabel: '到期股价',
+    yLabel: '概率密度',
+    series: [{ fn: (s) => Math.exp(-Math.pow(s - 100, 2) / (2 * 10 * 10)), color: BLUE }],
+    vlines: [
+      { x: 90, label: '卖 Put(16Δ)' },
+      { x: 110, label: '卖 Call(16Δ)' },
+    ],
+    regionLabels: [
+      { x: 79, label: '16%' },
+      { x: 100, label: '≈68% 落在区间内' },
+      { x: 121, label: '16%' },
+    ],
+  },
+
+  dteWindow: {
+    title: '45 DTE 进场、21 DTE 离场',
+    caption: '曲线是剩余时间价值。45 DTE 开仓吃衰减最划算的一段；到 21 DTE（或吃到 50% 利润）离场，把 Gamma 风险最毒的最后三周留给别人。',
+    xDomain: [0, 60],
+    yDomain: [0, 12],
+    xLabel: '时间流逝（天）',
+    yLabel: '剩余时间价值',
+    series: [{ fn: (t) => 10 * Math.sqrt(Math.max(60 - t, 0) / 60), color: ORANGE }],
+    vlines: [
+      { x: 15, label: '进场 45 DTE' },
+      { x: 39, label: '离场 21 DTE' },
+      { x: 60, label: '到期', row: 1 },
+    ],
+    regionLabels: [{ x: 27, label: '← 机制持仓窗口 →' }],
+  },
+
   collar: {
     title: '领口（Collar）：把持股装进管道',
     caption: '持股 + 买 90 Put + 卖 110 Call（保费互抵≈零成本）：下跌最多亏到 90，上涨最多赚到 110——上下都有界，机构锁定浮盈的标准做法。',
