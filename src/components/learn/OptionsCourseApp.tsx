@@ -73,6 +73,15 @@ export function OptionsCourseApp() {
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
               </div>
             )}
+            {unit.id === 'u13' && (
+              <div className="mb-12 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+                <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+                  🎲 机制流 · tastylive 风格
+                </span>
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+              </div>
+            )}
             <UnitSection
               unit={unit}
               completed={progress.completed}
