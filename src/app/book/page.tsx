@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { getAllBookChapters } from '@/lib/book';
 
 export const metadata: Metadata = {
-  title: 'Book',
-  description: 'Notes and progress for Nicole Chen’s book on AI, context, judgment, work, and value.',
+  title: '书',
+  description: 'Nicole 的写书项目：关于 AI、context、判断、组织与价值重估。',
 };
 
 const keyPoints = [
@@ -24,7 +24,7 @@ export default function BookPage() {
             className="text-xs uppercase tracking-[0.22em] text-muted-foreground"
             style={{ fontFamily: 'var(--font-mono)' }}
           >
-            Book Project
+            写书计划
           </p>
           <h1
             className="text-4xl md:text-5xl"
@@ -33,7 +33,7 @@ export default function BookPage() {
             模型越强，人越贵
           </h1>
           <p className="max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-            A book-in-progress on AI, context, judgment, organizations, and how value gets repriced when model capability becomes abundant.
+            一本关于 AI、context、判断、组织，以及当模型能力变得充裕后价值如何被重新定价的书。
           </p>
         </div>
       </section>
@@ -42,16 +42,15 @@ export default function BookPage() {
         <div className="mx-auto grid max-w-4xl gap-12">
           <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border border-border bg-card/40 p-6">
-              <p className="text-sm text-muted-foreground">Current status</p>
+              <p className="text-sm text-muted-foreground">当前状态</p>
               <p className="mt-3 leading-7 text-foreground/90">
                 现在已经不是一个想法，而是一套成型中的书稿系统。定位、章节结构、核心判断都在，缺的主要是把骨架继续推进成正文。
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-card/40 p-6">
-              <p className="text-sm text-muted-foreground">Core thesis</p>
+              <p className="text-sm text-muted-foreground">核心命题</p>
               <p className="mt-3 leading-7 text-foreground/90">
-                AI will keep compressing the premium on general-purpose capability, while increasing the value of context, judgment,
-                organizational ability, and responsibility-bearing.
+                AI 会持续压缩通用能力的溢价，同时抬高 context、判断力、组织能力与承担责任的价值。
               </p>
             </div>
           </div>
@@ -60,6 +59,7 @@ export default function BookPage() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-light">Chapter navigation</h2>
+                <h2 className="text-2xl font-light">章节导航</h2>
                 <p className="mt-1 text-sm text-muted-foreground">现在已经可以在站内继续加正文。第一章已开入口。</p>
               </div>
             </div>
@@ -75,14 +75,14 @@ export default function BookPage() {
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="space-y-2">
                         <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                          Chapter {chapter.number}
+                          第 {chapter.number} 章
                         </p>
                         <h3 className="text-xl font-light group-hover:text-foreground/80">{chapter.title}</h3>
                         <p className="max-w-2xl leading-7 text-muted-foreground">{chapter.description}</p>
                       </div>
                       <div className="text-sm text-muted-foreground md:text-right">
                         <div>{chapter.status}</div>
-                        <div className="mt-2 text-foreground">Open →</div>
+                        <div className="mt-2 text-foreground">进入 →</div>
                       </div>
                     </div>
                   </Link>
@@ -92,7 +92,7 @@ export default function BookPage() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-2xl font-light">What is already strong</h2>
+            <h2 className="text-2xl font-light">目前已经成立的部分</h2>
             <div className="space-y-4">
               {keyPoints.map((point) => (
                 <div key={point} className="border-l border-border pl-4 text-muted-foreground leading-7">

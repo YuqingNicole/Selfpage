@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const chapter = getBookChapterBySlug(slug);
 
   if (!chapter) {
-    return { title: 'Book' };
+    return { title: '书' };
   }
 
   return {
@@ -44,13 +44,13 @@ export default async function BookChapterPage({ params }: Props) {
             className="inline-block text-sm text-muted-foreground transition-colors hover:text-foreground"
             style={{ fontFamily: 'var(--font-mono)' }}
           >
-            ← Back to book
+            ← 返回书页
           </Link>
           <p
             className="text-xs uppercase tracking-[0.22em] text-muted-foreground"
             style={{ fontFamily: 'var(--font-mono)' }}
           >
-            Chapter {chapter.number} · {chapter.status}
+            第 {chapter.number} 章 · {chapter.status}
           </p>
           <h1
             className="text-4xl md:text-5xl"
