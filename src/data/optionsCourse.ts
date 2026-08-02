@@ -39,6 +39,10 @@ export interface Lesson {
   id: string;
   title: string;
   tips: string[];
+  /** 知识卡片中的引导图示 id，见 components/learn/diagrams.tsx */
+  diagram?: string;
+  /** 生活化比喻，帮助零基础理解 */
+  analogy?: string;
   exercises: Exercise[];
 }
 
@@ -68,6 +72,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u1l1',
+        analogy: '期权就像交了定金的购房意向书：你付一笔小定金锁定房价，之后房价暴涨你可以按原价买（行权），房价跌了你大不了不买，损失定金（权利金）。而开发商（卖方）收了定金，你要买他就必须卖。',
+        diagram: 'buyerSeller',
         title: '权利与义务',
         tips: [
           '期权（Option）是一种合约：买方付出权利金，获得在未来以约定价格买入或卖出标的资产的「权利」，而非义务。',
@@ -124,6 +130,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u1l2',
+        analogy: '一张期权合约像一张电影票：写着哪家影院（标的资产）、哪个场次（到期日）、哪个座位价（行权价），而票价本身就是权利金。过了场次，票就作废了。',
         title: '合约四要素',
         tips: [
           '一张期权合约由四个核心要素定义：标的资产、行权价（Strike）、到期日（Expiration）、权利金（Premium）。',
@@ -181,6 +188,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u1l3',
+        analogy: '买股票像直接买下房子，房子永远是你的；买期权像花小钱买「按约定价买房的资格」——房价涨了资格越来越值钱，房价跌了顶多放弃定金。但资格有有效期，房子没有。',
+        diagram: 'stockVsCall',
         title: '期权 vs 股票 vs 期货',
         tips: [
           '买股票 = 直接持有资产，没有到期日；买期权 = 持有一份会过期的权利。',
@@ -257,6 +266,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u2l1',
+        analogy: '像花 $5 抢到「以 $100 购买限量球鞋」的资格：市价炒到 $130，你的资格就值 $30；球鞋没火，资格作废，只亏 $5。花小钱赌大涨，就是 Long Call。',
+        diagram: 'longCall',
         title: '买入看涨（Long Call）',
         tips: [
           'Long Call：看涨后市时买入 Call，股价涨得越多赚得越多。',
@@ -310,6 +321,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u2l2',
+        analogy: '像给二手车买了「保值回购协议」：约好随时能按 10 万卖回给车商。车价暴跌到 6 万，这份协议就值 4 万——跌得越狠，协议越值钱。',
+        diagram: 'longPut',
         title: '买入看跌（Long Put）',
         tips: [
           'Long Put：看跌后市时买入 Put，股价跌得越多赚得越多。',
@@ -367,6 +380,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u2l3',
+        analogy: '卖期权就是开保险公司：平时一单单收保费很舒服，但一场台风可能一次赔穿。裸卖 Call 相当于给「价格上不封顶」的东西承保——最危险的保单。',
+        diagram: 'shortCallPut',
         title: '卖出期权（Short）',
         tips: [
           '卖出（Short/Write）期权：收取权利金，赌期权到期时不值钱。',
@@ -438,6 +453,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u3l1',
+        analogy: '一张「凭券以 100 元买 iPhone」的优惠券：iPhone 市价 120 元时，这券实实在在值 20 元（实值）；市价 99 元时，它可有可无（平值）；市价 80 元时暂时没用（虚值）——但离过期还早，谁知道会不会涨回来？',
+        diagram: 'moneyness',
         title: '实值、平值、虚值',
         tips: [
           'Moneyness 描述行权价与股价的关系：实值（ITM）、平值（ATM）、虚值（OTM）。',
@@ -500,6 +517,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u3l2',
+        analogy: '像演唱会门票：黄牛价比面值高出的「实差价」是内在价值；而「离开唱还有三个月、说不定还会更火」的想象空间，就是时间价值。开唱那一刻，想象空间归零。',
+        diagram: 'valueComposition',
         title: '内在价值与时间价值',
         tips: [
           '期权价格 = 内在价值 + 时间价值。',
@@ -553,6 +572,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u3l3',
+        analogy: '期权是你手里的冰淇淋：天气再好它也在化，而且越接近最后越化得快。买方拿着冰淇淋赛跑，卖方在终点收「融化费」。',
+        diagram: 'timeDecay',
         title: '时间衰减',
         tips: [
           '时间衰减（Time Decay）：随着到期日临近，时间价值不断蒸发。',
@@ -624,6 +645,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u4l1',
+        analogy: '像车险定价：车越贵（股价）、赔付门槛越低（行权价）、保期越长（时间）、司机开车越野（波动率），保费就越贵。利率和分红像手续费，影响不大但也算在内。',
         title: '定价六因素',
         tips: [
           '影响期权价格的六大因素：股价、行权价、剩余时间、波动率、无风险利率、分红。',
@@ -680,6 +702,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u4l2',
+        analogy: '台风预报一发布（财报临近），雨伞和保险全涨价（IV 升高）；台风过境没造成损失，价格连夜崩回原形（IV Crush）。在预报最响的时候买伞，往往买在最贵的一刻。',
+        diagram: 'ivCrush',
         title: '隐含波动率',
         tips: [
           '隐含波动率（IV）是市场价格「反推」出的对未来波动的预期，是期权贵贱的核心标尺。',
@@ -743,6 +767,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u4l3',
+        analogy: 'BSM 模型像一台翻译机：把期权价格翻译成波动率，让所有合约能用同一把尺子比贵贱。Put-Call 平价则像天平——两端不平衡时，套利者立刻上来搬砖，把它压回平衡。',
         title: '定价模型与平价关系',
         tips: [
           'Black-Scholes 模型给出期权理论价：输入股价、行权价、时间、波动率、利率，输出理论价格。',
@@ -814,6 +839,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u5l1',
+        analogy: 'Delta 像车速对油门的反应：踩一分油门（股价涨 $1），车加速多少（期权涨多少）。Gamma 是油门的灵敏度变化——快到行权价时油门突然变得特别灵，一脚下去窜出去。',
+        diagram: 'deltaCurve',
         title: 'Delta 与 Gamma',
         tips: [
           'Delta：股价每涨 $1，期权价格变动多少。Call 的 Delta 在 0~1，Put 在 -1~0。',
@@ -872,6 +899,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u5l2',
+        analogy: 'Theta 是每天都要交的房租，住着不动也得交；Vega 像对天气的敏感度——买伞的人（期权买方）盼下雨（波动放大），卖伞的人怕预报改成暴雨。',
         title: 'Theta 与 Vega',
         tips: [
           'Theta：每过一天，期权价格损失多少。买方 Theta 为负（每天亏时间价值），卖方为正。',
@@ -934,6 +962,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u5l3',
+        analogy: '希腊字母是驾驶舱里的仪表盘：速度、转速、油量各管一样。没人只看一眼仪表就开完全程——股价、时间、IV 一变，所有指针都在动，得边开边看。',
         title: '希腊字母实战',
         tips: [
           '组合的希腊字母 = 各腿希腊字母之和，可以把整个账户折算成一组净敞口。',
@@ -1007,6 +1036,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u6l1',
+        analogy: '备兑开仓就是把房子租出去：租金（权利金）月月到账，代价是合同里写了「房客有权按约定价买走房子」——房价暴涨时，超出的涨幅归房客。',
+        diagram: 'coveredCall',
         title: '备兑开仓（Covered Call）',
         tips: [
           '备兑开仓 = 持有 100 股正股 + 卖出 1 张 Call：用持股「背书」卖出义务。',
@@ -1068,6 +1099,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u6l2',
+        analogy: '保护性 Put 就是给股票买车险：年年交保费觉得心疼，撞车那天觉得真香。保费是确定的小亏，换来的是「最多亏到这里」的确定性。',
+        diagram: 'protectivePut',
         title: '保护性看跌（Protective Put）',
         tips: [
           '保护性看跌 = 持有 100 股正股 + 买入 1 张 Put：给股票买保险。',
@@ -1126,6 +1159,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u6l3',
+        analogy: '你本来就想 90 万买那套房，卖 Put 等于公开承诺「跌到 90 万我就接」，而市场为你的承诺先付一笔等待费。房价没跌到，钱白拿；跌到了，如愿买房还倒赚一笔定金。',
+        diagram: 'shortPut',
         title: '现金担保卖出看跌（CSP）',
         tips: [
           '现金担保卖 Put（Cash-Secured Put）：卖出 Put 的同时预留足额现金，准备按行权价接货。',
@@ -1208,6 +1243,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u7l1',
+        analogy: '像点套餐代替单点：把「暴涨部分的收益」卖掉抵扣餐费，整顿饭便宜了一大截——代价是加菜不补、吃到封顶为止。',
+        diagram: 'bullCallSpread',
         title: '垂直价差',
         tips: [
           '垂直价差（Vertical Spread）：同时买卖同标的、同到期、不同行权价的两条腿。',
@@ -1266,6 +1303,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u7l2',
+        analogy: '押注一场比赛「一定会有进球」，不管哪队进：场面越火爆赢得越多，最怕 0:0 沉闷收场——你为两边都买了票，总得有一边热闹起来才回本。',
+        diagram: 'straddle',
         title: '跨式与宽跨式',
         tips: [
           '买入跨式（Long Straddle）：同时买入同行权价的 Call 和 Put——赌大波动，不赌方向。',
@@ -1329,6 +1368,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u7l3',
+        analogy: '铁鹰像开在两座山之间的收费站：赌车流（股价）老老实实走中间大道。大多数日子安稳收费，一旦车流冲出两侧护栏（突破行权价），就要赔一笔修栏杆的钱。',
+        diagram: 'ironCondor',
         title: '铁鹰与蝶式',
         tips: [
           '铁鹰（Iron Condor）= 卖虚值 Put 价差 + 卖虚值 Call 价差：赌股价停留在中间区间，吃时间价值。',
@@ -1406,6 +1447,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u8l1',
+        analogy: '被指派像摇号被抽中：买方一行权，清算所就从所有卖方里抽签，抽中谁谁履约——义务不打招呼就上门，深度实值时随时可能发生。',
         title: '行权、指派与结算',
         tips: [
           '美式期权可在到期前任意交易日行权；欧式期权只能在到期日行权。美股个股期权是美式，指数期权（如 SPX）多为欧式。',
@@ -1467,6 +1509,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u8l2',
+        analogy: '同样一筐菜，早高峰的菜市场和深夜便利店价差天壤之别。冷门期权就是深夜便利店：想买贵你几毛，想卖压你几毛，一来一回利润全喂了价差。',
         title: '流动性与下单',
         tips: [
           '买卖价差（Bid-Ask Spread）是隐形成本：价差 $0.50 意味着一进一出就亏 $50/张。',
@@ -1530,6 +1573,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u8l3',
+        analogy: '仓位管理像分配弹药：每次只打 2%，连错十枪还有子弹翻盘；一枪打光全部弹药，再准的枪法也没有下一枪。',
         title: '仓位管理与常见错误',
         tips: [
           '单笔期权仓位建议控制在账户的 1%~5%：期权可以归零，仓位就是生命线。',
@@ -1607,6 +1651,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u9l1',
+        analogy: '地震险永远比「墙皮脱落险」贵得不成比例——大家真正怕的是塌房。虚值 Put 的高 IV 就是市场在为「塌房」付保费，这份恐惧常年写在期权价格里。',
+        diagram: 'smile',
         title: '波动率微笑与偏度',
         tips: [
           'BSM 假设所有行权价共用一个波动率，但现实中不同行权价的 IV 不同——画出来像「微笑」或「假笑」，称为波动率微笑/偏斜。',
@@ -1679,6 +1725,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u9l2',
+        analogy: '平时看天气：明天的天气很确定、明年的说不准（远期 IV 更高）。台风预警一响，「明天」反而比「明年」更吓人——近月 IV 飙过远月，曲线倒挂就是恐慌本身。',
+        diagram: 'termStructure',
         title: 'IV 期限结构',
         tips: [
           '期限结构：同一标的不同到期日的 IV 曲线。平时通常「近低远高」（Contango）；恐慌时反转为「近高远低」（Backwardation）。',
@@ -1747,6 +1795,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u9l3',
+        analogy: '保险公司的秘密：保费收入长期略高于赔付支出（这就是 VRP）。但赚这份差价的前提是——世纪台风来临那天，你的准备金还够赔。留不住准备金的保险公司，等不到长期。',
         title: '波动率风险溢价',
         tips: [
           '已实现波动率（RV）是事后真实发生的波动；隐含波动率（IV）是事前的定价。长期看，IV 平均高于随后的 RV。',
@@ -1829,6 +1878,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u10l1',
+        analogy: '一阶希腊字母是仪表读数，二阶希腊字母是「仪表自己会漂移」的说明书：车速表（Delta）会随时间自己走位（Charm）、随天气变灵敏（Vanna）。临近到期，所有指针都在狂抖。',
         title: '二阶希腊字母',
         tips: [
           'Vanna：IV 变化时 Delta 怎么变（也等于股价变化时 Vega 怎么变）。虚值期权受 Vanna 影响明显。',
@@ -1890,6 +1940,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u10l2',
+        analogy: '做市商 Long Gamma 时像一张弹簧床：市场往哪跳都被吸掉一部分力道（涨了卖、跌了买），行情变得粘滞；Short Gamma 时像踩跷跷板——越晃越要顺着晃，波动被越推越大。',
         title: 'Gamma 对冲与市场流',
         tips: [
           '做市商接下你的单后会立即用股票做 Delta 对冲，只留下 Gamma/Theta/Vega 敞口——他们赚价差，不赌方向。',
@@ -1958,6 +2009,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u10l3',
+        analogy: '保证金像银行的伞：晴天硬塞给你，雨天立刻收回。行情最恐慌、你最需要子弹的时候，恰恰是保证金要求暴涨的时候——所以缓冲要留在晴天。',
         title: '保证金与强平机制',
         tips: [
           'Reg-T 保证金按固定公式逐仓计算；组合保证金（Portfolio Margin）按整个组合的压力测试计算，对冲充分的组合占用大幅降低。',
@@ -2040,6 +2092,8 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u11l1',
+        analogy: '日历价差像当二房东：整租一年（买远月），再按周转租出去（卖近月）。周租金费率比年租贵，赚的就是租期差价；房子没人住（股价跑远），两头租约都砸手里。',
+        diagram: 'calendar',
         title: '日历与对角价差',
         tips: [
           '日历价差（Calendar）：卖近月 + 买远月，同行权价。近月 Theta 衰减快于远月，时间差就是利润来源。',
@@ -2112,6 +2166,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u11l2',
+        analogy: '比例价差像定制西装：把损益曲线裁剪成最贴合你剧本的形状——这段收窄、那段放宽。但多裁掉的那块布（裸卖的腿）让某个区间彻底裸露，风大的日子会冻着。',
         title: '比例与反向价差',
         tips: [
           '比例价差（Ratio Spread）：如买 1 卖 2——多卖的裸腿让它在温和上涨时利润丰厚，但暴涨反而巨亏。',
@@ -2175,6 +2230,8 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u11l3',
+        analogy: '领口就是给股票戴上项圈：狗跑不丢（下方有 Put 保底），也跑不远（上方被 Call 封顶）。卖掉「跑远的自由」换来「跑丢的保险」，散步就安心了。',
+        diagram: 'collar',
         title: '领口与合成仓位',
         tips: [
           '领口（Collar）：持股 + 买虚值 Put + 卖虚值 Call。卖 Call 的收入抵扣买 Put 的保费，常可做到零成本保护。',
@@ -2247,6 +2304,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u12l1',
+        analogy: '滚动像租约到期前的续租谈判：提前续约（提前滚动）从容体面，拖到到期日就只能仓促搬家。但注意——续租是为了住得更好，不是为了假装没搬过家（拒绝认错）。',
         title: '滚动与调仓',
         tips: [
           '滚动（Roll）：平掉现有合约、同时开立更远期/不同行权价的新合约——延长战线或调整位置，本质是「平仓 + 新交易」。',
@@ -2313,6 +2371,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u12l2',
+        analogy: '财报博弈像猜红包：市场已经在红包上标好了价（隐含波动幅度）。你的钱不是靠猜红包大小赚的，而是靠猜得比标价更准——标价 8%，你有依据认为只会动 4%，才有生意做。',
         title: '财报与事件博弈',
         tips: [
           '隐含波动幅度（Expected Move）≈ 最近到期的平值跨式价格：市场用真金白银投票出的「预期波动区间」。',
@@ -2376,6 +2435,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u12l3',
+        analogy: '像赌场老板而不是赌客思考：老板从不关心单把输赢，只确保每一把抽水为正（正期望）、任何一桌的筹码都压不垮赌场（仓位控制），然后让大数定律慢慢干活。',
         title: '交易系统与心理',
         tips: [
           '期望值 = 胜率 × 平均盈利 -（1-胜率）× 平均亏损。正期望 + 足够多次数 + 活下来 = 长期盈利的全部秘密。',

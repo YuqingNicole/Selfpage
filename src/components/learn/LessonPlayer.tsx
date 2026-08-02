@@ -11,6 +11,7 @@ import type {
   Unit,
 } from '@/data/optionsCourse';
 import { MAX_HEARTS } from '@/data/optionsCourse';
+import { LessonDiagram } from './diagrams';
 
 interface LessonPlayerProps {
   unit: Unit;
@@ -174,6 +175,21 @@ function TipsCard({
         {unit.title} {isReview && '· 复习'}
       </div>
       <h1 className="mb-6 text-3xl font-extrabold">{lesson.title}</h1>
+      {lesson.analogy && (
+        <div className="mb-4 rounded-2xl border-2 border-[#ffc800] bg-[#fff7e0] p-4 dark:bg-[#3a3000]">
+          <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-[#b58900]">
+            🌰 打个比方
+          </p>
+          <p className="text-sm leading-relaxed text-[#7a5c00] dark:text-[#ffe58a] sm:text-base">
+            {lesson.analogy}
+          </p>
+        </div>
+      )}
+      {lesson.diagram && (
+        <div className="mb-4">
+          <LessonDiagram id={lesson.diagram} />
+        </div>
+      )}
       <div className="space-y-3">
         {lesson.tips.map((tip, i) => (
           <div
