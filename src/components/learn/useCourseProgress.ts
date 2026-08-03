@@ -109,6 +109,18 @@ export function useCourseProgress() {
     [persist],
   );
 
+  /** 完成一次错题复习：发放 XP 并更新连胜 */
+  const completeReview = useCallback((): number => {
+    const current = load();
+    const today = todayString();
+    let streak = current.streak;
+    if (current.lastPracticeDay !== today) {
+      streak = current.lastPracticeDay === yesterdayString() ? streak + 1 : 1;
+    }
+    persist({ ...current, xp: current.xp + XP_REVIEW, streak, lastPracticeDay: today });
+    return XP_REVIEW;
+  }, [persist]);
+
   const resetProgress = useCallback(() => {
     persist(emptyProgress);
   }, [persist]);
@@ -135,6 +147,7 @@ export function useCourseProgress() {
     progress,
     loaded,
     completeLesson,
+    completeReview,
     resetProgress,
     toggleDeveloperMode,
     isUnlocked,

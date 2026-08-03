@@ -11,20 +11,24 @@ import {
 import { optionsCourseEn } from '@/data/optionsCourseEn';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
-import { LessonPlayer } from './LessonPlayer';
+import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
+import { exerciseSummary, useSrs } from './useSrs';
 
 export function OptionsCourseApp() {
   const {
     progress,
     loaded,
     completeLesson,
+    completeReview,
     resetProgress,
     toggleDeveloperMode,
     isUnlocked,
     streakAlive,
   } = useCourseProgress();
+  const srs = useSrs();
   const { lang } = useLanguage();
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
+  const [reviewItems, setReviewItems] = useState<SessionItem[] | null>(null);
 
   const course = lang === 'en' ? optionsCourseEn : optionsCourse;
   const active = useMemo(() => {
@@ -131,6 +135,86 @@ export function OptionsCourseApp() {
         </div>
       </div>
 
+      {/* 错题本 · 间隔重复 */}
+      {loaded && srs.loaded && (srs.book.length > 0 || srs.masteredCount > 0) && (
+        <div className="mb-10 rounded-2xl border-2 border-[#f59f00] bg-[var(--card)] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-base font-extrabold">
+                {lang === 'en' ? '📒 Mistake Book' : '📒 错题本'}
+                {srs.due.length > 0 && (
+                  <span className="ml-2 rounded-full bg-[#ff4b4b] px-2 py-0.5 text-xs font-extrabold text-white">
+                    {lang === 'en' ? `${srs.due.length} due` : `${srs.due.length} 道待复习`}
+                  </span>
+                )}
+              </p>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                {lang === 'en'
+                  ? `${srs.book.length} missed · ${srs.due.length} due today · ${srs.masteredCount} mastered — scheduled on the forgetting curve: 5 correct in a row = mastered`
+                  : `错题 ${srs.book.length} 道 · 今日到期 ${srs.due.length} 道 · 已掌握 ${srs.masteredCount} 道 —— 按遗忘曲线安排：连对 5 次即为掌握`}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const items = srs.buildReviewSession().map(({ key, exercise }) => {
+                  const sep = key.lastIndexOf(':');
+                  const found = findLessonInCourse(course, key.slice(0, sep));
+                  return { key, exercise: found?.lesson.exercises[Number(key.slice(sep + 1))] ?? exercise };
+                });
+                setReviewItems(items);
+              }}
+              disabled={srs.book.length === 0}
+              className={`rounded-2xl border-b-4 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2 ${
+                srs.due.length > 0
+                  ? 'border-[#c47f00] bg-[#f59f00] hover:bg-[#ffab0f]'
+                  : 'border-[var(--border)] bg-[var(--muted-foreground)] opacity-60'
+              } disabled:cursor-not-allowed disabled:opacity-40`}
+            >
+              {srs.due.length > 0
+                ? lang === 'en'
+                  ? 'Smart Review'
+                  : '开始智能复习'
+                : lang === 'en'
+                  ? 'Review Early'
+                  : '提前复习'}
+            </button>
+          </div>
+          {srs.book.length > 0 && (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                {lang === 'en' ? 'View missed questions' : '查看错题列表'}
+              </summary>
+              <ul className="mt-2 space-y-2">
+                {srs.book.map((t) => {
+                  const sep = t.key.lastIndexOf(':');
+                  const localized =
+                    findLessonInCourse(course, t.key.slice(0, sep))?.lesson.exercises[
+                      Number(t.key.slice(sep + 1))
+                    ] ?? t.exercise;
+                  return (
+                    <li
+                      key={t.key}
+                      className="flex items-start gap-2 rounded-xl border border-[var(--border)] px-3 py-2 text-xs"
+                    >
+                      <span aria-hidden>{t.unit.icon}</span>
+                      <span className="flex-1 leading-relaxed">{exerciseSummary(localized)}</span>
+                      <span className="shrink-0 font-bold text-[var(--muted-foreground)]">
+                        {lang === 'en' ? `missed ${t.record.wrong}x · ` : `错 ${t.record.wrong} 次 · `}
+                        {t.record.due <= todayStr() ? (
+                          <span className="text-[#ff4b4b]">{lang === 'en' ? 'due today' : '今日到期'}</span>
+                        ) : (
+                          `${t.record.due.slice(5).replace('-', '/')}${lang === 'en' ? '' : ' 复习'}`
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+
       {/* 课程地图 */}
       <div className="space-y-12">
         {course.map((unit) => (
@@ -214,10 +298,28 @@ export function OptionsCourseApp() {
           developerMode={progress.developerMode}
           onExit={() => setActiveLessonId(null)}
           onComplete={(perfectRun) => completeLesson(active.lesson.id, perfectRun)}
+          onExerciseResult={srs.recordResult}
+        />
+      )}
+
+      {/* 错题复习会话 */}
+      {reviewItems && reviewItems.length > 0 && (
+        <ReviewSession
+          items={reviewItems}
+          onExit={() => setReviewItems(null)}
+          onComplete={completeReview}
+          onExerciseResult={srs.recordResult}
         />
       )}
     </div>
   );
+}
+
+function todayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
 }
 
 function findLessonInCourse(course: Unit[], lessonId: string): { unit: Unit; lesson: Lesson; index: number } | null {
