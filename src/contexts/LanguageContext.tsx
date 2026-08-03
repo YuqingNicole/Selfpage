@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 type Lang = 'en' | 'zh';
 
@@ -15,13 +15,17 @@ const LanguageContext = createContext<LanguageContextValue>({
 });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(() => {
+  // 服务端和客户端首次渲染保持一致（en），挂载后再读取本地偏好，避免 hydration 不匹配
+  const [lang, setLang] = useState<Lang>('en');
+
+  useEffect(() => {
     try {
-      return (localStorage.getItem('lang') as Lang) || 'en';
+      const saved = localStorage.getItem('lang') as Lang | null;
+      if (saved === 'zh' || saved === 'en') setLang(saved);
     } catch {
-      return 'en';
+      // localStorage 不可用时保持默认
     }
-  });
+  }, []);
 
   const handleSetLang = (l: Lang) => {
     setLang(l);
