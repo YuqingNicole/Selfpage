@@ -13,6 +13,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
 import { exerciseSummary, useSrs } from './useSrs';
+import { StrategyLab } from './StrategyLab';
 
 export function OptionsCourseApp() {
   const {
@@ -29,6 +30,7 @@ export function OptionsCourseApp() {
   const { lang } = useLanguage();
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [reviewItems, setReviewItems] = useState<SessionItem[] | null>(null);
+  const [labOpen, setLabOpen] = useState(false);
 
   const course = lang === 'en' ? optionsCourseEn : optionsCourse;
   const active = useMemo(() => {
@@ -133,6 +135,24 @@ export function OptionsCourseApp() {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* 策略实验室 */}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
+        <div>
+          <p className="text-base font-extrabold">🧪 {lang === 'en' ? 'Strategy Lab' : '策略实验室'}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {lang === 'en'
+              ? 'Drag spot / IV / days-to-expiry and watch payoff curves and Greeks respond in real time — 10 strategy presets.'
+              : '拖动股价 / IV / 剩余天数，实时观察损益曲线和希腊字母的变化 —— 内置 10 种策略预设。'}
+          </p>
+        </div>
+        <button
+          onClick={() => setLabOpen(true)}
+          className="rounded-2xl border-b-4 border-[#1899d6] bg-[#1cb0f6] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#2bbcff] active:translate-y-0.5 active:border-b-2"
+        >
+          {lang === 'en' ? 'Open Lab' : '进入实验室'}
+        </button>
       </div>
 
       {/* 错题本 · 间隔重复 */}
@@ -301,6 +321,9 @@ export function OptionsCourseApp() {
           onExerciseResult={srs.recordResult}
         />
       )}
+
+      {/* 策略实验室 */}
+      {labOpen && <StrategyLab onExit={() => setLabOpen(false)} />}
 
       {/* 错题复习会话 */}
       {reviewItems && reviewItems.length > 0 && (
