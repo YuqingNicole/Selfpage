@@ -9,12 +9,15 @@ import {
   type Unit,
 } from '@/data/optionsCourse';
 import { useCourseProgress } from './useCourseProgress';
-import { LessonPlayer } from './LessonPlayer';
+import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
+import { exerciseSummary, useSrs } from './useSrs';
 
 export function OptionsCourseApp() {
-  const { progress, loaded, completeLesson, resetProgress, isUnlocked, streakAlive } =
+  const { progress, loaded, completeLesson, completeReview, resetProgress, isUnlocked, streakAlive } =
     useCourseProgress();
+  const srs = useSrs();
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
+  const [reviewItems, setReviewItems] = useState<SessionItem[] | null>(null);
 
   const active = activeLessonId ? findLesson(activeLessonId) : null;
   const completedCount = progress.completed.length;
@@ -59,6 +62,65 @@ export function OptionsCourseApp() {
           </div>
         </div>
       </div>
+
+      {/* 错题本 · 间隔重复 */}
+      {loaded && srs.loaded && (srs.book.length > 0 || srs.masteredCount > 0) && (
+        <div className="mb-10 rounded-2xl border-2 border-[#f59f00] bg-[var(--card)] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-base font-extrabold">
+                📒 错题本
+                {srs.due.length > 0 && (
+                  <span className="ml-2 rounded-full bg-[#ff4b4b] px-2 py-0.5 text-xs font-extrabold text-white">
+                    {srs.due.length} 道待复习
+                  </span>
+                )}
+              </p>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                错题 {srs.book.length} 道 · 今日到期 {srs.due.length} 道 · 已掌握 {srs.masteredCount} 道
+                —— 按遗忘曲线安排：连对 5 次即为掌握
+              </p>
+            </div>
+            <button
+              onClick={() => setReviewItems(srs.buildReviewSession())}
+              disabled={srs.book.length === 0}
+              className={`rounded-2xl border-b-4 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2 ${
+                srs.due.length > 0
+                  ? 'border-[#c47f00] bg-[#f59f00] hover:bg-[#ffab0f]'
+                  : 'border-[var(--border)] bg-[var(--muted-foreground)] opacity-60'
+              } disabled:cursor-not-allowed disabled:opacity-40`}
+            >
+              {srs.due.length > 0 ? '开始智能复习' : '提前复习'}
+            </button>
+          </div>
+          {srs.book.length > 0 && (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                查看错题列表
+              </summary>
+              <ul className="mt-2 space-y-2">
+                {srs.book.map((t) => (
+                  <li
+                    key={t.key}
+                    className="flex items-start gap-2 rounded-xl border border-[var(--border)] px-3 py-2 text-xs"
+                  >
+                    <span aria-hidden>{t.unit.icon}</span>
+                    <span className="flex-1 leading-relaxed">{exerciseSummary(t.exercise)}</span>
+                    <span className="shrink-0 font-bold text-[var(--muted-foreground)]">
+                      错 {t.record.wrong} 次 ·{' '}
+                      {t.record.due <= todayStr() ? (
+                        <span className="text-[#ff4b4b]">今日到期</span>
+                      ) : (
+                        `${t.record.due.slice(5).replace('-', '/')} 复习`
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
 
       {/* 课程地图 */}
       <div className="space-y-12">
@@ -135,10 +197,28 @@ export function OptionsCourseApp() {
           isReview={progress.completed.includes(active.lesson.id)}
           onExit={() => setActiveLessonId(null)}
           onComplete={(perfectRun) => completeLesson(active.lesson.id, perfectRun)}
+          onExerciseResult={srs.recordResult}
+        />
+      )}
+
+      {/* 错题复习会话 */}
+      {reviewItems && reviewItems.length > 0 && (
+        <ReviewSession
+          items={reviewItems}
+          onExit={() => setReviewItems(null)}
+          onComplete={completeReview}
+          onExerciseResult={srs.recordResult}
         />
       )}
     </div>
   );
+}
+
+function todayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
 }
 
 /* ---------- 单元区块 ---------- */

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type {
   ChoiceExercise,
   Exercise,
@@ -13,57 +13,73 @@ import type {
 import { MAX_HEARTS } from '@/data/optionsCourse';
 import { LessonDiagram } from './diagrams';
 
-interface LessonPlayerProps {
-  unit: Unit;
-  lesson: Lesson;
-  isReview: boolean;
-  onExit: () => void;
-  onComplete: (perfectRun: boolean) => number;
+/* =========================================================
+ * 会话核心：课程闯关与错题复习共用的答题流程
+ * ======================================================= */
+
+export interface SessionItem {
+  key: string;
+  exercise: Exercise;
 }
 
-type Phase = 'tips' | 'question' | 'feedback' | 'complete' | 'failed';
+interface SessionCoreProps {
+  items: SessionItem[];
+  color: string;
+  colorDark: string;
+  /** 开场页（知识卡片等）；不传则直接进入答题 */
+  intro?: (start: () => void) => ReactNode;
+  useHearts: boolean;
+  onExit: () => void;
+  /** 会话完成回调，返回获得的 XP */
+  onComplete: (perfectRun: boolean) => number;
+  /** 每次作答上报（错题本记录用） */
+  onExerciseResult?: (key: string, correct: boolean) => void;
+  completeTitle: string;
+  completePerfectTitle: string;
+}
+
+type Phase = 'intro' | 'question' | 'feedback' | 'complete' | 'failed';
 
 interface Feedback {
   correct: boolean;
   explain: string;
 }
 
-/** 稳定伪随机，避免 SSR/CSR 洗牌不一致 */
-function shuffled<T>(arr: T[], seed: number): T[] {
-  const a = [...arr];
-  let s = seed;
-  for (let i = a.length - 1; i > 0; i--) {
-    s = (s * 9301 + 49297) % 233280;
-    const j = Math.floor((s / 233280) * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: LessonPlayerProps) {
-  const [phase, setPhase] = useState<Phase>('tips');
-  const [queue, setQueue] = useState<Exercise[]>(() => [...lesson.exercises]);
+function SessionCore({
+  items,
+  color,
+  colorDark,
+  intro,
+  useHearts,
+  onExit,
+  onComplete,
+  onExerciseResult,
+  completeTitle,
+  completePerfectTitle,
+}: SessionCoreProps) {
+  const [phase, setPhase] = useState<Phase>(intro ? 'intro' : 'question');
+  const [queue, setQueue] = useState<SessionItem[]>(() => [...items]);
   const [qIndex, setQIndex] = useState(0);
   const [hearts, setHearts] = useState(MAX_HEARTS);
   const [mistakes, setMistakes] = useState(0);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [earnedXp, setEarnedXp] = useState(0);
 
-  const totalPlanned = queue.length;
   const current = queue[qIndex];
-  const progressPct = phase === 'complete' ? 100 : Math.round((qIndex / totalPlanned) * 100);
+  const progressPct = phase === 'complete' ? 100 : Math.round((qIndex / queue.length) * 100);
 
   function handleAnswer(correct: boolean, explain: string) {
+    if (current) onExerciseResult?.(current.key, correct);
     setFeedback({ correct, explain });
     setPhase('feedback');
     if (!correct) {
       setMistakes((m) => m + 1);
-      const remaining = hearts - 1;
-      setHearts(remaining);
       // 答错的题排回队尾，直到答对为止
       setQueue((q) => [...q, q[qIndex]]);
-      if (remaining <= 0) {
-        setPhase('failed');
+      if (useHearts) {
+        const remaining = hearts - 1;
+        setHearts(remaining);
+        if (remaining <= 0) setPhase('failed');
       }
     }
   }
@@ -82,7 +98,7 @@ export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: Les
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-      {/* 顶栏：退出 + 进度条 + 红心 */}
+      {/* 顶栏：退出 + 进度条 + 红心/复习标记 */}
       <div className="mx-auto flex w-full max-w-2xl items-center gap-4 px-4 pt-5 pb-2">
         <button
           onClick={onExit}
@@ -94,24 +110,29 @@ export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: Les
         <div className="h-4 flex-1 overflow-hidden rounded-full bg-[var(--muted)]">
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${Math.max(progressPct, 4)}%`, backgroundColor: unit.color }}
+            style={{ width: `${Math.max(progressPct, 4)}%`, backgroundColor: color }}
           />
         </div>
-        <div className="flex items-center gap-1 font-bold text-[#ff4b4b]">
-          <span aria-hidden>❤️</span>
-          <span>{hearts}</span>
-        </div>
+        {useHearts ? (
+          <div className="flex items-center gap-1 font-bold text-[#ff4b4b]">
+            <span aria-hidden>❤️</span>
+            <span>{hearts}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 text-sm font-bold text-[#f59f00]">
+            <span aria-hidden>📒</span>
+            <span>复习</span>
+          </div>
+        )}
       </div>
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 pb-40">
-        {phase === 'tips' && (
-          <TipsCard unit={unit} lesson={lesson} isReview={isReview} onStart={() => setPhase('question')} />
-        )}
+        {phase === 'intro' && intro?.(() => setPhase('question'))}
 
         {(phase === 'question' || phase === 'feedback') && current && (
           <ExerciseView
             key={`${qIndex}-${queue.length}`}
-            exercise={current}
+            exercise={current.exercise}
             locked={phase === 'feedback'}
             onAnswer={handleAnswer}
             onMatchDone={() => handleAnswer(true, '全部配对成功！')}
@@ -119,7 +140,14 @@ export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: Les
         )}
 
         {phase === 'complete' && (
-          <CompleteCard unit={unit} lesson={lesson} xp={earnedXp} mistakes={mistakes} onExit={onExit} />
+          <CompleteCard
+            color={color}
+            title={mistakes === 0 ? completePerfectTitle : completeTitle}
+            total={items.length}
+            xp={earnedXp}
+            mistakes={mistakes}
+            onExit={onExit}
+          />
         )}
 
         {phase === 'failed' && <FailedCard onExit={onExit} />}
@@ -153,6 +181,74 @@ export function LessonPlayer({ unit, lesson, isReview, onExit, onComplete }: Les
         </div>
       )}
     </div>
+  );
+}
+
+/* =========================================================
+ * 课程闯关模式
+ * ======================================================= */
+
+interface LessonPlayerProps {
+  unit: Unit;
+  lesson: Lesson;
+  isReview: boolean;
+  onExit: () => void;
+  onComplete: (perfectRun: boolean) => number;
+  onExerciseResult?: (key: string, correct: boolean) => void;
+}
+
+export function LessonPlayer({
+  unit,
+  lesson,
+  isReview,
+  onExit,
+  onComplete,
+  onExerciseResult,
+}: LessonPlayerProps) {
+  const items = useMemo(
+    () => lesson.exercises.map((exercise, i) => ({ key: `${lesson.id}:${i}`, exercise })),
+    [lesson],
+  );
+  return (
+    <SessionCore
+      items={items}
+      color={unit.color}
+      colorDark={unit.colorDark}
+      useHearts
+      intro={(start) => <TipsCard unit={unit} lesson={lesson} isReview={isReview} onStart={start} />}
+      onExit={onExit}
+      onComplete={onComplete}
+      onExerciseResult={onExerciseResult}
+      completeTitle="完成本课！"
+      completePerfectTitle="完美通关！"
+    />
+  );
+}
+
+/* =========================================================
+ * 错题复习模式（无红心，间隔重复驱动）
+ * ======================================================= */
+
+interface ReviewSessionProps {
+  items: SessionItem[];
+  onExit: () => void;
+  onComplete: () => number;
+  onExerciseResult: (key: string, correct: boolean) => void;
+}
+
+export function ReviewSession({ items, onExit, onComplete, onExerciseResult }: ReviewSessionProps) {
+  return (
+    <SessionCore
+      items={items}
+      color="#f59f00"
+      colorDark="#c47f00"
+      useHearts={false}
+      onExit={onExit}
+      onComplete={() => onComplete()}
+      onExerciseResult={onExerciseResult}
+      completeTitle="复习完成！"
+      completePerfectTitle="全部答对，记忆牢固！"
+    />
   );
 }
 
@@ -421,6 +517,18 @@ function FillView({
 
 /* ---------- 配对题（不扣红心） ---------- */
 
+/** 稳定伪随机，避免 SSR/CSR 洗牌不一致 */
+function shuffled<T>(arr: T[], seed: number): T[] {
+  const a = [...arr];
+  let s = seed;
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (s * 9301 + 49297) % 233280;
+    const j = Math.floor((s / 233280) * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function MatchView({ ex, onDone }: { ex: MatchExercise; onDone: () => void }) {
   const left = useMemo(() => ex.pairs.map((p) => p[0]), [ex]);
   const right = useMemo(() => shuffled(ex.pairs.map((p) => p[1]), ex.pairs[0][0].length * 7 + 13), [ex]);
@@ -506,29 +614,29 @@ function MatchView({ ex, onDone }: { ex: MatchExercise; onDone: () => void }) {
 /* ---------- 完成 / 失败 ---------- */
 
 function CompleteCard({
-  unit,
-  lesson,
+  color,
+  title,
+  total,
   xp,
   mistakes,
   onExit,
 }: {
-  unit: Unit;
-  lesson: Lesson;
+  color: string;
+  title: string;
+  total: number;
   xp: number;
   mistakes: number;
   onExit: () => void;
 }) {
-  const total = lesson.exercises.length;
   const accuracy = Math.round((total / (total + mistakes)) * 100);
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
       <div className="mb-4 text-7xl" aria-hidden>
         {mistakes === 0 ? '🏆' : '🎉'}
       </div>
-      <h1 className="mb-2 text-3xl font-extrabold" style={{ color: unit.color }}>
-        {mistakes === 0 ? '完美通关！' : '完成本课！'}
+      <h1 className="mb-8 text-3xl font-extrabold" style={{ color }}>
+        {title}
       </h1>
-      <p className="mb-8 text-[var(--muted-foreground)]">{lesson.title}</p>
       <div className="mb-10 flex gap-4">
         <div className="w-32 rounded-2xl border-2 border-[#ffc800] p-1">
           <div className="rounded-t-xl bg-[#ffc800] py-1 text-xs font-extrabold uppercase text-white">
