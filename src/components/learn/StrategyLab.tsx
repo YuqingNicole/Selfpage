@@ -113,6 +113,206 @@ const STRATEGIES: Strategy[] = [
       { type: 'call', strike: 110, qty: -1 },
     ],
   },
+  {
+    id: 'shortCall', zh: '卖出 Call（裸）', en: 'Naked Short Call',
+    zhDesc: '看不涨。收权利金，但暴涨时亏损无上限——最危险的单腿。',
+    enDesc: 'Bet against a rally. Premium income, unlimited loss on a squeeze.',
+    legs: [{ type: 'call', strike: 110, qty: -1 }],
+  },
+  {
+    id: 'shortStrangle', zh: '卖出宽跨式', en: 'Short Strangle',
+    zhDesc: '赌横盘收双份权利金，两个方向都裸露风险。',
+    enDesc: 'Sell both wings for double premium — naked risk on both sides.',
+    legs: [
+      { type: 'call', strike: 110, qty: -1 },
+      { type: 'put', strike: 90, qty: -1 },
+    ],
+  },
+];
+
+/* ---------- 经典案例剧场 ---------- */
+
+interface CaseStep {
+  spot: number;
+  iv: number;
+  days: number;
+  zh: string;
+  en: string;
+}
+
+interface LabCase {
+  id: string;
+  emoji: string;
+  zh: string;
+  en: string;
+  strategyId: string;
+  steps: CaseStep[];
+  lessonZh: string;
+  lessonEn: string;
+}
+
+const CASES: LabCase[] = [
+  {
+    id: 'gme', emoji: '🚀', zh: 'GME 逼空风暴', en: 'GME Squeeze',
+    strategyId: 'shortCall',
+    steps: [
+      {
+        spot: 100, iv: 30, days: 45,
+        zh: '2021 年 1 月：你觉得这只股票涨不动了，裸卖 110 Call 收权利金。头几天横盘，收租的感觉很好。',
+        en: 'Jan 2021: convinced the stock is capped, you sell a naked 110 call. It drifts sideways — easy rent.',
+      },
+      {
+        spot: 115, iv: 60, days: 30,
+        zh: '论坛开始沸腾：股价突破 115，IV 从 30 飙到 60。注意亏损不只来自股价——Vega 也在捅刀子。',
+        en: 'The forums light up: spot breaks 115, IV doubles to 60. Losses come from vega as much as delta.',
+      },
+      {
+        spot: 135, iv: 95, days: 21,
+        zh: '逼空全面爆发：135 美元、IV 95。券商开始追缴保证金，你被迫在最贵的价位买回。',
+        en: 'Full squeeze: $135, IV 95. Margin calls force you to buy back at the worst possible price.',
+      },
+    ],
+    lessonZh: '教训：裸卖 Call 的亏损无上限。逼空时股价和 IV 双重碾压，保证金追缴会替你选平仓时机——而且永远选在最差的一刻。',
+    lessonEn: 'Lesson: naked calls have unlimited loss. In a squeeze, delta and vega crush you together, and margin calls pick your exit — always the worst one.',
+  },
+  {
+    id: 'earnings', emoji: '🎰', zh: '财报豪赌：IV Crush', en: 'Earnings IV Crush',
+    strategyId: 'straddle',
+    steps: [
+      {
+        spot: 100, iv: 60, days: 2,
+        zh: '财报前一天买入跨式。注意开仓成本：IV 已被炒到 60，这份「彩票」定价并不便宜——市场认为会波动约 ±3.5%。',
+        en: 'You buy a straddle the day before earnings. IV is pumped to 60 — the market has priced in a ±3.5% move.',
+      },
+      {
+        spot: 101.5, iv: 25, days: 1,
+        zh: '财报公布：小幅超预期，股价 +1.5%。方向你猜对了！但 IV 从 60 崩到 25，两条腿同时缩水。',
+        en: 'Earnings beat, stock +1.5%. Right direction! But IV collapses 60→25 and both legs shrink anyway.',
+      },
+      {
+        spot: 102, iv: 25, days: 0,
+        zh: '到期：股价收在 +2%。涨幅没跑赢开仓时定价的 ±3.5%，跨式整体亏损离场。',
+        en: 'Expiry: +2% total. The move never beat the ±3.5% that was priced in. The straddle loses.',
+      },
+    ],
+    lessonZh: '教训：财报博弈赌的不是方向，是「实际波动 vs 已定价波动」。买贵了波动率，方向对也亏——这就是第 12 单元的隐含波动幅度。',
+    lessonEn: 'Lesson: earnings plays are actual vs implied move, not direction. Overpay for volatility and even the right call loses.',
+  },
+  {
+    id: 'covid', emoji: '🛡️', zh: '2020 年 3 月：保险生效', en: 'March 2020: Insurance Pays',
+    strategyId: 'protectivePut',
+    steps: [
+      {
+        spot: 100, iv: 30, days: 45,
+        zh: '2 月中旬：持股 + 买入 95 Put。朋友笑你浪费保费——市场创新高，保险看起来很多余。',
+        en: 'Mid-Feb: stock + a 95 put. Friends mock the wasted premium — markets are at all-time highs.',
+      },
+      {
+        spot: 90, iv: 55, days: 35,
+        zh: '疫情恐慌开始：-10%，IV 涨到 55。Put 的内在价值 + Vega 双引擎启动，组合亏损远小于裸持股。',
+        en: 'Panic begins: -10%, IV at 55. The put gains on both intrinsic value and vega; you lose far less than stock alone.',
+      },
+      {
+        spot: 75, iv: 80, days: 28,
+        zh: '熔断周：-25%，IV 80。裸持股亏 $25，你的组合亏损被锁在保底价附近——保险在最贵的时候生效了。',
+        en: 'Circuit-breaker week: -25%, IV 80. Naked stock is down $25; your loss is pinned near the floor.',
+      },
+    ],
+    lessonZh: '教训：保险平时是成本，危机时是唯一还在工作的仓位。对比图上蓝线和「裸持股」的差距——这就是花保费买到的确定性。',
+    lessonEn: 'Lesson: insurance is a cost in calm markets and the only working position in a crisis. The premium bought certainty.',
+  },
+  {
+    id: 'condor', emoji: '🏖️', zh: '横盘的夏天：铁鹰收租', en: 'Sideways Summer Condor',
+    strategyId: 'ironCondor',
+    steps: [
+      {
+        spot: 100, iv: 30, days: 45,
+        zh: '45 DTE 开仓铁鹰，收 $1.19 权利金。只要股价 45 天内呆在 90~110 区间，这笔钱就是你的。',
+        en: 'Open a 45-DTE condor for $1.19 credit. Stay inside 90–110 for 45 days and it is all yours.',
+      },
+      {
+        spot: 102, iv: 28, days: 24,
+        zh: '三周过去，股价原地踏步。什么都没发生——而你已经赚到权利金的一半。这就是 Theta 在给你打工。',
+        en: 'Three weeks of nothing. Exactly nothing — and you are already up half the credit. Theta at work.',
+      },
+      {
+        spot: 99, iv: 26, days: 21,
+        zh: '21 DTE 警报：机制说该走了。剩下的一半利润要用 Gamma 风险最毒的三周去换，数学上不划算。',
+        en: '21 DTE: the mechanic says leave. The last half of the profit costs you the three most gamma-toxic weeks.',
+      },
+    ],
+    lessonZh: '教训：中性策略赚「什么都不发生」的钱。吃到 50% 就提前离场——第 13 单元的 45 进 21 出，就是这幅图。',
+    lessonEn: 'Lesson: neutral trades earn the nothing-happens premium. Take 50% and leave at 21 DTE — this chart is that rule.',
+  },
+  {
+    id: 'zerodte', emoji: '🎟️', zh: '末日彩票（0DTE）', en: '0DTE Lottery Ticket',
+    strategyId: 'longCall',
+    steps: [
+      {
+        spot: 100, iv: 30, days: 1,
+        zh: '到期前最后一天，平值 Call 便宜得像彩票。你想：亏也就亏这点，博一把。',
+        en: 'One day to expiry, the ATM call is lottery-ticket cheap. Worst case you lose pocket change, right?',
+      },
+      {
+        spot: 103, iv: 45, days: 1,
+        zh: '上午一波拉升 +3%，期权翻了几倍。Gamma 在临期平值处最大——你感觉自己是天才。',
+        en: 'A morning pop of +3% multiplies the option. Peak gamma at the money — you feel like a genius.',
+      },
+      {
+        spot: 100, iv: 30, days: 0,
+        zh: '尾盘回落，收盘价回到起点。期权归零，纸面利润一分没剩。',
+        en: 'The afternoon fades it all back. The option expires worthless; the paper profit is gone.',
+      },
+    ],
+    lessonZh: '教训：0DTE 的 Gamma 和 Theta 都是极端值，几小时内暴赚和归零都很正常。它是彩票，不是策略——仓位必须按彩票来给。',
+    lessonEn: 'Lesson: 0DTE gamma and theta are both extreme; multi-bagger and zero in the same day is normal. Size it like a lottery ticket.',
+  },
+  {
+    id: 'volmageddon', emoji: '🌋', zh: 'Volmageddon 2018', en: 'Volmageddon 2018',
+    strategyId: 'shortStrangle',
+    steps: [
+      {
+        spot: 100, iv: 15, days: 45,
+        zh: '2018 年初：市场平静了一整年，IV 低到 15。卖宽跨式只能收到一点点权利金——但过去 12 个月每次都赚，你说服自己这是「稳定收益」。',
+        en: 'Early 2018: a full year of calm, IV at 15. The strangle pays pennies — but it worked 12 months straight.',
+      },
+      {
+        spot: 94, iv: 45, days: 30,
+        zh: '2 月 5 日：股指跌 4%，VIX 单日翻倍。你收的那点权利金，在 IV 15→45 的 Vega 冲击面前不堪一击。',
+        en: 'Feb 5: index down 4%, VIX doubles in a day. Your tiny credit is nothing against a 15→45 vega shock.',
+      },
+      {
+        spot: 92, iv: 60, days: 28,
+        zh: '保证金追缴：亏损是权利金的许多倍，做空波动率的产品 XIV 一夜清零退市。',
+        en: 'Margin call: losses run many multiples of the credit. XIV, the short-vol ETN, goes to zero overnight.',
+      },
+    ],
+    lessonZh: '教训：IV 低位时卖权利金 = 收益最薄、上行风险最大的时刻。第 13 单元的 IVR>50 门槛，就是为了让你避开这一天。',
+    lessonEn: 'Lesson: selling premium at rock-bottom IV is minimum income for maximum risk. The IVR>50 filter exists to keep you out of this exact day.',
+  },
+  {
+    id: 'wheel', emoji: '🎡', zh: '轮子第一步：被指派', en: 'The Wheel: Assignment',
+    strategyId: 'shortPut',
+    steps: [
+      {
+        spot: 100, iv: 30, days: 45,
+        zh: '你本来就想在 95 买入这只股票，于是卖出 95 Put 收 $2——市场为你的「限价单」付了等待费。',
+        en: 'You wanted the stock at 95 anyway, so you sell the 95 put for $2 — paid to wait on your own limit order.',
+      },
+      {
+        spot: 92, iv: 40, days: 10,
+        zh: '股价跌到 92。浮亏出现，但想清楚：你的实际接货成本是 95 - 2 = 93，仍低于你当初「愿意买」的心理价。',
+        en: 'Spot drops to 92. Paper loss, but your true basis is 95 - 2 = 93 — still below what you were happy to pay.',
+      },
+      {
+        spot: 88, iv: 35, days: 0,
+        zh: '到期 88，被指派按 95 接货。对比：开仓那天直接买股票的人成本 100，你的成本 93。下一步：在持股上卖 Covered Call，轮子继续转。',
+        en: 'Expiry at 88 — assigned at 95. The day-one stock buyer paid 100; your basis is 93. Next: sell a covered call and keep the wheel turning.',
+      },
+    ],
+    lessonZh: '教训：只对真心想持有的股票、在真心愿意的价格卖 Put，被指派就不是事故而是折价买入。这就是第 14 单元的轮子策略。',
+    lessonEn: 'Lesson: sell puts only on stocks you want at prices you like — then assignment is a discount purchase, not an accident.',
+  },
 ];
 
 /* ---------- 图表几何 ---------- */
@@ -135,12 +335,49 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
   const [spot, setSpot] = useState(S0);
   const [iv, setIv] = useState(IV0);
   const [days, setDays] = useState(DAYS0);
+  /** 开仓状态：自由模式为默认值，案例模式取剧情第一幕 */
+  const [entry, setEntry] = useState({ spot: S0, iv: IV0, days: DAYS0 });
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const [caseStep, setCaseStep] = useState(0);
 
   const strategy = STRATEGIES.find((s) => s.id === strategyId)!;
   const legs = strategy.legs;
+  const activeCase = caseId ? CASES.find((c) => c.id === caseId)! : null;
 
-  /** 开仓成本（每股，正 = 净支出，负 = 净收入），在固定的开仓状态定价 */
-  const entryCost = useMemo(() => positionValue(legs, S0, DAYS0 / 365, IV0 / 100), [legs]);
+  function applyMarket(m: { spot: number; iv: number; days: number }) {
+    setSpot(m.spot);
+    setIv(m.iv);
+    setDays(m.days);
+  }
+
+  function selectStrategy(id: string) {
+    setStrategyId(id);
+    setCaseId(null);
+    setEntry({ spot: S0, iv: IV0, days: DAYS0 });
+    applyMarket({ spot: S0, iv: IV0, days: DAYS0 });
+  }
+
+  function selectCase(c: LabCase) {
+    setCaseId(c.id);
+    setCaseStep(0);
+    setStrategyId(c.strategyId);
+    const first = c.steps[0];
+    setEntry({ spot: first.spot, iv: first.iv, days: first.days });
+    applyMarket(first);
+  }
+
+  function gotoStep(i: number) {
+    if (!activeCase) return;
+    const step = activeCase.steps[Math.max(0, Math.min(i, activeCase.steps.length - 1))];
+    setCaseStep(Math.max(0, Math.min(i, activeCase.steps.length - 1)));
+    applyMarket(step);
+  }
+
+  /** 开仓成本（每股，正 = 净支出，负 = 净收入），在开仓状态定价 */
+  const entryCost = useMemo(
+    () => positionValue(legs, entry.spot, entry.days / 365, entry.iv / 100),
+    [legs, entry],
+  );
 
   const T = days / 365;
   const sigma = iv / 100;
@@ -169,7 +406,8 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
     return {
       breakevens,
       maxProfit: slopeRight > 0.001 ? Infinity : maxP,
-      maxLoss: minP,
+      // 右端斜率为负说明亏损随股价无限扩大（如裸卖 Call）
+      maxLoss: slopeRight < -0.001 ? -Infinity : minP,
     };
   }, [legs, entryCost]);
 
@@ -259,17 +497,90 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
         </div>
         <p className="mb-4 text-xs leading-relaxed text-[var(--muted-foreground)]">
           {t(
-            `开仓状态固定：股价 $${S0}、IV ${IV0}%、剩余 ${DAYS0} 天。拖动滑杆模拟行情变化，观察蓝色 T+0 曲线如何随时间和波动率移动。`,
-            `Entry is fixed at $${S0} spot, ${IV0}% IV, ${DAYS0} days out. Drag the sliders to simulate the market and watch the blue T+0 curve drift with time and volatility.`,
+            `开仓状态：股价 $${entry.spot}、IV ${entry.iv}%、剩余 ${entry.days} 天。拖动滑杆模拟行情变化，观察蓝色 T+0 曲线如何随时间和波动率移动。`,
+            `Entry: $${entry.spot} spot, ${entry.iv}% IV, ${entry.days} days out. Drag the sliders to simulate the market and watch the blue T+0 curve drift with time and volatility.`,
           )}
         </p>
+
+        {/* 经典案例剧场 */}
+        <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-[var(--muted-foreground)]">
+          🎬 {t('经典案例', 'Classic Cases')}
+        </p>
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
+          {CASES.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => selectCase(c)}
+              className={`shrink-0 rounded-full border-2 px-4 py-1.5 text-xs font-extrabold transition ${
+                c.id === caseId
+                  ? 'border-[#f59f00] bg-[#fff7e0] text-[#b58900]'
+                  : 'border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]'
+              }`}
+            >
+              {c.emoji} {lang === 'en' ? c.en : c.zh}
+            </button>
+          ))}
+        </div>
+
+        {/* 案例旁白 */}
+        {activeCase && (
+          <div className="mb-4 rounded-2xl border-2 border-[#f59f00] bg-[#fff7e0] p-4 dark:bg-[#3a3000]">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-extrabold text-[#b58900]">
+                {activeCase.emoji} {lang === 'en' ? activeCase.en : activeCase.zh}
+                <span className="ml-2 font-bold text-[#b58900]/70">
+                  {caseStep + 1}/{activeCase.steps.length}
+                </span>
+              </p>
+              <button
+                onClick={() => selectStrategy(activeCase.strategyId)}
+                aria-label={t('退出案例', 'Exit case')}
+                className="text-lg leading-none text-[#b58900]/70 hover:text-[#b58900]"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-sm leading-relaxed text-[#7a5c00] dark:text-[#ffe58a]">
+              {lang === 'en' ? activeCase.steps[caseStep].en : activeCase.steps[caseStep].zh}
+            </p>
+            {caseStep === activeCase.steps.length - 1 && (
+              <p className="mt-3 rounded-xl bg-[#ffc800]/25 p-3 text-sm font-semibold leading-relaxed text-[#7a5c00] dark:text-[#ffe58a]">
+                {lang === 'en' ? activeCase.lessonEn : activeCase.lessonZh}
+              </p>
+            )}
+            <div className="mt-3 flex items-center justify-between">
+              <button
+                onClick={() => gotoStep(caseStep - 1)}
+                disabled={caseStep === 0}
+                className="rounded-xl border-2 border-[#f59f00] px-4 py-1.5 text-xs font-extrabold text-[#b58900] transition disabled:opacity-40"
+              >
+                ← {t('上一幕', 'Back')}
+              </button>
+              <div className="flex gap-1.5">
+                {activeCase.steps.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-2 w-2 rounded-full ${i === caseStep ? 'bg-[#f59f00]' : 'bg-[#f59f00]/30'}`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => gotoStep(caseStep + 1)}
+                disabled={caseStep === activeCase.steps.length - 1}
+                className="rounded-xl border-b-4 border-[#c47f00] bg-[#f59f00] px-4 py-1.5 text-xs font-extrabold text-white transition active:translate-y-0.5 active:border-b-2 disabled:opacity-40"
+              >
+                {t('下一幕', 'Next')} →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 策略选择 */}
         <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
           {STRATEGIES.map((s) => (
             <button
               key={s.id}
-              onClick={() => setStrategyId(s.id)}
+              onClick={() => selectStrategy(s.id)}
               className={`shrink-0 rounded-full border-2 px-4 py-1.5 text-xs font-extrabold transition ${
                 s.id === strategyId
                   ? 'border-[#1cb0f6] bg-[#ddf4ff] text-[#1899d6]'
@@ -348,7 +659,7 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
           />
           <StatTile
             label={t('到期最大亏损', 'Max loss')}
-            value={`$${fmt(Math.abs(expiryStats.maxLoss))}`}
+            value={expiryStats.maxLoss === -Infinity ? '∞' : `$${fmt(Math.abs(expiryStats.maxLoss))}`}
             tone="neg"
           />
         </div>
@@ -375,7 +686,7 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
           />
           <Slider
             label={t('剩余天数', 'Days left')}
-            value={days} min={0} max={DAYS0} display={t(`${days} 天`, `${days}d`)}
+            value={days} min={0} max={entry.days} display={t(`${days} 天`, `${days}d`)}
             onChange={setDays} accent={ORANGE}
           />
           {/* 情景快捷键 */}
@@ -385,11 +696,7 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
             <ScenarioChip label={t('📈 IV +10', '📈 IV +10')} onClick={() => setIv((v) => Math.min(100, v + 10))} />
             <ScenarioChip
               label={t('🔄 重置', '🔄 Reset')}
-              onClick={() => {
-                setSpot(S0);
-                setIv(IV0);
-                setDays(DAYS0);
-              }}
+              onClick={() => applyMarket(entry)}
             />
           </div>
         </div>
