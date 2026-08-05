@@ -17,6 +17,8 @@ export interface CourseProgress {
   streak: number;
   lastPracticeDay: string; // YYYY-MM-DD
   developerMode: boolean;
+  /** 连胜冻结卡数量：漏打卡一天时自动消耗一张保住连胜 */
+  freezes: number;
 }
 
 const emptyProgress: CourseProgress = {
@@ -26,6 +28,7 @@ const emptyProgress: CourseProgress = {
   streak: 0,
   lastPracticeDay: '',
   developerMode: false,
+  freezes: 0,
 };
 
 function todayString(): string {
@@ -43,6 +46,25 @@ function yesterdayString(): string {
   ).padStart(2, '0')}`;
 }
 
+function dayBeforeYesterdayString(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 2);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
+}
+
+/** 计算新连胜；漏了一天且有冻结卡时消耗一张保住连胜 */
+function nextStreak(current: CourseProgress): { streak: number; freezes: number } {
+  const today = todayString();
+  if (current.lastPracticeDay === today) return { streak: current.streak, freezes: current.freezes };
+  if (current.lastPracticeDay === yesterdayString())
+    return { streak: current.streak + 1, freezes: current.freezes };
+  if (current.lastPracticeDay === dayBeforeYesterdayString() && current.freezes > 0)
+    return { streak: current.streak + 1, freezes: current.freezes - 1 };
+  return { streak: 1, freezes: current.freezes };
+}
+
 function load(): CourseProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -55,6 +77,7 @@ function load(): CourseProgress {
       streak: typeof parsed.streak === 'number' ? parsed.streak : 0,
       lastPracticeDay: typeof parsed.lastPracticeDay === 'string' ? parsed.lastPracticeDay : '',
       developerMode: Boolean(parsed.developerMode),
+      freezes: typeof parsed.freezes === 'number' ? parsed.freezes : 0,
     };
   } catch {
     return emptyProgress;
@@ -87,11 +110,7 @@ export function useCourseProgress() {
       let earned = isReview ? XP_REVIEW : XP_PER_LESSON;
       if (perfectRun && !current.perfect.includes(lessonId)) earned += XP_PERFECT_BONUS;
 
-      const today = todayString();
-      let streak = current.streak;
-      if (current.lastPracticeDay !== today) {
-        streak = current.lastPracticeDay === yesterdayString() ? streak + 1 : 1;
-      }
+      const { streak, freezes } = nextStreak(current);
 
       persist({
         xp: current.xp + earned,
@@ -101,8 +120,9 @@ export function useCourseProgress() {
             ? [...current.perfect, lessonId]
             : current.perfect,
         streak,
-        lastPracticeDay: today,
+        lastPracticeDay: todayString(),
         developerMode: current.developerMode,
+        freezes,
       });
       return earned;
     },
@@ -112,14 +132,19 @@ export function useCourseProgress() {
   /** 完成一次错题复习：发放 XP 并更新连胜 */
   const completeReview = useCallback((): number => {
     const current = load();
-    const today = todayString();
-    let streak = current.streak;
-    if (current.lastPracticeDay !== today) {
-      streak = current.lastPracticeDay === yesterdayString() ? streak + 1 : 1;
-    }
-    persist({ ...current, xp: current.xp + XP_REVIEW, streak, lastPracticeDay: today });
+    const { streak, freezes } = nextStreak(current);
+    persist({ ...current, xp: current.xp + XP_REVIEW, streak, freezes, lastPracticeDay: todayString() });
     return XP_REVIEW;
   }, [persist]);
+
+  /** 宝箱等额外奖励：加 XP，可附带发放连胜冻结卡 */
+  const grantReward = useCallback(
+    (xp: number, freezeCards = 0) => {
+      const current = load();
+      persist({ ...current, xp: current.xp + xp, freezes: current.freezes + freezeCards });
+    },
+    [persist],
+  );
 
   const resetProgress = useCallback(() => {
     persist(emptyProgress);
@@ -148,6 +173,7 @@ export function useCourseProgress() {
     loaded,
     completeLesson,
     completeReview,
+    grantReward,
     resetProgress,
     toggleDeveloperMode,
     isUnlocked,
