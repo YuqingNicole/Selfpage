@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   findLesson,
   optionsCourse,
@@ -14,6 +14,9 @@ import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
 import { exerciseSummary, useSrs } from './useSrs';
 import { StrategyLab } from './StrategyLab';
+import { SurvivalGame } from './SurvivalGame';
+import { awardBadge, BADGES, loadBadges } from './badges';
+import { isMuted, setMuted } from './sounds';
 
 export function OptionsCourseApp() {
   const {
@@ -31,6 +34,18 @@ export function OptionsCourseApp() {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [reviewItems, setReviewItems] = useState<SessionItem[] | null>(null);
   const [labOpen, setLabOpen] = useState(false);
+  const [gameOpen, setGameOpen] = useState(false);
+  const [badges, setBadges] = useState<Record<string, string>>({});
+  const [soundOff, setSoundOff] = useState(false);
+
+  // 徽章与静音状态：挂载及任意弹层关闭后刷新
+  useEffect(() => {
+    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen) setBadges(loadBadges());
+  }, [activeLessonId, reviewItems, labOpen, gameOpen]);
+  useEffect(() => setSoundOff(isMuted()), []);
+  useEffect(() => {
+    if (srs.masteredCount >= 10 && awardBadge('mastered_10')) setBadges(loadBadges());
+  }, [srs.masteredCount]);
 
   const course = lang === 'en' ? optionsCourseEn : optionsCourse;
   const active = useMemo(() => {
@@ -99,7 +114,18 @@ export function OptionsCourseApp() {
 
       {/* 统计栏 */}
       <div className="sticky top-16 z-40 mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] px-4 py-3 shadow-sm">
-        <div className="mb-3 flex items-center justify-end">
+        <div className="mb-3 flex items-center justify-end gap-2">
+          <button
+            onClick={() => {
+              const next = !soundOff;
+              setMuted(next);
+              setSoundOff(next);
+            }}
+            aria-label={soundOff ? (lang === 'en' ? 'Unmute sounds' : '开启音效') : (lang === 'en' ? 'Mute sounds' : '关闭音效')}
+            className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-bold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
+          >
+            {soundOff ? '🔇' : '🔊'}
+          </button>
           <button
             onClick={toggleDeveloperMode}
             className={`rounded-full border px-3 py-1 text-xs font-bold transition ${
@@ -154,6 +180,54 @@ export function OptionsCourseApp() {
           {lang === 'en' ? 'Open Lab' : '进入实验室'}
         </button>
       </div>
+
+      {/* 交易生存挑战 */}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#58cc02] bg-[var(--card)] p-5">
+        <div>
+          <p className="text-base font-extrabold">🎮 {lang === 'en' ? 'Survival Challenge' : '交易生存挑战'}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {lang === 'en'
+              ? '$10,000, 52 weeks, real options math, black swans off the forecast. How long can you last?'
+              : '$10,000 资金、52 周行情、真实期权数学结算，黑天鹅从不预告。你能活多久？'}
+          </p>
+        </div>
+        <button
+          onClick={() => setGameOpen(true)}
+          className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
+        >
+          {lang === 'en' ? 'Play' : '开始挑战'}
+        </button>
+      </div>
+
+      {/* 成就徽章墙 */}
+      <details className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+        <summary className="cursor-pointer text-base font-extrabold">
+          🏅 {lang === 'en' ? 'Badges' : '成就徽章'}{' '}
+          <span className="text-sm font-bold text-[var(--muted-foreground)]">
+            {Object.keys(badges).length}/{BADGES.length}
+          </span>
+        </summary>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {BADGES.map((b) => {
+            const owned = badges[b.id];
+            return (
+              <div
+                key={b.id}
+                className={`rounded-2xl border-2 p-3 text-center ${
+                  owned ? 'border-[#ffc800] bg-[#fff7e0] dark:bg-[#3a3000]' : 'border-[var(--border)] opacity-50'
+                }`}
+              >
+                <div className="text-3xl" aria-hidden>{owned ? b.emoji : '🔒'}</div>
+                <p className="mt-1 text-sm font-extrabold">{lang === 'en' ? b.en : b.zh}</p>
+                <p className="mt-0.5 text-[10px] leading-snug text-[var(--muted-foreground)]">
+                  {lang === 'en' ? b.enDesc : b.zhDesc}
+                </p>
+                {owned && <p className="mt-1 text-[10px] font-bold text-[#b58900]">{owned}</p>}
+              </div>
+            );
+          })}
+        </div>
+      </details>
 
       {/* 错题本 · 间隔重复 */}
       {loaded && srs.loaded && (srs.book.length > 0 || srs.masteredCount > 0) && (
@@ -317,13 +391,29 @@ export function OptionsCourseApp() {
           isReview={progress.completed.includes(active.lesson.id)}
           developerMode={progress.developerMode}
           onExit={() => setActiveLessonId(null)}
-          onComplete={(perfectRun) => completeLesson(active.lesson.id, perfectRun)}
+          onComplete={(perfectRun) => {
+            const xp = completeLesson(active.lesson.id, perfectRun);
+            awardBadge('first_lesson');
+            if (perfectRun) awardBadge('perfect_lesson');
+            if (new Date().getHours() < 5) awardBadge('night_owl');
+            try {
+              const p = JSON.parse(localStorage.getItem('options-course-progress-v1') ?? '{}');
+              if ((p.streak ?? 0) >= 7) awardBadge('streak_7');
+              if ((p.completed?.length ?? 0) >= totalLessons) awardBadge('graduate');
+            } catch {
+              /* ignore */
+            }
+            return xp;
+          }}
           onExerciseResult={srs.recordResult}
         />
       )}
 
       {/* 策略实验室 */}
       {labOpen && <StrategyLab onExit={() => setLabOpen(false)} />}
+
+      {/* 交易生存挑战 */}
+      {gameOpen && <SurvivalGame onExit={() => setGameOpen(false)} />}
 
       {/* 错题复习会话 */}
       {reviewItems && reviewItems.length > 0 && (

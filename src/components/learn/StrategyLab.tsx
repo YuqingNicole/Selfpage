@@ -8,6 +8,23 @@ import {
   positionValue,
   type Leg,
 } from './blackScholes';
+import { awardBadge } from './badges';
+
+const CASES_SEEN_KEY = 'options-lab-cases-v1';
+
+/** 记录看完的案例；集齐全部时颁发「实验室老鼠」徽章 */
+function markCaseFinished(id: string, total: number) {
+  try {
+    const seen: string[] = JSON.parse(localStorage.getItem(CASES_SEEN_KEY) ?? '[]');
+    if (!seen.includes(id)) {
+      seen.push(id);
+      localStorage.setItem(CASES_SEEN_KEY, JSON.stringify(seen));
+    }
+    if (seen.length >= total) awardBadge('lab_rat');
+  } catch {
+    /* ignore */
+  }
+}
 
 /**
  * 策略实验室：交互式期权沙盘
@@ -368,9 +385,10 @@ export function StrategyLab({ onExit }: { onExit: () => void }) {
 
   function gotoStep(i: number) {
     if (!activeCase) return;
-    const step = activeCase.steps[Math.max(0, Math.min(i, activeCase.steps.length - 1))];
-    setCaseStep(Math.max(0, Math.min(i, activeCase.steps.length - 1)));
-    applyMarket(step);
+    const idx = Math.max(0, Math.min(i, activeCase.steps.length - 1));
+    setCaseStep(idx);
+    applyMarket(activeCase.steps[idx]);
+    if (idx === activeCase.steps.length - 1) markCaseFinished(activeCase.id, CASES.length);
   }
 
   /** 开仓成本（每股，正 = 净支出，负 = 净收入），在开仓状态定价 */

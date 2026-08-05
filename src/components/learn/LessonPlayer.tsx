@@ -13,6 +13,7 @@ import type {
 import { MAX_HEARTS } from '@/data/optionsCourse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LessonDiagram } from './diagrams';
+import { sfx } from './sounds';
 
 /* =========================================================
  * 会话核心：课程闯关与错题复习共用的答题流程
@@ -64,6 +65,7 @@ function SessionCore({
   const [qIndex, setQIndex] = useState(0);
   const [hearts, setHearts] = useState(MAX_HEARTS);
   const [mistakes, setMistakes] = useState(0);
+  const [combo, setCombo] = useState(0);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [earnedXp, setEarnedXp] = useState(0);
 
@@ -74,7 +76,12 @@ function SessionCore({
     if (current) onExerciseResult?.(current.key, correct);
     setFeedback({ correct, explain });
     setPhase('feedback');
-    if (!correct) {
+    if (correct) {
+      sfx.correct(combo);
+      setCombo((c) => c + 1);
+    } else {
+      sfx.wrong();
+      setCombo(0);
       setMistakes((m) => m + 1);
       // 答错的题排回队尾，直到答对为止
       setQueue((q) => [...q, q[qIndex]]);
@@ -91,6 +98,8 @@ function SessionCore({
     if (qIndex + 1 >= queue.length) {
       const xp = onComplete(mistakes === 0);
       setEarnedXp(xp);
+      if (mistakes === 0) sfx.perfect();
+      else sfx.complete();
       setPhase('complete');
     } else {
       setQIndex((i) => i + 1);
