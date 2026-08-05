@@ -9,11 +9,13 @@ import {
   type Leg,
 } from './blackScholes';
 import { awardBadge } from './badges';
+import { markDaily } from './daily';
 
 const CASES_SEEN_KEY = 'options-lab-cases-v1';
 
-/** 记录看完的案例；集齐全部时颁发「实验室老鼠」徽章 */
+/** 记录看完的案例；计入每日任务，集齐全部时颁发「实验室老鼠」徽章 */
 function markCaseFinished(id: string, total: number) {
+  markDaily('lab');
   try {
     const seen: string[] = JSON.parse(localStorage.getItem(CASES_SEEN_KEY) ?? '[]');
     if (!seen.includes(id)) {

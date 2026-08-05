@@ -17,6 +17,9 @@ import { StrategyLab } from './StrategyLab';
 import { SurvivalGame } from './SurvivalGame';
 import { awardBadge, BADGES, loadBadges } from './badges';
 import { isMuted, setMuted } from './sounds';
+import { BossBattle, BOSSES, loadBossWins, type BossDef } from './BossBattle';
+import { PredictionGame } from './PredictionGame';
+import { allDone, CHEST_XP, CHESTS_PER_FREEZE, claimChest, loadDaily, markDaily, type DailyState } from './daily';
 
 export function OptionsCourseApp() {
   const {
@@ -24,6 +27,7 @@ export function OptionsCourseApp() {
     loaded,
     completeLesson,
     completeReview,
+    grantReward,
     resetProgress,
     toggleDeveloperMode,
     isUnlocked,
@@ -37,11 +41,19 @@ export function OptionsCourseApp() {
   const [gameOpen, setGameOpen] = useState(false);
   const [badges, setBadges] = useState<Record<string, string>>({});
   const [soundOff, setSoundOff] = useState(false);
+  const [activeBoss, setActiveBoss] = useState<BossDef | null>(null);
+  const [predictionOpen, setPredictionOpen] = useState(false);
+  const [bossWins, setBossWins] = useState<Record<string, string>>({});
+  const [daily, setDaily] = useState<DailyState | null>(null);
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
-    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen) setBadges(loadBadges());
-  }, [activeLessonId, reviewItems, labOpen, gameOpen]);
+    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen) {
+      setBadges(loadBadges());
+      setBossWins(loadBossWins());
+      setDaily(loadDaily());
+    }
+  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen]);
   useEffect(() => setSoundOff(isMuted()), []);
   useEffect(() => {
     if (srs.masteredCount >= 10 && awardBadge('mastered_10')) setBadges(loadBadges());
@@ -101,6 +113,13 @@ export function OptionsCourseApp() {
         locked: '未解锁',
       };
 
+  const chapterDone = (unitIds: string[]) =>
+    progress.developerMode ||
+    unitIds.every((uid) => {
+      const u = course.find((x) => x.id === uid);
+      return !!u && u.lessons.every((l) => progress.completed.includes(l.id));
+    });
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-8">
       {/* 页头 */}
@@ -145,6 +164,11 @@ export function OptionsCourseApp() {
             <span className={streakAlive && progress.streak > 0 ? 'text-[#ff9600]' : 'text-[var(--muted-foreground)]'}>
               {loaded ? progress.streak : '–'} {ui.streakUnit}
             </span>
+            {loaded && progress.freezes > 0 && (
+              <span className="text-xs font-bold text-[#1cb0f6]" title={lang === 'en' ? 'Streak freezes' : '连胜冻结卡'}>
+                🧊×{progress.freezes}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5" title={ui.xpTitle}>
             <span className="text-xl" aria-hidden>
@@ -162,6 +186,48 @@ export function OptionsCourseApp() {
           </div>
         </div>
       </div>
+
+      {/* 每日任务 */}
+      {loaded && daily && (
+        <div className="mb-10 rounded-2xl border-2 border-[#ce82ff] bg-[var(--card)] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-base font-extrabold">📅 {lang === 'en' ? 'Daily Quests' : '每日任务'}</p>
+              <div className="mt-2 flex flex-wrap gap-3 text-xs font-bold">
+                <span className={daily.lesson ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
+                  {daily.lesson ? '✅' : '⬜'} {lang === 'en' ? 'Finish a lesson' : '学完一课'}
+                </span>
+                <span className={daily.review ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
+                  {daily.review ? '✅' : '⬜'} {lang === 'en' ? 'Do a review' : '复习错题'}
+                </span>
+                <span className={daily.lab ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
+                  {daily.lab ? '✅' : '⬜'} {lang === 'en' ? 'Play a lab case' : '实验室跑一个案例'}
+                </span>
+              </div>
+              <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
+                {lang === 'en'
+                  ? `Chest: +${CHEST_XP} XP · every ${CHESTS_PER_FREEZE} chests grant a 🧊 streak freeze (${daily.totalChests} collected)`
+                  : `宝箱 +${CHEST_XP} XP · 每攒 ${CHESTS_PER_FREEZE} 个宝箱送一张 🧊 连胜冻结卡（已攒 ${daily.totalChests} 个）`}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const reward = claimChest();
+                if (reward) {
+                  grantReward(reward.xp, reward.freezeEarned ? 1 : 0);
+                  setDaily(loadDaily());
+                }
+              }}
+              disabled={!allDone(daily) || daily.chestClaimed}
+              className="rounded-2xl border-b-4 border-[#a568cc] bg-[#ce82ff] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#d99aff] active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {daily.chestClaimed
+                ? lang === 'en' ? 'Claimed ✓' : '已开启 ✓'
+                : `🎁 ${lang === 'en' ? 'Open Chest' : '开宝箱'}`}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 策略实验室 */}
       <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
@@ -196,6 +262,24 @@ export function OptionsCourseApp() {
           className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
         >
           {lang === 'en' ? 'Play' : '开始挑战'}
+        </button>
+      </div>
+
+      {/* 预测小游戏 */}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#ffc800] bg-[var(--card)] p-5">
+        <div>
+          <p className="text-base font-extrabold">🎲 {lang === 'en' ? 'Can You Predict the Market?' : '你能预测市场吗？'}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {lang === 'en'
+              ? 'Guess 10 chart continuations. Most people land at ~50% — find out why pros trade mechanics instead.'
+              : '连猜 10 段走势的方向。大多数人 ≈50%——亲身体会为什么职业玩家不猜方向、只玩机制。'}
+          </p>
+        </div>
+        <button
+          onClick={() => setPredictionOpen(true)}
+          className="rounded-2xl border-b-4 border-[#d4a600] bg-[#ffc800] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffd21f] active:translate-y-0.5 active:border-b-2"
+        >
+          {lang === 'en' ? 'Try It' : '试试手气'}
         </button>
       </div>
 
@@ -339,6 +423,45 @@ export function OptionsCourseApp() {
               onOpen={setActiveLessonId}
               lang={lang}
             />
+            {BOSSES.filter((b) => b.unitIds[b.unitIds.length - 1] === unit.id).map((b) => {
+              const unlocked = chapterDone(b.unitIds);
+              const won = bossWins[b.id];
+              return (
+                <div
+                  key={b.id}
+                  className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 p-5"
+                  style={{ borderColor: unlocked ? b.color : 'var(--border)', backgroundColor: 'var(--card)' }}
+                >
+                  <div>
+                    <p className="text-base font-extrabold">
+                      {won ? '👑' : b.emoji} {lang === 'en' ? 'Chapter Boss: ' : '篇章 Boss：'}
+                      {lang === 'en' ? b.en : b.zh}
+                      {won && (
+                        <span className="ml-2 text-xs font-bold text-[#ffc800]">
+                          {lang === 'en' ? `defeated ${won}` : `已于 ${won} 击败`}
+                        </span>
+                      )}
+                    </p>
+                    <p className="mt-1 text-xs italic text-[var(--muted-foreground)]">
+                      「{lang === 'en' ? b.enTaunt : b.zhTaunt}」
+                    </p>
+                    {!unlocked && (
+                      <p className="mt-1 text-[10px] font-bold text-[var(--muted-foreground)]">
+                        🔒 {lang === 'en' ? 'Complete every lesson in this chapter to challenge' : '修完本篇章全部课程后解锁挑战'}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => unlocked && setActiveBoss(b)}
+                    disabled={!unlocked}
+                    className="rounded-2xl border-b-4 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40"
+                    style={{ backgroundColor: unlocked ? b.color : 'var(--muted-foreground)', borderColor: unlocked ? b.colorDark : 'var(--border)' }}
+                  >
+                    ⚔️ {won ? (lang === 'en' ? 'Rematch' : '再战') : lang === 'en' ? 'Challenge' : '挑战'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
@@ -393,6 +516,7 @@ export function OptionsCourseApp() {
           onExit={() => setActiveLessonId(null)}
           onComplete={(perfectRun) => {
             const xp = completeLesson(active.lesson.id, perfectRun);
+            markDaily('lesson');
             awardBadge('first_lesson');
             if (perfectRun) awardBadge('perfect_lesson');
             if (new Date().getHours() < 5) awardBadge('night_owl');
@@ -415,12 +539,21 @@ export function OptionsCourseApp() {
       {/* 交易生存挑战 */}
       {gameOpen && <SurvivalGame onExit={() => setGameOpen(false)} />}
 
+      {/* 篇章 Boss 战 */}
+      {activeBoss && <BossBattle boss={activeBoss} course={course} onExit={() => setActiveBoss(null)} />}
+
+      {/* 预测小游戏 */}
+      {predictionOpen && <PredictionGame onExit={() => setPredictionOpen(false)} />}
+
       {/* 错题复习会话 */}
       {reviewItems && reviewItems.length > 0 && (
         <ReviewSession
           items={reviewItems}
           onExit={() => setReviewItems(null)}
-          onComplete={completeReview}
+          onComplete={() => {
+            markDaily('review');
+            return completeReview();
+          }}
           onExerciseResult={srs.recordResult}
         />
       )}
