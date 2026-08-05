@@ -38,6 +38,50 @@ function pathD(pts: number[], upto: number, w: number, h: number): string {
 
 type Phase = 'guess' | 'reveal' | 'done';
 
+/** 每轮揭晓后的教学点评：对错都值得说道说道 */
+const INSIGHTS: [string, string][] = [
+  [
+    '这段走势是纯随机数生成的——没有趋势、没有支撑位。但你多半已经从里面「看出了形态」，这叫模式幻觉：人脑对噪声也要强行讲故事。',
+    'This chart is pure random numbers — no trend, no support levels. Yet you probably "saw a pattern." That is pareidolia: the brain insists on stories, even in noise.',
+  ],
+  [
+    '猜对了别急着自信：随机猜连对 3 次的概率有 12.5%，赌场每天都在批发这种「手感」。猜错了也一样——都只是硬币的一面。',
+    'Right or wrong, hold the confidence: random guessing runs 3-in-a-row 12.5% of the time. Casinos wholesale that "hot hand" feeling daily.',
+  ],
+  [
+    '「跌了这么久，该反弹了吧」——这是赌徒谬误。随机游走没有记忆，前 40 根 K 线对后 10 根没有任何约束力。',
+    '"It has fallen so long, it must bounce" — the gambler\'s fallacy. Random walks have no memory; the first 40 bars place zero constraint on the next 10.',
+  ],
+  [
+    '双底、旗形、头肩顶……这些「技术形态」在纯随机数据里出现得同样频繁。能画出来，不等于能预测。',
+    'Double bottoms, flags, head-and-shoulders — all appear just as often in pure random data. Drawable is not the same as predictive.',
+  ],
+  [
+    '注意你此刻的情绪：连对时想加注，连错时想翻本。市场不知道你的历史战绩，但你的仓位会替情绪买单。',
+    'Notice your emotions right now: winning streaks whisper "bet bigger," losing streaks scream "win it back." The market ignores your record; your position size pays for your feelings.',
+  ],
+  [
+    '职业交易员的解法不是「猜得更准」，而是：猜错时亏得少、猜对时赚得多（盈亏比），或者干脆不猜方向（卖权利金收租）。',
+    'The professional fix is not "guess better." It is: lose little when wrong, win big when right (payoff ratio) — or skip direction entirely and sell premium.',
+  ],
+  [
+    '如果有人给你看他连续 10 次全对的记录——记住 1024 个抛硬币的人里必有一个十连对，而那个人现在多半开了付费群。',
+    'If someone shows you a 10-for-10 record: among 1,024 coin-flippers, one always goes 10-for-10 — and that one usually starts a paid signals group.',
+  ],
+  [
+    '市场短期是投票机，投票结果接近抛硬币；长期真正复利的是概率、仓位和纪律——这正是本课程反复讲的机制。',
+    'Short term the market is a voting machine that votes like a coin. What compounds long term is probability, sizing and discipline — the mechanics this course keeps repeating.',
+  ],
+  [
+    '期权市场早就承认了「猜不准」：隐含波动率本质上就是市场为不可预测性标出的价格。定价模型的核心假设恰恰是——方向随机。',
+    'Options markets already concede unpredictability: implied volatility is literally the price tag on it. The pricing model\'s core assumption is that direction is random.',
+  ],
+  [
+    '最后一轮：不管你的命中率是多少，10 次的样本量什么也证明不了——这也正是「trade small, trade often」的数学理由。',
+    'Final round: whatever your hit rate, a sample of 10 proves nothing — which is exactly the math behind "trade small, trade often."',
+  ],
+];
+
 export function PredictionGame({ onExit }: { onExit: () => void }) {
   const { lang } = useLanguage();
   const t = (zh: string, en: string) => (lang === 'en' ? en : zh);
@@ -154,9 +198,24 @@ export function PredictionGame({ onExit }: { onExit: () => void }) {
               </div>
             ) : (
               <div className="text-center">
-                <p className={`mb-4 text-xl font-extrabold ${lastGuessRight ? 'text-[#58a700]' : 'text-[#ea2b2b]'}`}>
+                <p className={`mb-1 text-xl font-extrabold ${lastGuessRight ? 'text-[#58a700]' : 'text-[#ea2b2b]'}`}>
                   {lastGuessRight ? t('猜对了！', 'Called it!') : t('猜错了', 'Missed it')}
                 </p>
+                <p className="mb-3 text-sm font-bold text-[var(--muted-foreground)]">
+                  {t('后 10 根实际走了', 'The hidden 10 bars moved')}{' '}
+                  <span className={wentUp ? 'text-[#58a700]' : 'text-[#ea2b2b]'}>
+                    {wentUp ? '+' : ''}
+                    {(((path[path.length - 1] - path[VISIBLE - 1]) / path[VISIBLE - 1]) * 100).toFixed(1)}%
+                  </span>
+                </p>
+                <div className="mx-auto mb-4 max-w-md rounded-2xl border-2 border-[#ffc800] bg-[#fff7e0] p-4 text-left dark:bg-[#3a3000]">
+                  <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-[#b58900]">
+                    💡 {t('本轮冷知识', 'Round insight')} {round}/{ROUNDS}
+                  </p>
+                  <p className="text-sm leading-relaxed text-[#7a5c00] dark:text-[#ffe58a]">
+                    {lang === 'en' ? INSIGHTS[round - 1][1] : INSIGHTS[round - 1][0]}
+                  </p>
+                </div>
                 <button
                   onClick={next}
                   className="w-full max-w-sm rounded-2xl border-b-4 border-[#1899d6] bg-[#1cb0f6] py-3.5 text-base font-extrabold uppercase tracking-wide text-white transition hover:bg-[#2bbcff] active:translate-y-0.5 active:border-b-2"
