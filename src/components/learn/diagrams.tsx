@@ -549,6 +549,35 @@ export const DIAGRAMS: Record<string, DiagramSpec> = {
     regionLabels: [{ x: 27, label: '← 机制持仓窗口 →' }],
   },
 
+  amm: {
+    title: 'AMM 恒定乘积曲线：x · y = k',
+    caption: '池子永远停在这条曲线上：买走 X（沿曲线右下滑）会让 X 越来越贵。单笔买得越多、离起点越远，均价越差——这就是滑点的几何来源。',
+    xDomain: [40, 210],
+    yDomain: [30, 230],
+    xLabel: '池内 X 数量',
+    yLabel: '池内 Y 数量',
+    series: [{ fn: (x) => 10000 / x, color: BLUE }],
+    vlines: [
+      { x: 100, label: '当前状态' },
+      { x: 160, label: '大单买入后', row: 1 },
+    ],
+  },
+
+  fundingArb: {
+    title: '资金费率套利：方向归零，坐收费率',
+    caption: '现货多头（橙）与永续空头（紫）的损益互相抵消，组合（绿）几乎是一条水平线——不赌方向，收益来自多头拥挤时持续支付的资金费。',
+    xDomain: [80, 120],
+    yDomain: [-24, 24],
+    xLabel: '币价',
+    yLabel: '盈亏',
+    series: [
+      { fn: (s) => s - 100, color: ORANGE, label: '现货多头', dash: true },
+      { fn: (s) => 100 - s, color: PURPLE, label: '永续空头', dash: true },
+      { fn: () => 2, color: GREEN, label: '组合 + 资金费' },
+    ],
+    vlines: [{ x: 100, label: '开仓价' }],
+  },
+
   collar: {
     title: '领口（Collar）：把持股装进管道',
     caption: '持股 + 买 90 Put + 卖 110 Call（保费互抵≈零成本）：下跌最多亏到 90，上涨最多赚到 110——上下都有界，机构锁定浮盈的标准做法。',
