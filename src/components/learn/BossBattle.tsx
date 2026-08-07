@@ -46,7 +46,7 @@ export const BOSSES: BossDef[] = [
   {
     id: 'boss_chain', emoji: '👻', zh: 'MEV 幽灵', en: 'MEV Phantom',
     zhTaunt: '你的交易还没上链，我已经吃完了午餐。', enTaunt: 'I finished lunch before your transaction even confirmed.',
-    unitIds: ['u15', 'u16'],
+    unitIds: ['u15', 'u16', 'u17', 'u18'],
     color: '#627eea', colorDark: '#4c63bb',
   },
 ];
