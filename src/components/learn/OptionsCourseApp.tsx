@@ -78,6 +78,7 @@ export function OptionsCourseApp() {
         progressTitle: 'Course Progress',
         advanced: '⚔️ Advanced',
         mechanics: '🎲 Mechanics · tastylive style',
+        onchain: '⛓️ On-Chain · DeFi Arbitrage',
         graduateTitle: 'You Graduated!',
         graduateBody: `You finished all ${totalLessons} lessons. Come back anytime to review and lock it in (+5 XP each time).`,
         graduateNext: 'Next step: practice small with a paper account and turn the Greek letters into real intuition.',
@@ -101,6 +102,7 @@ export function OptionsCourseApp() {
         progressTitle: '课程进度',
         advanced: '⚔️ 进阶篇',
         mechanics: '🎲 机制流 · tastylive 风格',
+        onchain: '⛓️ 链上篇 · DeFi 套利',
         graduateTitle: '恭喜毕业！',
         graduateBody: `你已完成全部 ${totalLessons} 课。随时回来复习任何一课巩固记忆（每次 +5 XP）。`,
         graduateNext: '下一步：用模拟账户小仓位实践，把纸上的希腊字母变成手感。',
@@ -411,6 +413,15 @@ export function OptionsCourseApp() {
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
                 <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
                   {ui.mechanics}
+                </span>
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+              </div>
+            )}
+            {unit.id === 'u15' && (
+              <div className="mb-12 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+                <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+                  {ui.onchain}
                 </span>
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
               </div>
