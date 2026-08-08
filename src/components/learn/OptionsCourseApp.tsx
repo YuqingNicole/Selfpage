@@ -14,6 +14,7 @@ import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
 import { exerciseSummary, useSrs } from './useSrs';
 import { StrategyLab } from './StrategyLab';
+import { ArbLab } from './ArbLab';
 import { SurvivalGame } from './SurvivalGame';
 import { awardBadge, BADGES, loadBadges } from './badges';
 import { isMuted, setMuted } from './sounds';
@@ -38,6 +39,7 @@ export function OptionsCourseApp() {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [reviewItems, setReviewItems] = useState<SessionItem[] | null>(null);
   const [labOpen, setLabOpen] = useState(false);
+  const [arbLabOpen, setArbLabOpen] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
   const [badges, setBadges] = useState<Record<string, string>>({});
   const [soundOff, setSoundOff] = useState(false);
@@ -48,12 +50,12 @@ export function OptionsCourseApp() {
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
-    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen) {
+    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen) {
       setBadges(loadBadges());
       setBossWins(loadBossWins());
       setDaily(loadDaily());
     }
-  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen]);
+  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen]);
   useEffect(() => setSoundOff(isMuted()), []);
   useEffect(() => {
     if (srs.masteredCount >= 10 && awardBadge('mastered_10')) setBadges(loadBadges());
@@ -264,6 +266,24 @@ export function OptionsCourseApp() {
           className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
         >
           {lang === 'en' ? 'Play' : '开始挑战'}
+        </button>
+      </div>
+
+      {/* 套利工坊 */}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#627eea] bg-[var(--card)] p-5">
+        <div>
+          <p className="text-base font-extrabold">⚡ {lang === 'en' ? 'Arb Workshop' : '套利工坊'}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {lang === 'en'
+              ? 'Funding-carry simulator (leverage vs wick survival) + 5 real cases with field checklists: the 300% APY bait, USDC weekend, UST spiral, stETH discount, funding flips.'
+              : '资金费模拟器（杠杆 vs 插针存活）+ 5 个真实案例与实战清单：300% 年化诱饵、USDC 脱锚周末、UST 螺旋、stETH 折价、费率转负。'}
+          </p>
+        </div>
+        <button
+          onClick={() => setArbLabOpen(true)}
+          className="rounded-2xl border-b-4 border-[#4c63bb] bg-[#627eea] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#7289ef] active:translate-y-0.5 active:border-b-2"
+        >
+          {lang === 'en' ? 'Enter' : '进入工坊'}
         </button>
       </div>
 
@@ -549,6 +569,9 @@ export function OptionsCourseApp() {
 
       {/* 交易生存挑战 */}
       {gameOpen && <SurvivalGame onExit={() => setGameOpen(false)} />}
+
+      {/* 套利工坊 */}
+      {arbLabOpen && <ArbLab onExit={() => setArbLabOpen(false)} />}
 
       {/* 篇章 Boss 战 */}
       {activeBoss && <BossBattle boss={activeBoss} course={course} onExit={() => setActiveBoss(null)} />}
