@@ -273,6 +273,98 @@ const CASES: ArbCase[] = [
       'Funding flips negative? Decide within 48 hours',
     ],
   },
+  {
+    id: 'weekendGap', emoji: '📆', zh: '周末跳空：冻结的对冲腿', en: 'Weekend Gap: The Frozen Hedge',
+    steps: [
+      {
+        zh: '周五收盘前，你持有「TSLA 永续空 + 代币化 TSLA 现货多」的费率 carry：年化 35%，敞口中性，一切完美。永续 24/7 交易，股票周末休市——你觉得没关系。',
+        en: 'Friday close: you hold a TSLA perp-short + tokenized-TSLA-long carry at 35% annualized, delta neutral, all perfect. The perp trades 24/7, the stock market closes — you figure it does not matter.',
+        stats: [
+          { zh: '年化费率', en: 'Funding APY', value: '+35%', tone: 'pos' },
+          { zh: '敞口', en: 'Exposure', value: '≈0' },
+          { zh: '时间', en: 'Time', value: '周五 16:00' },
+        ],
+      },
+      {
+        zh: '周日凌晨突发利空，永续先跌为敬 −9%。空单在赚钱？别高兴：现货腿也终将补跌，而且现在根本卖不掉——你的「中性」实际上已经裸奔了 40 个小时。',
+        en: 'Sunday 3am, bad news drops. The perp falls −9% first. Short leg winning? Hold the cheer: the spot leg will catch down too, and right now it cannot be sold — your "neutral" book has been naked for 40 hours.',
+        stats: [
+          { zh: '永续', en: 'Perp', value: '−9%', tone: 'neg' },
+          { zh: '现货腿', en: 'Spot leg', value: '冻结', tone: 'neg' },
+          { zh: '组合', en: 'Book', value: '名义中性，实际悬空' },
+        ],
+      },
+      {
+        zh: '周一开盘现货补跌 −8.5%，两腿重新对齐，这次净变化约为零——你白担了两天的裸奔风险。想想反过来：若是暴涨利好，先被打爆的就是你的空腿。',
+        en: 'Monday open: spot gaps down −8.5%, the legs realign, net change roughly zero — you carried two days of naked risk for nothing. Now flip it: on a violent rally, your short leg is the one that gets liquidated first.',
+        stats: [
+          { zh: '现货补跌', en: 'Spot catch-down', value: '−8.5%' },
+          { zh: '本次净变化', en: 'Net this time', value: '≈0（走运）' },
+          { zh: '真正的教训', en: 'Real lesson', value: '时段错配', tone: 'neg' },
+        ],
+      },
+    ],
+    lessonZh: '教训：股票永续 24/7、股票每天只开 6.5 小时——时段错配让「中性」组合每个周末裸奔。这是美股永续套利与币圈套利最大的结构差异，费率再高也要先算这笔账。',
+    lessonEn: 'Lesson: stock perps run 24/7 while the stock trades 6.5 hours a day — the session mismatch strips a "neutral" book naked every weekend. It is the biggest structural difference from crypto carry, and no funding rate is rich enough to skip this math.',
+    checklistZh: [
+      '周五收盘前把仓位降到「裸奔两天也能承受」的水平',
+      '算清空腿在周末跳空下的爆仓价，杠杆按最坏情形倒推',
+      '盯住盘后与周末的重大事件日历（财报、监管、宏观）',
+      '优先选流动性最好、映射关系最清晰的合约',
+    ],
+    checklistEn: [
+      'Cut the position by Friday close to a size that survives two naked days',
+      'Compute the short leg\'s liquidation price under a weekend gap; back out leverage from the worst case',
+      'Track the after-hours and weekend event calendar (earnings, regulators, macro)',
+      'Prefer the most liquid contracts with the cleanest stock mapping',
+    ],
+  },
+  {
+    id: 'twtr', emoji: '🐦', zh: '推特并购案：spread 过山车', en: 'Twitter Deal: The Spread Coaster',
+    steps: [
+      {
+        zh: '2022 年 4 月：马斯克以 $54.20 全现金收购推特，协议已签，股价却停在 $50——8.4% 的 spread，预计几个月交割，年化收益很诱人。这就是并购套利：买入、等待、收下确定性的钱。',
+        en: 'April 2022: Musk signs a $54.20 all-cash deal for Twitter, yet the stock sits at $50 — an 8.4% spread over a few months to close. That is merger arb: buy, wait, collect the price of certainty.',
+        stats: [
+          { zh: '收购价', en: 'Offer', value: '$54.20' },
+          { zh: '市价', en: 'Market', value: '$50.00' },
+          { zh: 'Spread', en: 'Spread', value: '8.4%', tone: 'pos' },
+        ],
+      },
+      {
+        zh: '7 月：马斯克发函毁约，股价砸到 $33。持仓浮亏 34%——spread 看起来变成了 64%，但此刻市场定价的是「交易已死」。有人割肉离场，有人重读并购协议后加仓：分手费、特拉华法院、具体履约条款。',
+        en: 'July: Musk files to walk away. The stock craters to $33 — a 34% drawdown. The spread "looks like" 64%, but the market is pricing a dead deal. Some cut losses; others reread the agreement — break fee, Delaware court, specific performance — and add.',
+        stats: [
+          { zh: '市价', en: 'Market', value: '$33', tone: 'neg' },
+          { zh: '浮亏', en: 'Drawdown', value: '−34%', tone: 'neg' },
+          { zh: '市场判断', en: 'Market read', value: '交易将破裂' },
+        ],
+      },
+      {
+        zh: '10 月：开庭前夕马斯克认怂，按原价 $54.20 交割。从 $33 拿到 $54.20 的人收益 +64%；但用杠杆的人早在半路被强平，用短钱的人在 $33 的恐慌里割在了地板上。',
+        en: 'October: on the courthouse steps, Musk folds and closes at the original $54.20. From $33 that is +64% — but levered players were liquidated mid-ride, and short-term money puked at the $33 bottom.',
+        stats: [
+          { zh: '交割价', en: 'Close', value: '$54.20', tone: 'pos' },
+          { zh: '从 $33 起', en: 'From $33', value: '+64%', tone: 'pos' },
+          { zh: '杠杆玩家', en: 'Levered players', value: '半路出局', tone: 'neg' },
+        ],
+      },
+    ],
+    lessonZh: '教训：并购套利赚的是法律与融资确定性的钱，但 spread 中途的波动比最终结果更折磨人。负偏收益 + 剧烈中途波动 = 小仓位、零杠杆、分散多个案子、拿得到终点才有确定性。',
+    lessonEn: 'Lesson: merger arb monetizes legal and financing certainty, but the mid-deal spread swings hurt more than the outcome. Negative skew + violent interim moves = small size, zero leverage, many deals — certainty belongs only to those who reach the finish line.',
+    checklistZh: [
+      '只做已签协议的现金要约，读懂分手费与履约条款',
+      '仓位按「破裂回撤 30%+」倒推，而不是按年化收益正推',
+      '分散 5–10 个案子，任何单一案子破裂都不致命',
+      '不加杠杆：中途波动会让确定性死在黎明前',
+    ],
+    checklistEn: [
+      'Signed cash offers only; read the break fee and specific-performance clauses',
+      'Size from the 30%+ break drawdown, not from the annualized return',
+      'Spread across 5–10 deals so no single break is fatal',
+      'No leverage: interim swings kill certainty before dawn',
+    ],
+  },
 ];
 
 /** 记录看完的套利案例；集齐颁发徽章 */
