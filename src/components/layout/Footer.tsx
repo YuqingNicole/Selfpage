@@ -1,6 +1,7 @@
 import { Instagram, Linkedin, Coffee, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { photographerInfo } from '@/data/photographer';
 import { photographyImages } from '@/data/photography';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,9 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   const { loading, handleBuyCoffee } = useBuyCoffee();
   const [showGallery, setShowGallery] = useState(false);
+  const pathname = usePathname();
+  // 学习类页面（期权/套利学园）不展示摄影作品集入口
+  const showPhotography = !pathname.startsWith('/learn');
 
   const socialLinks = [
     photographerInfo.socialLinks.instagram && {
@@ -63,7 +67,8 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border">
-      {/* Photography Gallery Toggle */}
+      {/* Photography Gallery Toggle（学习页面不展示） */}
+      {showPhotography && (
       <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-10 pb-4">
         <ScrollReveal>
           <button
@@ -114,6 +119,7 @@ export function Footer() {
           )}
         </AnimatePresence>
       </div>
+      )}
 
       {/* Original Footer Content */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
