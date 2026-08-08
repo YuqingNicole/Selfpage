@@ -578,6 +578,32 @@ export const DIAGRAMS: Record<string, DiagramSpec> = {
     vlines: [{ x: 100, label: '开仓价' }],
   },
 
+  futuresCurve: {
+    title: '期货期限结构：升水 vs 贴水',
+    caption: '横轴是交割月份。升水（橙）：远月更贵，通常来自仓储与资金成本，长期展期持续损耗；贴水（蓝虚线）：现货紧缺时近月反而更贵，展期反而有正收益。',
+    xDomain: [0, 12],
+    yDomain: [80, 125],
+    xLabel: '交割月份',
+    yLabel: '期货价格',
+    series: [
+      { fn: (m) => 100 + 1.6 * m, color: ORANGE, label: '升水 Contango' },
+      { fn: (m) => 100 - 1.2 * m, color: BLUE, label: '贴水 Backwardation', dash: true },
+    ],
+  },
+
+  carry: {
+    title: '持有成本：远期价格从哪来',
+    caption: '远期价 = 现货价 + 利息 + 仓储 − 持有收益。无股息资产（橙）的远期价随时间上翘；高股息资产（蓝虚线）的持有收益抵扣成本，远期价甚至低于现价。',
+    xDomain: [0, 12],
+    yDomain: [90, 115],
+    xLabel: '距交割月数',
+    yLabel: '远期价格',
+    series: [
+      { fn: (m) => 100 * Math.pow(1.006, m) + 0.25 * m, color: ORANGE, label: '无股息（利息+仓储）' },
+      { fn: (m) => 100 * Math.pow(1.006, m) - 0.55 * m, color: BLUE, label: '高股息资产', dash: true },
+    ],
+  },
+
   collar: {
     title: '领口（Collar）：把持股装进管道',
     caption: '持股 + 买 90 Put + 卖 110 Call（保费互抵≈零成本）：下跌最多亏到 90，上涨最多赚到 110——上下都有界，机构锁定浮盈的标准做法。',

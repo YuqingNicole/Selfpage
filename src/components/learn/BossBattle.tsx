@@ -44,6 +44,12 @@ export const BOSSES: BossDef[] = [
     color: '#2b70c9', colorDark: '#1f57a0',
   },
   {
+    id: 'boss_deriv', emoji: '🚂', zh: '展期吞噬者', en: 'Roll Devourer',
+    zhTaunt: '你每个月搬一次家，房租全都交给我。', enTaunt: "You move house every month, and every month's rent lands in my pocket.",
+    unitIds: ['u20', 'u21'],
+    color: '#c2410c', colorDark: '#9a3412',
+  },
+  {
     id: 'boss_chain', emoji: '👻', zh: 'MEV 幽灵', en: 'MEV Phantom',
     zhTaunt: '你的交易还没上链，我已经吃完了午餐。', enTaunt: 'I finished lunch before your transaction even confirmed.',
     unitIds: ['u15', 'u16', 'u17', 'u18', 'u19'],

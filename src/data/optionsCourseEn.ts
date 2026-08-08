@@ -4,6 +4,7 @@ import { optionsEnU5U8 } from './options-course-en-parts/u5-u8';
 import { optionsEnU9U11 } from './options-course-en-parts/u9-u11';
 import { optionsEnU12U14 } from './options-course-en-parts/u12-u14';
 import { optionsEnU15U18 } from './options-course-en-parts/u15-u18';
+import { optionsEnU20U21 } from './options-course-en-parts/u20-u21';
 
 export const optionsCourseEn: Unit[] = [
   optionsEnU1U4.u1,
@@ -20,6 +21,8 @@ export const optionsCourseEn: Unit[] = [
   optionsEnU12U14.u12,
   optionsEnU12U14.u13,
   optionsEnU12U14.u14,
+  optionsEnU20U21.u20,
+  optionsEnU20U21.u21,
 ];
 
 /** English arbitrage course (standalone page /learn/arbitrage) */
