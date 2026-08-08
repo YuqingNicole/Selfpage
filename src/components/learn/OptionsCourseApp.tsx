@@ -25,6 +25,8 @@ import { isMuted, setMuted } from './sounds';
 import { BossBattle, BOSSES, loadBossWins, type BossDef } from './BossBattle';
 import { PredictionGame } from './PredictionGame';
 import { allDone, CHEST_XP, CHESTS_PER_FREEZE, claimChest, loadDaily, markDaily, type DailyState } from './daily';
+import { OnboardingFlow, type PlacementResult } from './OnboardingFlow';
+import { track } from './analytics';
 
 export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' | 'arb' }) {
   const isArb = variant === 'arb';
@@ -34,6 +36,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
     completeLesson,
     completeReview,
     grantReward,
+    completeMany,
     resetProgress,
     toggleDeveloperMode,
     streakAlive,
@@ -51,6 +54,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bossWins, setBossWins] = useState<Record<string, string>>({});
   const [daily, setDaily] = useState<DailyState | null>(null);
+  const [tab, setTab] = useState<'learn' | 'practice' | 'review' | 'me'>('learn');
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [devTaps, setDevTaps] = useState(0);
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
@@ -61,6 +67,21 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
     }
   }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen]);
   useEffect(() => setSoundOff(isMuted()), []);
+  useEffect(() => {
+    if (isArb || !loaded) return;
+    try {
+      const seen = localStorage.getItem('options-onboarding-v1');
+      if (seen) return;
+      if (progress.completed.length > 0 || progress.xp > 0) {
+        localStorage.setItem('options-onboarding-v1', 'existing');
+        return;
+      }
+      setShowOnboarding(true);
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isArb, loaded]);
   useEffect(() => {
     if (srs.masteredCount >= 10 && awardBadge('mastered_10')) setBadges(loadBadges());
   }, [srs.masteredCount]);
@@ -155,7 +176,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
     });
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-8">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-8">
       {/* 页头 */}
       <header className="mb-8 text-center">
         <div className="mb-2 text-5xl" aria-hidden>
@@ -179,16 +200,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           >
             {soundOff ? '🔇' : '🔊'}
           </button>
-          <button
-            onClick={toggleDeveloperMode}
-            className={`rounded-full border px-3 py-1 text-xs font-bold transition ${
-              progress.developerMode
-                ? 'border-[#ff9600] bg-[#fff3e0] text-[#ff9600]'
-                : 'border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]'
-            }`}
-          >
-            {ui.developerMode} {progress.developerMode ? ui.on : ui.off}
-          </button>
+
         </div>
         <div className="flex items-center justify-around text-sm font-extrabold">
           <div className="flex items-center gap-1.5" title={ui.streakTitle}>
@@ -221,6 +233,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       </div>
 
+      {tab === 'review' && (
+        <>
       {/* 每日任务 */}
       {loaded && daily && (
         <div className="mb-10 rounded-2xl border-2 border-[#ce82ff] bg-[var(--card)] p-5">
@@ -248,6 +262,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               onClick={() => {
                 const reward = claimChest();
                 if (reward) {
+                  track('chest_open', { freeze: reward.freezeEarned });
                   grantReward(reward.xp, reward.freezeEarned ? 1 : 0);
                   setDaily(loadDaily());
                 }
@@ -263,6 +278,12 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       )}
 
+
+        </>
+      )}
+
+      {tab === 'practice' && (
+        <>
       {/* 策略实验室 */}
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
@@ -275,7 +296,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             </p>
           </div>
           <button
-            onClick={() => setLabOpen(true)}
+            onClick={() => { track('lab_open'); setLabOpen(true); }}
             className="rounded-2xl border-b-4 border-[#1899d6] bg-[#1cb0f6] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#2bbcff] active:translate-y-0.5 active:border-b-2"
           >
             {lang === 'en' ? 'Open Lab' : '进入实验室'}
@@ -295,7 +316,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             </p>
           </div>
           <button
-            onClick={() => setGameOpen(true)}
+            onClick={() => { track('game_open'); setGameOpen(true); }}
             className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
           >
             {lang === 'en' ? 'Play' : '开始挑战'}
@@ -315,7 +336,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             </p>
           </div>
           <button
-            onClick={() => setArbLabOpen(true)}
+            onClick={() => { track('arb_lab_open'); setArbLabOpen(true); }}
             className="rounded-2xl border-b-4 border-[#4c63bb] bg-[#627eea] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#7289ef] active:translate-y-0.5 active:border-b-2"
           >
             {lang === 'en' ? 'Enter' : '进入工坊'}
@@ -335,7 +356,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             </p>
           </div>
           <button
-            onClick={() => setPredictionOpen(true)}
+            onClick={() => { track('prediction_open'); setPredictionOpen(true); }}
             className="rounded-2xl border-b-4 border-[#d4a600] bg-[#ffc800] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffd21f] active:translate-y-0.5 active:border-b-2"
           >
             {lang === 'en' ? 'Try It' : '试试手气'}
@@ -343,6 +364,12 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       )}
 
+
+        </>
+      )}
+
+      {tab === 'me' && (
+        <>
       {/* 姊妹课程入口 */}
       <a
         href={isArb ? '/learn/options' : '/learn/arbitrage'}
@@ -397,6 +424,12 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       </details>
 
+
+        </>
+      )}
+
+      {tab === 'review' && (
+        <>
       {/* 错题本 · 间隔重复 */}
       {loaded && srs.loaded && (srsBook.length > 0 || srs.masteredCount > 0) && (
         <div className="mb-10 rounded-2xl border-2 border-[#f59f00] bg-[var(--card)] p-5">
@@ -478,6 +511,12 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       )}
 
+
+        </>
+      )}
+
+      {tab === 'learn' && (
+        <>
       {/* 课程地图 */}
       <div className="space-y-12">
         {course.map((unit) => (
@@ -523,7 +562,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               completed={progress.completed}
               perfect={progress.perfect}
               isUnlocked={isUnlocked}
-              onOpen={setActiveLessonId}
+              onOpen={(id) => { track('lesson_start', { lesson: id, variant }); setActiveLessonId(id); }}
               lang={lang}
             />
             {BOSSES.filter((b) => b.unitIds[b.unitIds.length - 1] === unit.id).map((b) => {
@@ -590,23 +629,114 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       )}
 
-      {/* 重置 */}
-      {loaded && (completedCount > 0 || progress.xp > 0 || progress.developerMode) && (
-        <div className="mt-16 text-center">
-          <button
-            onClick={() => {
-              if (window.confirm(ui.resetConfirm)) resetProgress();
-            }}
-            className="text-xs font-semibold text-[var(--muted-foreground)] underline-offset-4 hover:underline"
+
+        </>
+      )}
+
+      {tab === 'me' && (
+        <div className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+          <p className="mb-3 text-base font-extrabold">⚙️ {lang === 'en' ? 'Settings' : '设置'}</p>
+          <p
+            className="mb-3 select-none text-xs text-[var(--muted-foreground)]"
+            onClick={() => setDevTaps((n) => n + 1)}
           >
-            {ui.reset}
-          </button>
+            {lang === 'en' ? 'Options Academy' : '期权学园'} v2.0
+          </p>
+          {(devTaps >= 7 || progress.developerMode) && (
+            <button
+              onClick={toggleDeveloperMode}
+              className={`mb-3 block rounded-full border px-3 py-1 text-xs font-bold transition ${
+                progress.developerMode
+                  ? 'border-[#ff9600] bg-[#fff3e0] text-[#ff9600]'
+                  : 'border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]'
+              }`}
+            >
+              {ui.developerMode} {progress.developerMode ? ui.on : ui.off}
+            </button>
+          )}
+          {loaded && (completedCount > 0 || progress.xp > 0 || progress.developerMode) && (
+            <button
+              onClick={() => {
+                const word = window.prompt(
+                  lang === 'en'
+                    ? 'This permanently erases ALL progress. Type RESET to confirm.'
+                    : '这将永久清空全部学习进度。输入 RESET 确认。',
+                );
+                if (word === 'RESET') {
+                  track('progress_reset');
+                  resetProgress();
+                }
+              }}
+              className="text-xs font-semibold text-[#ea2b2b] underline-offset-4 hover:underline"
+            >
+              {ui.reset}
+            </button>
+          )}
         </div>
       )}
 
       <p className="mt-10 text-center text-xs leading-relaxed text-[var(--muted-foreground)]">
         {ui.disclaimer}
       </p>
+
+      {/* 底部导航 */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-[var(--border)] bg-[var(--card)]">
+        <div className="mx-auto grid w-full max-w-3xl grid-cols-4">
+          {(
+            [
+              ['learn', '🗺️', lang === 'en' ? 'Learn' : '学习'],
+              ['practice', '🧪', lang === 'en' ? 'Practice' : '演练场'],
+              ['review', '📒', lang === 'en' ? 'Review' : '复习'],
+              ['me', '🏅', lang === 'en' ? 'Me' : '我的'],
+            ] as const
+          ).map(([id, icon, label]) => (
+            <button
+              key={id}
+              onClick={() => {
+                setTab(id);
+                track('tab_switch', { tab: id, variant });
+              }}
+              className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-extrabold transition ${
+                tab === id ? 'text-[#1cb0f6]' : 'text-[var(--muted-foreground)]'
+              }`}
+            >
+              <span className="text-xl leading-none" aria-hidden>{icon}</span>
+              {label}
+              {id === 'review' && srsDue.length > 0 && (
+                <span className="absolute mt-0 h-2 w-2 translate-x-4 -translate-y-0 rounded-full bg-[#ff4b4b]" />
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* 新用户引导 */}
+      {showOnboarding && (
+        <OnboardingFlow
+          course={course}
+          onStartFirstLesson={() => {
+            try { localStorage.setItem('options-onboarding-v1', 'novice'); } catch { /* ignore */ }
+            setShowOnboarding(false);
+            setActiveLessonId(courseOrder[0]);
+          }}
+          onPlacement={(result: PlacementResult) => {
+            try { localStorage.setItem('options-onboarding-v1', result); } catch { /* ignore */ }
+            if (result !== 'none') {
+              const throughUnit = result === 'u8' ? 8 : 4;
+              const ids = courseOrder.filter((id) => {
+                const m = id.match(/^u(\d+)l/);
+                return m && Number(m[1]) <= throughUnit;
+              });
+              completeMany(ids);
+            }
+            setShowOnboarding(false);
+          }}
+          onClose={() => {
+            try { localStorage.setItem('options-onboarding-v1', 'skipped'); } catch { /* ignore */ }
+            setShowOnboarding(false);
+          }}
+        />
+      )}
 
       {/* 课程播放器 */}
       {active && (
@@ -619,6 +749,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           onExit={() => setActiveLessonId(null)}
           onComplete={(perfectRun) => {
             const xp = completeLesson(active.lesson.id, perfectRun);
+            track('lesson_complete', { lesson: active.lesson.id, perfect: perfectRun, variant });
             markDaily('lesson');
             awardBadge('first_lesson');
             if (perfectRun) awardBadge('perfect_lesson');
@@ -657,6 +788,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           items={reviewItems}
           onExit={() => setReviewItems(null)}
           onComplete={() => {
+            track('review_complete', { variant });
             markDaily('review');
             return completeReview();
           }}

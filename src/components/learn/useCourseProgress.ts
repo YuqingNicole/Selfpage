@@ -146,6 +146,16 @@ export function useCourseProgress() {
     [persist],
   );
 
+  /** 分级测试通过：批量标记完成（不发 XP、不动连胜） */
+  const completeMany = useCallback(
+    (lessonIds: string[]) => {
+      const current = load();
+      const merged = Array.from(new Set([...current.completed, ...lessonIds]));
+      persist({ ...current, completed: merged });
+    },
+    [persist],
+  );
+
   const resetProgress = useCallback(() => {
     persist(emptyProgress);
   }, [persist]);
@@ -174,6 +184,7 @@ export function useCourseProgress() {
     completeLesson,
     completeReview,
     grantReward,
+    completeMany,
     resetProgress,
     toggleDeveloperMode,
     isUnlocked,
