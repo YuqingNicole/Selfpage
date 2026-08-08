@@ -20,6 +20,10 @@ export const optionsCourseEn: Unit[] = [
   optionsEnU12U14.u12,
   optionsEnU12U14.u13,
   optionsEnU12U14.u14,
+];
+
+/** English arbitrage course (standalone page /learn/arbitrage) */
+export const arbCourseEn: Unit[] = [
   optionsEnU15U18.u15,
   optionsEnU15U18.u16,
   optionsEnU15U18.u17,

@@ -2913,7 +2913,11 @@ export const optionsCourse: Unit[] = [
         ],
       },
     ],
-  },
+  }
+];
+
+/** 套利学园课程（独立页面 /learn/arbitrage），与期权课共享进度体系 */
+export const arbCourse: Unit[] = [
   {
     id: 'u15',
     title: '第 15 单元 · 链上世界入门',
@@ -3537,18 +3541,20 @@ export const optionsCourse: Unit[] = [
         ],
       },
     ],
-  },
+  }
 ];
 
 export const totalLessons = optionsCourse.reduce((n, u) => n + u.lessons.length, 0);
+export const arbTotalLessons = arbCourse.reduce((n, u) => n + u.lessons.length, 0);
 
 export function findLesson(lessonId: string): { unit: Unit; lesson: Lesson; index: number } | null {
-  for (const unit of optionsCourse) {
+  for (const unit of [...optionsCourse, ...arbCourse]) {
     const index = unit.lessons.findIndex((l) => l.id === lessonId);
     if (index !== -1) return { unit, lesson: unit.lessons[index], index };
   }
   return null;
 }
 
-/** 课程内所有课的线性顺序，用于解锁判断 */
+/** 各课程内部的线性顺序，用于解锁判断 */
 export const lessonOrder: string[] = optionsCourse.flatMap((u) => u.lessons.map((l) => l.id));
+export const arbLessonOrder: string[] = arbCourse.flatMap((u) => u.lessons.map((l) => l.id));
