@@ -124,7 +124,7 @@ export function OnboardingFlow({ course, onStartFirstLesson, onPlacement, onClos
         {step === 'welcome' && (
           <div className="text-center">
             <div className="mb-4 text-7xl" aria-hidden>🦉</div>
-            <h1 className="mb-3 text-3xl font-extrabold">{t('欢迎来到期权学园', 'Welcome to Options Academy')}</h1>
+            <h1 className="mb-3 text-3xl font-extrabold">{t('欢迎来到投资学园', 'Welcome to Investing Academy')}</h1>
             <div className="mb-6 space-y-2 text-left text-sm leading-relaxed text-[var(--muted-foreground)]">
               <p>⏱️ {t('每课 3 分钟，闯关式学习，从零基础到体系化实战', '3-minute lessons, level by level, from zero to a full system')}</p>
               <p>🎮 {t('比喻 + 图示 + 练习 + Boss 战 + 交易模拟器，全程免费', 'Analogies, diagrams, quizzes, boss fights and simulators — all free')}</p>

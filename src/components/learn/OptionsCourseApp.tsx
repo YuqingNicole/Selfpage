@@ -27,6 +27,10 @@ import { PredictionGame } from './PredictionGame';
 import { allDone, CHEST_XP, CHESTS_PER_FREEZE, claimChest, loadDaily, markDaily, type DailyState } from './daily';
 import { OnboardingFlow, type PlacementResult } from './OnboardingFlow';
 import { track } from './analytics';
+import { useCloudSync } from './cloudSync';
+import { AccountCard } from './AccountCard';
+
+const SAVE_NUDGE_KEY = 'learn-save-nudge-v1';
 
 export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' | 'arb' }) {
   const isArb = variant === 'arb';
@@ -57,6 +61,20 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const [tab, setTab] = useState<'learn' | 'practice' | 'review' | 'me'>('learn');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [devTaps, setDevTaps] = useState(0);
+  const [nudgeDismissed, setNudgeDismissed] = useState(true);
+
+  // 学习数据变化即触发云端防抖推送（登录时）
+  const cloud = useCloudSync(
+    `${progress.xp}:${progress.completed.length}:${srs.book.length}:${Object.keys(badges).length}:${daily?.totalChests ?? 0}:${daily?.chestClaimed ?? false}`,
+  );
+
+  useEffect(() => {
+    try {
+      setNudgeDismissed(Boolean(localStorage.getItem(SAVE_NUDGE_KEY)));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
@@ -114,8 +132,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const completedCount = courseOrder.filter((id) => progress.completed.includes(id)).length;
   const ui = lang === 'en'
     ? {
-        title: isArb ? 'Arb Academy' : 'Options Academy',
-        subtitle: isArb ? 'Learn arbitrage one level at a time, like Duolingo' : 'Learn options trading one level at a time, like Duolingo',
+        title: 'Investing Academy',
+        subtitle: isArb ? 'Arbitrage track · learn arbitrage one level at a time, like Duolingo' : 'Options track · learn options trading one level at a time, like Duolingo',
         developerMode: 'Developer Mode',
         on: 'ON',
         off: 'OFF',
@@ -141,8 +159,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         locked: 'locked',
       }
     : {
-        title: isArb ? '套利学园' : '期权学园',
-        subtitle: isArb ? '像玩多邻国一样，一关一关学会套利' : '像玩多邻国一样，一关一关学会期权交易',
+        title: '投资学园',
+        subtitle: isArb ? '套利篇 · 像玩多邻国一样，一关一关学会套利' : '期权篇 · 像玩多邻国一样，一关一关学会期权交易',
         developerMode: '开发者模式',
         on: '开',
         off: '关',
@@ -370,6 +388,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
       {tab === 'me' && (
         <>
+      {/* 账户与云同步 */}
+      {cloud.enabled && <AccountCard cloud={cloud} lang={lang} />}
+
       {/* 姊妹课程入口 */}
       <a
         href={isArb ? '/learn/options' : '/learn/arbitrage'}
@@ -378,8 +399,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         <div>
           <p className="text-base font-extrabold">
             {isArb
-              ? lang === 'en' ? '🦉 Options Academy' : '🦉 期权学园'
-              : lang === 'en' ? '⚡ Arb Academy' : '⚡ 套利学园'}
+              ? lang === 'en' ? '🦉 Options Track' : '🦉 期权篇'
+              : lang === 'en' ? '⚡ Arbitrage Track' : '⚡ 套利篇'}
           </p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
             {isArb
@@ -424,6 +445,26 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       </details>
 
+      {/* 反馈入口 */}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+        <div>
+          <p className="text-base font-extrabold">💬 {lang === 'en' ? 'Feedback' : '反馈与共建'}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {lang === 'en'
+              ? 'Found a bug, a confusing lesson, or have an idea? Come tell us — every note shapes the course.'
+              : '发现 bug、觉得哪课讲得不清楚、或者有想法？来群里聊——每条反馈都会影响课程。'}
+          </p>
+        </div>
+        <a
+          href="https://discord.gg/tqE5Tbcz"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track('feedback_open')}
+          className="rounded-2xl border-b-4 border-[#4752c4] bg-[#5865f2] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#6773f5] active:translate-y-0.5 active:border-b-2"
+        >
+          Discord
+        </a>
+      </div>
 
         </>
       )}
@@ -517,6 +558,35 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
       {tab === 'learn' && (
         <>
+      {/* 保存进度提示（已配置云同步、未登录、已有进度时展示一次） */}
+      {cloud.enabled && cloud.ready && !cloud.session && loaded && progress.completed.length > 0 && !nudgeDismissed && (
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-4">
+          <p className="text-xs leading-relaxed">
+            ☁️ {lang === 'en'
+              ? 'Your progress lives only on this device. Save it to the cloud in one step.'
+              : '你的进度目前只存在这台设备上，一步保存到云端，换设备不丢档。'}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { track('save_nudge_click'); setTab('me'); }}
+              className="rounded-full bg-[#1cb0f6] px-4 py-1.5 text-xs font-extrabold text-white transition hover:bg-[#2bbcff]"
+            >
+              {lang === 'en' ? 'Save progress' : '去保存'}
+            </button>
+            <button
+              aria-label={lang === 'en' ? 'Dismiss' : '关闭提示'}
+              onClick={() => {
+                setNudgeDismissed(true);
+                try { localStorage.setItem(SAVE_NUDGE_KEY, 'dismissed'); } catch { /* ignore */ }
+              }}
+              className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs font-bold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 课程地图 */}
       <div className="space-y-12">
         {course.map((unit) => (
@@ -640,7 +710,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             className="mb-3 select-none text-xs text-[var(--muted-foreground)]"
             onClick={() => setDevTaps((n) => n + 1)}
           >
-            {lang === 'en' ? 'Options Academy' : '期权学园'} v2.0
+            {lang === 'en' ? 'Investing Academy' : '投资学园'} v2.1
           </p>
           {(devTaps >= 7 || progress.developerMode) && (
             <button
