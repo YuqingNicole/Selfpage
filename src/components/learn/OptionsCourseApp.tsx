@@ -13,6 +13,10 @@ import {
   type Unit,
 } from '@/data/optionsCourse';
 import { arbCourseEn, optionsCourseEn } from '@/data/optionsCourseEn';
+import { investCourse, investLessonOrder, investTotalLessons } from '@/data/investCourse';
+import { investCourseEn } from '@/data/investCourseEn';
+import { CASE_XP, DailyCase, todayCase, todayCaseDone } from './DailyCase';
+import { TAG_LABEL } from '@/data/investCases';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
@@ -32,8 +36,9 @@ import { AccountCard } from './AccountCard';
 
 const SAVE_NUDGE_KEY = 'learn-save-nudge-v1';
 
-export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' | 'arb' }) {
+export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' | 'arb' | 'invest' }) {
   const isArb = variant === 'arb';
+  const isInvest = variant === 'invest';
   const {
     progress,
     loaded,
@@ -59,6 +64,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const [bossWins, setBossWins] = useState<Record<string, string>>({});
   const [daily, setDaily] = useState<DailyState | null>(null);
   const [tab, setTab] = useState<'learn' | 'practice' | 'review' | 'me'>('learn');
+  const [caseOpen, setCaseOpen] = useState(false);
+  const [caseDoneToday, setCaseDoneToday] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [devTaps, setDevTaps] = useState(0);
   const [nudgeDismissed, setNudgeDismissed] = useState(true);
@@ -78,15 +85,16 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
-    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen) {
+    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen && !caseOpen) {
       setBadges(loadBadges());
       setBossWins(loadBossWins());
       setDaily(loadDaily());
+      setCaseDoneToday(todayCaseDone());
     }
-  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen]);
+  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen, caseOpen]);
   useEffect(() => setSoundOff(isMuted()), []);
   useEffect(() => {
-    if (isArb || !loaded) return;
+    if (variant !== 'options' || !loaded) return;
     try {
       const seen = localStorage.getItem('options-onboarding-v1');
       if (seen) return;
@@ -99,20 +107,24 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       /* ignore */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isArb, loaded]);
+  }, [variant, loaded]);
   useEffect(() => {
     if (srs.masteredCount >= 10 && awardBadge('mastered_10')) setBadges(loadBadges());
   }, [srs.masteredCount]);
 
-  const course = isArb
+  const course = isInvest
     ? lang === 'en'
-      ? arbCourseEn
-      : arbCourse
-    : lang === 'en'
-      ? optionsCourseEn
-      : optionsCourse;
-  const courseOrder = isArb ? arbLessonOrder : lessonOrder;
-  const courseTotal = isArb ? arbTotalLessons : totalLessons;
+      ? investCourseEn
+      : investCourse
+    : isArb
+      ? lang === 'en'
+        ? arbCourseEn
+        : arbCourse
+      : lang === 'en'
+        ? optionsCourseEn
+        : optionsCourse;
+  const courseOrder = isInvest ? investLessonOrder : isArb ? arbLessonOrder : lessonOrder;
+  const courseTotal = isInvest ? investTotalLessons : isArb ? arbTotalLessons : totalLessons;
   const unitIdSet = new Set(course.map((u) => u.id));
 
   const isUnlocked = (lessonId: string): boolean => {
@@ -133,7 +145,11 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const ui = lang === 'en'
     ? {
         title: 'Investing Academy',
-        subtitle: isArb ? 'Arbitrage track · learn arbitrage one level at a time, like Duolingo' : 'Options track · learn options trading one level at a time, like Duolingo',
+        subtitle: isInvest
+          ? 'Judgment track · build an investor’s framework a few minutes a day'
+          : isArb
+            ? 'Arbitrage track · learn arbitrage one level at a time, like Duolingo'
+            : 'Options track · learn options trading one level at a time, like Duolingo',
         developerMode: 'Developer Mode',
         on: 'ON',
         off: 'OFF',
@@ -151,16 +167,22 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         developerBanner: 'Developer mode is on: you can jump into any lesson directly without completing the previous one first.',
         reset: 'Reset learning progress',
         resetConfirm: 'Are you sure you want to clear all learning progress? This cannot be undone.',
-        disclaimer: isArb
-          ? 'This course is for educational purposes only and is not investment advice. On-chain and derivatives trading carry extreme risk of total loss.'
-          : 'This course is for educational purposes only and is not investment advice. Options trading is high risk and can result in the loss of your entire principal.',
+        disclaimer: isInvest
+          ? 'This course is for educational purposes only and is not investment advice. All cases are historical reviews and do not predict future performance.'
+          : isArb
+            ? 'This course is for educational purposes only and is not investment advice. On-chain and derivatives trading carry extreme risk of total loss.'
+            : 'This course is for educational purposes only and is not investment advice. Options trading is high risk and can result in the loss of your entire principal.',
         start: 'Start',
         completed: 'completed',
         locked: 'locked',
       }
     : {
         title: '投资学园',
-        subtitle: isArb ? '套利篇 · 像玩多邻国一样，一关一关学会套利' : '期权篇 · 像玩多邻国一样，一关一关学会期权交易',
+        subtitle: isInvest
+          ? '判断框架主线 · 每天几分钟，建立自己的投资判断力'
+          : isArb
+            ? '套利篇 · 像玩多邻国一样，一关一关学会套利'
+            : '期权篇 · 像玩多邻国一样，一关一关学会期权交易',
         developerMode: '开发者模式',
         on: '开',
         off: '关',
@@ -178,13 +200,41 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         developerBanner: '开发者模式已开启：当前允许直接进入任意章节，不再受上一课完成状态限制。',
         reset: '重置学习进度',
         resetConfirm: '确定要清空全部学习进度吗？此操作不可撤销。',
-        disclaimer: isArb
-          ? '本课程仅供教育用途，不构成投资建议。链上与衍生品交易风险极高，可能损失全部本金。'
-          : '本课程仅供教育用途，不构成投资建议。期权交易风险较高，可能损失全部本金。',
+        disclaimer: isInvest
+          ? '本课程仅供教育用途，不构成投资建议。所有案例均为历史复盘，不预测也不代表未来表现。'
+          : isArb
+            ? '本课程仅供教育用途，不构成投资建议。链上与衍生品交易风险极高，可能损失全部本金。'
+            : '本课程仅供教育用途，不构成投资建议。期权交易风险较高，可能损失全部本金。',
         start: '开始',
         completed: '已完成',
         locked: '未解锁',
       };
+
+  const todaysCase = todayCase();
+  const dailyCaseCard = isInvest ? (
+    <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#ff9600] bg-[var(--card)] p-5">
+      <div className="min-w-0">
+        <p className="text-base font-extrabold">
+          📰 {lang === 'en' ? 'Case of the Day' : '每日一案'}
+          {caseDoneToday && <span className="ml-2 text-sm text-[#58a700]">✅ {lang === 'en' ? 'done today' : '今日已完成'}</span>}
+        </p>
+        <p className="mt-1 text-xs font-bold text-[var(--muted-foreground)]">
+          {lang === 'en' ? TAG_LABEL[todaysCase.tag].en : TAG_LABEL[todaysCase.tag].zh} · {lang === 'en' ? todaysCase.title.en : todaysCase.title.zh}
+        </p>
+        <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
+          {lang === 'en'
+            ? `A real historical case: make your call first, then see what happened. +${CASE_XP} XP daily`
+            : `真实历史案例：先做判断，再看真实结局。每日 +${CASE_XP} XP`}
+        </p>
+      </div>
+      <button
+        onClick={() => { track('case_open', { case: todaysCase.id }); setCaseOpen(true); }}
+        className="rounded-2xl border-b-4 border-[#cc7800] bg-[#ff9600] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffa41f] active:translate-y-0.5 active:border-b-2"
+      >
+        {caseDoneToday ? (lang === 'en' ? 'Replay' : '再看一遍') : lang === 'en' ? 'Make the call' : '开始判断'}
+      </button>
+    </div>
+  ) : null;
 
   const chapterDone = (unitIds: string[]) =>
     progress.developerMode ||
@@ -198,7 +248,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {/* 页头 */}
       <header className="mb-8 text-center">
         <div className="mb-2 text-5xl" aria-hidden>
-          {isArb ? '🦉⚡' : '🦉📊'}
+          {isInvest ? '🦉🧭' : isArb ? '🦉⚡' : '🦉📊'}
         </div>
         <h1 className="text-3xl font-extrabold sm:text-4xl">{ui.title}</h1>
         <p className="mt-2 text-[var(--muted-foreground)]">{ui.subtitle}</p>
@@ -302,6 +352,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
       {tab === 'practice' && (
         <>
+      {/* 每日一案（判断主线） */}
+      {dailyCaseCard}
+
       {/* 策略实验室 */}
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
@@ -391,29 +444,49 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {/* 账户与云同步 */}
       {cloud.enabled && <AccountCard cloud={cloud} lang={lang} />}
 
-      {/* 姊妹课程入口 */}
-      <a
-        href={isArb ? '/learn/options' : '/learn/arbitrage'}
-        className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[#1cb0f6]"
-      >
-        <div>
-          <p className="text-base font-extrabold">
-            {isArb
-              ? lang === 'en' ? '🦉 Options Track' : '🦉 期权篇'
-              : lang === 'en' ? '⚡ Arbitrage Track' : '⚡ 套利篇'}
-          </p>
-          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            {isArb
-              ? lang === 'en'
-                ? '14 units of options: Greeks, tastylive mechanics, Strategy Lab and the Survival Challenge.'
-                : '14 个单元的期权课：希腊字母、tastylive 机制、策略实验室与生存挑战。'
-              : lang === 'en'
-                ? 'The standalone arbitrage course: AMM, funding carry, MEV defense, plus the Arb Workshop.'
-                : '独立的套利课程：AMM、资金费、MEV 防御，还有套利工坊。'}
-          </p>
-        </div>
-        <span className="text-sm font-extrabold text-[#1cb0f6]">{lang === 'en' ? 'Visit →' : '前往 →'}</span>
-      </a>
+      {/* 其他课程入口 */}
+      {(
+        [
+          {
+            key: 'invest',
+            href: '/learn/investing',
+            zh: '🧭 判断框架主线',
+            en: '🧭 Judgment Track',
+            zhDesc: '看懂市场语言与公司——每日一案 + L1 判断框架课程。',
+            enDesc: 'Market language and companies — the daily case plus the L1 judgment course.',
+          },
+          {
+            key: 'options',
+            href: '/learn/options',
+            zh: '🦉 期权篇',
+            en: '🦉 Options Track',
+            zhDesc: '16 个单元的期权课：希腊字母、tastylive 机制、策略实验室与生存挑战。',
+            enDesc: '16 units of options: Greeks, tastylive mechanics, Strategy Lab and the Survival Challenge.',
+          },
+          {
+            key: 'arb',
+            href: '/learn/arbitrage',
+            zh: '⚡ 套利篇',
+            en: '⚡ Arbitrage Track',
+            zhDesc: '独立的套利课程：AMM、资金费、MEV 防御，还有套利工坊。',
+            enDesc: 'The standalone arbitrage course: AMM, funding carry, MEV defense, plus the Arb Workshop.',
+          },
+        ] as const
+      )
+        .filter((tk) => tk.key !== variant)
+        .map((tk) => (
+          <a
+            key={tk.key}
+            href={tk.href}
+            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[#1cb0f6] last-of-type:mb-10"
+          >
+            <div>
+              <p className="text-base font-extrabold">{lang === 'en' ? tk.en : tk.zh}</p>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">{lang === 'en' ? tk.enDesc : tk.zhDesc}</p>
+            </div>
+            <span className="text-sm font-extrabold text-[#1cb0f6]">{lang === 'en' ? 'Visit →' : '前往 →'}</span>
+          </a>
+        ))}
 
       {/* 成就徽章墙 */}
       <details className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
@@ -586,6 +659,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           </div>
         </div>
       )}
+
+      {/* 每日一案（判断主线） */}
+      {dailyCaseCard}
 
       {/* 课程地图 */}
       <div className="space-y-12">
@@ -851,6 +927,18 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
       {/* 预测小游戏 */}
       {predictionOpen && <PredictionGame onExit={() => setPredictionOpen(false)} />}
+
+      {/* 每日一案 */}
+      {caseOpen && (
+        <DailyCase
+          onExit={() => setCaseOpen(false)}
+          onFirstFinish={() => {
+            grantReward(CASE_XP);
+            markDaily('lab');
+            setDaily(loadDaily());
+          }}
+        />
+      )}
 
       {/* 错题复习会话 */}
       {reviewItems && reviewItems.length > 0 && (

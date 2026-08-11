@@ -1,7 +1,8 @@
 /**
- * 期权学园 — Duolingo 风格期权交易课程内容
- * 8 个单元，每单元 3 课，每课含知识卡片 + 混合题型练习
+ * 投资学园 · 期权篇 — Duolingo 风格期权交易课程内容
+ * findLesson 同时检索期权/套利/判断框架三门课程（错题本 key 解析依赖它）
  */
+import { investCourse } from './investCourse';
 
 export type ChoiceExercise = {
   type: 'choice';
@@ -4119,7 +4120,7 @@ export const totalLessons = optionsCourse.reduce((n, u) => n + u.lessons.length,
 export const arbTotalLessons = arbCourse.reduce((n, u) => n + u.lessons.length, 0);
 
 export function findLesson(lessonId: string): { unit: Unit; lesson: Lesson; index: number } | null {
-  for (const unit of [...optionsCourse, ...arbCourse]) {
+  for (const unit of [...optionsCourse, ...arbCourse, ...investCourse]) {
     const index = unit.lessons.findIndex((l) => l.id === lessonId);
     if (index !== -1) return { unit, lesson: unit.lessons[index], index };
   }
