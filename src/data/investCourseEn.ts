@@ -1160,3 +1160,666 @@ investCourseEn.push(
     ],
   },
 );
+
+/* ================= L3 What the Market Is Trading ================= */
+
+investCourseEn.push(
+  {
+    id: 'i9',
+    title: 'Unit 9 · Expectations: What Is in the Price',
+    subtitle: 'Why great results can mean a falling stock',
+    color: '#f59f00',
+    colorDark: '#c47f00',
+    icon: '🎭',
+    lessons: [
+      {
+        id: 'i9l1',
+        title: 'Priced in: good news that sells off',
+        tips: [
+          'A stock price is not a grade on reality — it is a quote on the expected future. Good news everyone anticipated is already in the price.',
+          'Hence "beat and fall": the report beat the official estimate but missed the market’s private, higher bar (the whisper number).',
+          'The classic shape — buy the rumor, sell the news: the rally happens during the anticipation phase; the announcement itself fires the profit-taking gun.',
+          'Rule: on any big headline, ask two questions first — how many people saw this coming, and how much has the price already moved for it?',
+        ],
+        analogy:
+          'A student brings home a 95 and gets scolded — because the parents had heard he could score 98. The score doesn’t matter; beating or missing the number in their heads does. The market’s parents are the whisper expectations.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A star company beats EPS estimates by 5% and falls 8% that day. The most common explanation?',
+            options: [
+              'The market is irrational',
+              'The stock had run up and whisper numbers sat far above official estimates — a 5% beat was actually "not good enough"',
+              'Accounting fraud',
+              'Insider selling',
+            ],
+            correct: 1,
+            explain: 'For crowded names the real bar is the expectation embedded in the run-up, not the analyst consensus. Check how much optimism is already priced before predicting the reaction.',
+          },
+          {
+            type: 'fill',
+            before: '"Buy the rumor, sell the news": the rally completes during the',
+            after: 'phase; the official announcement often marks the top.',
+            options: ['rumor/anticipation', 'earnings release', 'dividend', 'trading halt'],
+            correct: 0,
+            explain: 'Bitcoin topped and corrected ~20% right after the January 2024 ETF approval — the gains had been made in the anticipation phase.',
+          },
+          {
+            type: 'tf',
+            statement: 'A positive catalyst that everyone already knows about is usually in the price, with no new fuel left on arrival.',
+            answer: true,
+            explain: 'Prices move on incremental information. Universally known news has no increment — unless the details beat or miss.',
+          },
+          {
+            type: 'choice',
+            question: 'Before a big announcement lands, the first thing to check to predict the reaction is?',
+            options: ['The company website', 'How much the price has already moved for this expectation — the run-up is the thermometer of priced-in hope', 'The CEO’s horoscope', 'Candle colors'],
+            correct: 1,
+            explain: 'The same news lands oppositely on a stock up 50% into the event versus one that never moved.',
+          },
+        ],
+      },
+      {
+        id: 'i9l2',
+        title: 'The expectations gap: the market’s only fuel',
+        tips: [
+          'Prices are never moved by "good or bad" — only by the gap versus expectations. Terrible results above panic expectations rally; great results below euphoric expectations fall.',
+          'Live case A: in mid-2022 many companies posted ugly quarters, but with recession already priced, "less bad than feared" itself became the bullish catalyst.',
+          'Live case B: Nvidia in May 2023 — the quarter merely in line, but guidance 53% above the Street: +24% overnight. The gap lived entirely in the future.',
+          'Rule: for any report, line up three columns — the actual number, the official estimate, and the expectation implied by sentiment. Only the gap to the third column trades.',
+        ],
+        analogy:
+          'Two students: the slacker scores 60 and the family celebrates (they expected 40); the ace scores 92 and gets a lecture (they expected 98). Scores are absolute; emotional reactions only recognize the gap. The market grades that emotional exam daily.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Mid-2022: a retailer reports profit down 30% YoY and rallies 12% that day. Best explanation?',
+            options: [
+              'The market misread',
+              'The price had already discounted a profit halving; -30% beat the panic bar — "less bad" is bullish',
+              'Manipulation',
+              'Falling profit is good',
+            ],
+            correct: 1,
+            explain: 'The fuel is the gap. Before predicting a reaction, measure how much panic or euphoria is already in the price.',
+          },
+          {
+            type: 'tf',
+            statement: 'Nvidia soared 24% after hours in May 2023 mainly because quarterly revenue crushed estimates.',
+            answer: false,
+            explain: 'The quarter was in line; the detonator was $11B guidance versus $7.2B expected — the 53% gap sat entirely in the future. (The full replay lives in the Daily Case.)',
+          },
+          {
+            type: 'fill',
+            before: 'The right way to read a report: three columns — actual, official estimate, and',
+            after: '; only the last column’s gap drives the tape.',
+            options: ['the sentiment-implied expectation', 'last year’s number', 'executive pay', 'headcount'],
+            correct: 0,
+            explain: 'Official estimates are public; the sentiment-implied bar hides in recent price action, options pricing and positioning — that is the real counterparty price.',
+          },
+          {
+            type: 'choice',
+            question: 'Turning gap-thinking into action: the single best pre-earnings habit for a holding?',
+            options: [
+              'Close the trading app',
+              'Write down what expectation you think is priced (euphoric/neutral/panicked), then judge the print against that — not against analyst consensus',
+              'Sell everything',
+              'Double the position',
+            ],
+            correct: 1,
+            explain: 'Writing the expectation down beforehand is the best defense against hindsight stories — and a rehearsal for the L4 habit.',
+          },
+        ],
+      },
+      {
+        id: 'i9l3',
+        title: 'Reverse engineering: what does the price assume',
+        tips: [
+          'The advanced move is not predicting the future but reverse-engineering the assumptions in today’s price — then judging those assumptions.',
+          'Rough demo: a stock at 50× earnings against a 20× market implies far-above-average profit growth for years. If your evidence says growth can’t carry that, you finally have grounds for a judgment.',
+          'Options price the expectations explicitly: implied volatility is the market’s quote on future movement, and the pre-earnings implied move tells you exactly how much the market expects the print to move the stock. (The options track converges here.)',
+          'Rule: instead of "will it go up?", ask "what does the price assume, and do I agree?" — the watershed between betting on direction and making judgments.',
+        ],
+        analogy:
+          'A family asking a 1M bride price implicitly assumes "our child is far above average". You don’t need to predict the child’s future — just audit whether the assumption behind the asking price holds. Valuation analysis is due diligence on the assumptions inside a quote.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A stock trades at 60× earnings (market at 20×). Step one of reverse-engineering?',
+            options: [
+              'Sell — too expensive',
+              'Back out the implied assumption: the market is betting on years of rapid profit growth — then test that assumption against evidence',
+              'Wait for 20×',
+              'Ask around',
+            ],
+            correct: 1,
+            explain: '60× is innocent by itself: if profit triples in three years it becomes 20×. The judgment target is always "implied assumption versus evidence", never the multiple alone.',
+          },
+          {
+            type: 'fill',
+            before: 'Implied volatility is, at heart, the market’s quote on future',
+            after: '.',
+            options: ['movement', 'dividends', 'volume', 'listing age'],
+            correct: 0,
+            explain: 'IV pumping before earnings = big move expected; IV crushing after = uncertainty resolved. The options track’s IV crush, retold in the language of expectations.',
+          },
+          {
+            type: 'tf',
+            statement: 'The pre-earnings implied move computed from option prices tells you how much the market expects the print to move the stock.',
+            answer: true,
+            explain: 'Implied move ±8%: a 3% move pays the volatility sellers, a 15% move pays the buyers. The market’s expectations are always quoted — hanging on the options chain.',
+          },
+          {
+            type: 'choice',
+            question: 'Why is "what does the price assume, and do I agree?" superior to "will it go up?"',
+            options: [
+              'It sounds smarter',
+              'The first is an unverifiable bet; the second decomposes into testable assumptions and evidence — wrong answers teach you where you erred. That compounds into judgment',
+              'Because it is more complex',
+              'No difference',
+            ],
+            correct: 1,
+            explain: 'Only falsifiable, reviewable judgments improve with reps. This question leads straight into L4: thesis, falsifier, post-mortem.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i10',
+    title: 'Unit 10 · The Psychology of Multiples',
+    subtitle: 'Same profit, sometimes 10×, sometimes 30×',
+    color: '#0ea5e9',
+    colorDark: '#0284c7',
+    icon: '⚖️',
+    lessons: [
+      {
+        id: 'i10l1',
+        title: 'The Davis double play',
+        tips: [
+          'Price = earnings (EPS) × multiple (P/E). Two engines that can fire — or stall — together.',
+          'Davis double play: profits grow while the multiple the market will pay expands → the stock far outruns the profits. Microsoft 2013–2021: profit roughly 2×, P/E from ~10× to ~35×, stock ~10×.',
+          'The double kill is the mirror: shrinking profits × compressing multiple. 2022 SaaS: revenue still growing, multiples cut from 40× sales to 6×, stocks -80%.',
+          'Rule: attribute every big move into "how much came from earnings, how much from the multiple" — the multiple’s share is rented from sentiment and must be maintained by it.',
+        ],
+        analogy:
+          'A flat’s rent doubles from 40k to 80k (earnings), while the street becomes a school district and buyers pay 30 years of rent instead of 15 (multiple) — the flat quadruples. Both reverse together on the way down. That is the double play and the double kill.',
+        exercises: [
+          {
+            type: 'fill',
+            before: 'A stock price decomposes into two engines: EPS ×',
+            after: '.',
+            options: ['the valuation multiple', 'headcount', 'volume', 'payout ratio'],
+            correct: 0,
+            explain: 'Every rally and crash attributes to these two. Identifying which engine is firing is the first cut of any post-mortem.',
+          },
+          {
+            type: 'choice',
+            question: 'Microsoft’s profit roughly doubled from 2013–2021 while the stock rose ~10×. The extra came mostly from?',
+            options: [
+              'Accounting magic',
+              'Multiple expansion: the market switched its pricing of Microsoft from "faded giant" at 10× to "cloud leader" at 35× — the textbook double play',
+              'Stock splits',
+              'Advertising',
+            ],
+            correct: 1,
+            explain: 'Nadella’s cloud pivot re-narrated the same company. The biggest gains often come from the market changing its lens, not the profits alone.',
+          },
+          {
+            type: 'tf',
+            statement: 'In 2022 many SaaS names kept growing revenue yet fell 70–80%, purely because multiples compressed.',
+            answer: false,
+            explain: 'Mostly the multiple (40× → 6× sales), but growth estimates were also cut — both ends compressed, with the multiple as lead surgeon. Attribute each engine separately instead of saying "it fell".',
+          },
+          {
+            type: 'choice',
+            question: 'A stock quadrupled in two years; decomposition shows profit grew 30% and the rest was multiple expansion. What does this structure tell you?',
+            options: [
+              'Fundamentals-driven and safe',
+              'Most of the gain rides on sentiment paying up — without earnings taking the baton, the drawdown can be violent',
+              'Another 4× is coming',
+              'Decomposition is pointless',
+            ],
+            correct: 1,
+            explain: 'Multiples are borrowed; earnings are owned. Holding a multiple-driven position means knowing you are earning "someone paying dearer" money.',
+          },
+        ],
+      },
+      {
+        id: 'i10l2',
+        title: 'Ruler-switch moments',
+        tips: [
+          'Different life stages get different rulers: unprofitable growth → P/S; stable earners → P/E; heavy-asset cyclicals → P/B; mature cash cows → FCF yield and dividends.',
+          'The switch itself is the trade: 2020–21 priced growth on P/S and stories; after rates rose in 2022 the market switched back to FCF and earnings — same company, new ruler, -70%.',
+          'Companies fight for flattering rulers: early Tesla campaigned to be measured as tech (high multiple) rather than autos (10× P/E); the market eventually voted with deliveries and margins.',
+          'Rule: before judging "cheap or dear", ask which ruler the market currently uses and what would make it switch. Ruler risk is stealthier and deadlier than earnings risk.',
+        ],
+        analogy:
+          'The same person on a blind date: measured as a "growth stock" (elite school, bright future) he scores high; measured on "current state" (5k monthly salary) he scores low. Reversals often come not from the person changing, but from the future in-laws changing rulers.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the company stage to the market’s usual ruler',
+            pairs: [
+              ['Unprofitable high growth (early SaaS)', 'P/S price-to-sales'],
+              ['Stable profitable growth', 'P/E price-to-earnings'],
+              ['Heavy-asset cyclical (banks/shipping)', 'P/B price-to-book'],
+              ['Mature cash cow', 'FCF yield / dividends'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'Rates rose in 2022 and the growth-stock ruler switched from "P/S + story" to "FCF + earnings". For companies without profits, that meant?',
+            options: [
+              'No effect',
+              'Disaster: on the new ruler their reading was near zero — the deepest falls hit exactly those scoring highest on the old ruler and lowest on the new',
+              'Bullish: no more profit comparisons',
+              'Instant profitability',
+            ],
+            correct: 1,
+            explain: 'At ruler switches, the worst casualties are not the worst businesses but the most old-ruler-dependent ones. Ask of every holding: does it survive a ruler change?',
+          },
+          {
+            type: 'tf',
+            statement: 'Tesla long campaigned to be valued with the tech-company ruler rather than the automaker ruler, because the multiples differ enormously.',
+            answer: true,
+            explain: 'Automakers live at 5–10× earnings; tech platforms can carry 30×+. Which category you are filed under is itself worth multiples — the core battlefield of corporate narrative management.',
+          },
+          {
+            type: 'choice',
+            question: 'The most important macro trigger of ruler-switch risk?',
+            options: ['Weather', 'Turns in the rate regime — easy money measures with far-future story rulers; tightening switches back to present-cash rulers', 'Holidays', 'Pundit counts'],
+            correct: 1,
+            explain: 'The confluence of the L1 rates lesson and the L3 multiples lesson: rates pick the ruler, and the ruler picks whose valuation gets rewritten.',
+          },
+        ],
+      },
+      {
+        id: 'i10l3',
+        title: 'Anchors and contagion',
+        tips: [
+          'Markets price individual stocks against anchors: peer multiples, sector averages, the leader’s valuation. Move the anchor and the whole sector reprices.',
+          'Contagion, live: the night of Nvidia’s 2023 guidance, AMD, Broadcom, TSMC and even Micron jumped without news of their own — the leader’s repricing lifted every anchor in the sector.',
+          'Sympathy moves come in grades: names with real order flow down the chain (TSMC) rally with cause; names that merely "have AI in the deck" rally on borrowed courage and give it back first when the tide turns.',
+          'Rule: when a holding jumps because the sector anchor moved, ask whether it actually received orders or merely stood near the anchor — the answer decides hold versus harvest.',
+        ],
+        analogy:
+          'One flat sells at a record price and every listing in the compound is raised overnight (the anchor moved). But at actual sales, identical layouts fetch the new price (real transmission) while the dark north-facing units still can’t sell (fake contagion). Sector rallies contain both kinds of stocks.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'The night Nvidia’s guidance exploded in May 2023, TSMC, AMD and Micron all jumped without reporting anything. The mechanism?',
+            options: [
+              'Coincidence',
+              'Anchor movement: the leader’s repricing reset the sector’s valuation baseline — and AI demand would transmit down the chain as real orders for them',
+              'They all released good news simultaneously',
+              'An exchange glitch',
+            ],
+            correct: 1,
+            explain: 'Half relative-valuation anchor lift, half fundamental transmission. Diagnosing which half a sympathy rally rests on decides whether it is holdable.',
+          },
+          {
+            type: 'tf',
+            statement: 'In a sector rally, concept-adjacent names and real-order names can rise together short term, but their fates diverge when the tide goes out.',
+            answer: true,
+            explain: 'Through 2023–24, HBM-order-rich SK Hynix kept climbing while many "AI concept" names round-tripped. Tides exist to separate the two.',
+          },
+          {
+            type: 'fill',
+            before: 'The trap of peer comparison: if sentiment has lifted the whole sector’s anchor, "cheaper than peers" may only mean',
+            after: '.',
+            options: ['less outrageously expensive', 'absolutely cheap', 'fraudulent', 'risk-free'],
+            correct: 0,
+            explain: 'In 2000, dot-coms "30% cheaper than peers" still fell 90%. Cross-check relative valuation with an absolute ruler — cash flow.',
+          },
+          {
+            type: 'choice',
+            question: 'Your holding is up 40% purely from a sector anchor lift, with no new orders or data of its own. The framework response?',
+            options: [
+              'Stay fully invested for the next wave',
+              'Recognize anchor-adjacent gains: set harvesting discipline on the sentiment-paid portion, and wait for real orders before deciding to hold long term',
+              'Dump everything now',
+              'Add leverage',
+            ],
+            correct: 1,
+            explain: 'Anchor gains lack fundamental collateral — quick to come, quick to go. Money earned from anchors and money earned from results deserve different position discipline.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i11',
+    title: 'Unit 11 · Marginal Change & the Second Derivative',
+    subtitle: 'Markets trade change, not levels',
+    color: '#8b5cf6',
+    colorDark: '#7040d6',
+    icon: '📈',
+    lessons: [
+      {
+        id: 'i11l1',
+        title: 'Second-derivative thinking',
+        tips: [
+          'Markets care far more about the direction of change than the level: 8% inflation falling beats 4% inflation accelerating.',
+          'Live: November 2022, CPI came off the 9.1% peak to 7.7% — still dreadful, but the turn itself sent the Nasdaq up 7.4% in a day, its biggest session in two years.',
+          'Same in March 2020: the pandemic still worsening, but worsening more slowly plus unlimited QE — the market bottomed far ahead of reality. (Replayed in the Daily Case.)',
+          'Rule: for any data point ask three layers — what is the level? Is it improving or deteriorating (first derivative)? Is that change speeding up or slowing (second derivative)? The tape mostly lives on the third layer.',
+        ],
+        analogy:
+          'The patient still runs a 39° fever (awful level), but is down from 40.5° (direction) and cooling faster (second derivative) — and the family is already booking the celebration dinner. The market is that family, always booking early.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'November 2022: CPI prints 7.7% — still a multi-decade high — and the Nasdaq jumps 7.4% in a day. Why can a "still terrible" number detonate a rally?',
+            options: [
+              'The market miscalculated',
+              'It turned down from 9.1% — "the worsening has ended" repriced the whole hiking path. Markets trade the second derivative, not the level',
+              '7.7% is a good number',
+              'A short-squeeze accident',
+            ],
+            correct: 1,
+            explain: 'Inflation turns → peak-rates expectations → discount rates ease → multiples recover: the whole chain priced in one session. Levels belong to economists; turns belong to markets.',
+          },
+          {
+            type: 'fill',
+            before: 'The three-layer reading: level → direction (first derivative) →',
+            after: '(second derivative); the tape mostly trades the third layer.',
+            options: ['speed of change', 'data source', 'release time', 'historical average'],
+            correct: 0,
+            explain: '"Worsening, but decelerating" and "improving, but decelerating" are where the most money is made and lost.',
+          },
+          {
+            type: 'tf',
+            statement: 'Waiting for data to fully confirm the recovery usually means missing the steepest leg of the rally.',
+            answer: true,
+            explain: 'At the March 23, 2020 bottom, unemployment hadn’t even spiked yet; by confirmation six months later the index was 40% higher. Markets front-run reality by a quarter or two.',
+          },
+          {
+            type: 'choice',
+            question: 'A company’s revenue growth prints +60% → +45% → +32% → +24% across four quarters. Still fast — but how will the market likely treat it?',
+            options: [
+              'Value it on 60% growth',
+              'Price the deceleration curve: the second derivative is persistently negative, so the market discounts the slide toward mediocrity in advance — the multiple lands before the growth does',
+              'Ignore the change, keep the absolute',
+              'React only at negative growth',
+            ],
+            correct: 1,
+            explain: 'Zoom and Shopify fell hardest in 2021–22 while still growing. Deceleration itself is the bad news.',
+          },
+        ],
+      },
+      {
+        id: 'i11l2',
+        title: 'Spotting turns: QoQ, inventory, guidance',
+        tips: [
+          'Turns hide in the sequential (QoQ) numbers: YoY still falling while QoQ improves for two straight quarters is often the earliest filed evidence of a cycle turn.',
+          'Inventory-cycle turn signal (callback to L2): channel inventory peaking and rolling over + producer cuts done = the start of the next price upcycle. Memory chips ran exactly this script in late 2023.',
+          'Guidance turns: management shifting from cutting to reaffirming, then to raising — the language turn leads the numbers turn by about a quarter.',
+          'Rule: don’t chase month-level precision; act when the evidence chain assembles: QoQ improving + inventory cleared + guidance turning. Two of three, then move.',
+        ],
+        analogy:
+          'Judging winter’s end: not by today’s cold (level), but by lengthening days (sequential direction), clearance sales on down jackets (inventory cleared), and forecasts turning milder in wording (guidance). Two of the three and you pack away the thick duvet.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A chip company’s revenue is still -20% YoY, but QoQ has improved two straight quarters and announced capacity cuts are taking effect. The cyclical read?',
+            options: [
+              'YoY negative — keep avoiding',
+              'A turn’s evidence chain is assembling: QoQ leads YoY in every cycle turn — markets typically finish bottoming while YoY is still negative',
+              'Contradictory data, no call possible',
+              'Wait for YoY to turn positive',
+            ],
+            correct: 1,
+            explain: 'Memory in late 2023 ran this script: Micron was up 60%+ from the lows while YoY was still deeply negative. YoY is the rearview mirror; QoQ is the windshield.',
+          },
+          {
+            type: 'fill',
+            before: 'The earliest filed evidence of a cycle turn is usually',
+            after: 'improving while YoY is still negative.',
+            options: ['QoQ (sequential)', 'market cap', 'shareholder count', 'ad spend'],
+            correct: 0,
+            explain: 'YoY carries twelve months of baggage; QoQ carries three — it turns first.',
+          },
+          {
+            type: 'tf',
+            statement: 'Management shifting guidance from "cutting" to "reaffirming" is a turn signal worth recording even though the numbers haven’t improved.',
+            answer: true,
+            explain: 'No-longer-worse is marginal improvement — the language turn (L2’s reading-management lesson) leads the results turn by about a quarter.',
+          },
+          {
+            type: 'choice',
+            question: 'Which statement best captures this lesson’s action discipline for turns?',
+            options: [
+              'Go all-in on the first signal',
+              'Act when two of three assemble — QoQ improving, inventory cleared, guidance turning; trade precision for an evidence chain and accept missing the exact low',
+              'Act only after full confirmation',
+              'Turns are unknowable; give up',
+            ],
+            correct: 1,
+            explain: 'The goal is boarding when evidence favors you, not catching the tick low. Full confirmation (option 3) misses the move; single signals (option 1) get faked out repeatedly.',
+          },
+        ],
+      },
+      {
+        id: 'i11l3',
+        title: 'Marginal pricing: who is trading right now',
+        tips: [
+          'Price is set by the marginal trader: not a vote of all holders, but the handful willing to buy or forced to sell right now.',
+          'So positioning is the hidden short-term variable: when everyone bullish is already fully invested (a crowded trade), good news finds no incremental buyer; when every seller has sold, bad news stops working — the microstructure behind "priced in".',
+          'Forced traders are the strongest marginal force: shorts buying back in a squeeze (GME), funds selling into redemptions (the 2022 UK pension crisis), passive money at index changes (Tesla’s inclusion) — none of them look at valuation.',
+          'Rule: in extreme tape, ask "who is being forced to trade?" before "what changed in the fundamentals?" — it usually explains what valuation cannot.',
+        ],
+        analogy:
+          'The compound’s price is set by the three flats listed right now, not the thousand contented owners. If those three sellers are desperate, prints can land far below everyone’s private value — until the desperate supply clears and price snaps back.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'The microstructure explanation of "good news exhausted"?',
+            options: [
+              'The news was fake',
+              'Everyone bullish is already fully positioned (crowded); when the news lands there is no incremental buyer left — only profit-takers at the margin',
+              'A manipulation scheme',
+              'System failure',
+            ],
+            correct: 1,
+            explain: 'Prices need incremental marginal buyers. Crowdedness sets the tape’s elasticity to the same headline — the microstructure version of i9’s priced-in.',
+          },
+          {
+            type: 'tf',
+            statement: 'In extremes, price can detach violently from fundamentals because pricing power temporarily belongs to forced traders, who do not look at valuation.',
+            answer: true,
+            explain: 'Squeezed shorts, redeemed funds, liquidated leverage — forced traders need fills, not fair value. Spotting when they are done matters more than debating valuation near bottoms.',
+          },
+          {
+            type: 'fill',
+            before: 'In extreme tape, the first question is not "what changed in fundamentals" but "who is being',
+            after: 'right now".',
+            options: ['forced to trade', 'interviewed', 'posting online', 'hosting calls'],
+            correct: 0,
+            explain: 'GME’s shorts, the UK pensions’ LDI selling, index funds on inclusion day — the forced explain what valuation cannot.',
+          },
+          {
+            type: 'choice',
+            question: 'A stock with no news falls 30% on heavy volume; you learn a fund that owns it heavily is facing large redemptions. The framework read?',
+            options: [
+              'Fundamentals must have collapsed',
+              'Likely a forced-seller technical mispricing: the selling is value-blind and ends when the seller is done — a cue to start fundamental work on a potential opportunity',
+              'Sell along',
+              'There must be inside information',
+            ],
+            correct: 1,
+            explain: 'Distinguish "someone must sell" from "the asset is worthless". Forced-liquidation mispricings are among the most classic sources of active opportunity.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i12',
+    title: 'Unit 12 · Narrative and Price',
+    subtitle: 'Stories drive prices; prices rewrite stories',
+    color: '#f43f5e',
+    colorDark: '#d1284a',
+    icon: '📖',
+    lessons: [
+      {
+        id: 'i12l1',
+        title: 'Narrative lifecycles and reflexivity',
+        tips: [
+          'Every big move rides a dominant narrative, and narratives have lifecycles: germination (a few researchers) → diffusion (media relay) → consensus (everyone knows) → mania (everything gets the label) → falsification or fulfillment.',
+          'The AI narrative germinated late 2022 (ChatGPT), reached consensus in May 2023 (Nvidia night), then entered "everything is AI" diffusion. Locating your position on the curve beats debating whether the narrative is true.',
+          'Reflexivity (Soros): price doesn’t just reflect fundamentals — it rewrites them. A soaring stock enables cheap equity raises, option-fueled hiring, better credit: the fundamentals genuinely improve. Tesla raising ~$12B off its 2020 surge to fix its balance sheet is the textbook case.',
+          'Rule: for narrative stocks ask two things — where on the lifecycle is the story, and can the rising price itself self-fulfillingly improve the fundamentals?',
+        ],
+        analogy:
+          'A viral restaurant: a food blogger discovers it (germination), queue photos flood feeds (consensus), scalpers resell queue numbers (mania). Meanwhile the queues fund new branches and better chefs — being popular genuinely made it a bit better. That is reflexivity. But queues disperse faster than they gather.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'The precise meaning of "reflexivity"?',
+            options: [
+              'Prices are always wrong',
+              'Price and fundamentals shape each other: a soaring stock enables cheap capital, talent and credit — expectations participate in creating the reality they expect',
+              'Prices are always right',
+              'Prices and fundamentals are unrelated',
+            ],
+            correct: 1,
+            explain: 'Tesla’s 2020 surge financed ~$12B of equity that erased bankruptcy risk — the squeeze itself repaired the fundamentals. The most dangerous and fascinating property of bubbles.',
+          },
+          {
+            type: 'match',
+            prompt: 'Match the lifecycle stage to its telltale',
+            pairs: [
+              ['Germination', 'A few researchers, no coverage'],
+              ['Consensus', 'Front pages; everyone can recite it'],
+              ['Mania', 'Everything gets the label'],
+              ['Falsification/fulfillment', 'Numbers take over the pricing'],
+            ],
+          },
+          {
+            type: 'tf',
+            statement: 'Locating a narrative’s lifecycle stage is more actionable than debating whether the narrative is ultimately true.',
+            answer: true,
+            explain: 'The internet narrative proved true, yet buying the 2000 mania still lost 80%. Truth decides the endpoint; stage decides your entry price. Both matter — the second one pays.',
+          },
+          {
+            type: 'choice',
+            question: 'A narrative enters the "everything gets the label" stage (any name with the concept rallies). The signal value?',
+            options: [
+              'The narrative is now more credible',
+              'Mania stage: capital is pricing indiscriminately, and the falsification filter is usually near — time to concentrate holdings from label-wearers into real-order-holders',
+              'Every related stock is a buy',
+              'No meaning',
+            ],
+            correct: 1,
+            explain: 'After the 2023–24 "AI concept" stage, the tide separated the SMCIs from the TSMCs. The right move in mania is not exit — it is purification.',
+          },
+        ],
+      },
+      {
+        id: 'i12l2',
+        title: 'Auditing the narrative with numbers',
+        tips: [
+          'Narratives explain why it rose; numbers verify whether it should have. Periodically reconciling story against filings is the only defense against being imprisoned by a story.',
+          'The audit kit: story says demand explosion → check revenue and order growth; story says improving competitive structure → check gross margin and share; story says giant future → check whether capex/R&D money is real.',
+          'Paired textbook (both replayed in the Daily Case): Nvidia’s AI story re-verified every quarter by doubling data-center revenue; SMCI’s story falsified by delayed filings and a resigning auditor. Same narrative, opposite ledgers.',
+          'Rule: allow the story a one-to-two-quarter lead over numbers (markets front-run), but two or three quarters of failed reconciliation = treat as falsified, not "one more chance".',
+        ],
+        analogy:
+          'The boyfriend says "I’m working on myself" (narrative); you check his transcripts and savings quarterly (the audit). One flat quarter is understandable; three ugly report cards with the same speech — treat it as falsified. In relationships it’s called cutting losses. In investing too.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the story to its audit line-item',
+            pairs: [
+              ['"Demand is exploding"', 'Revenue and order growth'],
+              ['"Competition is rationalizing"', 'Gross margin and share'],
+              ['"The future market is huge"', 'Capex and R&D spend'],
+              ['"Customers can’t leave us"', 'Retention / repeat rates'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'Nvidia and SMCI shared the same AI narrative through 2023–24, yet ended at new highs versus -80%. The core action separating them?',
+            options: [
+              'Watch which rose more',
+              'Audit the story: Nvidia’s revenue, margins and cash verified it quarterly; SMCI’s books lost even their auditor’s signature — same narrative, different ledgers',
+              'Watch which was more famous',
+              'Flip a coin',
+            ],
+            correct: 1,
+            explain: 'The narrative is the entry ticket; the ledger is the right to stay seated. Audit quarterly and you never ride a false narrative to the terminus.',
+          },
+          {
+            type: 'tf',
+            statement: 'A story may lead the numbers by a quarter or two (markets front-run), but two-three quarters of failed reconciliation should be treated as falsification.',
+            answer: true,
+            explain: 'Grace period plus deadline turns vague conviction into executable discipline — and the deadline admits no exceptions precisely because exceptions are most tempting when deadlines arrive.',
+          },
+          {
+            type: 'fill',
+            before: 'Narratives explain why it rose;',
+            after: 'verify whether it should have.',
+            options: ['numbers', 'influencers', 'headlines', 'feelings'],
+            correct: 0,
+            explain: 'Tape this sentence to your trading screen. It outperforms a hundred aphorisms.',
+          },
+        ],
+      },
+      {
+        id: 'i12l3',
+        title: 'Full integration: reading the market once, properly',
+        tips: [
+          'Assemble L3 into one checklist. The four-part diagnosis of "great results, falling stock": ① expectations already full (priced in) ② multiple compressing (ruler/rates) ③ margin weakening (growth’s second derivative negative) ④ narrative rotating (the market changed its main story).',
+          'The mirror — "terrible results, rising stock": ① panic expectations cleared ② a kinder ruler adopted ③ deterioration decelerating ④ a new narrative germinating. Both sides run the same framework.',
+          'Field order: expectations first (what’s in the price) → then the ruler (which multiple, and would it switch) → then the margin (direction and speed of the latest change) → finally the narrative (which stage). Four questions in, most "inexplicable" tape finds its home.',
+          'This checklist is L4’s foundation: one line per question in every thesis; one reconciliation per question in every review.',
+        ],
+        analogy:
+          'The old physician insists on all four diagnostics — inspection, listening, inquiry, palpation — because any single one misdiagnoses. Reading markets is the same: results without expectations, valuation without rulers, levels without margins, stories without audits — all are one-test quackery.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A company posts excellent results and steady guidance yet drifts down 15% over two weeks. Using the four-part diagnosis, the LEAST likely explanation is?',
+            options: [
+              'A big run-up had fully priced the optimism',
+              'Rising rates triggered a sector ruler-switch, compressing multiples',
+              'Growth remains high but its second derivative turned negative',
+              'The fundamentals must have severely deteriorated',
+            ],
+            correct: 3,
+            explain: 'The first three are standard "good results, falling stock" mechanisms; "deteriorated fundamentals" contradicts the premise. A good framework’s value is precisely not blaming every fall on fundamentals.',
+          },
+          {
+            type: 'choice',
+            question: 'Late in bear markets, "terrible results but rising stocks" appears. The four-part explanation?',
+            options: [
+              'Market failure',
+              'Panic already cleared + deterioration decelerating + a new narrative germinating — when bad news loses the power to make new lows, that is one of the most reliable bottom formations',
+              'Bad results are good',
+              'Just a bounce',
+            ],
+            correct: 1,
+            explain: 'March 2009, March 2020, October 2022 — all bottomed on this shape: ugly data, but negativity fully desensitized. The sellers were out of ammunition.',
+          },
+          {
+            type: 'match',
+            prompt: 'Match each diagnosis of "good results, falling stock" to its unit',
+            pairs: [
+              ['Optimism already priced', 'i9 Expectations'],
+              ['The valuation ruler switched', 'i10 Multiples'],
+              ['Growth’s second derivative negative', 'i11 The margin'],
+              ['The market’s main story rotated', 'i12 Narrative'],
+            ],
+          },
+          {
+            type: 'tf',
+            statement: 'After running the four questions (expectations → ruler → margin → narrative), most "inexplicable" price action finds an explanatory home.',
+            answer: true,
+            explain: 'Explanation is not the goal — discipline is: the four questions go into every thesis and every quarterly reconciliation. From watching markets to making judgments: welcome to L4.',
+          },
+        ],
+      },
+    ],
+  },
+);
