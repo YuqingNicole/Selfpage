@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   arbCourse,
   arbLessonOrder,
@@ -15,8 +15,10 @@ import {
 import { arbCourseEn, optionsCourseEn } from '@/data/optionsCourseEn';
 import { investCourse, investLessonOrder, investTotalLessons } from '@/data/investCourse';
 import { investCourseEn } from '@/data/investCourseEn';
-import { CASE_XP, DailyCase, todayCase, todayCaseDone } from './DailyCase';
-import { TAG_LABEL } from '@/data/investCases';
+import { CASE_XP, DailyCase, loadCaseHistory, todayCase, todayCaseDone } from './DailyCase';
+import { INVEST_CASES, TAG_LABEL, type InvestCase } from '@/data/investCases';
+import { levelForXp } from './levels';
+import type { ChestTier } from './daily';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
@@ -25,10 +27,10 @@ import { StrategyLab } from './StrategyLab';
 import { ArbLab } from './ArbLab';
 import { SurvivalGame } from './SurvivalGame';
 import { awardBadge, BADGES, loadBadges } from './badges';
-import { isMuted, setMuted } from './sounds';
+import { isMuted, setMuted, sfx } from './sounds';
 import { BossBattle, BOSSES, loadBossWins, type BossDef } from './BossBattle';
 import { PredictionGame } from './PredictionGame';
-import { allDone, CHEST_XP, CHESTS_PER_FREEZE, claimChest, loadDaily, markDaily, type DailyState } from './daily';
+import { allDone, CHESTS_PER_FREEZE, claimChest, loadDaily, markDaily, type DailyState } from './daily';
 import { OnboardingFlow, type PlacementResult } from './OnboardingFlow';
 import { track } from './analytics';
 import { useCloudSync } from './cloudSync';
@@ -64,8 +66,12 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const [bossWins, setBossWins] = useState<Record<string, string>>({});
   const [daily, setDaily] = useState<DailyState | null>(null);
   const [tab, setTab] = useState<'learn' | 'practice' | 'review' | 'me'>('learn');
-  const [caseOpen, setCaseOpen] = useState(false);
+  const [casePlayer, setCasePlayer] = useState<{ override?: InvestCase } | null>(null);
   const [caseDoneToday, setCaseDoneToday] = useState(false);
+  const [collectedCaseIds, setCollectedCaseIds] = useState<Set<string>>(new Set());
+  const [chestReveal, setChestReveal] = useState<{ xp: number; freezeEarned: boolean; tier: ChestTier } | null>(null);
+  const [levelUp, setLevelUp] = useState<ReturnType<typeof levelForXp> | null>(null);
+  const prevXpRef = useRef<number | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [devTaps, setDevTaps] = useState(0);
   const [nudgeDismissed, setNudgeDismissed] = useState(true);
@@ -85,13 +91,36 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
-    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen && !caseOpen) {
+    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen && !casePlayer) {
       setBadges(loadBadges());
       setBossWins(loadBossWins());
       setDaily(loadDaily());
       setCaseDoneToday(todayCaseDone());
+      setCollectedCaseIds(new Set(loadCaseHistory().map((e) => e.caseId)));
     }
-  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen, caseOpen]);
+  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen, casePlayer]);
+
+  // 等级升迁监听：XP 跨过阈值时触发升级仪式
+  useEffect(() => {
+    if (!loaded) return;
+    if (prevXpRef.current === null) {
+      prevXpRef.current = progress.xp;
+      return;
+    }
+    const prev = prevXpRef.current;
+    prevXpRef.current = progress.xp;
+    if (progress.xp > prev && levelForXp(progress.xp).index > levelForXp(prev).index) {
+      const lv = levelForXp(progress.xp);
+      track('level_up', { level: lv.index, title: lv.level.en });
+      setLevelUp(lv);
+    }
+  }, [loaded, progress.xp]);
+
+  // 升级仪式排队：开箱弹窗关闭后才登场，避免两个仪式互相叠压
+  const levelUpVisible = Boolean(levelUp && !chestReveal);
+  useEffect(() => {
+    if (levelUpVisible) sfx.levelup();
+  }, [levelUpVisible]);
   useEffect(() => setSoundOff(isMuted()), []);
   useEffect(() => {
     if (variant !== 'options' || !loaded) return;
@@ -228,7 +257,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </p>
       </div>
       <button
-        onClick={() => { track('case_open', { case: todaysCase.id }); setCaseOpen(true); }}
+        onClick={() => { track('case_open', { case: todaysCase.id }); setCasePlayer({}); }}
         className="rounded-2xl border-b-4 border-[#cc7800] bg-[#ff9600] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffa41f] active:translate-y-0.5 active:border-b-2"
       >
         {caseDoneToday ? (lang === 'en' ? 'Replay' : '再看一遍') : lang === 'en' ? 'Make the call' : '开始判断'}
@@ -299,6 +328,29 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             </span>
           </div>
         </div>
+        {/* 等级头衔 + 升级进度 */}
+        {loaded && (() => {
+          const lv = levelForXp(progress.xp);
+          const pct = lv.next
+            ? Math.round(((progress.xp - lv.level.xp) / (lv.next.xp - lv.level.xp)) * 100)
+            : 100;
+          return (
+            <div className="mt-3 flex items-center gap-2 border-t border-[var(--border)] pt-2.5">
+              <span className="text-base leading-none" aria-hidden>{lv.level.emoji}</span>
+              <span className="shrink-0 text-xs font-extrabold">{lang === 'en' ? lv.level.en : lv.level.zh}</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--muted)]">
+                <div className="h-full rounded-full bg-[#ffc800] transition-all duration-700" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="shrink-0 text-[10px] font-bold text-[var(--muted-foreground)]">
+                {lv.next
+                  ? lang === 'en'
+                    ? `${lv.next.xp - progress.xp} XP to ${lv.next.emoji}`
+                    : `距 ${lv.next.emoji} 还差 ${lv.next.xp - progress.xp} XP`
+                  : lang === 'en' ? 'MAX' : '已登顶'}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {tab === 'review' && (
@@ -322,17 +374,18 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               </div>
               <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
                 {lang === 'en'
-                  ? `Chest: +${CHEST_XP} XP · every ${CHESTS_PER_FREEZE} chests grant a 🧊 streak freeze (${daily.totalChests} collected)`
-                  : `宝箱 +${CHEST_XP} XP · 每攒 ${CHESTS_PER_FREEZE} 个宝箱送一张 🧊 连胜冻结卡（已攒 ${daily.totalChests} 个）`}
+                  ? `Mystery chest: 15–80 XP · every ${CHESTS_PER_FREEZE} chests guarantee a 🧊 streak freeze (${daily.totalChests} collected)`
+                  : `盲盒宝箱 15-80 XP 随机 · 每攒 ${CHESTS_PER_FREEZE} 个保底送一张 🧊 连胜冻结卡（已攒 ${daily.totalChests} 个）`}
               </p>
             </div>
             <button
               onClick={() => {
                 const reward = claimChest();
                 if (reward) {
-                  track('chest_open', { freeze: reward.freezeEarned });
+                  track('chest_open', { freeze: reward.freezeEarned, tier: reward.tier, xp: reward.xp });
                   grantReward(reward.xp, reward.freezeEarned ? 1 : 0);
                   setDaily(loadDaily());
+                  setChestReveal(reward);
                 }
               }}
               disabled={!allDone(daily) || daily.chestClaimed}
@@ -354,6 +407,50 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         <>
       {/* 每日一案（判断主线） */}
       {dailyCaseCard}
+
+      {/* 案例档案馆（判断主线） */}
+      {isInvest && (
+        <div className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+          <p className="text-base font-extrabold">
+            🗂️ {lang === 'en' ? 'Case Archive' : '案例档案馆'}{' '}
+            <span className="text-sm font-bold text-[var(--muted-foreground)]">
+              {collectedCaseIds.size}/{INVEST_CASES.length} {lang === 'en' ? 'collected' : '已收集'}
+            </span>
+          </p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            {lang === 'en'
+              ? 'Every case you finish becomes a collectible card — replay any of them; locked ones unlock the day they rotate in.'
+              : '做过的案例会变成收藏卡，可随时重玩；未解锁的等它轮换到的那天。'}
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {INVEST_CASES.map((cs) => {
+              const owned = collectedCaseIds.has(cs.id);
+              return (
+                <button
+                  key={cs.id}
+                  disabled={!owned}
+                  onClick={() => {
+                    track('case_archive_open', { case: cs.id });
+                    setCasePlayer({ override: cs });
+                  }}
+                  className={`rounded-2xl border-2 p-3 text-left transition ${
+                    owned
+                      ? 'border-[#ff9600] bg-[#fff7e0] hover:-translate-y-0.5 dark:bg-[#3a3000]'
+                      : 'border-[var(--border)] opacity-50'
+                  }`}
+                >
+                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--muted-foreground)]">
+                    {owned ? `${lang === 'en' ? TAG_LABEL[cs.tag].en : TAG_LABEL[cs.tag].zh} · ${cs.date}` : cs.date}
+                  </p>
+                  <p className="mt-1 text-xs font-extrabold leading-snug">
+                    {owned ? (lang === 'en' ? cs.title.en : cs.title.zh) : `🔒 ${lang === 'en' ? 'Not yet unlocked' : '未解锁'}`}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 策略实验室 */}
       {!isArb && (
@@ -910,6 +1007,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             return xp;
           }}
           onExerciseResult={srs.recordResult}
+          onCritBonus={(bonus) => grantReward(bonus)}
         />
       )}
 
@@ -928,16 +1026,48 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {/* 预测小游戏 */}
       {predictionOpen && <PredictionGame onExit={() => setPredictionOpen(false)} />}
 
-      {/* 每日一案 */}
-      {caseOpen && (
+      {/* 每日一案 / 档案馆重玩 */}
+      {casePlayer && (
         <DailyCase
-          onExit={() => setCaseOpen(false)}
+          caseOverride={casePlayer.override}
+          onExit={() => setCasePlayer(null)}
           onFirstFinish={() => {
             grantReward(CASE_XP);
             markDaily('lab');
             setDaily(loadDaily());
           }}
         />
+      )}
+
+      {/* 宝箱开箱仪式 */}
+      {chestReveal && <ChestRevealOverlay reward={chestReveal} lang={lang} onClose={() => setChestReveal(null)} />}
+
+      {/* 升级仪式（排在开箱仪式之后） */}
+      {levelUpVisible && levelUp && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-6">
+          <div className="w-full max-w-sm rounded-3xl border-4 border-[#ffc800] bg-[var(--card)] p-8 text-center">
+            <div className="animate-bounce text-7xl" aria-hidden>{levelUp.level.emoji}</div>
+            <p className="mt-3 text-sm font-extrabold uppercase tracking-widest text-[#ffc800]">
+              {lang === 'en' ? 'Level Up!' : '升级！'}
+            </p>
+            <h2 className="mt-1 text-2xl font-extrabold">{lang === 'en' ? levelUp.level.en : levelUp.level.zh}</h2>
+            <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+              {levelUp.next
+                ? lang === 'en'
+                  ? `Next rank: ${levelUp.next.en} at ${levelUp.next.xp} XP`
+                  : `下一头衔：${levelUp.next.zh}（${levelUp.next.xp} XP）`
+                : lang === 'en'
+                  ? 'You reached the top of the ladder.'
+                  : '你已登顶头衔阶梯。'}
+            </p>
+            <button
+              onClick={() => setLevelUp(null)}
+              className="mt-6 w-full rounded-2xl border-b-4 border-[#d4a600] bg-[#ffc800] py-3.5 text-base font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffd21f] active:translate-y-0.5 active:border-b-2"
+            >
+              {lang === 'en' ? 'Onward' : '继续前进'}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* 错题复习会话 */}
@@ -951,6 +1081,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             return completeReview();
           }}
           onExerciseResult={srs.recordResult}
+          onCritBonus={(bonus) => grantReward(bonus)}
         />
       )}
     </div>
@@ -962,6 +1093,66 @@ function todayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
     d.getDate(),
   ).padStart(2, '0')}`;
+}
+
+/* ---------- 宝箱开箱仪式 ---------- */
+
+function ChestRevealOverlay({
+  reward,
+  lang,
+  onClose,
+}: {
+  reward: { xp: number; freezeEarned: boolean; tier: ChestTier };
+  lang: 'en' | 'zh';
+  onClose: () => void;
+}) {
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setRevealed(true);
+      if (reward.tier === 'epic') sfx.perfect();
+      else if (reward.tier === 'rare') sfx.badge();
+      else sfx.coin();
+    }, 1100);
+    return () => clearTimeout(t);
+  }, [reward.tier]);
+
+  const tierStyle: Record<ChestTier, { color: string; zh: string; en: string; emoji: string }> = {
+    common: { color: '#1cb0f6', zh: '普通', en: 'Common', emoji: '🎁' },
+    rare: { color: '#ce82ff', zh: '稀有！', en: 'Rare!', emoji: '💜' },
+    epic: { color: '#ffc800', zh: '史诗！！', en: 'Epic!!', emoji: '🌟' },
+  };
+  const ts = tierStyle[reward.tier];
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-6">
+      {!revealed ? (
+        <div className="animate-bounce text-8xl" aria-hidden>🎁</div>
+      ) : (
+        <div className="w-full max-w-sm rounded-3xl border-4 bg-[var(--card)] p-8 text-center" style={{ borderColor: ts.color }}>
+          <div className="text-6xl" aria-hidden>{ts.emoji}</div>
+          <p className="mt-2 text-sm font-extrabold uppercase tracking-widest" style={{ color: ts.color }}>
+            {lang === 'en' ? ts.en : ts.zh}
+          </p>
+          <p className="mt-2 text-4xl font-extrabold tabular-nums" style={{ color: ts.color }}>
+            +{reward.xp} XP
+          </p>
+          {reward.freezeEarned && (
+            <p className="mt-2 text-sm font-extrabold text-[#1cb0f6]">
+              🧊 {lang === 'en' ? 'Bonus: a streak freeze!' : '额外获得一张连胜冻结卡！'}
+            </p>
+          )}
+          <button
+            onClick={onClose}
+            className="mt-6 w-full rounded-2xl border-b-4 py-3.5 text-base font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2"
+            style={{ backgroundColor: ts.color, borderColor: ts.color }}
+          >
+            {lang === 'en' ? 'Collect' : '收下'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function findLessonInCourse(course: Unit[], lessonId: string): { unit: Unit; lesson: Lesson; index: number } | null {
