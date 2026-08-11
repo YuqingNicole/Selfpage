@@ -562,3 +562,601 @@ export const investCourseEn: Unit[] = [
     ],
   },
 ];
+
+/* ================= L2 Understanding Companies ================= */
+
+investCourseEn.push(
+  {
+    id: 'i5',
+    title: 'Unit 5 · Business Models',
+    subtitle: 'How does this company actually make money',
+    color: '#ff4b4b',
+    colorDark: '#d33131',
+    icon: '🏪',
+    lessons: [
+      {
+        id: 'i5l1',
+        title: 'Where the money comes from: four archetypes',
+        tips: [
+          'The first question when dissecting any company: who pays, what are they paying for, and why will they keep paying.',
+          'Four common archetypes: selling ads (~76% of Google’s and ~98% of Meta’s revenue), subscriptions (Netflix, Spotify), taking a cut (App Store’s 15–30%, Visa’s sliver of every swipe), selling hardware (iPhone ≈ half of Apple’s revenue).',
+          'Most companies are combinations: Apple = hardware + tolls + subscriptions; Amazon = retail + cloud + ads. Segment disclosures are more honest than total revenue.',
+          'Archetype sets constitution: ads swing with the economy, subscriptions are steady but fight for attention, tolls have near-zero marginal cost, hardware lives product cycle to product cycle.',
+        ],
+        analogy:
+          'Four shops on one street: the flyer printer lives off merchant budgets (ads), the gym off annual memberships (subscriptions), the broker takes 2% per deal (tolls), the phone shop sells devices one by one (hardware). When the economy cools, the flyer printer gets hurt first; the unexpired memberships hold up best.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the company to its main money archetype',
+            pairs: [
+              ['Meta (~98% of revenue)', 'Advertising'],
+              ['Netflix', 'Subscriptions'],
+              ['Visa / App Store', 'Taking a cut'],
+              ['The iPhone business', 'Hardware'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'When recession expectations rise, which archetype’s revenue usually gets cut first?',
+            options: ['Subscription fees', 'Ad budgets — the easiest corporate expense to slash; the 2022 Meta/Google slowdown was the live demo', 'Card-swipe tolls', 'Hardware sales'],
+            correct: 1,
+            explain: 'Advertising is the most flexible line in corporate budgets. Knowing the revenue archetype tells you who the macro wind knocks over first.',
+          },
+          {
+            type: 'tf',
+            statement: 'Apple is just a hardware company.',
+            answer: false,
+            explain: 'Services (App Store tolls, iCloud, Music…) bring ~$100B a year at ~74% gross margin — by profit, Apple is a hardware-plus-toll-booth hybrid.',
+          },
+          {
+            type: 'fill',
+            before: 'The first question about any company:',
+            after: 'pays, and why they will keep paying.',
+            options: ['who', 'which department', 'which bank', 'whether the government'],
+            correct: 0,
+            explain: 'Find the real payer (users? advertisers? merchants?) and every later step of the analysis has a foundation.',
+          },
+        ],
+      },
+      {
+        id: 'i5l2',
+        title: 'Unit economics: does one order make money',
+        tips: [
+          'Shrink the business to a single order or user: what are the revenue, cost and gross profit of that one unit? That is unit economics.',
+          'Two key quantities: what it costs to acquire a user (CAC) and the gross profit that user contributes over a lifetime (LTV). Burning cash to grow only makes sense when LTV clearly exceeds CAC.',
+          'Cautionary classic: bike-sharing — ~1 yuan per ride against higher per-ride damage, rebalancing and maintenance costs; scale only multiplied the losses. Scale cannot fix negative unit economics.',
+          'Positive case: after its 2020 fraud scandal, Luckin cut subsidies until each cup earned positive gross profit, then scaled to out-earn Starbucks China by 2023. Same business, different company before and after unit economics turned.',
+        ],
+        analogy:
+          'A lemonade stand: sell at $10, lemons and cups cost $4, the pitch fee spreads to $3 a cup — $3 profit per cup, more sales more profit. The rival sells at $5 with free stickers: losing $2 a cup, the longer the queue the bigger the loss. Foot traffic (growth) can’t fix the recipe (unit economics).',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A delivery platform earns $5 per order against $6 of courier and subsidy costs. Management says "we’ll be profitable at scale". When is that actually true?',
+            options: [
+              'Always — burning cash is how the internet works',
+              'Only if scale genuinely lowers per-order cost (order density → multi-drop routes) or raises per-order revenue; otherwise scale just multiplies the loss',
+              'As long as funding lasts',
+              'Scale and profit are unrelated',
+            ],
+            correct: 1,
+            explain: 'DoorDash fixed its unit economics through density and ads; bike-sharing never did. "Which number does scale actually change?" is the scalpel for burn stories.',
+          },
+          {
+            type: 'fill',
+            before: 'For paid growth to make sense, lifetime gross profit (LTV) must clearly exceed',
+            after: '.',
+            options: ['customer acquisition cost (CAC)', 'the ad budget', 'salaries', 'office rent'],
+            correct: 0,
+            explain: 'A common rough bar is LTV/CAC > 3. Below 1, growth is literally bleeding.',
+          },
+          {
+            type: 'tf',
+            statement: 'A business with negative unit economics is still investable as long as users grow fast enough.',
+            answer: false,
+            explain: 'Loss per order × more orders = bigger loss. Unless scale demonstrably fixes the per-unit math, growth is leverage on the bleeding.',
+          },
+          {
+            type: 'choice',
+            question: 'Luckin was delisted for fraud in 2020, yet by 2023 out-earned Starbucks China in quarterly revenue. The pivotal change was?',
+            options: ['A new logo', 'Cutting subsidies until each cup earned positive gross margin — then letting 10,000+ stores multiply that positive margin. Fix the unit first, then scale', 'Coffee bean prices', 'Starbucks leaving China'],
+            correct: 1,
+            explain: 'The same store network is a bleeding pump with negative unit economics and a printing press with positive ones. For consumer names, always do the one-order math first.',
+          },
+        ],
+      },
+      {
+        id: 'i5l3',
+        title: 'Moats: why can’t rivals take it',
+        tips: [
+          'High profits invite competition; the moat answers "what keeps them out". Four classics: switching costs (enterprise software, the Apple ecosystem), network effects (WeChat, Visa), brand (Moutai, Hermès), cost advantage (Costco, TSMC scale).',
+          'Financial evidence of a moat: years of sustained high gross margin plus stable-or-rising market share. Moats claimed in speeches don’t count; moats visible in statements do.',
+          'Switching costs are the most underrated: once a firm builds its workflow on a piece of software, replacing it costs far more than the license — the root of SaaS valuations.',
+          'Technology shifts drain moats: Nokia’s scale and Kodak’s brand both failed against paradigm changes. A moat is a stock, not a birthright — re-verify it periodically.',
+        ],
+        analogy:
+          'Two breakfast stalls: A has a unique taste the neighborhood has eaten for a decade (brand + habit); B competes on price. A new stall opens — B’s customers defect to cheaper instantly, A’s regulars can’t be bothered to switch. "Can’t be bothered" is a moat in its plainest form.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the company to its primary moat type',
+            pairs: [
+              ['WeChat / Visa', 'Network effects'],
+              ['Enterprise ERP / Apple ecosystem', 'Switching costs'],
+              ['Moutai / Hermès', 'Brand premium'],
+              ['TSMC / Costco', 'Scale cost advantage'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'A company claims a strong moat. The best financial evidence for the claim is?',
+            options: ['CEO interview soundbites', 'Years of high gross margin with stable-or-rising share — competition failing to get in leaves marks on the statements', 'Office location', 'Ad spend'],
+            correct: 1,
+            explain: 'A moat is by definition "high returns that competition fails to erode". If gross margin compresses year after year, the story is a moat being breached.',
+          },
+          {
+            type: 'tf',
+            statement: 'Once built, a moat is safe forever.',
+            answer: false,
+            explain: 'Nokia earned over half of global handset profits in 2007 and nearly zero five years later — a paradigm shift (touchscreen smartphones) drained the old moat outright.',
+          },
+          {
+            type: 'fill',
+            before: 'The core reason SaaS earns premium multiples: once customers build workflows on the product, the',
+            after: 'is enormous, making revenue annuity-like.',
+            options: ['switching cost', 'ad fee', 'hardware cost', 'tax rate'],
+            correct: 0,
+            explain: 'Replacing a five-year-old ERP means halting and retraining the whole company — the power of the switching-cost moat.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i6',
+    title: 'Unit 6 · Where Growth Comes From',
+    subtitle: 'The source of growth decides its quality',
+    color: '#10b981',
+    colorDark: '#0d9668',
+    icon: '🌱',
+    lessons: [
+      {
+        id: 'i6l1',
+        title: 'Volume × price: the first cut',
+        tips: [
+          'All revenue growth decomposes into volume × price: sell more units, or sell each unit dearer. The two differ completely in sustainability.',
+          'Apple’s textbook move: iPhone units have hovered around 200M a year since the mid-2010s while average selling price climbed from ~$650 to $900+ — growth almost entirely from price.',
+          'Netflix likewise: once North America saturated, growth came from price hikes, the ad tier and the sharing crackdown.',
+          'Rule: volume-led growth → ask how far the ceiling is; price-led growth → ask how many hikes remain. Raising prices is a spell with limited charges.',
+        ],
+        analogy:
+          'Two tea shops both grow revenue 20%: shop A served 20% more customers; shop B kept the same crowd and raised every price 20%. Next year A may find more customers; if B hikes again, its crowd walks. Same growth rate, different source, different future.',
+        exercises: [
+          {
+            type: 'fill',
+            before: 'Step one of dissecting revenue growth: decompose it into',
+            after: '.',
+            options: ['volume × price', 'domestic × overseas', 'online × offline', 'new × returning'],
+            correct: 0,
+            explain: 'Selling more, or selling dearer? One cut and the quality of growth shows itself.',
+          },
+          {
+            type: 'choice',
+            question: 'iPhone units have been flat around 200M a year, yet iPhone revenue keeps growing. Where does the growth come from?',
+            options: ['A volume explosion', 'Average selling price marching up — Pro mix, bigger storage, price hikes: classic price-driven growth', 'Accounting changes', 'Currency'],
+            correct: 1,
+            explain: 'ASP went from ~$650 to $900+. "Flat units, rising revenue" should instantly make you check ASP.',
+          },
+          {
+            type: 'tf',
+            statement: 'Price-hike-driven growth can continue indefinitely.',
+            answer: false,
+            explain: 'Hikes spend pricing power and customer patience. Every Netflix hike bumps churn — the price lever has counted charges.',
+          },
+          {
+            type: 'choice',
+            question: 'McDonald’s reports "+8% same-store sales". The standard further decomposition is?',
+            options: ['Breakfast × dinner', 'Traffic (how many came) × ticket (how much each spent) — the store-level version of volume × price', 'Beef × chicken', 'Owned × franchised'],
+            correct: 1,
+            explain: 'In 2022–23 much restaurant comp growth was pure price with traffic actually falling — a danger signal only visible after the split.',
+          },
+        ],
+      },
+      {
+        id: 'i6l2',
+        title: 'Penetration and the ceiling',
+        tips: [
+          'Penetration growth follows an S-curve: slow start, explosive middle, abrupt stall at saturation. Locating a company on the curve matters more than judging whether it is "good".',
+          'Live examples: smartphone penetration topped out mid-2010s and handset growth died — Apple pivoted the story to services. EV penetration went from ~5% globally in 2020 to ~18% in 2023 (35%+ in China): mid-curve explosion.',
+          'The ceiling is TAM — but beware TAM stories: WeWork claimed a multi-trillion-dollar TAM by counting every office on earth as its market.',
+          'Rule: past ~50% penetration, growth logic must switch from acquisition to pricing/new categories — and the valuation regime switches with it.',
+        ],
+        analogy:
+          'Selling thermos cups to a class of 50: the first 10 are easy (early adopters); after 40, every sale is a grind (saturation). The smart move isn’t squeezing the last 10 — it’s selling brushes and replacement lids to existing owners. Apple selling services is selling brushes to a saturated classroom.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'EVs were ~18% penetrated globally in 2023 (35%+ in China); smartphones are 80%+. Where does each sit on the S-curve?',
+            options: [
+              'Both exploding',
+              'EVs mid-curve (fast growth, competition flooding in); smartphones saturated (growth via replacement and pricing)',
+              'Both saturated',
+              'EVs saturated',
+            ],
+            correct: 1,
+            explain: 'Two "big industries" at different curve positions deserve different growth logic and different multiples.',
+          },
+          {
+            type: 'tf',
+            statement: 'The bigger the claimed TAM, the higher the investment value.',
+            answer: false,
+            explain: 'WeWork counted "all global office demand" into TAM and touched a $47B valuation, then lost 99% after the failed IPO. Discount TAM to what is truly serviceable and winnable.',
+          },
+          {
+            type: 'fill',
+            before: 'Past half penetration, growth must switch from acquiring new users to',
+            after: '— Apple pushing services is the textbook demo.',
+            options: ['pricing or new categories', 'more ads', 'layoffs', 'buybacks'],
+            correct: 0,
+            explain: 'In saturated markets growth comes from wallet share, not user count. Curve position predicts the company’s next story.',
+          },
+          {
+            type: 'choice',
+            question: 'The single most useful number for judging how much longer a "hot industry" can boom?',
+            options: ['Volume of industry headlines', 'Current penetration and its S-curve position', 'The leader’s stock gain', 'Industry headcount'],
+            correct: 1,
+            explain: '30% growth at 10% penetration is early innings; the same 30% at 60% penetration is borrowing from the end.',
+          },
+        ],
+      },
+      {
+        id: 'i6l3',
+        title: 'Second curves: when a new business earns a price',
+        tips: [
+          'Mature companies regrow almost exclusively through second curves: Amazon grew AWS, Microsoft grew Azure, Apple grew services, Nvidia grew from gaming into data center.',
+          'Value crystallizes at a signature moment — first standalone disclosure. In 2015 Amazon first broke out AWS: margins far above retail, and the stock nearly doubled that year.',
+          'Before disclosure, read the tells: management mentions, capex direction, hiring. After disclosure, watch three things: growth rate, margin, share of profit.',
+          'Trap: not every new story is a second curve. The test is whether it reuses the core assets of the main business (Amazon’s data centers → AWS) or is a fresh gamble in a new arena.',
+        ],
+        analogy:
+          'A noodle-shop owner starts selling her homemade chili sauce: same kitchen, same customers (core assets reused), higher margin — that’s a second curve. The rival owner day-trading crypto is not on a second curve; he switched casinos.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'In 2015 Amazon first disclosed AWS as a segment (high growth, high margin) and the stock nearly doubled that year. Why can disclosure itself trigger repricing?',
+            options: [
+              'Disclosure changed the business',
+              'AWS’s value had been invisible inside low-margin retail; standalone numbers let the market price the high-margin asset separately for the first time',
+              'Pure coincidence',
+              'Because of the press release',
+            ],
+            correct: 1,
+            explain: 'The moment a good business hidden in the statements gets broken out is a revaluation switch. Watch what management starts disclosing separately.',
+          },
+          {
+            type: 'match',
+            prompt: 'Match the company to its second curve',
+            pairs: [
+              ['Amazon', 'AWS cloud'],
+              ['Apple', 'Services (App Store etc.)'],
+              ['Nvidia', 'Data-center GPUs'],
+              ['Microsoft', 'Azure cloud'],
+            ],
+          },
+          {
+            type: 'tf',
+            statement: 'A key test of a second curve: does the new business reuse the core assets and capabilities of the main one?',
+            answer: true,
+            explain: 'Nvidia’s CUDA moved from gaming to AI; Amazon’s data centers moved from e-commerce to cloud. Asset-reusing curves win far more often than cross-domain gambles.',
+          },
+          {
+            type: 'choice',
+            question: 'A slowing company loudly announces a pivot into a hot arena (metaverse/AI). The rational first response is?',
+            options: [
+              'Revalue it on the new arena immediately',
+              'Check three things: is the investment real (capex/hiring), does it reuse core capabilities, and when will standalone numbers appear — without these it is only narrative',
+              'Ignore it entirely',
+              'See if competitors follow',
+            ],
+            correct: 1,
+            explain: 'Second curves need an evidence chain. Meta renamed itself for the metaverse, burned tens of billions and retreated; Azure proved itself with a decade of numbers. The difference is evidence.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i7',
+    title: 'Unit 7 · The Metrics That Matter',
+    subtitle: 'Every industry watches a different number',
+    color: '#6366f1',
+    colorDark: '#4c4fd6',
+    icon: '📐',
+    lessons: [
+      {
+        id: 'i7l1',
+        title: 'Subscriptions: retention is everything',
+        tips: [
+          'The lifeline of subscription/SaaS is not acquisition but retention. The core metric is NRR (net revenue retention): from existing customers only, this year’s revenue as a share of last year’s.',
+          'NRR above 100% means revenue grows without a single new customer. Elite SaaS like early Snowflake ran 170%+; 120%+ counts as excellent.',
+          'Consumer subscriptions watch churn: Netflix’s monthly churn has long sat near 2%, the industry’s lowest — the backbone of its repeated price hikes.',
+          'Rule: high growth + low NRR = leaky bucket (acquisition masking churn); modest growth + high NRR = compounding machine.',
+        ],
+        analogy:
+          'Two reservoirs both taking in water (new customers): pool A leaks at the bottom (poor retention) — close the tap and the level drops; pool B doesn’t leak, and the water inside multiplies by itself (expansion, NRR>100%). Check the bottom before admiring the inlet pipe.',
+        exercises: [
+          {
+            type: 'fill',
+            before: 'A SaaS company with NRR above 100% grows',
+            after: 'even without adding a single new customer.',
+            options: ['revenue', 'headcount', 'its stock price', 'office space'],
+            correct: 0,
+            explain: 'Renewals plus expansion minus churn still nets positive. NRR is subscription quality in one number.',
+          },
+          {
+            type: 'choice',
+            question: 'SaaS A grows 60% with NRR of 95%; SaaS B grows 30% with NRR of 125%. Healthier long term?',
+            options: ['A: growth is everything', 'B: 125% NRR means existing customers keep spending more — a compounding base. A is masking leaks with acquisition', 'Same', 'Cannot judge'],
+            correct: 1,
+            explain: 'Acquisition eventually gets expensive; then A’s growth collapses while B compounds. The 2022 SaaS derating repriced exactly this difference.',
+          },
+          {
+            type: 'tf',
+            statement: 'Netflix’s ~2% monthly churn is the backbone of its repeated price increases.',
+            answer: true,
+            explain: 'Stronger retention means stronger pricing power — they are two faces of one coin.',
+          },
+          {
+            type: 'choice',
+            question: 'A subscription company reports dazzling growth but refuses to disclose retention or churn. Reasonable read?',
+            options: ['The metric doesn’t matter', 'Caution: companies flaunt pretty numbers and hide ugly ones — undisclosed retention usually means unflattering retention', 'The company is modest', 'It has no competition'],
+            correct: 1,
+            explain: 'Disclosure choices are information. When NRR/churn is missing, back it out from revenue growth minus new bookings.',
+          },
+        ],
+      },
+      {
+        id: 'i7l2',
+        title: 'Retail and platforms: comps, GMV and measurement traps',
+        tips: [
+          'Physical retail’s core is same-store sales (SSS): with new openings stripped out, are the old stores still growing? Anyone can grow total revenue by opening stores; comp growth is the real skill.',
+          'E-commerce platforms: GMV (flow through the platform) × take rate = platform revenue. Mind the measurement: PDD/Taobao book the cut as revenue, JD books the whole item — their "revenues" cannot be compared directly.',
+          'Inventory turns are retail’s thermometer: Zara turns ~6× a year versus 2–3× for legacy apparel. A sudden slowdown in turns is the earliest "goods not moving" alarm — one quarter ahead of the P&L.',
+          'Rule: total revenue up + comps down = store-opening masking per-store decay, retail’s most classic red flag.',
+        ],
+        analogy:
+          'A bubble-tea chain brags "revenue doubled": look closer and stores went from 100 to 250 while each store’s business worsened. Like gaming "top-10 at a new school" by transferring schools — aggregate growth can hide unit decay; comp data is the anti-counterfeit stamp.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A restaurant chain grows total revenue 40% while same-store sales fall 5%. Best read?',
+            options: ['Excellent operations', 'Frantic store-opening props up the total while each store decays — the total collapses once the opening dividend runs out', 'Comps don’t matter', 'An accounting error'],
+            correct: 1,
+            explain: 'This pattern preceded Luckin’s blow-up and many viral-restaurant collapses. Comps come first in retail analysis.',
+          },
+          {
+            type: 'fill',
+            before: 'Platform revenue ≈ GMV ×',
+            after: '.',
+            options: ['take rate', 'headcount', 'ad impressions', 'logistics cost'],
+            correct: 0,
+            explain: 'Two levers: grow the flow, or raise the cut. Take-rate changes also reveal bargaining power over merchants.',
+          },
+          {
+            type: 'tf',
+            statement: 'JD’s revenue was ~4× PDD’s (2023), so JD’s business is 4× the size.',
+            answer: false,
+            explain: 'Different measurement: JD books the full merchandise value (first-party), PDD books only its cut and ads. Compare platform scale with GMV, earning power with profit — align the ruler before comparing.',
+          },
+          {
+            type: 'choice',
+            question: 'The earliest signal in retail filings that goods have stopped selling is usually?',
+            options: ['Falling net profit', 'Slowing inventory turns and stretching inventory days — goods piling in warehouses, ahead of the income statement', 'A CEO change', 'A falling stock'],
+            correct: 1,
+            explain: 'Nike and Target in 2022: inventory blew out first, then forced markdowns crushed gross margin. Inventory leads.',
+          },
+        ],
+      },
+      {
+        id: 'i7l3',
+        title: 'Hardware and cycles: the inventory pendulum',
+        tips: [
+          'Chips, panels, shipping — cyclical industries swing between feast and famine with supply and demand; steady-state frameworks do not apply.',
+          'Semis’ leading indicator is inventory: downstream stockpiles → order cuts → revenue cliff. Micron (memory) swung from record profit to deep loss inside a year into FY2023.',
+          'Cyclical P/E lies: P/E is lowest at peak profit (looks cheapest) — often exactly the top; in losses P/E breaks entirely, often near the bottom. Use capacity, inventory and pricing for cyclicals, not P/E.',
+          'Rule: distinguish cyclical decline (mean-reverts — memory chips) from structural decline (never returns — feature phones). Confusing them turns bottom-fishing into knife-catching.',
+        ],
+        analogy:
+          'Beach umbrella rentals: a hot summer and everyone doubles their stock (capacity); the season turns and the whole town dumps unsold umbrellas at a discount (destocking). The umbrella man’s most profitable summer — peak earnings, lowest P/E — is exactly when not to buy his business.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Memory maker Micron trades at 5× P/E in a record-profit year — temptingly "cheap". The cyclical-framework read?',
+            options: [
+              'A rare bargain',
+              'Caution: cyclicals show their lowest P/E at peak profit — the denominator is topping, mean reversion likely follows. Low P/E is a common top signal',
+              '5× is always a buy',
+              'The market is wrong',
+            ],
+            correct: 1,
+            explain: 'After looking "cheap" in 2022, Micron swung to heavy losses in FY2023. Invert P/E for cyclicals: low multiple on peak earnings, braver multiples at the trough.',
+          },
+          {
+            type: 'fill',
+            before: 'The earliest alarm of a semis downcycle is usually downstream',
+            after: 'piling up, followed by order cuts and a revenue cliff.',
+            options: ['inventory', 'stock prices', 'dividends', 'hiring'],
+            correct: 0,
+            explain: 'Inventory is the cycle’s thermometer: once the channel is stuffed, the coming revenue decline is already locked in.',
+          },
+          {
+            type: 'tf',
+            statement: 'The key judgment on cyclicals is separating cyclical decline (comes back) from structural decline (never does).',
+            answer: true,
+            explain: 'Memory prices return (demand persists); feature phones never did (replaced outright). Nvidia’s 2018 mining glut was cyclical; Kodak film was structural.',
+          },
+          {
+            type: 'match',
+            prompt: 'Match the industry to its core metric',
+            pairs: [
+              ['SaaS subscriptions', 'Net revenue retention'],
+              ['Chain retail', 'Same-store sales growth'],
+              ['E-commerce platforms', 'GMV × take rate'],
+              ['Memory chips', 'Inventory & contract prices'],
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i8',
+    title: 'Unit 8 · Reading Management',
+    subtitle: 'What they say on the call — and what they don’t',
+    color: '#ec4899',
+    colorDark: '#c2337a',
+    icon: '🎙️',
+    lessons: [
+      {
+        id: 'i8l1',
+        title: 'The language of guidance',
+        tips: [
+          'Guidance is management’s official forecast for next quarter/year — more than half of the market’s earnings reaction is driven by guidance, not the reported quarter.',
+          'The unwritten rule: managements guide conservatively and then beat ("beat-and-raise"). Apple beats its own guidance almost ritually — so merely meeting guidance can itself signal weakening.',
+          'Withdrawn guidance is a big event: in March 2020 hundreds of companies pulled full-year guidance — an admission that visibility had gone to zero.',
+          'Listen for marginal wording shifts: "strong demand" downgraded to "macro uncertainty" usually precedes the numbers downgrading.',
+        ],
+        analogy:
+          'The straight-A student says "I didn’t prepare well" before every exam (conservative guidance), then scores 95 (beat). One day he says "it went okay" — and scores 85. Once you know someone’s language baseline, the same sentence means different things from different mouths. Management teams have baselines too.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A company that habitually guides low and beats big merely "meets" its guidance this quarter. The seasoned read?',
+            options: ['Target hit, no problem', 'Against its own baseline of chronic beats, a mere "meet" is a deceleration signal', 'Time to celebrate', 'Guidance is meaningless'],
+            correct: 1,
+            explain: 'Read guidance against that company’s own historical habit. When the baseline is "always beats", scraping the bar means slowing.',
+          },
+          {
+            type: 'tf',
+            statement: 'The market’s reaction to earnings is driven mainly by the quarter that already happened.',
+            answer: false,
+            explain: 'Nvidia in May 2023: the quarter was merely in line, guidance beat by 53%, and the stock rose 24% after hours. Markets buy the future; guidance is the future’s official carrier.',
+          },
+          {
+            type: 'fill',
+            before: 'A company suddenly',
+            after: 'its full-year guidance — an admission that visibility is near zero, and usually a major risk signal.',
+            options: ['withdraws', 'raises', 'reaffirms', 'refines'],
+            correct: 0,
+            explain: 'Guidance-withdrawal waves hit in March 2020 and in 2008. When management won’t even give a number, they can’t see either.',
+          },
+          {
+            type: 'choice',
+            question: 'Across consecutive calls, management’s demand language shifts from "strong demand" to "macro uncertainty". This is?',
+            options: ['Meaningless phrasing drift', 'A marginal language downgrade — wording softens before numbers do, one of the cheapest leading indicators', 'Lawyer-mandated boilerplate', 'A translation issue'],
+            correct: 1,
+            explain: 'Management never capitulates suddenly, but the wording loosens first. Diffing the language quarter over quarter is core call-reading technique.',
+          },
+        ],
+      },
+      {
+        id: 'i8l2',
+        title: 'The Q&A: evasion is information',
+        tips: [
+          'The Q&A beats the prepared remarks: the script is rehearsed; what management doesn’t want to say hides in the answers.',
+          'Classic evasions: deflecting a margin question into growth talk, "we don’t look at the business that way", reciting vision instead of numbers. Whatever analysts keep re-asking is the market’s biggest anxiety.',
+          '"Discontinuing a disclosure" is a strong signal: Apple stopped reporting iPhone unit sales in 2018 and the stock slid hard within the quarter — the market assumes a number no longer shown is a number turning ugly.',
+          'Rule: write down the questions management dodged; that list is what to watch next quarter.',
+        ],
+        analogy:
+          'Ask a kid how the exam went: he excitedly talks about PE class (deflection), says "the whole class did poorly" (changed measure), and finally "stop asking about scores, holistic quality matters" (discontinued disclosure) — every evasion tells you the math test went badly. Management evasions work identically.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Apple announced in 2018 it would stop disclosing iPhone unit sales. What did the market’s reaction reveal?',
+            options: [
+              'Disclosure was too much hassle',
+              '"Stopped disclosing" was read as "turning ugly" — units had peaked and Apple wanted the narrative on services; the stock fell hard within the quarter',
+              'A regulatory requirement',
+              'Nothing at all',
+            ],
+            correct: 1,
+            explain: 'Companies flaunt good numbers and bury bad ones — the first law of disclosure behavior. The day a metric disappears is usually the day it turned.',
+          },
+          {
+            type: 'tf',
+            statement: 'The question analysts keep pressing and management keeps dodging is usually the market’s key controversy.',
+            answer: true,
+            explain: 'The Q&A is a live projection of market anxiety. Recording the dodged questions as next quarter’s watchlist is smart laziness.',
+          },
+          {
+            type: 'fill',
+            before: 'On an earnings call, the prepared remarks are a script; the information density lives in the',
+            after: 'section.',
+            options: ['Q&A', 'disclaimers', 'acknowledgements', 'advertising'],
+            correct: 0,
+            explain: 'Scripts get polished; live responses under pressure cannot be. Jump to the Q&A first when reading transcripts.',
+          },
+          {
+            type: 'choice',
+            question: 'Pressed on core-business margins, the CEO replies: "We focus on long-term vision and user value." The information content of that answer?',
+            options: ['Great vision', 'The margin number is probably ugly — deflecting a numeric question with vision is the most classic evasion', 'They truly don’t care about profit', 'None'],
+            correct: 1,
+            explain: 'Management with good numbers states them instantly. Vision is the smoke machine of choice when numbers disappoint.',
+          },
+        ],
+      },
+      {
+        id: 'i8l3',
+        title: 'The red-flag checklist',
+        tips: [
+          'One red flag may be coincidence; several at once are a behavior pattern. The list: sudden CFO exit, auditor change, delayed filings, receivables growing far faster than revenue, shifting business definitions, exploding SBC, sustained insider selling.',
+          'The three highest-severity flags: auditor resignation (SMCI 2024 — EY quit, stock -80% from peak), delayed annual reports, exposed related-party dealings.',
+          'Live textbook: Luckin 2020 — a short report showed store traffic didn’t match claims; the company then admitted ¥2.2B of fabricated sales; -75% in a day, delisted. Fraud first cracks where numbers fail to reconcile.',
+          'Rule: when red flags appear, de-risk first and investigate second. The order is always "survive, then verify" — by the time truth arrives, the price has already finished falling.',
+        ],
+        analogy:
+          'A blind date who keeps the phone face-down (non-disclosure), has changed "financial advisors" three times (auditor churn), and whose friends are quietly drifting away (insider selling) — each item has an excuse; together they are a pattern. The checklist isn’t a verdict; it just gets your hand out of your pocket.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Which combination carries the highest danger level?',
+            options: [
+              'Falling stock + analyst downgrades',
+              'Auditor change + delayed annual report + CFO exit — three links of the financial-credibility chain breaking at once',
+              'Executive stock-sale plans + steady results',
+              'One negative news article',
+            ],
+            correct: 1,
+            explain: 'All three point at the same thing: the gatekeepers of the numbers have a problem. SMCI collected the first two in 2024 and fell 80%+ from its peak.',
+          },
+          {
+            type: 'tf',
+            statement: 'Receivables growing far faster than revenue for consecutive quarters is a classic red flag for revenue quality.',
+            answer: true,
+            explain: 'Money booked but never collected — the pattern preceded Luckin and other frauds. This flag was foreshadowed in the L1 cash-flow lesson.',
+          },
+          {
+            type: 'fill',
+            before: 'The correct order when red flags appear: first',
+            after: ', then verify at leisure — the price finishes falling before the truth arrives.',
+            options: ['reduce the position', 'average down', 'argue online', 'wait for next quarter'],
+            correct: 0,
+            explain: 'Luckin fell 75% on the day it confessed — no graceful exit window existed. Disciplined reaction to red flags is part of the L4 research habit.',
+          },
+          {
+            type: 'match',
+            prompt: 'Match the red flag to what it points at',
+            pairs: [
+              ['Auditor resignation', 'Financial credibility collapsing'],
+              ['Exploding receivables', 'Dubious revenue quality'],
+              ['Sustained insider selling', 'Insiders voting with their feet'],
+              ['Shifting business definitions', 'Obscuring the real trend'],
+            ],
+          },
+        ],
+      },
+    ],
+  },
+);
