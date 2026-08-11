@@ -55,6 +55,13 @@ export const BOSSES: BossDef[] = [
     unitIds: ['u15', 'u16', 'u17', 'u18', 'u19'],
     color: '#627eea', colorDark: '#4c63bb',
   },
+  {
+    id: 'boss_market', emoji: '🎩', zh: '市场先生', en: 'Mr. Market',
+    zhTaunt: '我每天上门报价，只为试探你的情绪——你敢按自己的判断出价吗？',
+    enTaunt: 'I knock daily with a new quote, only to test your nerves — dare you price by your own judgment?',
+    unitIds: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i8', 'i9', 'i10', 'i11', 'i12'],
+    color: '#f59f00', colorDark: '#c47f00',
+  },
 ];
 
 const BOSS_HP = 10;

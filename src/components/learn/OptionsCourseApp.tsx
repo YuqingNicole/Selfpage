@@ -191,6 +191,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         onchain: '⛓️ On-Chain · DeFi Arbitrage',
         deriv: '📐 Futures · Interest · Options',
         l2: '🏢 L2 · Understanding Companies',
+        l3: '🎭 L3 · What the Market Is Trading',
         graduateTitle: 'You Graduated!',
         graduateBody: `You finished all ${courseTotal} lessons. Come back anytime to review and lock it in (+5 XP each time).`,
         graduateNext: 'Next step: practice small with a paper account and turn the Greek letters into real intuition.',
@@ -225,6 +226,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         onchain: '⛓️ 链上篇 · DeFi 套利',
         deriv: '📐 衍生品全景 · 期货 利率 期权',
         l2: '🏢 L2 · 看懂公司',
+        l3: '🎭 L3 · 看懂市场在交易什么',
         graduateTitle: '恭喜毕业！',
         graduateBody: `你已完成全部 ${courseTotal} 课。随时回来复习任何一课巩固记忆（每次 +5 XP）。`,
         graduateNext: '下一步：用模拟账户小仓位实践，把纸上的希腊字母变成手感。',
@@ -551,8 +553,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             href: '/learn/investing',
             zh: '🧭 判断框架主线',
             en: '🧭 Judgment Track',
-            zhDesc: '看懂市场语言与公司——每日一案 + 判断框架 L1-L2 课程。',
-            enDesc: 'Market language and companies — the daily case plus the L1-L2 judgment course.',
+            zhDesc: '看懂市场语言、公司与市场定价——每日一案 + 判断框架 L1-L3 课程。',
+            enDesc: 'Market language, companies and market pricing — the daily case plus the L1-L3 judgment course.',
           },
           {
             key: 'options',
@@ -780,6 +782,15 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
                 <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
                   {ui.l2}
+                </span>
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+              </div>
+            )}
+            {unit.id === 'i9' && (
+              <div className="mb-12 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+                <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+                  {ui.l3}
                 </span>
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
               </div>
