@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { INVEST_CASES, TAG_LABEL, todayCaseIndex, type InvestCase } from '@/data/investCases';
+import { TAG_LABEL, todayCaseIndex, INVEST_CASES, type InvestCase } from '@/data/investCases';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { sfx } from './sounds';
 import { track } from './analytics';
@@ -61,10 +61,20 @@ function saveCaseResult(caseId: string, correct: number, total: number): boolean
 
 type Step = { kind: 'brief' } | { kind: 'decision'; index: number } | { kind: 'outcome' };
 
-export function DailyCase({ onExit, onFirstFinish }: { onExit: () => void; onFirstFinish: () => void }) {
+export function DailyCase({
+  onExit,
+  onFirstFinish,
+  caseOverride,
+}: {
+  onExit: () => void;
+  onFirstFinish: () => void;
+  /** 档案馆重玩：指定案例，不发 XP、不写当日记录 */
+  caseOverride?: InvestCase;
+}) {
   const { lang } = useLanguage();
   const t = (bi: { zh: string; en: string }) => (lang === 'en' ? bi.en : bi.zh);
-  const c = todayCase();
+  const c = caseOverride ?? todayCase();
+  const isTodays = c.id === todayCase().id;
 
   const [step, setStep] = useState<Step>({ kind: 'brief' });
   const [picked, setPicked] = useState<number | null>(null);
@@ -74,9 +84,13 @@ export function DailyCase({ onExit, onFirstFinish }: { onExit: () => void; onFir
     'w-full rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] py-3.5 text-base font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2';
 
   const finish = () => {
-    const first = saveCaseResult(c.id, correctCount, c.decisions.length);
-    track('case_complete', { case: c.id, correct: correctCount, total: c.decisions.length, first });
-    if (first) onFirstFinish();
+    if (isTodays) {
+      const first = saveCaseResult(c.id, correctCount, c.decisions.length);
+      track('case_complete', { case: c.id, correct: correctCount, total: c.decisions.length, first });
+      if (first) onFirstFinish();
+    } else {
+      track('case_replay', { case: c.id, correct: correctCount, total: c.decisions.length });
+    }
     onExit();
   };
 
@@ -206,7 +220,7 @@ export function DailyCase({ onExit, onFirstFinish }: { onExit: () => void; onFir
               {lang === 'en'
                 ? `Your judgment: ${correctCount}/${c.decisions.length}`
                 : `你的判断：${correctCount}/${c.decisions.length} 对`}
-              {!todayCaseDone() && <span className="text-[#ffc800]"> · +{CASE_XP} XP</span>}
+              {isTodays && !todayCaseDone() && <span className="text-[#ffc800]"> · +{CASE_XP} XP</span>}
             </p>
             <button onClick={finish} className={primaryBtn}>
               {lang === 'en' ? 'Done' : '完成'}

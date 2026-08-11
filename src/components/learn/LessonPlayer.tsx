@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type {
   ChoiceExercise,
   Exercise,
@@ -36,9 +36,16 @@ interface SessionCoreProps {
   onComplete: (perfectRun: boolean) => number;
   /** 每次作答上报（错题本记录用） */
   onExerciseResult?: (key: string, correct: boolean) => void;
+  /** 暴击奖励 XP 入账（会话结束时一次性回调） */
+  onCritBonus?: (bonus: number) => void;
   completeTitle: string;
   completePerfectTitle: string;
 }
+
+/** 连击达到该值后，每次答对有概率触发暴击 */
+const CRIT_MIN_COMBO = 3;
+const CRIT_CHANCE = 0.2;
+const CRIT_XP = 2;
 
 type Phase = 'intro' | 'question' | 'feedback' | 'complete' | 'failed';
 
@@ -56,6 +63,7 @@ function SessionCore({
   onExit,
   onComplete,
   onExerciseResult,
+  onCritBonus,
   completeTitle,
   completePerfectTitle,
 }: SessionCoreProps) {
@@ -66,6 +74,9 @@ function SessionCore({
   const [hearts, setHearts] = useState(MAX_HEARTS);
   const [mistakes, setMistakes] = useState(0);
   const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
+  const [critCount, setCritCount] = useState(0);
+  const [critFlash, setCritFlash] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [earnedXp, setEarnedXp] = useState(0);
 
@@ -78,7 +89,16 @@ function SessionCore({
     setPhase('feedback');
     if (correct) {
       sfx.correct(combo);
-      setCombo((c) => c + 1);
+      const next = combo + 1;
+      setCombo(next);
+      setMaxCombo((m) => Math.max(m, next));
+      // 暴击时刻：连击中随机触发，奖励额外 XP —— 不确定的奖励才让人期待
+      if (next >= CRIT_MIN_COMBO && Math.random() < CRIT_CHANCE) {
+        setCritCount((n) => n + 1);
+        setCritFlash(true);
+        sfx.crit();
+        setTimeout(() => setCritFlash(false), 900);
+      }
     } else {
       sfx.wrong();
       setCombo(0);
@@ -97,6 +117,8 @@ function SessionCore({
     setFeedback(null);
     if (qIndex + 1 >= queue.length) {
       const xp = onComplete(mistakes === 0);
+      const bonus = critCount * CRIT_XP;
+      if (bonus > 0) onCritBonus?.(bonus);
       setEarnedXp(xp);
       if (mistakes === 0) sfx.perfect();
       else sfx.complete();
@@ -156,6 +178,8 @@ function SessionCore({
             title={mistakes === 0 ? completePerfectTitle : completeTitle}
             total={items.length}
             xp={earnedXp}
+            critBonus={critCount * CRIT_XP}
+            maxCombo={maxCombo}
             mistakes={mistakes}
             onExit={onExit}
             lang={lang}
@@ -164,6 +188,18 @@ function SessionCore({
 
         {phase === 'failed' && <FailedCard onExit={onExit} lang={lang} />}
       </div>
+
+      {/* 暴击闪光 */}
+      {critFlash && (
+        <div className="pointer-events-none fixed inset-0 z-[65] flex items-center justify-center bg-[#ffc800]/15">
+          <div className="animate-bounce rounded-3xl border-4 border-[#ffc800] bg-[var(--card)] px-8 py-5 text-center shadow-2xl">
+            <p className="text-4xl" aria-hidden>⚡</p>
+            <p className="mt-1 text-2xl font-extrabold text-[#ffc800]">
+              {lang === 'en' ? 'CRIT!' : '暴击！'} +{CRIT_XP} XP
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* 底部反馈条 */}
       {phase === 'feedback' && feedback && (
@@ -210,6 +246,7 @@ interface LessonPlayerProps {
   onExit: () => void;
   onComplete: (perfectRun: boolean) => number;
   onExerciseResult?: (key: string, correct: boolean) => void;
+  onCritBonus?: (bonus: number) => void;
 }
 
 export function LessonPlayer({
@@ -220,6 +257,7 @@ export function LessonPlayer({
   onExit,
   onComplete,
   onExerciseResult,
+  onCritBonus,
 }: LessonPlayerProps) {
   const { lang } = useLanguage();
   const items = useMemo(
@@ -245,6 +283,7 @@ export function LessonPlayer({
       onExit={onExit}
       onComplete={onComplete}
       onExerciseResult={onExerciseResult}
+      onCritBonus={onCritBonus}
       completeTitle={lang === 'en' ? 'Lesson Complete!' : '完成本课！'}
       completePerfectTitle={lang === 'en' ? 'Perfect Clear!' : '完美通关！'}
     />
@@ -260,9 +299,10 @@ interface ReviewSessionProps {
   onExit: () => void;
   onComplete: () => number;
   onExerciseResult: (key: string, correct: boolean) => void;
+  onCritBonus?: (bonus: number) => void;
 }
 
-export function ReviewSession({ items, onExit, onComplete, onExerciseResult }: ReviewSessionProps) {
+export function ReviewSession({ items, onExit, onComplete, onExerciseResult, onCritBonus }: ReviewSessionProps) {
   const { lang } = useLanguage();
   return (
     <SessionCore
@@ -273,6 +313,7 @@ export function ReviewSession({ items, onExit, onComplete, onExerciseResult }: R
       onExit={onExit}
       onComplete={() => onComplete()}
       onExerciseResult={onExerciseResult}
+      onCritBonus={onCritBonus}
       completeTitle={lang === 'en' ? 'Review Complete!' : '复习完成！'}
       completePerfectTitle={lang === 'en' ? 'All correct — memory locked in!' : '全部答对，记忆牢固！'}
     />
@@ -663,11 +704,32 @@ function MatchView({ ex, onDone }: { ex: MatchExercise; onDone: () => void }) {
 
 /* ---------- 完成 / 失败 ---------- */
 
+/** 数字滚动：从 0 数到目标值 */
+function useCountUp(target: number, durationMs = 900): number {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (target <= 0) return;
+    const start = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const t = Math.min((now - start) / durationMs, 1);
+      // easeOutCubic：结尾减速，数字「落定」的感觉
+      setValue(Math.round(target * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, durationMs]);
+  return target <= 0 ? target : value;
+}
+
 function CompleteCard({
   color,
   title,
   total,
   xp,
+  critBonus,
+  maxCombo,
   mistakes,
   onExit,
   lang,
@@ -676,33 +738,68 @@ function CompleteCard({
   title: string;
   total: number;
   xp: number;
+  critBonus: number;
+  maxCombo: number;
   mistakes: number;
   onExit: () => void;
   lang: 'en' | 'zh';
 }) {
   const accuracy = Math.round((total / (total + mistakes)) * 100);
+  const shownXp = useCountUp(xp + critBonus);
+  const [ringOn, setRingOn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setRingOn(true), 150);
+    return () => clearTimeout(t);
+  }, []);
+  const R = 40;
+  const C = 2 * Math.PI * R;
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
-      <div className="mb-4 text-7xl" aria-hidden>
+      <div className={`mb-3 text-7xl ${mistakes === 0 ? 'animate-bounce' : ''}`} aria-hidden>
         {mistakes === 0 ? '🏆' : '🎉'}
       </div>
-      <h1 className="mb-8 text-3xl font-extrabold" style={{ color }}>
+      <h1 className="mb-6 text-3xl font-extrabold" style={{ color }}>
         {title}
       </h1>
-      <div className="mb-10 flex gap-4">
-        <div className="w-32 rounded-2xl border-2 border-[#ffc800] p-1">
-          <div className="rounded-t-xl bg-[#ffc800] py-1 text-xs font-extrabold uppercase text-white">
-            {lang === 'en' ? 'XP' : '经验值'}
-          </div>
-          <div className="py-3 text-2xl font-extrabold text-[#ffc800]">+{xp} XP</div>
-        </div>
-        <div className="w-32 rounded-2xl border-2 border-[#1cb0f6] p-1">
-          <div className="rounded-t-xl bg-[#1cb0f6] py-1 text-xs font-extrabold uppercase text-white">
+
+      {/* 正确率圆环 */}
+      <div className="relative mb-6 h-28 w-28">
+        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+          <circle cx="50" cy="50" r={R} fill="none" stroke="var(--muted)" strokeWidth="10" />
+          <circle
+            cx="50"
+            cy="50"
+            r={R}
+            fill="none"
+            stroke="#1cb0f6"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={C}
+            strokeDashoffset={ringOn ? C * (1 - accuracy / 100) : C}
+            style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-xl font-extrabold text-[#1cb0f6]">{accuracy}%</span>
+          <span className="text-[9px] font-bold uppercase tracking-wide text-[var(--muted-foreground)]">
             {lang === 'en' ? 'Accuracy' : '正确率'}
-          </div>
-          <div className="py-3 text-2xl font-extrabold text-[#1cb0f6]">{accuracy}%</div>
+          </span>
         </div>
       </div>
+
+      {/* XP 滚动 */}
+      <p className="mb-1 text-4xl font-extrabold tabular-nums text-[#ffc800]">+{shownXp} XP</p>
+      <div className="mb-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-[var(--muted-foreground)]">
+        {critBonus > 0 && (
+          <span className="text-[#ffc800]">⚡ {lang === 'en' ? `crit bonus +${critBonus}` : `暴击加成 +${critBonus}`}</span>
+        )}
+        {maxCombo >= 3 && (
+          <span className="text-[#ff9600]">🔥 {lang === 'en' ? `best combo ×${maxCombo}` : `最高连击 ×${maxCombo}`}</span>
+        )}
+        {mistakes === 0 && <span className="text-[#58a700]">💎 {lang === 'en' ? 'flawless run' : '零失误通关'}</span>}
+      </div>
+
       <button
         onClick={onExit}
         className="w-full max-w-sm rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] py-4 text-lg font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"

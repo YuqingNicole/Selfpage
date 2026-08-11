@@ -71,15 +71,21 @@ export function allDone(state: DailyState): boolean {
   return state.lesson && state.review && state.lab;
 }
 
+export type ChestTier = 'common' | 'rare' | 'epic';
+
 /**
- * 开宝箱。返回 { xp, freezeEarned }；不可开时返回 null。
- * 冻结卡的入账由调用方写进课程进度存储。
+ * 开宝箱（盲盒）。返回 { xp, freezeEarned, tier }；不可开时返回 null。
+ * 奖励随机分层：普通 70%（15/20/25 XP）、稀有 22%（40 XP）、史诗 8%（80 XP）。
+ * 每攒满 3 个宝箱仍保底送 1 张冻结卡；冻结卡的入账由调用方写进课程进度存储。
  */
-export function claimChest(): { xp: number; freezeEarned: boolean } | null {
+export function claimChest(): { xp: number; freezeEarned: boolean; tier: ChestTier } | null {
   const state = loadDaily();
   if (!allDone(state) || state.chestClaimed) return null;
   state.chestClaimed = true;
   state.totalChests += 1;
   save(state);
-  return { xp: CHEST_XP, freezeEarned: state.totalChests % CHESTS_PER_FREEZE === 0 };
+  const roll = Math.random();
+  const tier: ChestTier = roll < 0.08 ? 'epic' : roll < 0.3 ? 'rare' : 'common';
+  const xp = tier === 'epic' ? 80 : tier === 'rare' ? 40 : 15 + 5 * Math.floor(Math.random() * 3);
+  return { xp, freezeEarned: state.totalChests % CHESTS_PER_FREEZE === 0, tier };
 }
