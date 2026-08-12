@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: 'FDE（前线部署工程师）从零入门指南',
+    author: '范冰 / XDash',
+    url: 'https://github.com/xdash/FDE-the-Guidance-Book-of-Forward-Deployed-Engineer',
+    description: '一份围绕 Forward Deployed Engineer 的公开指南：从识别正确问题、赢得客户、激活部署，到续约、扩张与规模化复制；以 165 个案例讨论 AI 如何真正进入客户业务。',
+  },
+  {
     title: '好内容的保质期：如何录制值得回听的对话',
     author: '范阳',
     url: 'https://mp.weixin.qq.com/s/12iqny0FdrvAg_PE5NtH9Q',
