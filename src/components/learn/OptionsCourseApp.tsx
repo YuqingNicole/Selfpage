@@ -39,7 +39,7 @@ import { AccountCard } from './AccountCard';
 
 const SAVE_NUDGE_KEY = 'learn-save-nudge-v1';
 
-export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' | 'arb' | 'invest' }) {
+export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?: 'options' | 'arb' | 'invest'; forceLang?: 'en' | 'zh' }) {
   const isArb = variant === 'arb';
   const isInvest = variant === 'invest';
   const {
@@ -54,7 +54,11 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
     streakAlive,
   } = useCourseProgress();
   const srs = useSrs();
-  const { lang } = useLanguage();
+  const { lang, setLang } = useLanguage();
+  useEffect(() => {
+    if (forceLang && lang !== forceLang) setLang(forceLang);
+  }, [forceLang, lang, setLang]);
+  const effectiveLang = forceLang ?? lang;
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [reviewItems, setReviewItems] = useState<SessionItem[] | null>(null);
   const [labOpen, setLabOpen] = useState(false);
@@ -146,14 +150,14 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   }, [srs.masteredCount]);
 
   const course = isInvest
-    ? lang === 'en'
+    ? effectiveLang === 'en'
       ? investCourseEn
       : investCourse
     : isArb
-      ? lang === 'en'
+      ? effectiveLang === 'en'
         ? arbCourseEn
         : arbCourse
-      : lang === 'en'
+      : effectiveLang === 'en'
         ? optionsCourseEn
         : optionsCourse;
   const courseOrder = isInvest ? investLessonOrder : isArb ? arbLessonOrder : lessonOrder;
@@ -172,10 +176,10 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const srsDue = srs.due.filter((t) => unitIdSet.has(t.unit.id));
   const active = useMemo(() => {
     if (!activeLessonId) return null;
-    return lang === 'en' ? findLessonInCourse(course, activeLessonId) : findLesson(activeLessonId);
-  }, [activeLessonId, course, lang]);
+    return effectiveLang === 'en' ? findLessonInCourse(course, activeLessonId) : findLesson(activeLessonId);
+  }, [activeLessonId, course, effectiveLang]);
   const completedCount = courseOrder.filter((id) => progress.completed.includes(id)).length;
-  const ui = lang === 'en'
+  const ui = effectiveLang === 'en'
     ? {
         title: 'Investing Academy',
         subtitle: isInvest
@@ -254,14 +258,14 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
     <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#ff9600] bg-[var(--card)] p-5">
       <div className="min-w-0">
         <p className="text-base font-extrabold">
-          📰 {lang === 'en' ? 'Case of the Day' : '每日一案'}
-          {caseDoneToday && <span className="ml-2 text-sm text-[#58a700]">✅ {lang === 'en' ? 'done today' : '今日已完成'}</span>}
+          📰 {effectiveLang === 'en' ? 'Case of the Day' : '每日一案'}
+          {caseDoneToday && <span className="ml-2 text-sm text-[#58a700]">✅ {effectiveLang === 'en' ? 'done today' : '今日已完成'}</span>}
         </p>
         <p className="mt-1 text-xs font-bold text-[var(--muted-foreground)]">
-          {lang === 'en' ? TAG_LABEL[todaysCase.tag].en : TAG_LABEL[todaysCase.tag].zh} · {lang === 'en' ? todaysCase.title.en : todaysCase.title.zh}
+          {effectiveLang === 'en' ? TAG_LABEL[todaysCase.tag].en : TAG_LABEL[todaysCase.tag].zh} · {effectiveLang === 'en' ? todaysCase.title.en : todaysCase.title.zh}
         </p>
         <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
-          {lang === 'en'
+          {effectiveLang === 'en'
             ? `A real historical case: make your call first, then see what happened. +${CASE_XP} XP daily`
             : `真实历史案例：先做判断，再看真实结局。每日 +${CASE_XP} XP`}
         </p>
@@ -270,7 +274,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         onClick={() => { track('case_open', { case: todaysCase.id }); setCasePlayer({}); }}
         className="rounded-2xl border-b-4 border-[#cc7800] bg-[#ff9600] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffa41f] active:translate-y-0.5 active:border-b-2"
       >
-        {caseDoneToday ? (lang === 'en' ? 'Replay' : '再看一遍') : lang === 'en' ? 'Make the call' : '开始判断'}
+        {caseDoneToday ? (effectiveLang === 'en' ? 'Replay' : '再看一遍') : effectiveLang === 'en' ? 'Make the call' : '开始判断'}
       </button>
     </div>
   ) : null;
@@ -302,7 +306,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               setMuted(next);
               setSoundOff(next);
             }}
-            aria-label={soundOff ? (lang === 'en' ? 'Unmute sounds' : '开启音效') : (lang === 'en' ? 'Mute sounds' : '关闭音效')}
+            aria-label={soundOff ? (effectiveLang === 'en' ? 'Unmute sounds' : '开启音效') : (effectiveLang === 'en' ? 'Mute sounds' : '关闭音效')}
             className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-bold text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]"
           >
             {soundOff ? '🔇' : '🔊'}
@@ -318,7 +322,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               {loaded ? progress.streak : '–'} {ui.streakUnit}
             </span>
             {loaded && progress.freezes > 0 && (
-              <span className="text-xs font-bold text-[#1cb0f6]" title={lang === 'en' ? 'Streak freezes' : '连胜冻结卡'}>
+              <span className="text-xs font-bold text-[#1cb0f6]" title={effectiveLang === 'en' ? 'Streak freezes' : '连胜冻结卡'}>
                 🧊×{progress.freezes}
               </span>
             )}
@@ -334,7 +338,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               📚
             </span>
             <span className="text-[#1cb0f6]">
-              {loaded ? completedCount : '–'}/{courseTotal} {lang === 'en' ? 'lessons' : '课'}
+              {loaded ? completedCount : '–'}/{courseTotal} {effectiveLang === 'en' ? 'lessons' : '课'}
             </span>
           </div>
         </div>
@@ -347,16 +351,16 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           return (
             <div className="mt-3 flex items-center gap-2 border-t border-[var(--border)] pt-2.5">
               <span className="text-base leading-none" aria-hidden>{lv.level.emoji}</span>
-              <span className="shrink-0 text-xs font-extrabold">{lang === 'en' ? lv.level.en : lv.level.zh}</span>
+              <span className="shrink-0 text-xs font-extrabold">{effectiveLang === 'en' ? lv.level.en : lv.level.zh}</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--muted)]">
                 <div className="h-full rounded-full bg-[#ffc800] transition-all duration-700" style={{ width: `${pct}%` }} />
               </div>
               <span className="shrink-0 text-[10px] font-bold text-[var(--muted-foreground)]">
                 {lv.next
-                  ? lang === 'en'
+                  ? effectiveLang === 'en'
                     ? `${lv.next.xp - progress.xp} XP to ${lv.next.emoji}`
                     : `距 ${lv.next.emoji} 还差 ${lv.next.xp - progress.xp} XP`
-                  : lang === 'en' ? 'MAX' : '已登顶'}
+                  : effectiveLang === 'en' ? 'MAX' : '已登顶'}
               </span>
             </div>
           );
@@ -370,20 +374,20 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         <div className="mb-10 rounded-2xl border-2 border-[#ce82ff] bg-[var(--card)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-base font-extrabold">📅 {lang === 'en' ? 'Daily Quests' : '每日任务'}</p>
+              <p className="text-base font-extrabold">📅 {effectiveLang === 'en' ? 'Daily Quests' : '每日任务'}</p>
               <div className="mt-2 flex flex-wrap gap-3 text-xs font-bold">
                 <span className={daily.lesson ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
-                  {daily.lesson ? '✅' : '⬜'} {lang === 'en' ? 'Finish a lesson' : '学完一课'}
+                  {daily.lesson ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Finish a lesson' : '学完一课'}
                 </span>
                 <span className={daily.review ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
-                  {daily.review ? '✅' : '⬜'} {lang === 'en' ? 'Do a review' : '复习错题'}
+                  {daily.review ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Do a review' : '复习错题'}
                 </span>
                 <span className={daily.lab ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
-                  {daily.lab ? '✅' : '⬜'} {lang === 'en' ? 'Play a lab case' : '实验室跑一个案例'}
+                  {daily.lab ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Play a lab case' : '实验室跑一个案例'}
                 </span>
               </div>
               <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
-                {lang === 'en'
+                {effectiveLang === 'en'
                   ? `Mystery chest: 15–80 XP · every ${CHESTS_PER_FREEZE} chests guarantee a 🧊 streak freeze (${daily.totalChests} collected)`
                   : `盲盒宝箱 15-80 XP 随机 · 每攒 ${CHESTS_PER_FREEZE} 个保底送一张 🧊 连胜冻结卡（已攒 ${daily.totalChests} 个）`}
               </p>
@@ -402,8 +406,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               className="rounded-2xl border-b-4 border-[#a568cc] bg-[#ce82ff] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#d99aff] active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {daily.chestClaimed
-                ? lang === 'en' ? 'Claimed ✓' : '已开启 ✓'
-                : `🎁 ${lang === 'en' ? 'Open Chest' : '开宝箱'}`}
+                ? effectiveLang === 'en' ? 'Claimed ✓' : '已开启 ✓'
+                : `🎁 ${effectiveLang === 'en' ? 'Open Chest' : '开宝箱'}`}
             </button>
           </div>
         </div>
@@ -422,13 +426,13 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {isInvest && (
         <div className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
           <p className="text-base font-extrabold">
-            🗂️ {lang === 'en' ? 'Case Archive' : '案例档案馆'}{' '}
+            🗂️ {effectiveLang === 'en' ? 'Case Archive' : '案例档案馆'}{' '}
             <span className="text-sm font-bold text-[var(--muted-foreground)]">
-              {collectedCaseIds.size}/{INVEST_CASES.length} {lang === 'en' ? 'collected' : '已收集'}
+              {collectedCaseIds.size}/{INVEST_CASES.length} {effectiveLang === 'en' ? 'collected' : '已收集'}
             </span>
           </p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            {lang === 'en'
+            {effectiveLang === 'en'
               ? 'Every case you finish becomes a collectible card — replay any of them; locked ones unlock the day they rotate in.'
               : '做过的案例会变成收藏卡，可随时重玩；未解锁的等它轮换到的那天。'}
           </p>
@@ -450,10 +454,10 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                   }`}
                 >
                   <p className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--muted-foreground)]">
-                    {owned ? `${lang === 'en' ? TAG_LABEL[cs.tag].en : TAG_LABEL[cs.tag].zh} · ${cs.date}` : cs.date}
+                    {owned ? `${effectiveLang === 'en' ? TAG_LABEL[cs.tag].en : TAG_LABEL[cs.tag].zh} · ${cs.date}` : cs.date}
                   </p>
                   <p className="mt-1 text-xs font-extrabold leading-snug">
-                    {owned ? (lang === 'en' ? cs.title.en : cs.title.zh) : `🔒 ${lang === 'en' ? 'Not yet unlocked' : '未解锁'}`}
+                    {owned ? (effectiveLang === 'en' ? cs.title.en : cs.title.zh) : `🔒 ${effectiveLang === 'en' ? 'Not yet unlocked' : '未解锁'}`}
                   </p>
                 </button>
               );
@@ -467,15 +471,15 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#58cc02] bg-[var(--card)] p-5">
           <div>
             <p className="text-base font-extrabold">
-              📝 {lang === 'en' ? 'Memo Workbench' : 'Memo 工作台'}
+              📝 {effectiveLang === 'en' ? 'Memo Workbench' : 'Memo 工作台'}
               {memoCount > 0 && (
                 <span className="ml-2 text-sm font-bold text-[var(--muted-foreground)]">
-                  {memoCount} {lang === 'en' ? 'memos' : '份'}
+                  {memoCount} {effectiveLang === 'en' ? 'memos' : '份'}
                 </span>
               )}
             </p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {lang === 'en'
+              {effectiveLang === 'en'
                 ? `Thesis + graded evidence + a mandatory falsifier + conviction score — the L4 pipeline as a tool. First memo each week +${MEMO_XP} XP.`
                 : `一句话 thesis + 分级证据 + 强制证伪条件 + 信念分——L4 流程的工具化。每周第一份 +${MEMO_XP} XP。`}
             </p>
@@ -484,7 +488,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             onClick={() => { track('memo_open'); setMemoOpen(true); }}
             className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
           >
-            {lang === 'en' ? 'Open' : '开始写'}
+            {effectiveLang === 'en' ? 'Open' : '开始写'}
           </button>
         </div>
       )}
@@ -493,9 +497,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
           <div>
-            <p className="text-base font-extrabold">🧪 {lang === 'en' ? 'Strategy Lab' : '策略实验室'}</p>
+            <p className="text-base font-extrabold">🧪 {effectiveLang === 'en' ? 'Strategy Lab' : '策略实验室'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {lang === 'en'
+              {effectiveLang === 'en'
                 ? 'Drag spot / IV / days-to-expiry and watch payoff curves and Greeks respond in real time — 10 strategy presets.'
                 : '拖动股价 / IV / 剩余天数，实时观察损益曲线和希腊字母的变化 —— 内置 10 种策略预设。'}
             </p>
@@ -504,7 +508,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             onClick={() => { track('lab_open'); setLabOpen(true); }}
             className="rounded-2xl border-b-4 border-[#1899d6] bg-[#1cb0f6] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#2bbcff] active:translate-y-0.5 active:border-b-2"
           >
-            {lang === 'en' ? 'Open Lab' : '进入实验室'}
+            {effectiveLang === 'en' ? 'Open Lab' : '进入实验室'}
           </button>
         </div>
       )}
@@ -513,9 +517,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#58cc02] bg-[var(--card)] p-5">
           <div>
-            <p className="text-base font-extrabold">🎮 {lang === 'en' ? 'Survival Challenge' : '交易生存挑战'}</p>
+            <p className="text-base font-extrabold">🎮 {effectiveLang === 'en' ? 'Survival Challenge' : '交易生存挑战'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {lang === 'en'
+              {effectiveLang === 'en'
                 ? '$10,000, 52 weeks, real options math, black swans off the forecast. How long can you last?'
                 : '$10,000 资金、52 周行情、真实期权数学结算，黑天鹅从不预告。你能活多久？'}
             </p>
@@ -524,7 +528,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             onClick={() => { track('game_open'); setGameOpen(true); }}
             className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
           >
-            {lang === 'en' ? 'Play' : '开始挑战'}
+            {effectiveLang === 'en' ? 'Play' : '开始挑战'}
           </button>
         </div>
       )}
@@ -533,9 +537,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#627eea] bg-[var(--card)] p-5">
           <div>
-            <p className="text-base font-extrabold">⚡ {lang === 'en' ? 'Arb Workshop' : '套利工坊'}</p>
+            <p className="text-base font-extrabold">⚡ {effectiveLang === 'en' ? 'Arb Workshop' : '套利工坊'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {lang === 'en'
+              {effectiveLang === 'en'
                 ? 'Funding-carry simulator (leverage vs wick survival) + 5 real cases with field checklists: the 300% APY bait, USDC weekend, UST spiral, stETH discount, funding flips.'
                 : '资金费模拟器（杠杆 vs 插针存活）+ 5 个真实案例与实战清单：300% 年化诱饵、USDC 脱锚周末、UST 螺旋、stETH 折价、费率转负。'}
             </p>
@@ -544,7 +548,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             onClick={() => { track('arb_lab_open'); setArbLabOpen(true); }}
             className="rounded-2xl border-b-4 border-[#4c63bb] bg-[#627eea] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#7289ef] active:translate-y-0.5 active:border-b-2"
           >
-            {lang === 'en' ? 'Enter' : '进入工坊'}
+            {effectiveLang === 'en' ? 'Enter' : '进入工坊'}
           </button>
         </div>
       )}
@@ -553,9 +557,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#ffc800] bg-[var(--card)] p-5">
           <div>
-            <p className="text-base font-extrabold">🎲 {lang === 'en' ? 'Can You Predict the Market?' : '你能预测市场吗？'}</p>
+            <p className="text-base font-extrabold">🎲 {effectiveLang === 'en' ? 'Can You Predict the Market?' : '你能预测市场吗？'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {lang === 'en'
+              {effectiveLang === 'en'
                 ? 'Guess 10 chart continuations. Most people land at ~50% — find out why pros trade mechanics instead.'
                 : '连猜 10 段走势的方向。大多数人 ≈50%——亲身体会为什么职业玩家不猜方向、只玩机制。'}
             </p>
@@ -564,7 +568,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             onClick={() => { track('prediction_open'); setPredictionOpen(true); }}
             className="rounded-2xl border-b-4 border-[#d4a600] bg-[#ffc800] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffd21f] active:translate-y-0.5 active:border-b-2"
           >
-            {lang === 'en' ? 'Try It' : '试试手气'}
+            {effectiveLang === 'en' ? 'Try It' : '试试手气'}
           </button>
         </div>
       )}
@@ -576,7 +580,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {tab === 'me' && (
         <>
       {/* 账户与云同步 */}
-      {cloud.enabled && <AccountCard cloud={cloud} lang={lang} />}
+      {cloud.enabled && <AccountCard cloud={cloud} lang={effectiveLang} />}
 
       {/* 其他课程入口 */}
       {(
@@ -615,17 +619,17 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[#1cb0f6] last-of-type:mb-10"
           >
             <div>
-              <p className="text-base font-extrabold">{lang === 'en' ? tk.en : tk.zh}</p>
-              <p className="mt-1 text-xs text-[var(--muted-foreground)]">{lang === 'en' ? tk.enDesc : tk.zhDesc}</p>
+              <p className="text-base font-extrabold">{effectiveLang === 'en' ? tk.en : tk.zh}</p>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">{effectiveLang === 'en' ? tk.enDesc : tk.zhDesc}</p>
             </div>
-            <span className="text-sm font-extrabold text-[#1cb0f6]">{lang === 'en' ? 'Visit →' : '前往 →'}</span>
+            <span className="text-sm font-extrabold text-[#1cb0f6]">{effectiveLang === 'en' ? 'Visit →' : '前往 →'}</span>
           </a>
         ))}
 
       {/* 成就徽章墙 */}
       <details className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
         <summary className="cursor-pointer text-base font-extrabold">
-          🏅 {lang === 'en' ? 'Badges' : '成就徽章'}{' '}
+          🏅 {effectiveLang === 'en' ? 'Badges' : '成就徽章'}{' '}
           <span className="text-sm font-bold text-[var(--muted-foreground)]">
             {Object.keys(badges).length}/{BADGES.length}
           </span>
@@ -641,9 +645,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                 }`}
               >
                 <div className="text-3xl" aria-hidden>{owned ? b.emoji : '🔒'}</div>
-                <p className="mt-1 text-sm font-extrabold">{lang === 'en' ? b.en : b.zh}</p>
+                <p className="mt-1 text-sm font-extrabold">{effectiveLang === 'en' ? b.en : b.zh}</p>
                 <p className="mt-0.5 text-[10px] leading-snug text-[var(--muted-foreground)]">
-                  {lang === 'en' ? b.enDesc : b.zhDesc}
+                  {effectiveLang === 'en' ? b.enDesc : b.zhDesc}
                 </p>
                 {owned && <p className="mt-1 text-[10px] font-bold text-[#b58900]">{owned}</p>}
               </div>
@@ -655,9 +659,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {/* 反馈入口 */}
       <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
         <div>
-          <p className="text-base font-extrabold">💬 {lang === 'en' ? 'Feedback' : '反馈与共建'}</p>
+          <p className="text-base font-extrabold">💬 {effectiveLang === 'en' ? 'Feedback' : '反馈与共建'}</p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            {lang === 'en'
+            {effectiveLang === 'en'
               ? 'Found a bug, a confusing lesson, or have an idea? Come tell us — every note shapes the course.'
               : '发现 bug、觉得哪课讲得不清楚、或者有想法？来群里聊——每条反馈都会影响课程。'}
           </p>
@@ -684,15 +688,15 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-base font-extrabold">
-                {lang === 'en' ? '📒 Mistake Book' : '📒 错题本'}
+                {effectiveLang === 'en' ? '📒 Mistake Book' : '📒 错题本'}
                 {srsDue.length > 0 && (
                   <span className="ml-2 rounded-full bg-[#ff4b4b] px-2 py-0.5 text-xs font-extrabold text-white">
-                    {lang === 'en' ? `${srsDue.length} due` : `${srsDue.length} 道待复习`}
+                    {effectiveLang === 'en' ? `${srsDue.length} due` : `${srsDue.length} 道待复习`}
                   </span>
                 )}
               </p>
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                {lang === 'en'
+                {effectiveLang === 'en'
                   ? `${srsBook.length} missed · ${srsDue.length} due today · ${srs.masteredCount} mastered — scheduled on the forgetting curve: 5 correct in a row = mastered`
                   : `错题 ${srsBook.length} 道 · 今日到期 ${srsDue.length} 道 · 已掌握 ${srs.masteredCount} 道 —— 按遗忘曲线安排：连对 5 次即为掌握`}
               </p>
@@ -715,10 +719,10 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               } disabled:cursor-not-allowed disabled:opacity-40`}
             >
               {srsDue.length > 0
-                ? lang === 'en'
+                ? effectiveLang === 'en'
                   ? 'Smart Review'
                   : '开始智能复习'
-                : lang === 'en'
+                : effectiveLang === 'en'
                   ? 'Review Early'
                   : '提前复习'}
             </button>
@@ -726,7 +730,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           {srsBook.length > 0 && (
             <details className="mt-3">
               <summary className="cursor-pointer text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-                {lang === 'en' ? 'View missed questions' : '查看错题列表'}
+                {effectiveLang === 'en' ? 'View missed questions' : '查看错题列表'}
               </summary>
               <ul className="mt-2 space-y-2">
                 {srsBook.map((t) => {
@@ -743,11 +747,11 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                       <span aria-hidden>{t.unit.icon}</span>
                       <span className="flex-1 leading-relaxed">{exerciseSummary(localized)}</span>
                       <span className="shrink-0 font-bold text-[var(--muted-foreground)]">
-                        {lang === 'en' ? `missed ${t.record.wrong}x · ` : `错 ${t.record.wrong} 次 · `}
+                        {effectiveLang === 'en' ? `missed ${t.record.wrong}x · ` : `错 ${t.record.wrong} 次 · `}
                         {t.record.due <= todayStr() ? (
-                          <span className="text-[#ff4b4b]">{lang === 'en' ? 'due today' : '今日到期'}</span>
+                          <span className="text-[#ff4b4b]">{effectiveLang === 'en' ? 'due today' : '今日到期'}</span>
                         ) : (
-                          `${t.record.due.slice(5).replace('-', '/')}${lang === 'en' ? '' : ' 复习'}`
+                          `${t.record.due.slice(5).replace('-', '/')}${effectiveLang === 'en' ? '' : ' 复习'}`
                         )}
                       </span>
                     </li>
@@ -769,7 +773,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {cloud.enabled && cloud.ready && !cloud.session && loaded && progress.completed.length > 0 && !nudgeDismissed && (
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-4">
           <p className="text-xs leading-relaxed">
-            ☁️ {lang === 'en'
+            ☁️ {effectiveLang === 'en'
               ? 'Your progress lives only on this device. Save it to the cloud in one step.'
               : '你的进度目前只存在这台设备上，一步保存到云端，换设备不丢档。'}
           </p>
@@ -778,10 +782,10 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               onClick={() => { track('save_nudge_click'); setTab('me'); }}
               className="rounded-full bg-[#1cb0f6] px-4 py-1.5 text-xs font-extrabold text-white transition hover:bg-[#2bbcff]"
             >
-              {lang === 'en' ? 'Save progress' : '去保存'}
+              {effectiveLang === 'en' ? 'Save progress' : '去保存'}
             </button>
             <button
-              aria-label={lang === 'en' ? 'Dismiss' : '关闭提示'}
+              aria-label={effectiveLang === 'en' ? 'Dismiss' : '关闭提示'}
               onClick={() => {
                 setNudgeDismissed(true);
                 try { localStorage.setItem(SAVE_NUDGE_KEY, 'dismissed'); } catch { /* ignore */ }
@@ -870,7 +874,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               perfect={progress.perfect}
               isUnlocked={isUnlocked}
               onOpen={(id) => { track('lesson_start', { lesson: id, variant }); setActiveLessonId(id); }}
-              lang={lang}
+              lang={effectiveLang}
             />
             {BOSSES.filter((b) => b.unitIds[b.unitIds.length - 1] === unit.id).map((b) => {
               const unlocked = chapterDone(b.unitIds);
@@ -883,20 +887,20 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                 >
                   <div>
                     <p className="text-base font-extrabold">
-                      {won ? '👑' : b.emoji} {lang === 'en' ? 'Chapter Boss: ' : '篇章 Boss：'}
-                      {lang === 'en' ? b.en : b.zh}
+                      {won ? '👑' : b.emoji} {effectiveLang === 'en' ? 'Chapter Boss: ' : '篇章 Boss：'}
+                      {effectiveLang === 'en' ? b.en : b.zh}
                       {won && (
                         <span className="ml-2 text-xs font-bold text-[#ffc800]">
-                          {lang === 'en' ? `defeated ${won}` : `已于 ${won} 击败`}
+                          {effectiveLang === 'en' ? `defeated ${won}` : `已于 ${won} 击败`}
                         </span>
                       )}
                     </p>
                     <p className="mt-1 text-xs italic text-[var(--muted-foreground)]">
-                      「{lang === 'en' ? b.enTaunt : b.zhTaunt}」
+                      「{effectiveLang === 'en' ? b.enTaunt : b.zhTaunt}」
                     </p>
                     {!unlocked && (
                       <p className="mt-1 text-[10px] font-bold text-[var(--muted-foreground)]">
-                        🔒 {lang === 'en' ? 'Complete every lesson in this chapter to challenge' : '修完本篇章全部课程后解锁挑战'}
+                        🔒 {effectiveLang === 'en' ? 'Complete every lesson in this chapter to challenge' : '修完本篇章全部课程后解锁挑战'}
                       </p>
                     )}
                   </div>
@@ -906,7 +910,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                     className="rounded-2xl border-b-4 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40"
                     style={{ backgroundColor: unlocked ? b.color : 'var(--muted-foreground)', borderColor: unlocked ? b.colorDark : 'var(--border)' }}
                   >
-                    ⚔️ {won ? (lang === 'en' ? 'Rematch' : '再战') : lang === 'en' ? 'Challenge' : '挑战'}
+                    ⚔️ {won ? (effectiveLang === 'en' ? 'Rematch' : '再战') : effectiveLang === 'en' ? 'Challenge' : '挑战'}
                   </button>
                 </div>
               );
@@ -942,12 +946,12 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
       {tab === 'me' && (
         <div className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
-          <p className="mb-3 text-base font-extrabold">⚙️ {lang === 'en' ? 'Settings' : '设置'}</p>
+          <p className="mb-3 text-base font-extrabold">⚙️ {effectiveLang === 'en' ? 'Settings' : '设置'}</p>
           <p
             className="mb-3 select-none text-xs text-[var(--muted-foreground)]"
             onClick={() => setDevTaps((n) => n + 1)}
           >
-            {lang === 'en' ? 'Investing Academy' : '投资学园'} v2.1
+            {effectiveLang === 'en' ? 'Investing Academy' : '投资学园'} v2.1
           </p>
           {(devTaps >= 7 || progress.developerMode) && (
             <button
@@ -965,7 +969,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             <button
               onClick={() => {
                 const word = window.prompt(
-                  lang === 'en'
+                  effectiveLang === 'en'
                     ? 'This permanently erases ALL progress. Type RESET to confirm.'
                     : '这将永久清空全部学习进度。输入 RESET 确认。',
                 );
@@ -991,10 +995,10 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         <div className="mx-auto grid w-full max-w-3xl grid-cols-4">
           {(
             [
-              ['learn', '🗺️', lang === 'en' ? 'Learn' : '学习'],
-              ['practice', '🧪', lang === 'en' ? 'Practice' : '演练场'],
-              ['review', '📒', lang === 'en' ? 'Review' : '复习'],
-              ['me', '🏅', lang === 'en' ? 'Me' : '我的'],
+              ['learn', '🗺️', effectiveLang === 'en' ? 'Learn' : '学习'],
+              ['practice', '🧪', effectiveLang === 'en' ? 'Practice' : '演练场'],
+              ['review', '📒', effectiveLang === 'en' ? 'Review' : '复习'],
+              ['me', '🏅', effectiveLang === 'en' ? 'Me' : '我的'],
             ] as const
           ).map(([id, icon, label]) => (
             <button
@@ -1107,7 +1111,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
       {memoOpen && <MemoWorkbench onExit={() => setMemoOpen(false)} onWeeklyXp={() => grantReward(MEMO_XP)} />}
 
       {/* 宝箱开箱仪式 */}
-      {chestReveal && <ChestRevealOverlay reward={chestReveal} lang={lang} onClose={() => setChestReveal(null)} />}
+      {chestReveal && <ChestRevealOverlay reward={chestReveal} lang={effectiveLang} onClose={() => setChestReveal(null)} />}
 
       {/* 升级仪式（排在开箱仪式之后） */}
       {levelUpVisible && levelUp && (
@@ -1115,15 +1119,15 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           <div className="w-full max-w-sm rounded-3xl border-4 border-[#ffc800] bg-[var(--card)] p-8 text-center">
             <div className="animate-bounce text-7xl" aria-hidden>{levelUp.level.emoji}</div>
             <p className="mt-3 text-sm font-extrabold uppercase tracking-widest text-[#ffc800]">
-              {lang === 'en' ? 'Level Up!' : '升级！'}
+              {effectiveLang === 'en' ? 'Level Up!' : '升级！'}
             </p>
-            <h2 className="mt-1 text-2xl font-extrabold">{lang === 'en' ? levelUp.level.en : levelUp.level.zh}</h2>
+            <h2 className="mt-1 text-2xl font-extrabold">{effectiveLang === 'en' ? levelUp.level.en : levelUp.level.zh}</h2>
             <p className="mt-2 text-xs text-[var(--muted-foreground)]">
               {levelUp.next
-                ? lang === 'en'
+                ? effectiveLang === 'en'
                   ? `Next rank: ${levelUp.next.en} at ${levelUp.next.xp} XP`
                   : `下一头衔：${levelUp.next.zh}（${levelUp.next.xp} XP）`
-                : lang === 'en'
+                : effectiveLang === 'en'
                   ? 'You reached the top of the ladder.'
                   : '你已登顶头衔阶梯。'}
             </p>
@@ -1131,7 +1135,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
               onClick={() => setLevelUp(null)}
               className="mt-6 w-full rounded-2xl border-b-4 border-[#d4a600] bg-[#ffc800] py-3.5 text-base font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffd21f] active:translate-y-0.5 active:border-b-2"
             >
-              {lang === 'en' ? 'Onward' : '继续前进'}
+              {effectiveLang === 'en' ? 'Onward' : '继续前进'}
             </button>
           </div>
         </div>
