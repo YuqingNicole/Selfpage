@@ -19,6 +19,7 @@ import { CASE_XP, DailyCase, loadCaseHistory, todayCase, todayCaseDone } from '.
 import { INVEST_CASES, TAG_LABEL, type InvestCase } from '@/data/investCases';
 import { levelForXp } from './levels';
 import type { ChestTier } from './daily';
+import { loadMemos, MEMO_XP, MemoWorkbench } from './MemoWorkbench';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
@@ -67,6 +68,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
   const [daily, setDaily] = useState<DailyState | null>(null);
   const [tab, setTab] = useState<'learn' | 'practice' | 'review' | 'me'>('learn');
   const [casePlayer, setCasePlayer] = useState<{ override?: InvestCase } | null>(null);
+  const [memoOpen, setMemoOpen] = useState(false);
+  const [memoCount, setMemoCount] = useState(0);
   const [caseDoneToday, setCaseDoneToday] = useState(false);
   const [collectedCaseIds, setCollectedCaseIds] = useState<Set<string>>(new Set());
   const [chestReveal, setChestReveal] = useState<{ xp: number; freezeEarned: boolean; tier: ChestTier } | null>(null);
@@ -91,14 +94,15 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
 
   // 徽章与静音状态：挂载及任意弹层关闭后刷新
   useEffect(() => {
-    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen && !casePlayer) {
+    if (!activeLessonId && !reviewItems && !labOpen && !gameOpen && !activeBoss && !predictionOpen && !arbLabOpen && !casePlayer && !memoOpen) {
       setBadges(loadBadges());
       setBossWins(loadBossWins());
       setDaily(loadDaily());
       setCaseDoneToday(todayCaseDone());
       setCollectedCaseIds(new Set(loadCaseHistory().map((e) => e.caseId)));
+      setMemoCount(loadMemos().length);
     }
-  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen, casePlayer]);
+  }, [activeLessonId, reviewItems, labOpen, gameOpen, activeBoss, predictionOpen, arbLabOpen, casePlayer, memoOpen]);
 
   // 等级升迁监听：XP 跨过阈值时触发升级仪式
   useEffect(() => {
@@ -192,6 +196,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         deriv: '📐 Futures · Interest · Options',
         l2: '🏢 L2 · Understanding Companies',
         l3: '🎭 L3 · What the Market Is Trading',
+        l4: '✍️ L4 · Research Habits',
         graduateTitle: 'You Graduated!',
         graduateBody: `You finished all ${courseTotal} lessons. Come back anytime to review and lock it in (+5 XP each time).`,
         graduateNext: 'Next step: practice small with a paper account and turn the Greek letters into real intuition.',
@@ -227,6 +232,7 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         deriv: '📐 衍生品全景 · 期货 利率 期权',
         l2: '🏢 L2 · 看懂公司',
         l3: '🎭 L3 · 看懂市场在交易什么',
+        l4: '✍️ L4 · 形成研究习惯',
         graduateTitle: '恭喜毕业！',
         graduateBody: `你已完成全部 ${courseTotal} 课。随时回来复习任何一课巩固记忆（每次 +5 XP）。`,
         graduateNext: '下一步：用模拟账户小仓位实践，把纸上的希腊字母变成手感。',
@@ -456,6 +462,33 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
         </div>
       )}
 
+      {/* Memo 工作台（判断主线） */}
+      {isInvest && (
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#58cc02] bg-[var(--card)] p-5">
+          <div>
+            <p className="text-base font-extrabold">
+              📝 {lang === 'en' ? 'Memo Workbench' : 'Memo 工作台'}
+              {memoCount > 0 && (
+                <span className="ml-2 text-sm font-bold text-[var(--muted-foreground)]">
+                  {memoCount} {lang === 'en' ? 'memos' : '份'}
+                </span>
+              )}
+            </p>
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+              {lang === 'en'
+                ? `Thesis + graded evidence + a mandatory falsifier + conviction score — the L4 pipeline as a tool. First memo each week +${MEMO_XP} XP.`
+                : `一句话 thesis + 分级证据 + 强制证伪条件 + 信念分——L4 流程的工具化。每周第一份 +${MEMO_XP} XP。`}
+            </p>
+          </div>
+          <button
+            onClick={() => { track('memo_open'); setMemoOpen(true); }}
+            className="rounded-2xl border-b-4 border-[#46a302] bg-[#58cc02] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#61d904] active:translate-y-0.5 active:border-b-2"
+          >
+            {lang === 'en' ? 'Open' : '开始写'}
+          </button>
+        </div>
+      )}
+
       {/* 策略实验室 */}
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
@@ -553,8 +586,8 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
             href: '/learn/investing',
             zh: '🧭 判断框架主线',
             en: '🧭 Judgment Track',
-            zhDesc: '看懂市场语言、公司与市场定价——每日一案 + 判断框架 L1-L3 课程。',
-            enDesc: 'Market language, companies and market pricing — the daily case plus the L1-L3 judgment course.',
+            zhDesc: '从市场语言到研究习惯——每日一案 + Memo 工作台 + 判断框架 L1-L4 课程。',
+            enDesc: 'From market language to research habits — the daily case, the memo workbench and the L1-L4 judgment course.',
           },
           {
             key: 'options',
@@ -791,6 +824,15 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
                 <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
                   {ui.l3}
+                </span>
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+              </div>
+            )}
+            {unit.id === 'i13' && (
+              <div className="mb-12 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+                <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+                  {ui.l4}
                 </span>
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
               </div>
@@ -1060,6 +1102,9 @@ export function OptionsCourseApp({ variant = 'options' }: { variant?: 'options' 
           }}
         />
       )}
+
+      {/* Memo 工作台 */}
+      {memoOpen && <MemoWorkbench onExit={() => setMemoOpen(false)} onWeeklyXp={() => grantReward(MEMO_XP)} />}
 
       {/* 宝箱开箱仪式 */}
       {chestReveal && <ChestRevealOverlay reward={chestReveal} lang={lang} onClose={() => setChestReveal(null)} />}

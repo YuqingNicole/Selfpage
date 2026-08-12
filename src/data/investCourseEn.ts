@@ -1823,3 +1823,658 @@ investCourseEn.push(
     ],
   },
 );
+
+/* ================= L4 Building Research Habits ================= */
+
+investCourseEn.push(
+  {
+    id: 'i13',
+    title: 'Unit 13 · How to Read Filings',
+    subtitle: 'A 20-minute route through a 10-K',
+    color: '#0d9488',
+    colorDark: '#0a7568',
+    icon: '📚',
+    lessons: [
+      {
+        id: 'i13l1',
+        title: 'The filing map: what to read first',
+        tips: [
+          'Three documents, three jobs: the 10-K (annual, most complete), the 10-Q (quarterly, for marginal change), the 8-K (immediate disclosure — executive exits, M&A, guidance changes land here first).',
+          'The 20-minute route: ① segment data (which business grows, which rots) → ② MD&A (diffed against last quarter) → ③ cash flow statement (reconciled against profit) → ④ footnotes (at minimum scan revenue recognition and debt).',
+          'Never read cover to cover: the opening dozens of pages of business description and risk factors are mostly lawyer boilerplate. The incremental information density lives in the numbers and the MD&A.',
+          'Rule: the goal is not "finish the document" but answer three questions — is the business getting better or worse? Is the money real? What changed in management’s story since last quarter?',
+        ],
+        analogy:
+          'Nobody reads a medical report page one to the end: check the flagged abnormals first (segment data), then the doctor’s summary (MD&A), then verify the key vitals (cash flow). Healthy sections get skimmed; anomalies get read line by line. Filings work the same — use the map to find the lesion, don’t transcribe the book.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the document to its job',
+            pairs: [
+              ['10-K annual report', 'The complete base document'],
+              ['10-Q quarterly', 'Tracking marginal change'],
+              ['8-K current report', 'Big events, immediately'],
+              ['Earnings call transcript', 'Management under live fire'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'With only 20 minutes for a 10-K, this lesson’s recommended first stop is?',
+            options: ['Cover and contents', 'Segment data — which business is growing and which deteriorating; one table shows the changing anatomy of the company', 'Director bios', 'Legal disclaimers'],
+            correct: 1,
+            explain: 'Segments are the organ-level checkup: flat total revenue can hide one organ dying while another booms (recall the AWS-disclosure repricing).',
+          },
+          {
+            type: 'tf',
+            statement: 'The "Risk Factors" section has the highest information density and deserves a line-by-line read.',
+            answer: false,
+            explain: 'Most risk factors are lawyer boilerplate ("macro conditions may fluctuate"). What deserves reading is the one or two newly added items — find them by diffing against last year.',
+          },
+          {
+            type: 'fill',
+            before: 'The goal of reading filings is answering three questions: better or worse,',
+            after: ', and what changed in management’s story.',
+            options: ['is the money real', 'is the stock high', 'are employees happy', 'where is the office'],
+            correct: 0,
+            explain: '"Is the money real" is answered by cash flow and receivables — the L1 cash lesson and L2 red flags landing as a reading action.',
+          },
+        ],
+      },
+      {
+        id: 'i13l2',
+        title: 'MD&A and footnotes: where bodies are buried',
+        tips: [
+          'The MD&A is where management is legally required to explain the numbers — the move is not to read it once but to diff it against last quarter: which excuses appeared, which boasts vanished.',
+          'Footnotes are the crime scene: revenue-recognition changes, off-balance-sheet liabilities, contingencies and related-party deals live here. Enron’s SPEs hid in the footnotes.',
+          'Two footnotes always worth scanning: revenue recognition (any measurement change pulling revenue forward?) and debt detail (rates and the maturity schedule — does a maturity wall hit high rates?).',
+          'Rule: what a company most wants ignored, it writes most boringly. A new term suddenly appearing in footnotes — a new entity, a new accounting policy — is the highest-value thing to chase.',
+        ],
+        analogy:
+          'A rental contract: the agent’s pitch is charming (the press release), the main clauses look standard (the statements), and the deposit-forfeiture rules that actually bite are in size-5 font in Appendix Three (the footnotes). Veteran tenants read the appendix first. So do veteran filing readers.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'The most efficient way to read an MD&A?',
+            options: [
+              'Read it thoroughly top to bottom',
+              'Diff it against last quarter’s: new excuses, vanished highlights and softened wording are the incremental information',
+              'First paragraph only',
+              'Skip it',
+            ],
+            correct: 1,
+            explain: 'One MD&A alone is all boilerplate; two side by side make the changes jump out — the text version of L2’s marginal-wording lesson.',
+          },
+          {
+            type: 'tf',
+            statement: 'Enron’s off-balance-sheet vehicles (SPEs) were largely disclosed in footnotes, and analysts who read them closely had a chance to smell trouble early.',
+            answer: true,
+            explain: 'In 2001 some analysts did flag the related-party footnotes publicly. Footnotes are where companies must speak but hope nobody listens.',
+          },
+          {
+            type: 'fill',
+            before: 'Two must-scan footnotes: revenue recognition, and debt’s interest rates plus its',
+            after: '— checking whether a maturity wall collides with a high-rate regime.',
+            options: ['maturity schedule', 'guarantor names', 'bank branches', 'currency units'],
+            correct: 0,
+            explain: 'In 2023–24 plenty of zero-era debt matured into doubled refinancing costs — the maturity wall is the rates lesson landing on single names.',
+          },
+          {
+            type: 'choice',
+            question: 'A footnote reveals a newly formed joint venture with large dealings with the company, but unconsolidated. First reaction?',
+            options: ['Ignore — too complex', 'Alert and investigate: new entity + related-party flows + off the balance sheet is the classic channel for shifting revenue or hiding debt (the Enron script)', 'Expansion — bullish', 'Wait for the press'],
+            correct: 1,
+            explain: 'Not every new entity is dirty, but the priority of checking is extreme — the L2 red-flag list landing as a reading action.',
+          },
+        ],
+      },
+      {
+        id: 'i13l3',
+        title: 'Cross-examining the three statements',
+        tips: [
+          'Three statements describe one company and must tell one story: the income statement claims profit → the cash flow statement should show collection → the balance sheet’s retained earnings should thicken. Mismatches are the finding.',
+          'Classic lie-detector pair ①: net income rising for years while operating cash flow treads water → interrogate receivables and inventory (the reconciliation version of L1 cash + L2 red flags).',
+          'Classic pair ②: huge cash balances alongside heavy high-interest borrowing — "high cash, high debt". The cash may be fake, pledged, or occupied. Kangmei Pharma ran exactly this shape before ¥30B of cash "evaporated".',
+          'Rule: one statement can wear makeup; keeping three statements consistently lying together is far harder. Make your reconciliation checklist mechanical — mechanical lists are immune to stories.',
+        ],
+        analogy:
+          'Interrogating three suspects (the three statements): questioned separately, each story is smooth; cross-examined, the contradictions surface — "you said you were home at eight (profit), he says you were both at the bar (cash flow)". Audit statements like suspects: truth comes from cross-examination.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Why is "high cash + high debt" (huge idle cash alongside heavy high-interest borrowing) a top-severity red flag?',
+            options: [
+              'It shows the company is rich',
+              'Genuinely idle cash makes expensive borrowing unnecessary — the reasonable suspicion is the cash is fake, pledged, or occupied by insiders. Kangmei ran this shape before ¥30B vanished',
+              'Normal treasury management',
+              'It shows banks trust them',
+            ],
+            correct: 1,
+            explain: 'Kangmei wrote off ¥30B of "cash" as an accounting error in 2019. High-cash-high-debt is among the most famous shapes a mechanical cross-check catches.',
+          },
+          {
+            type: 'fill',
+            before: 'The first reconciliation: the income statement’s net profit against the cash flow statement’s',
+            after: '.',
+            options: ['operating cash flow', 'financing cash flow', 'currency effects', 'investment gains'],
+            correct: 0,
+            explain: 'Persistent divergence plus swelling receivables = revenue-quality alarm. This one line threads L1 and L2 into a reading action.',
+          },
+          {
+            type: 'tf',
+            statement: 'A single statement can be dressed up, but keeping all three telling the same false story for years is far harder.',
+            answer: true,
+            explain: 'Each extra statement is another constraint on the fabricator. Cross-examination is the retail investor’s best value-for-effort fraud shield.',
+          },
+          {
+            type: 'choice',
+            question: 'Assembling this unit into one 20-minute checklist, the right order is?',
+            options: [
+              'Page one to the end',
+              'Segments → MD&A diff → profit-vs-cash reconciliation → scan revenue-recognition and debt footnotes: map, lie detector, crime scene, in that order',
+              'Just the EPS number',
+              'Read a broker summary instead',
+            ],
+            correct: 1,
+            explain: 'This sequence is L4’s first executable habit. Run the same list quarterly and after ten companies both speed and smell improve exponentially.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i14',
+    title: 'Unit 14 · Write the Thesis Down',
+    subtitle: 'If you can’t write it clearly, you haven’t thought it clearly',
+    color: '#ea580c',
+    colorDark: '#c2410c',
+    icon: '✍️',
+    lessons: [
+      {
+        id: 'i14l1',
+        title: 'Anatomy of a one-sentence thesis',
+        tips: [
+          'A qualified thesis has four parts in one sentence: target + direction + core logic + time horizon. Example: "Over 2–3 years the market underprices Costco’s fee-hike headroom and renewal stickiness; it deserves an above-market multiple (long)."',
+          '"Buy it because it will go up" is not a thesis — it is a tautology. "AI is the future" is not a thesis — it is a slogan: it cannot be refuted, so it cannot be verified.',
+          'The qualification test: could a smart opponent specifically refute you? A judgment that can be refuted is a judgment; one that cannot is a belief.',
+          'Why write it down: the brain edits memories after the fact ("I knew it would fall"). Paper does not. The thesis is your evidence for the confrontation with your future self.',
+        ],
+        analogy:
+          'Science-class hypothesis versus horoscope: "salt lowers this water’s freezing point below -3°C" can be tested; "you may meet a helpful stranger this week" is true no matter what. Writing a thesis upgrades your idea from horoscope to hypothesis.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Which of these is a qualified thesis?',
+            options: [
+              '"Nvidia is a great company, bullish long term"',
+              '"Over the next 4 quarters, cloud capex growth holds above 30%, and the data-center growth implied in Nvidia’s current price is too conservative (long)"',
+              '"AI is humanity’s future"',
+              '"Feels like it’s going up"',
+            ],
+            correct: 1,
+            explain: 'Only it has all four parts and can be refuted: capex growth below 30% or guidance under the implied bar falsifies it. The other three are "right" whatever happens — hence useless.',
+          },
+          {
+            type: 'fill',
+            before: 'The test of a thesis: could a smart opponent specifically',
+            after: 'you — what cannot be refuted is belief, not judgment.',
+            options: ['refute', 'praise', 'imitate', 'follow'],
+            correct: 0,
+            explain: 'Falsifiability divides science from astrology, and judgments from slogans (recall i9’s reverse-engineering).',
+          },
+          {
+            type: 'tf',
+            statement: 'One core value of writing the thesis down is preventing your brain from editing the memory into "I knew it all along".',
+            answer: true,
+            explain: 'Hindsight bias is the post-mortem’s worst enemy. The written page is the only witness that never flatters — the same reason the Daily Case makes you judge before revealing.',
+          },
+          {
+            type: 'choice',
+            question: 'Why must a thesis include a time horizon?',
+            options: [
+              'To sound professional',
+              'A judgment without a deadline is never wrong yet — the horizon makes falsification possible and determines which evidence matters (quarterly data versus industry cycles)',
+              'Regulation',
+              'For social media',
+            ],
+            correct: 1,
+            explain: 'If "long term" can stretch forever, the judgment can never be tested. The deadline is part of the judgment, not a decoration.',
+          },
+        ],
+      },
+      {
+        id: 'i14l2',
+        title: 'Grading evidence: not all information is equal',
+        tips: [
+          'Evidence has ranks: primary data (filings, orders, channel checks, your own math) > management statements (interested party) > sell-side research (business relationships) > media/KOL sentiment (a sentiment gauge, not evidence).',
+          'The three-independent-pieces rule: a thesis needs at least three mutually independent supports — "three KOLs are all bullish" is not three pieces, it is one sentiment echoed thrice.',
+          'Hunt the other side: after writing a long thesis, read the strongest short report you can find. Confirmation bias cannot be willed away — make "find the refutation" a mandatory pipeline step.',
+          'Rule: an evidence chain is as strong as its weakest link. A thesis resting on "a big account said so" is a big-account-grade thesis.',
+        ],
+        analogy:
+          'A court doesn’t convict on testimony from the plaintiff’s friends (interested parties): it wants physical evidence (filings), independent witnesses (channel data), and it must hear the defense (the short case). A judge who admits only one side eventually rules wrongly — it is only a matter of when.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the evidence type to its rank',
+            pairs: [
+              ['Filed numbers, order data', 'Primary — highest rank'],
+              ['Management’s call statements', 'Interested party — discount it'],
+              ['Sell-side research', 'Business ties — reference only'],
+              ['KOL / trending sentiment', 'A gauge of mood, not evidence'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: '"Five finance influencers all posted bullish takes on this stock this week." In the evidence framework this counts as?',
+            options: [
+              'Five independent pieces',
+              'One sentiment datum echoed five times — possibly even a contrarian signal: unanimous mood often means expectations are full (recall i11 crowding)',
+              'A decisive positive',
+              'Inside information',
+            ],
+            correct: 1,
+            explain: 'Independence is the precondition for counting. Same-source information repeated a hundred times is one piece — and unanimity itself signals crowded positioning.',
+          },
+          {
+            type: 'tf',
+            statement: 'After writing a bullish thesis, deliberately reading the strongest bear case is an effective anti-confirmation-bias procedure.',
+            answer: true,
+            explain: 'Bias yields to process, not willpower: Dalio’s believability-weighted dissent and Buffett inviting bears to shareholder meetings institutionalize the same move.',
+          },
+          {
+            type: 'fill',
+            before: 'An evidence chain is only as strong as its',
+            after: 'link — a thesis built on rumor is rumor-grade.',
+            options: ['weakest', 'strongest', 'longest', 'newest'],
+            correct: 0,
+            explain: 'Like any chain. Reviewing your thesis, find the weakest link first and ask: does the argument survive without it?',
+          },
+        ],
+      },
+      {
+        id: 'i14l3',
+        title: 'Conviction and position size',
+        tips: [
+          'Position size is the price tag on conviction: stronger chains and better odds justify larger size; "just a small punt" usually means no thesis was written at all.',
+          'Kelly intuition: bet bigger with bigger edges, but never bet everything — your estimate of the edge is itself uncertain. Professionals often run half-Kelly, then halve again.',
+          'Two questions that must stay separate: "how sure am I?" (win rate) and "what does being wrong cost?" (payoff structure). High conviction with catastrophic downside still forbids concentration.',
+          'Rule: when writing the thesis, note a conviction score (1–10) and its matching size. Conviction 5 with a huge position = the position is lying for you; conviction 9 with 1% = the research produced nothing.',
+        ],
+        analogy:
+          'Poker: raise good hands, bet big on monsters — but professionals never stack off on one hand, because the villain’s cards always hold possibilities you didn’t price. Sizing isn’t courage; it is writing "I might be wrong" into the bet itself.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Why must "how sure am I" and "what does being wrong cost" be answered separately?',
+            options: [
+              'They needn’t be',
+              'High win rate does not mean survivable downside: a 90%-win bet that zeroes you on a loss (a single-event earnings gamble) still forbids size — both jointly set the position',
+              'It sounds more professional',
+              'Regulation',
+            ],
+            correct: 1,
+            explain: 'The naked-option lesson from the options track converges here: high-probability small wins plus low-probability ruin can carry negative long-run expectancy. Size must price the cost of being wrong.',
+          },
+          {
+            type: 'tf',
+            statement: 'Kelly’s practical lesson: even with a clear edge, never bet everything, because your estimate of the edge may itself be wrong.',
+            answer: false,
+            explain: 'True but incomplete as stated: beyond estimation error, betting everything means one bad draw ends the game and forfeits all future compounding. Kelly maximizes long-run growth, which inherently forbids ruin — half-Kelly leaves margin for both layers of error.',
+          },
+          {
+            type: 'fill',
+            before: 'Note a conviction score with every thesis: conviction 5 with a heavy position means the',
+            after: 'is lying on your behalf.',
+            options: ['position', 'market', 'filing', 'news'],
+            correct: 0,
+            explain: 'Size-conviction mismatch is the most honest self-diagnostic: either research your way to higher conviction, or cut the size to match.',
+          },
+          {
+            type: 'choice',
+            question: 'After deep work: conviction 9, complete evidence chain — but you buy a token 1% "just in case". The framework’s issue with this?',
+            options: [
+              'Prudent, no issue',
+              'The research never converted into returns: high conviction with token size is as much a mismatch as low conviction with heavy size — judgment compounds only when you cash in the times you are right',
+              'Wait for a dip instead',
+              'Smaller is always better',
+            ],
+            correct: 1,
+            explain: 'Buffett: when it rains gold, reach for a bucket, not a thimble. Discipline includes earning enough when right — both directions of mismatch belong in the post-mortem.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i15',
+    title: 'Unit 15 · Falsifiers and Stops',
+    subtitle: 'Write "what proves me wrong" before you buy',
+    color: '#dc2626',
+    colorDark: '#b02020',
+    icon: '🛡️',
+    lessons: [
+      {
+        id: 'i15l1',
+        title: 'Pre-commit the falsifier',
+        tips: [
+          'Before buying, write: "If ___ happens, my thesis is wrong, and I will ___." The more concrete the blanks, the less your future self gets hijacked by emotion.',
+          'A qualified falsifier has three parts: specific (metric + threshold), observable (public data), deadlined. "Sell if fundamentals deteriorate" fails; "renewal rate below 90% for two straight quarters" qualifies (the Costco case).',
+          'Aim the falsifier at the weakest link: whatever your thesis rests on is where the alarm gets installed.',
+          'Rule: a position without a written falsifier is a jump without a packed parachute. Parachutes are packed before takeoff — decide "what counts as wrong" after a 30% drawdown and fear or hope will write the answer for you.',
+        ],
+        analogy:
+          'Two friends agree in writing: "if the startup isn’t profitable in three years, I go back to a job." Three years later, the loss-making founder has a hundred reasons for one more year — that signed page exists precisely to outvote him. A falsifier is a letter to the future, trapped version of you.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Which is a qualified falsifier?',
+            options: [
+              '"Sell if fundamentals deteriorate"',
+              '"If data-center revenue grows below 5% QoQ for two consecutive quarters, the AI-demand thesis is falsified; exit within a week"',
+              '"Run if it feels wrong"',
+              '"Long-term investors need no falsifiers"',
+            ],
+            correct: 1,
+            explain: 'Metric + threshold + count + action: the future execution requires no fresh decision, only compliance.',
+          },
+          {
+            type: 'fill',
+            before: 'Install the falsifier on the thesis’s',
+            after: 'link — whatever the argument rests on is where the alarm belongs.',
+            options: ['weakest', 'strongest', 'newest', 'priciest'],
+            correct: 0,
+            explain: 'The Costco premium’s alarm sits on renewals, not revenue (the original Daily Case) — because renewals are the premium’s foundation.',
+          },
+          {
+            type: 'tf',
+            statement: 'It is fine to write the falsifier after the position is already underwater.',
+            answer: false,
+            explain: 'Falsifiers written in drawdown get systematically loosened by hope. Parachutes are packed before the jump — that is the entire meaning of pre-commitment.',
+          },
+          {
+            type: 'choice',
+            question: 'Why does "decide what counts as falsified after it drops 30%" almost always fail?',
+            options: [
+              'Because 30% is too much',
+              'Because you are no longer a neutral judge: sunk cost and hope loosen the standard repeatedly, and "one more earnings report" repeats until zero',
+              'Not enough time',
+              'It doesn’t fail',
+            ],
+            correct: 1,
+            explain: 'Rules are orders written by your calm self to your emotional self. Referee and player cannot be the same person at the same time.',
+          },
+        ],
+      },
+      {
+        id: 'i15l2',
+        title: 'Two kinds of stops',
+        tips: [
+          'The thesis stop: exit when the falsifier triggers, regardless of price — even in profit. It protects the integrity of your judgment system.',
+          'The price stop: cut when losses hit a preset level, regardless of thesis — even if the story still looks fine. It protects survival (capital and psyche).',
+          'Their relationship: the thesis stop is the primary judgment; the price stop is the fuse. "It fell but nothing falsified" can justify adding — only if the falsifier was written before the fall and sizing discipline allows.',
+          'Rule: the most dangerous sentence is "it’s cheaper now" without distinguishing: is the price wrong (opportunity) or is my thesis wrong (trap)? The answer lives on the falsifier list, never on your cost basis.',
+        ],
+        analogy:
+          'A road trip: the navigator shows the road closed (thesis falsified) — change routes even halfway there; the fuel gauge hits empty (loss at survival line) — pull into the station even on the perfect route. Two instruments watch different things; blending them drives you into a ditch.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A holding is down 25%, but checking line by line: no falsifier triggered, and the evidence chain actually strengthened. The framework permits?',
+            options: [
+              'Mindless capitulation — down means wrong',
+              'Considering an add within sizing discipline: a fall without falsification may mean the price is wrong — provided the falsifier list predates the fall',
+              'Stop looking at the account',
+              'Loosen the falsifier',
+            ],
+            correct: 1,
+            explain: 'The executable version of "greedy when others are fearful" is not courage — it is a pre-written falsifier list plus pre-reserved adding capacity. Without both, adding is a gambler averaging down.',
+          },
+          {
+            type: 'tf',
+            statement: 'Thesis stops protect the judgment system, price stops protect survival — both can coexist, and triggering either means executing.',
+            answer: true,
+            explain: 'A correct thesis oversized still forces an exit at the worst price (the options track’s margin lesson). Survival outranks being right.',
+          },
+          {
+            type: 'fill',
+            before: '"It’s cheaper now" is dangerous because it skips the key question: is the price wrong, or is',
+            after: 'wrong?',
+            options: ['my thesis', 'the market', 'everyone else', 'the timing'],
+            correct: 0,
+            explain: 'Price wrong → opportunity; thesis wrong → trap. The tool for telling them apart is the falsifier list from the previous lesson.',
+          },
+          {
+            type: 'choice',
+            question: 'The falsifier triggered, but the stock rose 5% that day. The disciplined action?',
+            options: [
+              'Rising proves the thesis fine — hold',
+              'Execute the exit as planned: falsification judges the thesis’s foundation, not the day’s price — let short-term price veto the falsifier once and the list is dead forever',
+              'Loosen the falsifier',
+              'Add to celebrate',
+            ],
+            correct: 1,
+            explain: 'In 2021 many stayed after fundamental falsification because "it’s still going up", and round-tripped below cost. Price lagging fact is the norm, not an exemption.',
+          },
+        ],
+      },
+      {
+        id: 'i15l3',
+        title: 'Self-defense against cognitive biases',
+        tips: [
+          'The four most expensive biases: sunk cost ("down too much to sell now"), anchoring (staring at your cost basis instead of the company’s value), the disposition effect (rushing to sell winners, entombing losers), and narrative self-reinforcement (the longer held, the more only positives register).',
+          'Your cost basis is your private business — the market neither knows nor cares. The only correct question: "If I held cash today, would I buy this at this price with this information?" If not, sell.',
+          'The disposition effect auto-degrades portfolios: what remains is everything underwater (can’t bear to sell), what left is everything profitable (rushed to bank) — systematically cutting flowers to water weeds.',
+          'Rule: biases cannot be willed away, only routed around by process — pre-commitment (falsifiers), mechanical checklists (reconciliation), periodic zero-basing ("pretend I hold cash").',
+        ],
+        analogy:
+          'Stuffed at the buffet but forcing more down "to get your money’s worth" — the fee is spent either way; the extra plate only costs your stomach too. Everyone sees the sunk-cost fallacy at a buffet; swap in a brokerage account and the whole room goes blind.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the bias to its catchphrase',
+            pairs: [
+              ['Sunk cost', '"Down 40% — selling makes it real"'],
+              ['Anchoring', '"I’ll sell when it gets back to my cost"'],
+              ['Disposition effect', '"Bank the winners, give losers time"'],
+              ['Narrative self-reinforcement', '"The more I read, the more bullish I get"'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'The power of "If I held cash today, would I buy this?" lies in?',
+            options: [
+              'Encouraging overtrading',
+              'Unhooking the decision from your cost-basis anchor and returning it to the correct coordinates: current information versus current price',
+              'Building confidence',
+              'Nothing practical',
+            ],
+            correct: 1,
+            explain: 'The market doesn’t know your cost. This one question is the single-sentence antidote to anchoring and sunk cost — worth running monthly on every holding.',
+          },
+          {
+            type: 'tf',
+            statement: 'The disposition effect (selling winners fast, holding losers long) systematically degrades portfolios over time.',
+            answer: true,
+            explain: 'Peter Lynch called it cutting the flowers and watering the weeds. Studies show retail investors’ sold positions outperform what they keep — they keep the wrong side.',
+          },
+          {
+            type: 'fill',
+            before: 'Biases cannot be removed by willpower, only routed around by',
+            after: ': pre-commitment, mechanical checklists, periodic zero-basing.',
+            options: ['process', 'talent', 'luck', 'tips'],
+            correct: 0,
+            explain: 'Pilots don’t will themselves through takeoff — they run checklists. All of L4 is, at heart, installing checklists onto investment judgment.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i16',
+    title: 'Unit 16 · The Post-Mortem',
+    subtitle: 'Without reviews, ten years of experience is one year repeated ten times',
+    color: '#7c3aed',
+    colorDark: '#6529c7',
+    icon: '🔄',
+    lessons: [
+      {
+        id: 'i16l1',
+        title: 'Review the decision, not the outcome',
+        tips: [
+          'Outcome = decision quality × luck. Grading yourself by P&L alone makes luck your report card — poker players call it "resulting", the post-mortem’s enemy number one.',
+          'The four quadrants: good decision/good outcome (deserved), good decision/bad outcome (bad luck — repeat the decision), bad decision/good outcome (the most dangerous — a fluke gets archived as skill), bad decision/bad outcome (deserved, but at least the lesson is clean).',
+          'The danger sits top-right: one lucky earnings gamble teaches the brain that gambling works — the next identical decision is a loss already seeded.',
+          'Rule: the review question is always "given what was knowable then, was the decision sound?" — never "did it make money?".',
+        ],
+        analogy:
+          'Running a red light and arriving on time (bad decision, good outcome) should not be filed as a commuting technique; wearing a seatbelt and getting hurt in a rear-ending (good decision, bad outcome) should not end seatbelts. Grade decisions by outcomes and both your life and your account thin out.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'You gambled heavily into earnings — no evidence chain, no falsifier — and luckily made 40%. The correct review conclusion?',
+            options: [
+              'Success — repeat it',
+              'Bad decision + good luck: the profit does not change the naked-gamble nature — this quadrant is the most dangerous because the fluke is being archived as experience',
+              'Research is useless, nerve is everything',
+              'It made money; skip the review',
+            ],
+            correct: 1,
+            explain: 'Repeat the same decision ten times and the expectancy is negative. The review’s value is precisely daring to say "this one doesn’t count" while the money is still warm.',
+          },
+          {
+            type: 'fill',
+            before: 'The review question is always "given what was knowable then, was the decision',
+            after: '" — never "did it end up profitable".',
+            options: ['sound', 'profitable', 'lucky', 'bold'],
+            correct: 0,
+            explain: 'Decisions happen under incomplete information; outcomes carry luck. Grading decisions improves decisions; grading outcomes improves superstition.',
+          },
+          {
+            type: 'tf',
+            statement: 'A "good decision, bad outcome" play should be repeated the next time the same spot appears.',
+            answer: true,
+            explain: 'Edge plus bad luck = a decision worth repeating. A pro who loses a correctly played hand is satisfied with the play — the long run pays the play, not the hand.',
+          },
+          {
+            type: 'choice',
+            question: 'The precise definition of "resulting"?',
+            options: [
+              'A pragmatic focus on results',
+              'The bias of inferring decision quality purely from outcomes — it turns flukes into experience and correct losses into trauma, systematically corroding judgment',
+              'A review methodology',
+              'Another name for stop-loss discipline',
+            ],
+            correct: 1,
+            explain: 'Annie Duke ranks it the decision-maker’s enemy number one in "Thinking in Bets". Markets are noisier than poker short-term, so resulting is even more toxic here.',
+          },
+        ],
+      },
+      {
+        id: 'i16l2',
+        title: 'The five-question template',
+        tips: [
+          'The five questions: ① what was the thesis (copy the original text — no paraphrasing) ② what actually happened ③ where was the expectations gap ④ which framework link failed (L3’s four-part diagnosis: expectations/ruler/margin/narrative — or L4’s: evidence/sizing/falsifier execution) ⑤ the specific fix for next time.',
+          'Question ④ is the heart: a loss must be located to a specific link — misgraded evidence (KOL counted as primary)? Falsifier not executed? Size-conviction mismatch? "Bad luck" is not a qualified answer.',
+          'Winners get the five questions too: did you earn the thesis’s money, or bump into money (sector anchor lift / pure beta)? Only logic-earned profit deserves replication.',
+          'Rule: review all holdings quarterly, and review every closed position within 48 hours — past a week, memory has begun flattering itself.',
+        ],
+        analogy:
+          'After a loss the coach never just says "unlucky": was the defensive shape wrong (framework link), did fitness collapse (execution), did the opponent adapt (conditions)? Only locating the link produces next week’s training menu. "Try harder next time" is not a training menu.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'A loss review concludes: "market sentiment was poor, luck was bad." Under the template, the problem with this review?',
+            options: [
+              'None — markets do get emotional',
+              'Question ④ unanswered: no specific failed link located (expectations misread? falsifier ignored? size mismatch?) — without a link there is no fix',
+              'Too short',
+              'Should blame others',
+            ],
+            correct: 1,
+            explain: '"Luck" must be the residual after elimination, never the first stop. Exhaust the framework links; only the remainder may be assigned to luck.',
+          },
+          {
+            type: 'tf',
+            statement: 'Profitable positions don’t need reviews.',
+            answer: false,
+            explain: 'Without the review you cannot separate "earned by logic" from "bumped into a rally" — and the latter, archived as experience, is the recipe for the next loss (last lesson’s dangerous quadrant).',
+          },
+          {
+            type: 'fill',
+            before: 'Question ① must copy the thesis',
+            after: '— memory paraphrases "a punt" into "careful analysis".',
+            options: ['verbatim', 'roughly', 'from feel', 'conclusion only'],
+            correct: 0,
+            explain: 'This is why the memo workbench exists: the written original is the only exhibit hindsight cannot contaminate.',
+          },
+          {
+            type: 'choice',
+            question: 'Why must the closed-position review happen within 48 hours?',
+            options: [
+              'To rush the next trade',
+              'Memory’s self-flattering starts the moment you close — after a week, "why I bought" has been recolored by the outcome',
+              'Regulation',
+              'No reason',
+            ],
+            correct: 1,
+            explain: 'Hindsight bias is an enemy with a half-life; the review is a race against it. Record while the sting is fresh — pain is the best ink.',
+          },
+        ],
+      },
+      {
+        id: 'i16l3',
+        title: 'The cognition profile: graduation and beyond',
+        tips: [
+          'Single reviews see trees; the cognition profile sees the forest: aggregate your Daily Case accuracy, memo hit rate and reviews into data, and your judgment style emerges — where are you accurate? Systematically optimistic, or a consensus-hugger?',
+          'Style bias is the most valuable self-knowledge: 80% accuracy on earnings cases but 40% on macro means macro judgments deserve systematically lower weight — concentrate ammunition in your hitting zone.',
+          'The full L1–L4 loop: read the language (L1) → read the company (L2) → read the pricing (L3) → judge by process and iterate through reviews (L4). You now own an operating system that upgrades for life.',
+          'Next, L5 industry deep-dives: apply the framework to AI, energy, healthcare — building the demand → supply chain → bottleneck → profit → price causal maps. The north star never moves: no longer deciding by tips, influencers and emotions.',
+        ],
+        analogy:
+          'A chess player grows not by memorizing every game but by discovering, across hundreds of reviews, "I get impatient in the middlegame" — one sentence of self-knowledge worth more than a hundred openings. The cognition profile exists to distill your hundreds of judgments into that sentence.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Your profile shows 80% accuracy on earnings cases and 45% on macro. The framework response?',
+            options: [
+              'Quit investing',
+              'Recognize your hitting zone: earnings judgments can carry higher conviction and size; macro judgments get systematically down-weighted or defensive-only — concentrate where you have edge',
+              'Grind macro to 80% before acting',
+              'Too little data, ignore it',
+            ],
+            correct: 1,
+            explain: 'The quantified version of Buffett’s circle of competence: knowing where you are accurate beats knowing everything. (Small samples deserve caution, but the direction already guides sizing.)',
+          },
+          {
+            type: 'match',
+            prompt: 'Match each layer to the question it answers',
+            pairs: [
+              ['L1 Market language', 'What do these numbers mean'],
+              ['L2 The company', 'Why is this a good business'],
+              ['L3 Market pricing', 'What expectations are in the price'],
+              ['L4 Research habits', 'How to make and iterate judgments'],
+            ],
+          },
+          {
+            type: 'tf',
+            statement: 'The cognition profile’s value is replacing "I feel like I’m decent at this" with "the data shows where my judgments have edge".',
+            answer: true,
+            explain: 'Every Daily Case call and memo hit-rate feeds this profile — every judgment you make is training data for the model that is you.',
+          },
+          {
+            type: 'choice',
+            question: 'L4 graduation check: the correct sequence for one complete investment?',
+            options: [
+              'Read news → buy → add if up → play dead if down',
+              'Read filings with cross-checks → write the four-part thesis with graded evidence → set falsifiers and size to conviction → execute triggers without debate → review within 48 hours and archive',
+              'Ask a KOL → copy the trade → screenshot the gains',
+              'Technicals → all-in → pray',
+            ],
+            correct: 1,
+            explain: 'That pipeline is the four units of L4 assembled — and the user manual for the memo workbench. Congratulations, graduate: Mr. Market is waiting downstairs for your final exam.',
+          },
+        ],
+      },
+    ],
+  },
+);
