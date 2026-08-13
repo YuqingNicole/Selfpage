@@ -21,6 +21,7 @@ import { INVEST_CASES, TAG_LABEL, type InvestCase } from '@/data/investCases';
 import { levelForXp } from './levels';
 import type { ChestTier } from './daily';
 import { loadMemos, MEMO_XP, MemoWorkbench } from './MemoWorkbench';
+import { Mascot } from './Mascot';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
@@ -311,8 +312,9 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="mb-8 text-center"
       >
-        <div className="mb-2 text-5xl drop-shadow-sm" aria-hidden>
-          {isInvest ? '🦉🧭' : isArb ? '🦉⚡' : '🦉📊'}
+        <div className="mb-2 flex items-end justify-center" aria-hidden>
+          <Mascot mood="happy" size={92} />
+          <span className="-ml-4 mb-1 text-3xl drop-shadow-sm">{isInvest ? '🧭' : isArb ? '⚡' : '📊'}</span>
         </div>
         <h1 className="text-3xl font-extrabold sm:text-4xl">{ui.title}</h1>
         <p className="mt-2 text-[var(--muted-foreground)]">{ui.subtitle}</p>
@@ -962,8 +964,9 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
       {/* 毕业卡片 */}
       {loaded && completedCount === courseTotal && (
         <div className="mt-12 rounded-3xl border-2 border-[#ffc800] bg-[var(--card)] p-8 text-center">
-          <div className="mb-3 text-6xl" aria-hidden>
-            🎓
+          <div className="relative mb-3 inline-block" aria-hidden>
+            <Mascot mood="celebrate" size={110} />
+            <span className="absolute -right-3 -top-1 text-4xl">🎓</span>
           </div>
           <h2 className="text-2xl font-extrabold text-[#ffc800]">{ui.graduateTitle}</h2>
           <p className="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">

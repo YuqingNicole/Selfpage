@@ -5,6 +5,7 @@ import type { ChoiceExercise, FillExercise, TrueFalseExercise, Unit } from '@/da
 import { useLanguage } from '@/contexts/LanguageContext';
 import { track } from './analytics';
 import { sfx } from './sounds';
+import { Mascot } from './Mascot';
 
 /**
  * 新用户引导 + 分级测试（仅期权学园首次访问触发）
@@ -123,7 +124,7 @@ export function OnboardingFlow({ course, onStartFirstLesson, onPlacement, onClos
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col justify-center px-6 py-10">
         {step === 'welcome' && (
           <div className="text-center">
-            <div className="mb-4 text-7xl" aria-hidden>🦉</div>
+            <div className="mb-4 flex justify-center" aria-hidden><Mascot mood="celebrate" size={120} /></div>
             <h1 className="mb-3 text-3xl font-extrabold">{t('欢迎来到投资学园', 'Welcome to Investing Academy')}</h1>
             <div className="mb-6 space-y-2 text-left text-sm leading-relaxed text-[var(--muted-foreground)]">
               <p>⏱️ {t('每课 3 分钟，闯关式学习，从零基础到体系化实战', '3-minute lessons, level by level, from zero to a full system')}</p>
@@ -150,7 +151,7 @@ export function OnboardingFlow({ course, onStartFirstLesson, onPlacement, onClos
 
         {step === 'experience' && (
           <div className="text-center">
-            <div className="mb-4 text-6xl" aria-hidden>🤔</div>
+            <div className="mb-4 flex justify-center" aria-hidden><Mascot mood="think" size={104} /></div>
             <h2 className="mb-6 text-2xl font-extrabold">{t('你交易过期权吗？', 'Have you traded options before?')}</h2>
             <div className="space-y-3">
               <button

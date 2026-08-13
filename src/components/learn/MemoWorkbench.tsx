@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { track } from './analytics';
 import { sfx } from './sounds';
+import { Mascot } from './Mascot';
 
 /**
  * Memo 工作台 —— L4 研究习惯的落地工具。
@@ -197,9 +198,12 @@ export function MemoWorkbench({ onExit, onWeeklyXp }: { onExit: () => void; onWe
               ＋ {t('写一份新 memo', 'Write a new memo')}
             </button>
             {memos.length === 0 ? (
-              <p className="text-center text-sm text-[var(--muted-foreground)]">
-                {t('还没有 memo。第一份从你最有信念的持仓开始。', 'No memos yet. Start with your highest-conviction holding.')}
-              </p>
+              <div className="flex flex-col items-center gap-3 py-6 text-center">
+                <Mascot mood="think" size={96} />
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  {t('还没有 memo。第一份从你最有信念的持仓开始。', 'No memos yet. Start with your highest-conviction holding.')}
+                </p>
+              </div>
             ) : (
               <ul className="space-y-3">
                 {memos.map((m) => {
