@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   arbCourse,
   arbLessonOrder,
@@ -257,7 +258,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
   const todaysCase = todayCase();
   const dailyCaseCard = isInvest ? (
-    <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#ff9600] bg-[var(--card)] p-5">
+    <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#ff9600] bg-[var(--card)] p-5">
       <div className="min-w-0">
         <p className="text-base font-extrabold">
           📰 {effectiveLang === 'en' ? 'Case of the Day' : '每日一案'}
@@ -290,17 +291,35 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-8">
+      {/* 环境光斑：低透明度彩色模糊球，明暗主题都成立 */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div
+          className="absolute -right-24 -top-24 h-96 w-96 rounded-full opacity-[0.16] blur-3xl"
+          style={{ background: isInvest ? '#1cb0f6' : isArb ? '#627eea' : '#58cc02' }}
+        />
+        <div
+          className="absolute -left-32 top-1/3 h-96 w-96 rounded-full opacity-[0.12] blur-3xl"
+          style={{ background: isInvest ? '#58cc02' : isArb ? '#ff9600' : '#1cb0f6' }}
+        />
+        <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-[#ffc800] opacity-[0.08] blur-3xl" />
+      </div>
+
       {/* 页头 */}
-      <header className="mb-8 text-center">
-        <div className="mb-2 text-5xl" aria-hidden>
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mb-8 text-center"
+      >
+        <div className="mb-2 text-5xl drop-shadow-sm" aria-hidden>
           {isInvest ? '🦉🧭' : isArb ? '🦉⚡' : '🦉📊'}
         </div>
         <h1 className="text-3xl font-extrabold sm:text-4xl">{ui.title}</h1>
         <p className="mt-2 text-[var(--muted-foreground)]">{ui.subtitle}</p>
-      </header>
+      </motion.header>
 
       {/* 统计栏 */}
-      <div className="sticky top-16 z-40 mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] px-4 py-3 shadow-sm">
+      <div className="sticky top-16 z-40 mb-10 rounded-3xl border-2 border-[var(--border)] bg-[var(--card)]/90 px-4 py-3 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.25)] backdrop-blur-lg">
         <div className="mb-3 flex items-center justify-end gap-2">
           <button
             onClick={() => {
@@ -369,11 +388,21 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         })()}
       </div>
 
+      {/* Tab 内容切换动效 */}
+      <AnimatePresence mode="wait">
+      <motion.div
+        key={tab}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+      >
+
       {tab === 'review' && (
         <>
       {/* 每日任务 */}
       {loaded && daily && (
-        <div className="mb-10 rounded-2xl border-2 border-[#ce82ff] bg-[var(--card)] p-5">
+        <div className="mb-10 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] border-[#ce82ff] bg-[var(--card)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-base font-extrabold">📅 {effectiveLang === 'en' ? 'Daily Quests' : '每日任务'}</p>
@@ -426,7 +455,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* 案例档案馆（判断主线） */}
       {isInvest && (
-        <div className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+        <div className="mb-10 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] border-[var(--border)] bg-[var(--card)] p-5">
           <p className="text-base font-extrabold">
             🗂️ {effectiveLang === 'en' ? 'Case Archive' : '案例档案馆'}{' '}
             <span className="text-sm font-bold text-[var(--muted-foreground)]">
@@ -470,7 +499,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* Memo 工作台（判断主线） */}
       {isInvest && (
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#58cc02] bg-[var(--card)] p-5">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#58cc02] bg-[var(--card)] p-5">
           <div>
             <p className="text-base font-extrabold">
               📝 {effectiveLang === 'en' ? 'Memo Workbench' : 'Memo 工作台'}
@@ -497,7 +526,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* 策略实验室 */}
       {!isArb && (
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#1cb0f6] bg-[var(--card)] p-5">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#1cb0f6] bg-[var(--card)] p-5">
           <div>
             <p className="text-base font-extrabold">🧪 {effectiveLang === 'en' ? 'Strategy Lab' : '策略实验室'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -517,7 +546,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* 交易生存挑战 */}
       {!isArb && (
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#58cc02] bg-[var(--card)] p-5">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#58cc02] bg-[var(--card)] p-5">
           <div>
             <p className="text-base font-extrabold">🎮 {effectiveLang === 'en' ? 'Survival Challenge' : '交易生存挑战'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -537,7 +566,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* 套利工坊 */}
       {isArb && (
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#627eea] bg-[var(--card)] p-5">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#627eea] bg-[var(--card)] p-5">
           <div>
             <p className="text-base font-extrabold">⚡ {effectiveLang === 'en' ? 'Arb Workshop' : '套利工坊'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -557,7 +586,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* 预测小游戏 */}
       {!isArb && (
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#ffc800] bg-[var(--card)] p-5">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#ffc800] bg-[var(--card)] p-5">
           <div>
             <p className="text-base font-extrabold">🎲 {effectiveLang === 'en' ? 'Can You Predict the Market?' : '你能预测市场吗？'}</p>
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -629,7 +658,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         ))}
 
       {/* 成就徽章墙 */}
-      <details className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+      <details className="mb-10 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] border-[var(--border)] bg-[var(--card)] p-5">
         <summary className="cursor-pointer text-base font-extrabold">
           🏅 {effectiveLang === 'en' ? 'Badges' : '成就徽章'}{' '}
           <span className="text-sm font-bold text-[var(--muted-foreground)]">
@@ -659,7 +688,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
       </details>
 
       {/* 反馈入口 */}
-      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[var(--border)] bg-[var(--card)] p-5">
         <div>
           <p className="text-base font-extrabold">💬 {effectiveLang === 'en' ? 'Feedback' : '反馈与共建'}</p>
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -686,7 +715,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         <>
       {/* 错题本 · 间隔重复 */}
       {loaded && srs.loaded && (srsBook.length > 0 || srs.masteredCount > 0) && (
-        <div className="mb-10 rounded-2xl border-2 border-[#f59f00] bg-[var(--card)] p-5">
+        <div className="mb-10 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] border-[#f59f00] bg-[var(--card)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-base font-extrabold">
@@ -956,7 +985,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
       )}
 
       {tab === 'me' && (
-        <div className="mb-10 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-5">
+        <div className="mb-10 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] border-[var(--border)] bg-[var(--card)] p-5">
           <p className="mb-3 text-base font-extrabold">⚙️ {effectiveLang === 'en' ? 'Settings' : '设置'}</p>
           <p
             className="mb-3 select-none text-xs text-[var(--muted-foreground)]"
@@ -1001,8 +1030,11 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         {ui.disclaimer}
       </p>
 
-      {/* 底部导航 */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-[var(--border)] bg-[var(--card)]">
+      </motion.div>
+      </AnimatePresence>
+
+      {/* 底部导航（毛玻璃 + 滑动指示气泡） */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--card)]/85 shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.2)] backdrop-blur-xl">
         <div className="mx-auto grid w-full max-w-3xl grid-cols-4">
           {(
             [
@@ -1018,14 +1050,28 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
                 setTab(id);
                 track('tab_switch', { tab: id, variant });
               }}
-              className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-extrabold transition ${
+              className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-extrabold transition ${
                 tab === id ? 'text-[#1cb0f6]' : 'text-[var(--muted-foreground)]'
               }`}
             >
-              <span className="text-xl leading-none" aria-hidden>{icon}</span>
+              {tab === id && (
+                <motion.span
+                  layoutId="tab-pill"
+                  className="absolute inset-x-3 inset-y-1 -z-10 rounded-2xl bg-[#1cb0f6]/10"
+                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                />
+              )}
+              <motion.span
+                animate={tab === id ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                transition={{ duration: 0.35 }}
+                className="text-xl leading-none"
+                aria-hidden
+              >
+                {icon}
+              </motion.span>
               {label}
               {id === 'review' && srsDue.length > 0 && (
-                <span className="absolute mt-0 h-2 w-2 translate-x-4 -translate-y-0 rounded-full bg-[#ff4b4b]" />
+                <span className="absolute mt-0 h-2 w-2 translate-x-4 rounded-full bg-[#ff4b4b]" />
               )}
             </button>
           ))}
@@ -1265,17 +1311,26 @@ function UnitSection({
   const unitDone = unit.lessons.every((l) => completed.includes(l.id));
 
   return (
-    <section>
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+    >
       {/* 单元横幅 */}
       <div
-        className="mb-8 flex items-center justify-between rounded-2xl border-b-4 px-5 py-4 text-white"
-        style={{ backgroundColor: unit.color, borderColor: unit.colorDark }}
+        className="mb-8 flex items-center justify-between rounded-3xl border-b-4 px-5 py-4 text-white"
+        style={{
+          background: `linear-gradient(135deg, ${unit.color} 0%, ${unit.colorDark} 100%)`,
+          borderColor: unit.colorDark,
+          boxShadow: `0 10px 28px -10px ${unit.color}99`,
+        }}
       >
         <div>
-          <h2 className="text-lg font-extrabold">{unit.title}</h2>
+          <h2 className="text-lg font-extrabold drop-shadow-sm">{unit.title}</h2>
           <p className="mt-0.5 text-sm text-white/90">{unit.subtitle}</p>
         </div>
-        <div className="ml-4 text-3xl" aria-hidden>
+        <div className="ml-4 text-3xl drop-shadow" aria-hidden>
           {unitDone ? '👑' : unit.icon}
         </div>
       </div>
@@ -1302,7 +1357,7 @@ function UnitSection({
           );
         })}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -1327,25 +1382,44 @@ function LessonNode({
 }) {
   const isNext = unlocked && !done;
   return (
-    <div className={`relative flex flex-col items-center transition-transform ${className}`}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.6 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: '-20px' }}
+      transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+      className={`relative flex flex-col items-center transition-transform ${className}`}
+    >
       {isNext && (
         <div
-          className="absolute -top-9 animate-bounce rounded-xl border-2 px-3 py-1 text-xs font-extrabold uppercase tracking-wide"
+          className="absolute -top-9 z-10 animate-bounce rounded-xl border-2 px-3 py-1 text-xs font-extrabold uppercase tracking-wide shadow-md"
           style={{ color: unit.color, borderColor: unit.color, backgroundColor: 'var(--card)' }}
         >
           {lang === 'en' ? 'Start' : '开始'}
         </div>
       )}
+      {/* 呼吸光环：当前应学关卡 */}
+      {isNext && (
+        <span
+          aria-hidden
+          className="absolute top-0 h-16 w-16 animate-ping rounded-full opacity-25"
+          style={{ backgroundColor: unit.color, animationDuration: '2.2s' }}
+        />
+      )}
       <button
         onClick={() => unlocked && onOpen(lesson.id)}
         disabled={!unlocked}
         aria-label={lesson.title}
-        className={`flex h-16 w-16 items-center justify-center rounded-full border-b-8 text-2xl transition active:translate-y-1 active:border-b-4 ${
+        className={`relative flex h-16 w-16 items-center justify-center rounded-full border-b-8 text-2xl transition hover:scale-105 active:translate-y-1 active:border-b-4 ${
           unlocked ? 'cursor-pointer' : 'cursor-not-allowed'
         }`}
         style={
           unlocked
-            ? { backgroundColor: unit.color, borderColor: unit.colorDark, color: '#fff' }
+            ? {
+                background: `radial-gradient(circle at 30% 25%, ${unit.color}f0, ${unit.colorDark})`,
+                borderColor: unit.colorDark,
+                color: '#fff',
+                boxShadow: `0 8px 20px -6px ${unit.color}aa`,
+              }
             : {
                 backgroundColor: 'var(--muted)',
                 borderColor: 'var(--border)',
@@ -1362,6 +1436,6 @@ function LessonNode({
       >
         {lesson.title}
       </span>
-    </div>
+    </motion.div>
   );
 }
