@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import type {
   ChoiceExercise,
   Exercise,
@@ -755,7 +756,12 @@ function CompleteCard({
   const C = 2 * Math.PI * R;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 220, damping: 20 }}
+      className="flex flex-1 flex-col items-center justify-center py-8 text-center"
+    >
       <div className={`mb-3 text-7xl ${mistakes === 0 ? 'animate-bounce' : ''}`} aria-hidden>
         {mistakes === 0 ? '🏆' : '🎉'}
       </div>
@@ -806,7 +812,7 @@ function CompleteCard({
       >
         {lang === 'en' ? 'Back to Course Map' : '返回课程地图'}
       </button>
-    </div>
+    </motion.div>
   );
 }
 

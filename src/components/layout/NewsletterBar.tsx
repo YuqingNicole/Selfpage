@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Mail, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,13 @@ import { supabase } from '@/integrations/supabase/client';
  * Fixed bottom newsletter bar with magnetic hover and smooth morph
  */
 export function NewsletterBar() {
+  const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  // 学习页有自己的固定底部导航，悬浮球会遮挡「复习/我的」入口
+  const isLearnPage = pathname.startsWith('/learn');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +47,7 @@ export function NewsletterBar() {
     }
   };
 
-  if (dismissed) return null;
+  if (dismissed || isLearnPage) return null;
 
   return (
     <motion.div
