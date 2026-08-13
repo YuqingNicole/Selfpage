@@ -201,6 +201,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         l2: '🏢 L2 · Understanding Companies',
         l3: '🎭 L3 · What the Market Is Trading',
         l4: '✍️ L4 · Research Habits',
+        l5: '🗺️ L5 · Industry Deep-Dives',
         graduateTitle: 'You Graduated!',
         graduateBody: `You finished all ${courseTotal} lessons. Come back anytime to review and lock it in (+5 XP each time).`,
         graduateNext: 'Next step: practice small with a paper account and turn the Greek letters into real intuition.',
@@ -237,6 +238,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         l2: '🏢 L2 · 看懂公司',
         l3: '🎭 L3 · 看懂市场在交易什么',
         l4: '✍️ L4 · 形成研究习惯',
+        l5: '🗺️ L5 · 产业专题',
         graduateTitle: '恭喜毕业！',
         graduateBody: `你已完成全部 ${courseTotal} 课。随时回来复习任何一课巩固记忆（每次 +5 XP）。`,
         graduateNext: '下一步：用模拟账户小仓位实践，把纸上的希腊字母变成手感。',
@@ -590,8 +592,8 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
             href: '/learn/investing',
             zh: '🧭 判断框架主线',
             en: '🧭 Judgment Track',
-            zhDesc: '从市场语言到研究习惯——每日一案 + Memo 工作台 + 判断框架 L1-L4 课程。',
-            enDesc: 'From market language to research habits — the daily case, the memo workbench and the L1-L4 judgment course.',
+            zhDesc: '从市场语言到产业专题——每日一案 + Memo 工作台 + 判断框架 L1-L5 完整主线。',
+            enDesc: 'From market language to industry deep-dives — the daily case, the memo workbench and the complete L1-L5 judgment course.',
           },
           {
             key: 'options',
@@ -837,6 +839,15 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
                 <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
                   {ui.l4}
+                </span>
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+              </div>
+            )}
+            {unit.id === 'i17' && (
+              <div className="mb-12 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-[var(--border)]" />
+                <span className="text-sm font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+                  {ui.l5}
                 </span>
                 <div className="h-0.5 flex-1 bg-[var(--border)]" />
               </div>

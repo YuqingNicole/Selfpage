@@ -2478,3 +2478,684 @@ investCourseEn.push(
     ],
   },
 );
+
+/* ================= L5 Industry Deep-Dives ================= */
+
+investCourseEn.push(
+  {
+    id: 'i17',
+    title: 'Unit 17 · The Causal Map Method',
+    subtitle: 'Demand → chain → bottleneck → profit → price',
+    color: '#0891b2',
+    colorDark: '#067092',
+    icon: '🗺️',
+    lessons: [
+      {
+        id: 'i17l1',
+        title: 'The five-step causal map',
+        tips: [
+          'Industry analysis has a skeleton: ① demand (who pays, how fast) → ② the chain (which links the money flows through) → ③ the bottleneck (which link is short) → ④ profit (the bottleneck takes the excess) → ⑤ price (the market prices the profit and expectations).',
+          'The AI walkthrough: hyperscalers spend $200B+ a year (demand) → chips/fabs/memory/servers/power (chain) → leading-edge capacity short (bottleneck) → Nvidia at 75% gross margin (profit) → $3T+ market cap (price).',
+          'The arrows are one-way: inferring demand from price ("it rallied, so demand must be great") is the most common inversion — price is the last link, never the first piece of evidence.',
+          'Rule: every arrow is a testable hypothesis. Depth is not the size of the map but whether each arrow carries data.',
+        ],
+        analogy:
+          'A bubble-tea shop goes viral (demand) → its tapioca supplier, cup-seal maker and delivery platform get busy (chain) → the town has only one tapioca factory, orders backed up three months (bottleneck) → the factory names its price (profit) → to own a piece of this street, grab the tapioca factory’s shares first (price). Five steps, and you see four layers more than the queue outside.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the five steps to the AI example',
+            pairs: [
+              ['Demand', 'Hyperscaler capex $200B+/yr'],
+              ['Bottleneck', 'Leading-edge capacity short'],
+              ['Profit', 'Nvidia’s 75% gross margin'],
+              ['Price', 'Market cap through $3T'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: '"This sector has rallied hard lately, so industry demand must be booming." The problem with this sentence?',
+            options: [
+              'None — prices reflect fundamentals',
+              'Cause and effect inverted: price is the last link; rallies can come from liquidity, positioning or narrative (all of L3) — demand must be verified independently with orders and revenue',
+              'Too conservative',
+              'Should confirm with the chart',
+            ],
+            correct: 1,
+            explain: 'Arrow direction is analytical discipline: demand-to-price supports judgments; price-to-demand only supports chasing.',
+          },
+          {
+            type: 'fill',
+            before: 'Every arrow on the causal map is a testable',
+            after: '— depth lives in data per arrow, not the size of the diagram.',
+            options: ['hypothesis', 'conclusion', 'emotion', 'secret'],
+            correct: 0,
+            explain: 'The "cloud capex → chip orders" arrow verifies quarterly against TSMC monthly revenue and HBM contract prices — L4’s evidence grading applied to industries.',
+          },
+          {
+            type: 'choice',
+            question: 'The step deserving the most time when drawing the map?',
+            options: [
+              'Making the chain as complete as possible',
+              'Finding and verifying the bottleneck: it decides where excess profit goes — the most valuable node on the whole map',
+              'Forecasting next year’s stock price',
+              'Collecting analyst ratings',
+            ],
+            correct: 1,
+            explain: 'Anyone can draw the chain; bottlenecks separate analysts. The next lesson covers exactly how the cake gets cut.',
+          },
+        ],
+      },
+      {
+        id: 'i17l2',
+        title: 'Cutting the cake: where profit flows',
+        tips: [
+          'The same chain pays its links wildly differently. Three variables cut the cake: replaceability (can you be swapped out), bargaining power (who needs whom), and capital intensity (how much profit must be reinvested).',
+          'The textbook contrast: of an iPhone’s profit, Apple keeps the bulk (brand + ecosystem, ~37% gross margin) while assembly earns single digits — irreplaceability sets the slice.',
+          'The smile curve: R&D/design (left) and brand/channel (right) run fat; standardized manufacturing in the middle runs thin — unless manufacturing itself becomes the bottleneck (TSMC made "the middle" irreplaceable at the leading edge).',
+          'Rule: before buying into a hot chain, ask — is my company a swappable screw or the bearing without which nothing turns?',
+        ],
+        analogy:
+          'A banquet’s bill: the chef who designs the menu and the hostess who owns the customers split the fat; the prep cooks are hourly and interchangeable — however hot the restaurant, prep never gets rich. Before buying a "supply-chain concept stock", check whether you bought the chef or the prep station.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'On the same Apple chain, Apple runs ~37% gross margin while assemblers run single digits. The root cause?',
+            options: [
+              'Assemblers are badly managed',
+              'Replaceability differs: brand and ecosystem cannot be swapped; assembly can move to a rival overnight — bargaining power sets the split',
+              'Currency effects',
+              'Squeezing suppliers is temporary',
+            ],
+            correct: 1,
+            explain: 'Apple has repeatedly shifted orders between assemblers to force prices down. Replaceability is variable one for profit distribution.',
+          },
+          {
+            type: 'fill',
+            before: 'The smile curve: design and brand run fat; standardized',
+            after: 'in the middle runs thin — unless it makes itself the bottleneck (TSMC).',
+            options: ['manufacturing', 'marketing', 'logistics', 'support'],
+            correct: 0,
+            explain: 'TSMC rewrote the curve: when manufacturing is so hard that only one or two firms on earth can do it, the middle takes excess profit too.',
+          },
+          {
+            type: 'tf',
+            statement: 'Whether a chain company is replaceable matters more than whether the industry is booming.',
+            answer: true,
+            explain: 'However hot the industry, replaceable links get their profit squeezed away (2021 solar: booming installs, module makers’ profits eaten by upstream polysilicon).',
+          },
+          {
+            type: 'choice',
+            question: 'When a chain gets hot, media say "the whole chain benefits". The value-chain framework’s more precise version?',
+            options: [
+              'The media are right — everyone wins',
+              'Revenue may spread everywhere; profit flows only to bottleneck and irreplaceable links — the rest grow revenue without growing profit',
+              'Only the leader benefits',
+              'Nobody benefits',
+            ],
+            correct: 1,
+            explain: '2023–24 AI server assemblers: revenue exploding, margins single-digit, versus Nvidia’s 75% — two climates on one chain.',
+          },
+        ],
+      },
+      {
+        id: 'i17l3',
+        title: 'Bottlenecks migrate: follow the pricing power',
+        tips: [
+          'Bottlenecks are not permanent: capacity gets built, the bottleneck dissolves, excess profit evaporates — while a new bottleneck forms elsewhere on the chain.',
+          'The AI migration, live: 2023 short of GPUs → 2024 GPU supply catches up and the squeeze moves to HBM memory and CoWoS advanced packaging → next, data-center power becomes the debate.',
+          'Signals a bottleneck is dissolving: lead times shortening, scalper channels well stocked, the bottleneck company suddenly eager to sign long-term fixed-price deals — all precursors of the supply-demand flip.',
+          'Rule: holding a bottleneck stock means holding the hypothesis "the bottleneck persists" — write it into the thesis and give it falsifiers (lead times, contract prices, expansion schedules).',
+        ],
+        analogy:
+          'Concert scalpers: at on-sale the ticket is the bottleneck and scalps go for 3×; the promoter adds shows, tickets flow, and the bottleneck moves to parking spots and hotel rooms by the venue — the smart scalper is already flipping parking passes. Chain investing is out-guessing the scalper on where the next parking lot is.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'In 2023 the AI bottleneck was the GPU itself; by 2024 the debate moved to HBM, packaging and power. What does that show?',
+            options: [
+              'AI demand vanished',
+              'The bottleneck migrating along the chain: as GPU supply ramps, the system constraint becomes the supporting links — pricing power and excess profit move with it',
+              'Analysts chasing novelty',
+              'Nvidia is finished',
+            ],
+            correct: 1,
+            explain: 'SK Hynix’s HBM selling out years ahead and utilities becoming AI stocks are live footnotes of the migration. Tracking the bottleneck beats tracking the star.',
+          },
+          {
+            type: 'fill',
+            before: 'Holding a bottleneck stock means holding the hypothesis that the bottleneck',
+            after: '— and that hypothesis needs falsifiers.',
+            options: ['persists', 'vanishes', 'migrates', 'is irrelevant'],
+            correct: 0,
+            explain: 'Shortening lead times, stocked channels, and eagerness to lock long-term prices are observable early warnings — exactly what the L4 falsifier template monitors.',
+          },
+          {
+            type: 'tf',
+            statement: 'A bottleneck’s excess profit attracts massive capacity expansion — and that expansion is precisely the force that kills the bottleneck (and the profit).',
+            answer: true,
+            explain: 'The cycle’s reflexivity: the 2021 chip shortage → global fab-building frenzy → 2023 mature-node glut. Excess profit ships with a countdown — i7’s cycle lesson generalized to chains.',
+          },
+          {
+            type: 'choice',
+            question: 'The most practical signal for "where is the next bottleneck"?',
+            options: [
+              'Social-media buzz',
+              'Mismatch between demand growth and each link’s expansion speed — the link with the longest build time (power infrastructure runs 5–10 years) is the prime candidate',
+              'Whichever link hasn’t rallied yet',
+              'Expert predictions',
+            ],
+            correct: 1,
+            explain: 'A bottleneck = the demand curve colliding with the slowest-expanding link. Power and advanced packaging were flagged early precisely because their build times are measured in years.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i18',
+    title: 'Unit 18 · The AI Chain in Practice',
+    subtitle: 'Mapping the biggest trade of the decade',
+    color: '#65a30d',
+    colorDark: '#4d7c0a',
+    icon: '🤖',
+    lessons: [
+      {
+        id: 'i18l1',
+        title: 'Start from demand: who pays',
+        tips: [
+          'AI demand splits by payer: training demand (hyperscalers buying clusters — a bet on the future) and inference demand (compute burned per call, scaling with real usage). One is capex willingness; the other is genuine consumption.',
+          'Sourcing the demand (recall the Nvidia-2018 mining lesson): Microsoft/Google/Meta/Amazon are cash-flow giants buying with their own profits for their core business — buyer quality far beyond the coin-levered miners of 2018.',
+          'But watch the "revenue recovery" arrow: $200B of capex must eventually be repaid by AI product revenue — OpenAI’s run-rate, Copilot subscriptions, cloud-AI growth are the data that close (or break) the loop.',
+          'Rule: the falsifier for AI demand lives at the application end, not the chip end — if AI revenue persistently lags compute spend, capex gets cut (the year-2000 fiber script).',
+        ],
+        analogy:
+          'A town furiously building five-star hotels (capex): the construction crews (chip chain) are genuinely booming, but hotels must eventually be repaid by guests (AI application revenue). To audit the boom, don’t just count construction sites (capex) — track bookings (application revenue). Empty five-star hotels are the dark fiber of 2000.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Comparing 2017–18 mining demand with 2023–24 AI demand, the key difference in buyer quality?',
+            options: [
+              'None — both are hype',
+              'Miners were coin-price-levered gamblers (demand dies with the coin); hyperscalers are creditworthy cash generators placing multi-year orders for their core business — durability differs completely',
+              'AI buyers are richer so prices only rise',
+              'Miners were more professional',
+            ],
+            correct: 1,
+            explain: 'The practical application of the demand-sourcing lesson. But good buyers ≠ no risk — the risk moved to the "does application revenue repay it" link.',
+          },
+          {
+            type: 'fill',
+            before: 'The ultimate falsifier for the AI chain sits not at the chip end but at the',
+            after: 'end: if compute spend never earns revenue back, capex gets cut.',
+            options: ['application-revenue', 'wafer-capacity', 'GPU-price', 'press-release'],
+            correct: 0,
+            explain: 'In 2000 telcos laid fiber, the applications (paid traffic) lagged, and the capex crash dragged the whole chain down. Watching Copilot subscriptions and cloud-AI growth is watching the loop close.',
+          },
+          {
+            type: 'tf',
+            statement: 'Training demand (building clusters) and inference demand (per-call consumption) differ economically: one is one-off capex willingness, the other grows with real usage.',
+            answer: true,
+            explain: 'A rising inference share means demand shifting from "bet on the future" to "real consumption" — why analysts keep pressing "inference mix" on earnings calls (recall i8’s Q&A lesson).',
+          },
+          {
+            type: 'choice',
+            question: 'A quarterly dashboard for the thesis "the AI capex boom persists" — the three core numbers?',
+            options: [
+              'Nvidia’s price, volume and P/E',
+              'Hyperscaler capex guidance, AI application revenue growth (Copilot/OpenAI etc.), and inference share of demand — one gauge each for demand, recovery, and quality',
+              'Retail GPU prices, mining power draw, Bitcoin',
+              'Average analyst price target',
+            ],
+            correct: 1,
+            explain: 'The dashboard mirrors the causal map’s three arrows. The stock price is absent by design — it is the output, not an input (i17l1 discipline).',
+          },
+        ],
+      },
+      {
+        id: 'i18l2',
+        title: 'The chain map: chips to power',
+        tips: [
+          'The AI hardware trunk: chip design (Nvidia/AMD/Broadcom custom silicon) → fabrication (TSMC, effectively sole leading-edge) → memory (HBM: SK Hynix/Samsung/Micron) → packaging (CoWoS, TSMC capacity is king) → servers (Foxconn/Quanta/SMCI) → data centers and power.',
+          'Structure per link sets profit: design near-monopoly (the CUDA ecosystem), fabrication effectively sole-source, HBM a three-player race with Hynix ahead, server assembly brutally competitive — the more concentrated, the fatter (recall i17l2).',
+          'Same chain, different fates: Nvidia 75% gross margin, TSMC 50%+, HBM makers cycling, assembly single digits — the SMCI story (-80%) shows competitive link + accounting doubts = the most fragile combination a narrative stock can have.',
+          'Rule: annotate every link with two attributes — competitive structure (how many can do it) and current bottleneck status. Only links with both deserve premium multiples.',
+        ],
+        analogy:
+          'An expedition army: the general (chip design) is one of a kind, the master armorer (fabrication) is the only one in the army, three quartermasters (memory) compete, and porters (assembly) answer any call. At reward time the general and armorer split the spoils; porters get day wages — not unfair, just replaceability being priced.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the AI chain link to its company/structure',
+            pairs: [
+              ['Chip design (near-monopoly)', 'Nvidia + CUDA ecosystem'],
+              ['Leading-edge fab (effectively sole)', 'TSMC'],
+              ['HBM memory (three players)', 'SK Hynix leading'],
+              ['Server assembly (brutal competition)', 'Foxconn/Quanta/SMCI'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'Same AI chain: Nvidia at 75% gross margin, server assemblers at single digits. The L5 explanation?',
+            options: [
+              'Assembler management is weak',
+              'Competitive structure: design is near-monopoly (ecosystem lock-in), assembly is open to anyone — each link’s margin is its replaceability report card',
+              'Assembly is harder work so low margin is unfair',
+              'Temporary; will equalize soon',
+            ],
+            correct: 1,
+            explain: 'Also why the "AI concept" never earned SMCI Nvidia’s multiple — the market rules by link structure (recall i10’s ruler lesson).',
+          },
+          {
+            type: 'tf',
+            statement: 'A link deserves a premium multiple best when it is both concentrated in structure and currently the bottleneck.',
+            answer: true,
+            explain: 'Concentrated but unconstrained (mature DRAM) earns ordinary profit; bottlenecked but fragmented (2021 containers) sees the excess rot away with expansion. Both together (TSMC leading edge + CoWoS) is the golden node.',
+          },
+          {
+            type: 'choice',
+            question: 'Broadcom is surging by building custom AI chips (ASICs) for Google and other clouds. For an Nvidia thesis this means?',
+            options: [
+              'Irrelevant',
+              'Worth adding to falsifier monitoring: big customers funding substitutes attacks the "design near-monopoly" profit foundation — track the share shift quarterly',
+              'Sell Nvidia immediately',
+              'Broadcom is a fraud',
+            ],
+            correct: 1,
+            explain: 'The largest customers double as sponsors of the alternative — live material for "marginal change in chain structure". Handle with the L4 monitoring template: no panic, no blindness.',
+          },
+        ],
+      },
+      {
+        id: 'i18l3',
+        title: 'Who keeps the money: judging the phase',
+        tips: [
+          'A technology wave hands profit down in phases: infrastructure (shovel-sellers: chips/equipment/power) → platform (cloud and tools) → application (companies using the new tools on end users). The internet’s order: Cisco/Lucent → Microsoft/Google → Amazon/Meta/Netflix.',
+          'In 2023–24 AI sits squarely in the infrastructure phase: profits concentrate in shovel-sellers (Nvidia, TSMC, HBM); application revenue grows but is dwarfed by the spend.',
+          'The internet’s warning: Cisco, king of the infrastructure phase, was the world’s most valuable company in 2000 — then fell 89% and has never regained the peak. Not because the internet was false, but because infrastructure-phase valuations borrowed profits only the application phase could deliver.',
+          'Rule: ask which phase’s money your holding earns — infrastructure profit is real cash today but cyclical; application profit is a long-dated option. The two deserve different rulers and different falsifiers (recall i10).',
+        ],
+        analogy:
+          'A gold rush in three acts: first to riches are the shovel and jeans sellers (infrastructure), then the road-builders and inn-keepers (platform), and the biggest fortunes finally belong to those who build new industries with the new tool (application). Levi’s earned the first bucket, but California’s most valuable company was never the shovel factory — every act pays, the danger is pricing act-one shovels with act-three dreams.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Cisco ruled the internet’s infrastructure phase (world’s largest market cap in 2000); the internet genuinely changed the world; Cisco still fell 89% and never regained its peak. The core lesson?',
+            options: [
+              'The internet was a scam',
+              'A true narrative ≠ infrastructure stocks rise forever: the phase’s valuation borrowed application-phase profits, and infrastructure itself is cyclical (customers stop buying once built) — pricing act-one shovels with act-three dreams is the costliest mistake',
+              'Cisco’s management failed',
+              'Just sell earlier; no framework needed',
+            ],
+            correct: 1,
+            explain: 'The single most important historical mirror for today’s AI infrastructure names: real demand, excellent companies — and phase-mismatched valuation can still lose you a decade. (Recall i12: truth decides the endpoint, stage decides your price.)',
+          },
+          {
+            type: 'match',
+            prompt: 'Match the wave phase to its internet-era representative',
+            pairs: [
+              ['Infrastructure (shovels)', 'Cisco / Lucent'],
+              ['Platform (cloud & tools)', 'Microsoft / Google'],
+              ['Application (end-user monetization)', 'Amazon / Netflix'],
+              ['The bubble’s lesson', 'Infra valuations borrowing app profits'],
+            ],
+          },
+          {
+            type: 'fill',
+            before: 'Ask which phase’s money you earn: infrastructure profit is real cash today but carries',
+            after: '; application profit is a long-dated option.',
+            options: ['cyclicality', 'certainty', 'liquidity', 'story value'],
+            correct: 0,
+            explain: 'The day clusters are built out and compute supply balances, shovel-seller revenue stalls "suddenly" like Cisco in 2001 — cyclicality is infrastructure profit’s original sin; set the falsifier on capex guidance.',
+          },
+          {
+            type: 'choice',
+            question: 'The earliest signal that the application phase is taking the baton?',
+            options: [
+              'Nvidia’s stock peaking',
+              'AI application revenue growth and margins systematically outrunning compute-cost growth — the combination of falling per-token cost and exploding app revenue',
+              'Media declaring the AI bubble burst',
+              'Everyone using AI',
+            ],
+            correct: 1,
+            explain: 'The baton passes when compute turns from bottleneck into cheap raw material. The internet’s equivalent was mid-2000s dirt-cheap bandwidth — after which came YouTube and the streaming decade.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i19',
+    title: 'Unit 19 · Energy & EVs',
+    subtitle: 'Old-world cycles, new-world gear shifts',
+    color: '#d97706',
+    colorDark: '#b45f05',
+    icon: '⚡',
+    lessons: [
+      {
+        id: 'i19l1',
+        title: 'Oil: the living fossil of cycle language',
+        tips: [
+          'Oil prices set at the margin, with both blades slow: demand swings with the economy; supply answers in 6–12 months for shale and years for conventional fields — slow supply × fast shocks = violent swings.',
+          'One full cycle on record: April 2020, demand collapse plus storage running out sent WTI futures to an unprecedented -$37; two years later, war-constrained supply pushed Brent through $120. Same commodity, same framework.',
+          'Energy equities = the i7 cycle lesson verbatim: lowest P/E at peak profit (the trap); watch inventories (EIA weekly), rig counts (Baker Hughes) and OPEC spare capacity instead.',
+          'Rule: after 2020 US shale switched to "capital discipline" — less drilling, more dividends and buybacks. Lower supply elasticity makes cycles longer and blunter: the biggest difference of this energy regime versus the past.',
+        ],
+        analogy:
+          'Cabbage at the market: oversupplied in summer it rots in the field (negative oil was the extreme "pay someone to haul it away"), then triples in a cold snap — because cabbage takes three months to grow (slow supply) while cold snaps arrive overnight (fast shock). Oil is the world’s largest cabbage stall; its growing season is just measured in years.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'April 2020: WTI futures settled at -$37 a barrel — sellers paying buyers to take delivery. The supply-demand explanation?',
+            options: [
+              'An exchange glitch',
+              'Instant demand collapse + storage exhausted: wells are costly to shut so barrels kept coming, and tanks were full — "must deliver, nowhere to put it" lets price go negative (recall i11’s forced traders)',
+              'Manipulation',
+              'Oil became worthless',
+            ],
+            correct: 1,
+            explain: 'Negative oil is the extreme case of forced trading plus physical constraint: longs at expiry had to take barrels with no tanks left. The floor on price is not zero — it is the cost of getting rid of the thing.',
+          },
+          {
+            type: 'fill',
+            before: 'Post-2020 shale "capital discipline" — less drilling, more payouts — lowered supply elasticity, making oil cycles',
+            after: '.',
+            options: ['longer and blunter', 'shorter and faster', 'unpredictable', 'irrelevant'],
+            correct: 0,
+            explain: 'Shale once flooded every rally with new wells; now the cash goes to shareholders (recall the i3 FCF lesson) — supply responds slower, high prices persist longer.',
+          },
+          {
+            type: 'tf',
+            statement: 'When energy profits hit records and P/E sits at 4–5×, applying "cheap, buy it" directly is dangerous.',
+            answer: true,
+            explain: 'The i7 lesson verbatim: the lowest multiple on peak earnings is the cycle being priced correctly. Buy cyclicals on supply, demand and inventory position — never on absolute P/E.',
+          },
+          {
+            type: 'choice',
+            question: 'The three most practical public datasets for tracking oil supply and demand?',
+            options: [
+              'Oil-company ad spend, station counts, driver sentiment',
+              'EIA weekly inventories, Baker Hughes rig counts, OPEC spare capacity — inventories for the current balance, rigs for future supply, spare capacity for the buffer',
+              'Price candles, moving averages, MACD',
+              'Energy-minister speech counts',
+            ],
+            correct: 1,
+            explain: 'Three numbers, three causal-map nodes, all free. The barrier in industry analysis is rarely data — it is knowing which three numbers matter.',
+          },
+        ],
+      },
+      {
+        id: 'i19l2',
+        title: 'The EV chain: batteries, lithium, price wars',
+        tips: [
+          'Cost structure sets chain power: the battery is 30–40% of an EV’s cost, the largest single link — so the profit tug-of-war between automakers, battery makers and lithium miners is the chain’s main plot.',
+          'Lithium’s full cycle on record: carbonate from ~¥40k/ton in 2020 to nearly ¥600k by late 2022 (exploding demand, slow mines), then back below ¥100k within two years as expansions landed — a textbook commodity cycle (i7 and the oil lesson applied directly).',
+          'Mid-chain batteries (CATL): pricing power from technology cadence + scale + customer lock-ins, yet squeezed when lithium spikes and cut when automakers war on price — the middle takes fire from both ends and holds excess profit only by technology gaps.',
+          'Rule: the 2023–24 China price war (Tesla cut, everyone followed) marks the volume-over-profit stage — past ~50% penetration, buying share with price is the standard mid-late S-curve script (recall i6l2).',
+        ],
+        analogy:
+          'A bubble-tea chain (automakers) wars at ¥9.9 a cup, its tapioca supplier (batteries) gets squeezed, and the cassava farmer (lithium) who got rich two years ago goes broke — the hottest industry can still hurt every link at once. The buzz belongs to demand; the profit belongs to structure.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Lithium carbonate: ¥40k/ton (2020) → ~¥600k (late 2022) → below ¥100k (2024). The framework explanation of the rollercoaster?',
+            options: [
+              'Lithium stopped mattering',
+              'A standard commodity cycle: demand explosion meets 3–5-year mine build times → price spike → spike triggers a global expansion frenzy → capacity lands together → collapse. Excess profit ships with a countdown (i17l3)',
+              'Hoarding',
+              'EVs failed',
+            ],
+            correct: 1,
+            explain: 'Demand grew the entire time — the price collapsed, not the demand. Commodities never die of vanished demand; they die of supply catching up.',
+          },
+          {
+            type: 'fill',
+            before: 'Batteries are 30–40% of an EV’s cost, so the profit tug-of-war between automakers, batteries and',
+            after: 'is the chain’s main plot.',
+            options: ['lithium miners', 'tire makers', 'infotainment', 'insurers'],
+            correct: 0,
+            explain: 'In the spike years upstream took nearly all the profit; after the collapse it flowed back down — chain profit is a fluid that follows the bottleneck (i17l3).',
+          },
+          {
+            type: 'tf',
+            statement: 'The 2023–24 China EV price war (Tesla cutting first, all following) fits the "share over profit" mid-late S-curve stage after penetration passed half.',
+            answer: true,
+            explain: 'Late in the steep part of the curve, players trade price for share, betting they’ll be alive at the endgame — and the right ruler for automakers switches from "growth" to "who survives + per-unit profit" (recall i10).',
+          },
+          {
+            type: 'choice',
+            question: 'In a price war, the core numbers for judging which automaker survives to the endgame?',
+            options: [
+              'Advertising volume',
+              'Per-unit gross margin and cash reserves: margin sets how far they can cut (Tesla stayed gross-profitable after cuts; many rivals burn cash per car), cash sets how long they can bleed',
+              'Launch-event frequency',
+              'The founder’s follower count',
+            ],
+            correct: 1,
+            explain: 'A price war is a balance-sheet war of attrition. Position on the cost curve is your altitude on the battlefield.',
+          },
+        ],
+      },
+      {
+        id: 'i19l3',
+        title: 'Capital flows and the policy variable',
+        tips: [
+          'Old and new energy mirror each other in capital behavior: oil & gas run low multiples + little expansion + big payouts (managing themselves as sunset cash cows); new energy runs heavy capex + equity raises (managing themselves as growth). Two different kinds of money inside one "energy" bucket (recall i3/i10).',
+          'Policy is this chain’s biggest exogenous variable: the US IRA’s hundreds of billions redrew the battery and clean-manufacturing map; conversely every subsidy rollback (China 2019, Europe 2024) triggered a shakeout.',
+          'Discipline for policy-driven demand: flag it separately — its falsifier is political (elections, fiscal stress), not commercial, a different risk species entirely.',
+          'Rule: the energy transition is a decades-certain direction with a violently volatile path. Direction certainty does not convert into any single year’s price certainty — pricing "direction" and "pace" separately is this unit’s graduation requirement.',
+        ],
+        analogy:
+          'Two elders in one family: one near retirement, done with training, banking every paycheck for the family (old-energy payouts); one just starting out, pouring income into courses and certifications (new-energy capex). Both strategies are rational — but you should lend to them on entirely different terms: cash flow for the first, growth delivery for the second.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'ExxonMobil and peers now expand little and return record profits via dividends and buybacks. The capital-allocation (i3) read?',
+            options: [
+              'Management gave up',
+              'A rational sunset-cash-cow strategy: judging long-run demand as peaking, better to return FCF than build the next glut — you own it for cash returns, not growth',
+              'Oil must be about to spike',
+              'A violation of shareholder interests',
+            ],
+            correct: 1,
+            explain: 'Capital allocation is management’s vote on the industry’s endgame (recall i8). Reading the vote beats listening to the speeches.',
+          },
+          {
+            type: 'tf',
+            statement: 'Subsidy-driven demand carries a political falsifier (policy turns, fiscal stress) — a different risk species from commercial demand, deserving its own flag in the thesis.',
+            answer: true,
+            explain: 'China’s 2019 rollback and Europe’s 2024 cuts each produced step-downs in volumes and stocks — the cliff property of policy demand belongs on the falsifier list (L4).',
+          },
+          {
+            type: 'fill',
+            before: 'The graduation rule of transition investing: price the certainty of direction separately from the volatility of',
+            after: '— right direction, wrong pace still loses 50% in any given year.',
+            options: ['pace', 'headlines', 'policy', 'technology'],
+            correct: 0,
+            explain: 'Money that bought "carbon-neutral certainty" in 2021 got a -60% pace education in solar and lithium through 2022–24. Certain direction + wrong pace = real losses.',
+          },
+          {
+            type: 'choice',
+            question: 'Profile solar with this unit’s tools: demand certainly growing long term, but module technology commoditizing, massive overcapacity, prices near cost. The verdict?',
+            options: [
+              'Certain demand — buy blind',
+              'The classic "great industry ≠ great investment": demand is real but structure broke (i17l2 replaceability) — profit squeezed out by overcapacity. Wait for supply-clearing signals (capacity exits, price stabilization), not demand headlines',
+              'The industry is doomed',
+              'Depends on subsidies',
+            ],
+            correct: 1,
+            explain: '2023–24: module prices halved and the whole sector lost money while installations hit records. Demand-profit divergence is L5’s most concentrated single exam question.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'i20',
+    title: 'Unit 20 · Consumer & Pharma: Slow Variables',
+    subtitle: 'The slowest variables dig the deepest moats',
+    color: '#be185d',
+    colorDark: '#9a1450',
+    icon: '🛒',
+    lessons: [
+      {
+        id: 'i20l1',
+        title: 'Consumer stratification',
+        tips: [
+          'First cut for consumer stocks: staples versus discretionary. Staples (food, household) have rigid, cycle-numb demand; discretionary (luxury, travel, premium liquor) rides income expectations and wealth effects — under recession fears the two often move as mirrors.',
+          'Trading down and up coexist: through 2020–23 PDD doubled its users on value-for-money and briefly passed Alibaba in market cap, while Hermès and Ferrari kept printing highs — the middle (brands neither premium nor cheap) got crushed. The barbell eats both ends.',
+          'Demographics are consumer’s slowest, strongest variable: aging favors healthcare/pets/silver spending; falling birth rates suppress baby/tutoring/school-district assets — slow variables make no quarterly trades but set decade directions.',
+          'Rule: the core test of a consumer company is pricing power (recall i2 margins, i6 volume-price) — raising prices in inflation without losing volume (Coca-Cola through 2022) is brand strength proven with numbers.',
+        ],
+        analogy:
+          'A family dinner table when the economy cools: delivery orders drop from ¥30 to ¥15 (trading down), the soy sauce stays the same brand (staples rigidity), and the father-in-law’s Moutai flows as always (premium resilience) — three consumer logics running on one table. Understand one table, understand stratification.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'PDD boomed and Hermès printed highs through 2020–23 while mid-tier brands struggled. The "barbell" pattern shows?',
+            options: [
+              'Contradictory data',
+              'Stratification sharpening: value-for-money and luxury win together while the middle — insufficient premium, insufficient cheapness — is squeezed from both sides. Mid-market brands are the fragile niche',
+              'All consumption trading down',
+              'All consumption upgrading',
+            ],
+            correct: 1,
+            explain: 'The barbell recurs in every downturn scare (Dollar General and LVMH rising together in the US). First question for a consumer stock: which end of the barbell — or the dangerous middle?',
+          },
+          {
+            type: 'fill',
+            before: 'The hardest evidence of consumer brand power: daring to',
+            after: 'in inflation without losing volume — Coca-Cola 2022 is the textbook.',
+            options: ['raise prices', 'discount', 'repackage', 'advertise'],
+            correct: 0,
+            explain: 'Pricing power is the financial visualization of the brand moat (the consumer version of i2). A "brand" that loses volume on every hike is just a trademark.',
+          },
+          {
+            type: 'tf',
+            statement: 'Demographics make no quarterly trades but set the decade direction of consumer lanes.',
+            answer: true,
+            explain: 'Japan’s thirty consumer years — convenience stores, drugstores and pets rising; weddings and baby goods shrinking — were scripted in advance by demographics. Slow variables are the best long-term sieve.',
+          },
+          {
+            type: 'choice',
+            question: 'Recession fears rising — the directionally correct consumer-portfolio move under this framework?',
+            options: [
+              'Dump all consumer stocks',
+              'Concentrate toward the barbell’s ends (staples/extreme value + top-luxury resilience), avoid mid-tier brands, and re-run the pricing-power test on every holding',
+              'Bottom-fish mid-tier brands',
+              'Only look at dividend yield',
+            ],
+            correct: 1,
+            explain: 'The framework never predicts whether recession comes — it answers who on the chain gets hurt first if it does. L3 expectations + L5 structure, composed.',
+          },
+        ],
+      },
+      {
+        id: 'i20l2',
+        title: 'Pharma’s peculiar clock',
+        tips: [
+          'Pharma runs on a unique clock: a drug = a time-limited monopoly. Ten years of R&D + ~20 years of patent (often 8–12 effective after launch) → at the patent cliff generics swarm and originator revenue collapses.',
+          'A pipeline is an options portfolio: Phase III outcomes are near-binary (success scales, failure zeroes) — one asset is a bet; the portfolio and platform are the business. Hence biotech’s violent valuation swings.',
+          'Two live exhibits: Keytruda, the world’s top drug at $25B+/yr, faces its 2028 cliff — Merck’s M&A spree is cliff-filling; Novo Nordisk rode GLP-1 to a doubled market cap and Europe’s crown — one pipeline rewriting a company and a map.',
+          'Rule: policy (China’s VBP procurement, the US IRA price negotiations) is pharma’s exogenous repricer — generics and mature drugs bear the brunt while genuine innovation is what policy rewards. Price the two asset classes separately.',
+        ],
+        analogy:
+          'A patented drug is a limited-run concert ticket: during the monopoly every show sells out at any price (originator exclusivity); the night the ticket expires (patent cliff), ten cover-band bars open next door at a tenth the price (generics) — so the singer must write the next album before the tour ends (the pipeline), or no legacy hit will save the revenue five years out.',
+        exercises: [
+          {
+            type: 'choice',
+            question: 'Keytruda sells $25B+ a year, yet Merck’s valuation prices it "conservatively". The best explanation?',
+            options: [
+              'The market missed the drug',
+              'The 2028 cliff is already in the price: biosimilars will shred that revenue — the market discounts a time-limited cash flow, not a perpetual multiple',
+              'The sales are fake',
+              'Pharma is always undervalued',
+            ],
+            correct: 1,
+            explain: 'Pharma’s version of reverse-engineering the implied assumption (i9l3): the cliff is priced. The real variable is whether pipeline and M&A fill the hole before 2028.',
+          },
+          {
+            type: 'fill',
+            before: 'A pipeline is an options portfolio: single Phase III outcomes are near-',
+            after: ', so the portfolio and platform are the real business.',
+            options: ['binary', 'linear', 'certain', 'irrelevant'],
+            correct: 0,
+            explain: 'A -50% day on a failed Phase III readout is routine in biotech. Single-asset companies are lottery tickets; platforms digest binary risk with portfolios.',
+          },
+          {
+            type: 'tf',
+            statement: 'Novo Nordisk’s GLP-1 run to Europe’s largest market cap shows one blockbuster pipeline can rewrite a company — and even a national index.',
+            answer: true,
+            explain: 'GLP-1 even spilled into consumer expectations (snack and liquor stocks derated on the "appetite" narrative) — one pipeline’s causal map reaching entirely unrelated industries: the i17 method at its fullest.',
+          },
+          {
+            type: 'choice',
+            question: 'China’s volume-based procurement (VBP) affects pharma assets how, under the framework?',
+            options: [
+              'Bearish for all',
+              'Generics and off-patent products: cliff-like price pressure; true innovation and globalizing pipelines: the direction policy rewards — one policy, two opposite variables, price them separately',
+              'Bullish for all',
+              'Irrelevant to investing',
+            ],
+            correct: 1,
+            explain: 'The first VBP round cut winning bids ~52% on average and permanently derated generics; innovation and overseas expansion became the sector’s main line. Policy is the knife that splits the industry in two.',
+          },
+        ],
+      },
+      {
+        id: 'i20l3',
+        title: 'Graduation drill: a stranger industry, step by step',
+        tips: [
+          'The standard drill for any unfamiliar industry: ① draw the causal map (who pays → the chain → the bottleneck) ② locate the key metrics (what numbers this industry runs on, i7) ③ judge cycle versus structure (where in the arc are we) ④ find the competitive structure and replaceability (where profit flows) ⑤ enter the L4 pipeline (thesis → evidence → falsifier → size).',
+          'Every step stands on an earlier lesson — these five steps are not new knowledge but the final assembly of every tool in L1–L5.',
+          'Two graduation disciplines: first, for any hot industry, draw the map before looking at the chart (the order is not reversible, i17l1); second, "I don’t understand it" is a legitimate conclusion — outside the circle of competence, the best position is zero (recall i16).',
+          'The north star, one last time: this course never promised profits. It promised you would no longer have to decide by tips, influencers and emotions. The tools are all delivered — the compounding of judgment begins with your first memo.',
+        ],
+        analogy:
+          'A seasoned driver in a strange city: she doesn’t know every street (no need to understand every industry), but she reads maps, recognizes signs and knows what speed each road allows (the method travels). This course never taught one city’s routes — it taught driving. The rest of the road is yours.',
+        exercises: [
+          {
+            type: 'match',
+            prompt: 'Match the five-step drill to the course tool it calls',
+            pairs: [
+              ['Draw the map, find the bottleneck', 'i17 industry method'],
+              ['Locate the industry’s key metrics', 'i7 metrics lesson'],
+              ['Cycle or structure?', 'i7l3 + i11 the margin'],
+              ['Thesis and falsifiers', 'the full L4 pipeline'],
+            ],
+          },
+          {
+            type: 'choice',
+            question: 'A friend pitches a hot industry you know nothing about. Under graduation discipline, the correct first move?',
+            options: [
+              'Buy a starter position first',
+              'Draw the causal map first: who pays, how the chain runs, where the bottleneck sits — until the map exists, the position is zero',
+              'Let the chart decide',
+              'Poll more friends',
+            ],
+            correct: 1,
+            explain: '"Map before price" is L5’s first discipline. No map = outside the circle = best position zero. That "don’t" is as much a judgment as any "do".',
+          },
+          {
+            type: 'tf',
+            statement: '"I don’t understand this industry" is a legitimate and valuable research conclusion.',
+            answer: true,
+            explain: 'Buffett skipped the entire early internet and compounded anyway — admitting the boundary concentrates your ammunition in the hitting zone (i16). Not touching what you can’t map is discipline, not cowardice.',
+          },
+          {
+            type: 'choice',
+            question: 'The final question of the course. The north star promise was?',
+            options: [
+              'Guaranteed outperformance',
+              'That you would no longer have to decide by tips, influencers and emotions — the tools are delivered, and the compounding of judgment begins with your first memo',
+              'Inside information',
+              'Market forecasts',
+            ],
+            correct: 1,
+            explain: 'Congratulations on completing all five layers. Mr. Market waits in the boss fight, the Daily Case opens every morning, and the memo workbench never closes — now go wear the tools out. 🎓',
+          },
+        ],
+      },
+    ],
+  },
+);

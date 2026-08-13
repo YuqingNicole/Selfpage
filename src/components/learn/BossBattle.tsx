@@ -59,7 +59,7 @@ export const BOSSES: BossDef[] = [
     id: 'boss_market', emoji: '🎩', zh: '市场先生', en: 'Mr. Market',
     zhTaunt: '我每天上门报价，只为试探你的情绪——你敢按自己的判断出价吗？',
     enTaunt: 'I knock daily with a new quote, only to test your nerves — dare you price by your own judgment?',
-    unitIds: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i8', 'i9', 'i10', 'i11', 'i12', 'i13', 'i14', 'i15', 'i16'],
+    unitIds: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i8', 'i9', 'i10', 'i11', 'i12', 'i13', 'i14', 'i15', 'i16', 'i17', 'i18', 'i19', 'i20'],
     color: '#f59f00', colorDark: '#c47f00',
   },
 ];
