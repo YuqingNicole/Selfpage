@@ -15,6 +15,7 @@ import { MAX_HEARTS } from '@/data/optionsCourse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LessonDiagram } from './diagrams';
 import { sfx } from './sounds';
+import { Mascot } from './Mascot';
 
 /* =========================================================
  * 会话核心：课程闯关与错题复习共用的答题流程
@@ -762,8 +763,9 @@ function CompleteCard({
       transition={{ type: 'spring', stiffness: 220, damping: 20 }}
       className="flex flex-1 flex-col items-center justify-center py-8 text-center"
     >
-      <div className={`mb-3 text-7xl ${mistakes === 0 ? 'animate-bounce' : ''}`} aria-hidden>
-        {mistakes === 0 ? '🏆' : '🎉'}
+      <div className="relative mb-3 inline-block" aria-hidden>
+        <Mascot mood="celebrate" size={110} bob={false} />
+        {mistakes === 0 && <span className="absolute -right-4 -top-1 animate-bounce text-4xl">🏆</span>}
       </div>
       <h1 className="mb-6 text-3xl font-extrabold" style={{ color }}>
         {title}
@@ -819,8 +821,9 @@ function CompleteCard({
 function FailedCard({ onExit, lang }: { onExit: () => void; lang: 'en' | 'zh' }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
-      <div className="mb-4 text-7xl" aria-hidden>
-        💔
+      <div className="relative mb-4 inline-block" aria-hidden>
+        <Mascot mood="sad" size={104} bob={false} />
+        <span className="absolute -right-3 top-0 text-3xl">💔</span>
       </div>
       <h1 className="mb-2 text-3xl font-extrabold text-[#ff4b4b]">{lang === 'en' ? 'Out of Hearts' : '红心用完了'}</h1>
       <p className="mb-10 max-w-sm text-[var(--muted-foreground)]">
