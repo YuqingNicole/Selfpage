@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '真正的AI红利，不是追求极致效率，而是开拓“创造力前沿”',
+    author: 'IDEO',
+    url: 'https://mp.weixin.qq.com/s/XS0J7HeKEuasrp2FtinYyw',
+    description: 'IDEO 提出：AI 带来的效率盈余不应只被用于进一步降本，而应被再投资到人类的创造力、判断力与感知力尚能形成差异的“创造力前沿”；组织也需从围绕信息流转，转向围绕价值创造与适应力来重构。',
+  },
+  {
     title: 'FDE（前线部署工程师）从零入门指南',
     author: '范冰 / XDash',
     url: 'https://github.com/xdash/FDE-the-Guidance-Book-of-Forward-Deployed-Engineer',
