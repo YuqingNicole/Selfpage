@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 const keyPoints = [
-  '这本书的定位已经清楚：它是一本关于 AI 时代价值重估的商业思考书，不是工具手册。',
-  '当前最强的不是“资料量”，而是骨架：chapter map、core thesis、frameworks 都已经成型。',
-  '最值钱的下一步不是继续囤材料，而是把最强判断推进成可读正文。',
+  '它写的不是技术本身，而是当世界越来越擅长替我们回答时，人怎样保有自己的看法。',
+  '每一章从具体人物和现场出发：欲望、矛盾、选择、代价，再抵达一个更深的问题。',
+  '第一章已完成初稿；后续会加入优秀朋友的深度访谈，让观点在真实生活里得到检验。',
 ];
 
 export default function BookPage() {
@@ -30,10 +30,10 @@ export default function BookPage() {
             className="text-4xl md:text-5xl"
             style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontStyle: 'italic' }}
           >
-            模型越强，人越贵
+            在平均答案之外
           </h1>
           <p className="max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-            一本关于 AI、context、判断、组织，以及当模型能力变得充裕后价值如何被重新定价的书。
+            当世界越来越擅长替我们回答，如何仍然自己看、自己选、自己承担，并重新成为自己。
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <a
@@ -70,13 +70,13 @@ export default function BookPage() {
             <div className="rounded-2xl border border-border bg-card/40 p-6">
               <p className="text-sm text-muted-foreground">当前状态</p>
               <p className="mt-3 leading-7 text-foreground/90">
-                现在已经不是一个想法，而是一套成型中的书稿系统。定位、章节结构、核心判断都在，缺的主要是把骨架继续推进成正文。
+                书的叙事主线已经明确，第一章初稿已完成。接下来会持续补入真实人物、朋友访谈与可核验的现场，让它从观点走向故事。
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-card/40 p-6">
               <p className="text-sm text-muted-foreground">核心命题</p>
               <p className="mt-3 leading-7 text-foreground/90">
-                AI 会持续压缩通用能力的溢价，同时抬高 context、判断力、组织能力与承担责任的价值。
+                当答案越来越便宜，真正稀缺的不是更快给出答案，而是在真实处境中看见、选择并承担后果。
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function BookPage() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-light">章节导航</h2>
-                <p className="mt-1 text-sm text-muted-foreground">现在已经可以在站内继续加正文。第一章已开入口。</p>
+                <p className="mt-1 text-sm text-muted-foreground">第一章初稿已上线；后续章节将随着访谈、案例和书写持续更新。</p>
               </div>
             </div>
 
