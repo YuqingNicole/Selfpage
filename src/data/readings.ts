@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '比特币到底了吗？',
+    author: 'NextGen Digital Venture',
+    url: 'https://mp.weixin.qq.com/s/0eW-BB9HW0KQrpBEw-OMeA',
+    description: '围绕比特币当前所处周期与市场位置的研究讨论；作为投资判断素材收录，阅读时应区分叙事、数据与可验证的结论。',
+  },
+  {
     title: '真正的AI红利，不是追求极致效率，而是开拓“创造力前沿”',
     author: 'IDEO',
     url: 'https://mp.weixin.qq.com/s/XS0J7HeKEuasrp2FtinYyw',
