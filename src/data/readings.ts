@@ -7,10 +7,34 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: 'a16z 合伙人的反常识忠告：做小、做深、卖贵，才是最快到一亿美金的路',
+    author: '深思圈',
+    url: 'https://mp.weixin.qq.com/s/uH1EcZK4xzYyu6vUpf7OPA',
+    description: 'a16z 合伙人的创业建议：不要一开始就追求大市场，而是从足够具体、足够痛的细分问题切入，做深价值、建立定价权，再逐步扩张。',
+  },
+  {
     title: '比特币到底了吗？',
     author: 'NextGen Digital Venture',
     url: 'https://mp.weixin.qq.com/s/0eW-BB9HW0KQrpBEw-OMeA',
     description: '围绕比特币当前所处周期与市场位置的研究讨论；作为投资判断素材收录，阅读时应区分叙事、数据与可验证的结论。',
+  },
+  {
+    title: '自主 Agent / 上下文工程资料索引',
+    author: 'ninehills',
+    url: 'https://github.com/ninehills/blog/issues/150',
+    description: '一份以工程实践为主的自主 Agent 与上下文工程资料索引，覆盖 Anthropic、Manus、LangChain、Kimi 等关于 Agent 架构、Skills、工具设计、上下文压缩、长时运行与评估的必读文章，并附个人点评。',
+  },
+  {
+    title: 'Many ways to win',
+    author: 'Steph Ango',
+    url: 'https://stephango.com/moats',
+    description: 'Steph Ango 将产品、组织与生物系统的竞争优势拆成八十种策略：从积累、价格、时间与独特性，到进攻与防御；适合用来思考产品护城河不是单一壁垒，而是一组彼此叠加的能力。',
+  },
+  {
+    title: '两个非程序员基金经理，正在用 AI 重做研究',
+    author: 'NextGen Digital Venture',
+    url: 'https://mp.weixin.qq.com/s/mj4RzTrC39oRnifjrBYJMQ',
+    description: '两位非程序员基金经理如何把 AI 纳入研究流程，重新组织信息收集、分析与判断的实践案例。',
   },
   {
     title: '真正的AI红利，不是追求极致效率，而是开拓“创造力前沿”',
@@ -169,4 +193,5 @@ export const readings: Reading[] = [
     url: 'https://youzhiyouxing.cn/sbbi2025/preface/',
     description: '用 R=A+B-C（Alpha + Beta - Cost）拆解投资收益，解释为何对绝大多数投资者而言，长期最重要的收益来源仍是 Beta，以及理解中国大类资产风险与收益框架的意义。',
   },
+
 ];
