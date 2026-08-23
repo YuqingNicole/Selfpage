@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '宏观漫谈109：我们正处于一个美元主导的资本周期上升阶段尾部',
+    author: '高能量 / 李翔、李丰',
+    url: 'https://app.podwise.ai/dashboard/episodes/8661316',
+    description: '一套以全球流动性为核心的宏观框架：美元资产若缺少持续增量资金，将从普涨转入高波动的存量博弈；美债供给、日元套息交易与地缘冲突构成脆弱平衡。值得关注的延伸是，AI 投资或从算力与基础设施叙事，转向具备真实盈利能力的消费、工业与制造应用。节目中的具体时点、人物和数据判断应另行核验。',
+  },
+  {
     title: 'a16z 合伙人的反常识忠告：做小、做深、卖贵，才是最快到一亿美金的路',
     author: '深思圈',
     url: 'https://mp.weixin.qq.com/s/uH1EcZK4xzYyu6vUpf7OPA',
