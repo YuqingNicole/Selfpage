@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '把决策权交给离工作最近的人：Tesla 的反官僚规则',
+    author: 'Dustin / Elon Musk memo（转述）',
+    url: 'https://x.com/r0ck3t23/status/2090901321054371872?s=52',
+    description: '一则对 Tesla 内部沟通原则的整理：减少无效会议，允许在不创造价值时离场；信息走完成任务所需的最短路径，而非层级链条；少用需要额外解释的黑话；当规则在具体情境中明显荒谬时，应由执行者用常识促成规则更新。核心不是“更努力”，而是持续把判断与决策压到离问题最近的人。内容为转述与观点提炼，原始 memo 的完整语境及措辞应另行核验。',
+  },
+  {
     title: '宏观漫谈109：我们正处于一个美元主导的资本周期上升阶段尾部',
     author: '高能量 / 李翔、李丰',
     url: 'https://app.podwise.ai/dashboard/episodes/8661316',
