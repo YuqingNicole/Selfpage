@@ -586,6 +586,29 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         </div>
       )}
 
+      {/* 套利共学 */}
+      {isArb && (
+        <a
+          href="https://perpdexlist.com/execution-cost"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track('arb_execution_cost_open')}
+          className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 border-[#ff9f1c] bg-[var(--card)] p-5 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition hover:border-[#ffb347] hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)]"
+        >
+          <div>
+            <p className="text-base font-extrabold">🔎 {effectiveLang === 'en' ? 'Arbitrage Study Resource' : '套利共学 · 实盘工具'}</p>
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+              {effectiveLang === 'en'
+                ? 'Compare true perp execution costs across venues: taker fees plus order-book slippage at your position size.'
+                : '比较各永续合约交易所的真实开仓成本：吃单手续费 + 按仓位规模计算的订单簿滑点。'}
+            </p>
+          </div>
+          <span className="rounded-2xl border-b-4 border-[#d98209] bg-[#ff9f1c] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffb347] active:translate-y-0.5 active:border-b-2">
+            {effectiveLang === 'en' ? 'Open Tool ↗' : '打开工具 ↗'}
+          </span>
+        </a>
+      )}
+
       {/* 预测小游戏 */}
       {!isArb && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] transition-shadow hover:shadow-[0_10px_32px_-10px_rgba(0,0,0,0.25)] border-[#ffc800] bg-[var(--card)] p-5">

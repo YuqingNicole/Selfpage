@@ -72,7 +72,7 @@ export function NewsletterBar() {
               transition={{ type: 'spring' as const, stiffness: 400, damping: 15 }}
             >
               <Button
-                onClick={() => setExpanded(true)}
+                onClick={() => window.open('https://t.me/+Czigl20PH7w3ZDc9', '_blank', 'noopener,noreferrer')}
                 className="gap-2 rounded-full px-6 py-5 shadow-lg font-light tracking-wide bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <motion.span
@@ -82,7 +82,7 @@ export function NewsletterBar() {
                 >
                   <Mail className="size-4" />
                 </motion.span>
-                Subscribe to Newsletter
+                Join Telegram Group
               </Button>
             </motion.div>
           </motion.div>
