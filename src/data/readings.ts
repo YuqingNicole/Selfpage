@@ -7,6 +7,18 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '为什么超级个体不需要超级团队？',
+    author: '王焕超 / 腾讯研究院',
+    url: 'https://mp.weixin.qq.com/s/uOLP0XMkFSsCW_bhMb1DDw',
+    description: '腾讯研究院关于超级个体与团队关系的观察：AI 正在放大个人产能，但真正值得讨论的不是一个人替代一支团队，而是个人能力如何沉淀为组织能力，以及判断、协作与责任如何重新分配。',
+  },
+  {
+    title: 'AI 商业化进入第二阶段的重要拐点出现了？',
+    author: '贝叶斯之美',
+    url: 'https://mp.weixin.qq.com/s/oBRBfbLy2tlNmVmFygr7xQ',
+    description: '关于 AI 商业化进入新阶段的观察与判断，作为理解模型能力、产品落地与价值捕获关系的参考材料收录。具体论据与数据应回到原文核验。',
+  },
+  {
     title: '把决策权交给离工作最近的人：Tesla 的反官僚规则',
     author: 'Dustin / Elon Musk memo（转述）',
     url: 'https://x.com/r0ck3t23/status/2090901321054371872?s=52',
