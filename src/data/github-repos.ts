@@ -40,7 +40,13 @@ export interface PartnerLink {
   url: string;
 }
 
-export const partnerLinks: PartnerLink[] = [];
+export const partnerLinks: PartnerLink[] = [
+  {
+    name: 'DeckCleaner',
+    description: 'Remove NotebookLM watermarks from slides, entirely in your browser.',
+    url: 'https://www.deckcleaner.xyz/',
+  },
+];
 
 export const useCases: UseCase[] = [
   {
