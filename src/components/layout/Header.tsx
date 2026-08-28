@@ -36,7 +36,6 @@ export function Header() {
     { name: tr.nav.book, path: '/book' },
     { name: tr.nav.investCourse, path: '/learn' },
     { name: tr.nav.skills, path: '/portfolio' },
-    { name: 'Work', path: '/work' },
     { name: tr.nav.readings, path: '/readings' },
     { name: tr.nav.contact, path: '/contact' },
     { name: tr.nav.partnerLinks, path: '/partner-links' },
