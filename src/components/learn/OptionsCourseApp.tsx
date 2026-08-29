@@ -84,6 +84,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [devTaps, setDevTaps] = useState(0);
   const [nudgeDismissed, setNudgeDismissed] = useState(true);
+  const [simpleMode, setSimpleMode] = useState(false);
 
   // 学习数据变化即触发云端防抖推送（登录时）
   const cloud = useCloudSync(
@@ -164,7 +165,17 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         : optionsCourse;
   const courseOrder = isInvest ? investLessonOrder : isArb ? arbLessonOrder : lessonOrder;
   const courseTotal = isInvest ? investTotalLessons : isArb ? arbTotalLessons : totalLessons;
-  const unitIdSet = new Set(course.map((u) => u.id));
+  // 投资学园提供一条更轻的入门路径，原题目仍保留为进阶版。
+  const displayCourse = isInvest && effectiveLang === 'zh' && simpleMode
+    ? course.map((unit) => ({
+        ...unit,
+        lessons: unit.lessons.map((lesson) => ({
+          ...lesson,
+          exercises: lesson.simpleExercises?.length ? lesson.simpleExercises : lesson.exercises.slice(0, 2),
+        })),
+      }))
+    : course;
+  const unitIdSet = new Set(displayCourse.map((u) => u.id));
 
   const isUnlocked = (lessonId: string): boolean => {
     if (progress.developerMode) return true;
@@ -178,8 +189,8 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
   const srsDue = srs.due.filter((t) => unitIdSet.has(t.unit.id));
   const active = useMemo(() => {
     if (!activeLessonId) return null;
-    return effectiveLang === 'en' ? findLessonInCourse(course, activeLessonId) : findLesson(activeLessonId);
-  }, [activeLessonId, course, effectiveLang]);
+    return findLessonInCourse(displayCourse, activeLessonId) ?? (effectiveLang === 'en' ? findLessonInCourse(course, activeLessonId) : findLesson(activeLessonId));
+  }, [activeLessonId, course, displayCourse, effectiveLang]);
   const completedCount = courseOrder.filter((id) => progress.completed.includes(id)).length;
   const ui = effectiveLang === 'en'
     ? {
@@ -286,7 +297,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
   const chapterDone = (unitIds: string[]) =>
     progress.developerMode ||
     unitIds.every((uid) => {
-      const u = course.find((x) => x.id === uid);
+      const u = displayCourse.find((x) => x.id === uid);
       return !!u && u.lessons.every((l) => progress.completed.includes(l.id));
     });
 
@@ -323,6 +334,14 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
       {/* 统计栏 */}
       <div className="sticky top-16 z-40 mb-10 rounded-3xl border-2 border-[var(--border)] bg-[var(--card)]/90 px-4 py-3 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.25)] backdrop-blur-lg">
         <div className="mb-3 flex items-center justify-end gap-2">
+          {isInvest && effectiveLang === 'zh' && (
+            <button
+              onClick={() => setSimpleMode((value) => !value)}
+              className={`rounded-full border px-3 py-1 text-xs font-extrabold transition ${simpleMode ? 'border-[#58cc02] bg-[#eaffd9] text-[#3d8f00]' : 'border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]'}`}
+            >
+              {simpleMode ? '🌱 简单题' : '⚔️ 进阶题'}
+            </button>
+          )}
           <button
             onClick={() => {
               const next = !soundOff;
@@ -859,7 +878,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {/* 课程地图 */}
       <div className="space-y-12">
-        {course.map((unit) => (
+        {displayCourse.map((unit) => (
           <div key={unit.id}>
             {unit.id === 'u9' && (
               <div className="mb-12 flex items-center gap-4">
@@ -1172,7 +1191,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
       {arbLabOpen && <ArbLab onExit={() => setArbLabOpen(false)} />}
 
       {/* 篇章 Boss 战 */}
-      {activeBoss && <BossBattle boss={activeBoss} course={course} onExit={() => setActiveBoss(null)} />}
+      {activeBoss && <BossBattle boss={activeBoss} course={displayCourse} onExit={() => setActiveBoss(null)} />}
 
       {/* 预测小游戏 */}
       {predictionOpen && <PredictionGame onExit={() => setPredictionOpen(false)} />}

@@ -45,6 +45,8 @@ export interface Lesson {
   /** 生活化比喻，帮助零基础理解 */
   analogy?: string;
   exercises: Exercise[];
+  /** 可选的基础版练习；适合第一次接触这个主题的学习者。 */
+  simpleExercises?: Exercise[];
 }
 
 export interface Unit {
