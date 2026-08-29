@@ -46,6 +46,11 @@ export const partnerLinks: PartnerLink[] = [
     description: 'Remove NotebookLM watermarks from slides, entirely in your browser.',
     url: 'https://www.deckcleaner.xyz/',
   },
+  {
+    name: 'Remocn Typography',
+    description: 'Motion-first typography recipes and visual effects for polished web storytelling.',
+    url: 'https://remocn.dev/docs/typography',
+  },
 ];
 
 export const useCases: UseCase[] = [
