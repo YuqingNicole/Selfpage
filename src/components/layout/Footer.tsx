@@ -1,4 +1,4 @@
-import { Instagram, Linkedin, Coffee, Camera } from 'lucide-react';
+import { Instagram, Linkedin, Coffee, Camera, Twitter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -26,6 +26,11 @@ export function Footer() {
   const showPhotography = !pathname.startsWith('/learn');
 
   const socialLinks = [
+    {
+      href: 'https://x.com/chenyuq56901969',
+      label: 'X',
+      icon: <Twitter className="size-5" />,
+    },
     photographerInfo.socialLinks.instagram && {
       href: photographerInfo.socialLinks.instagram,
       label: 'Instagram',
