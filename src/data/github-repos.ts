@@ -8,6 +8,12 @@ export interface GitHubRepo {
 
 export const githubRepos: GitHubRepo[] = [
   {
+    name: 'mono-color-skill',
+    description: 'A one- or two-ink editorial print image skill for warm paper, halftone photography, active negative space, and restrained typography.',
+    language: 'Markdown',
+    url: 'https://github.com/yanliudesign/mono-color-skill',
+  },
+  {
     name: 'nano-banana-pro-prompts-recommend-skill',
     description: 'A curated collection of prompt engineering skills and recommendations for Nano Banana Pro.',
     language: 'Markdown',
