@@ -57,6 +57,11 @@ export const partnerLinks: PartnerLink[] = [
     description: 'Motion-first typography recipes and visual effects for polished web storytelling.',
     url: 'https://remocn.dev/docs/typography',
   },
+  {
+    name: 'GEHIRN.md',
+    description: 'A multi-agent AI platform for AI Search visibility, market research, content strategy, and partner outreach.',
+    url: 'https://www.gehirn.md/',
+  },
 ];
 
 export const useCases: UseCase[] = [
