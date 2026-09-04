@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      x_bookmark_sync_tokens: {
+        Row: {
+          id: string
+          refresh_token: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          refresh_token: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          refresh_token?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      x_bookmarks: {
+        Row: {
+          author: string
+          category: string
+          content_seed: string | null
+          handle: string
+          next_action: string
+          note: string
+          post_text: string
+          source_folder: string
+          status: string
+          synced_at: string
+          title: string
+          tweet_created_at: string | null
+          tweet_id: string
+          url: string
+        }
+        Insert: {
+          author: string
+          category?: string
+          content_seed?: string | null
+          handle: string
+          next_action?: string
+          note?: string
+          post_text?: string
+          source_folder?: string
+          status?: string
+          synced_at?: string
+          title: string
+          tweet_created_at?: string | null
+          tweet_id: string
+          url: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          content_seed?: string | null
+          handle?: string
+          next_action?: string
+          note?: string
+          post_text?: string
+          source_folder?: string
+          status?: string
+          synced_at?: string
+          title?: string
+          tweet_created_at?: string | null
+          tweet_id?: string
+          url?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_avatar: string
