@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '叙事经济学（Narrative Economics）',
+    author: 'Robert J. Shiller',
+    url: 'https://en.wikipedia.org/wiki/Narrative_Economics',
+    description: '从第一性原理理解经济叙事：人们相信某个故事，改变对未来的预期，进而改变消费、投资与资源配置；当集体行为反过来影响现实，叙事就可能自我强化、加速趋势或制造泡沫。',
+  },
+  {
     title: '为什么超级个体不需要超级团队？',
     author: '王焕超 / 腾讯研究院',
     url: 'https://mp.weixin.qq.com/s/uOLP0XMkFSsCW_bhMb1DDw',
