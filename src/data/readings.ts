@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '如何用 AI 发现尚未成为共识的投资叙事',
+    author: '狄奥尼索斯之歌',
+    url: 'https://mp.weixin.qq.com/s/oMe7MALaWAkFhaBs_IpiNA?scene=334',
+    description: '讨论如何借助 AI 从信息与市场讨论中识别尚未成为共识的投资叙事：不把 AI 当作预测价格的机器，而是用来观察叙事如何出现、扩散，并最终被市场定价。具体论据与数据应回到原文核验。',
+  },
+  {
     title: '叙事经济学（Narrative Economics）',
     author: 'Robert J. Shiller',
     url: 'https://en.wikipedia.org/wiki/Narrative_Economics',
