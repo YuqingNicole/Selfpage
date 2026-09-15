@@ -7,6 +7,7 @@ logs
 .env.local
 .env*.local
 scripts/**/.env
+.x-bookmark-setup.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
