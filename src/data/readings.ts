@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '对话 Monolith 曹曦：有趣可以当饭吃',
+    author: '晚点LatePost',
+    url: 'https://mp.weixin.qq.com/s/rpV-hUdHE-vQFgBsu0mlZw',
+    description: '曹曦谈 Monolith 的投资审美与组织选择：在幂律分布里保持小而专注，把 VC 当作寻找 outlier 的长期游戏；资源有限反而迫使基金形成稳定风格。文章也讨论中国 VC 从“钱便宜、时间贵”转向“钱贵、时间便宜”后，判断、耐心与新一代 AI 创业者为何重新变得重要。',
+  },
+  {
     title: '如何用 AI 发现尚未成为共识的投资叙事',
     author: '狄奥尼索斯之歌',
     url: 'https://mp.weixin.qq.com/s/oMe7MALaWAkFhaBs_IpiNA?scene=334',
