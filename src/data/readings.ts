@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: 'APP 工厂将是第一波吃到 AI 红利的公司',
+    author: 'OPCSOLO',
+    url: 'https://mp.weixin.qq.com/s/8BeYgFwNQ3v6181JxlL-qw',
+    description: '文章判断，最先把 AI 能力变成商业收益的可能不是模型公司，而是长期批量开发应用的“App 工厂”：它们既能用 AI 提高产品生产速度，也已积累把技术需求化、场景化和规模分发的能力。作者将流量来源归纳为买量、搜索、平台生态与内容，并计划继续拆解十多家海内外 App 工厂的分发路径。',
+  },
+  {
     title: '对话 Monolith 曹曦：有趣可以当饭吃',
     author: '晚点LatePost',
     url: 'https://mp.weixin.qq.com/s/rpV-hUdHE-vQFgBsu0mlZw',
