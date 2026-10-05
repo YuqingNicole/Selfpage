@@ -1,6 +1,25 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/reading-room/paradaily-7f3c9a',
+        destination: '/reading-room/paradaily-7f3c9a/index.html',
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: '/reading-room/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [],
   },
