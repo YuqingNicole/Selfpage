@@ -21,7 +21,7 @@ export interface XBookmark {
   next: string;
   status: BookmarkStatus;
   contentSeed?: string;
-  sourceFolder?: 'All Bookmarks' | '投资' | 'hk';
+  sourceFolder?: 'All Bookmarks' | '投资' | 'hk' | 'Selfpage';
 }
 
 export const xBookmarks: XBookmark[] = [
