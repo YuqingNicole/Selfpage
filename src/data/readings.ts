@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '看十年——AI时代的商业、组织与战略的本质',
+    author: '曾鸣书院',
+    url: 'https://mp.weixin.qq.com/s/ymhYLsdpAgEVisrxskka6Q',
+    description: '曾鸣第三次“看十年”公开课：AI 让商业从“千人千面”走向“一人千面”，起点从产品转向用户意图；判断 AI 原生的检验是“拿掉 AI 业务是否还成立”。他借电气化与互联网的历史，认为通用机器智能已初步基础设施化，2027—2028 年或是原生应用密集涌现期；并提出“智能复利”“黑洞效应”、创智人才与组织 OS，以及“看十年、想三年、干一年”的愿景驱动战略发现，核心词是学习闭环（Learning Loop）。',
+  },
+  {
     title: 'APP 工厂将是第一波吃到 AI 红利的公司',
     author: 'OPCSOLO',
     url: 'https://mp.weixin.qq.com/s/8BeYgFwNQ3v6181JxlL-qw',
