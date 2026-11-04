@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const keyPoints = [
   '它写的不是技术本身，而是当世界越来越擅长替我们回答时，人怎样保有自己的看法。',
   '每一章从具体人物和现场出发：欲望、矛盾、选择、代价，再抵达一个更深的问题。',
-  '第一章已完成初稿；后续会加入优秀朋友的深度访谈，让观点在真实生活里得到检验。',
+  '第一、二、四、五章已写成审阅稿，第三章仍为提纲；后续会加入真实访谈，让观点在生活里得到检验。',
 ];
 
 export default function BookPage() {
@@ -70,7 +70,7 @@ export default function BookPage() {
             <div className="rounded-2xl border border-border bg-card/40 p-6">
               <p className="text-sm text-muted-foreground">当前状态</p>
               <p className="mt-3 leading-7 text-foreground/90">
-                书的叙事主线已经明确，第一章初稿已完成。接下来会持续补入真实人物、朋友访谈与可核验的现场，让它从观点走向故事。
+                第一、二、四、五章已写成审阅稿，第三章仍为提纲。接下来会持续补入真实人物、朋友访谈与可核验的现场，让观点接受更多生活经验的检验。
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-card/40 p-6">
@@ -85,7 +85,7 @@ export default function BookPage() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-light">章节导航</h2>
-                <p className="mt-1 text-sm text-muted-foreground">第一章初稿已上线；后续章节将随着访谈、案例和书写持续更新。</p>
+                <p className="mt-1 text-sm text-muted-foreground">第一、二、四、五章为审阅稿，第三章为提纲；各章将随着访谈、案例和书写持续更新。</p>
               </div>
             </div>
 

@@ -20,7 +20,7 @@ const repoNewBase = 'https://github.com/YuqingNicole/Selfpage/new/main';
 export const bookEditLinks = {
   editBookHome: `${repoEditBase}/src/app/book/page.tsx`,
   editChapterTemplateFolder: `${repoEditBase}/content/book/chapters`,
-  createChapter: `${repoNewBase}?filename=content/book/chapters/chapter-5.md`,
+  createChapter: `${repoNewBase}?filename=content/book/chapters/chapter-6.md`,
 };
 
 function readChapterFile(fileName: string): BookChapter {
