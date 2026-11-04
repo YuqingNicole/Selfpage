@@ -1,8 +1,9 @@
-export const metadata = {
+import { pageMetadata } from '@/lib/seo';
+export const metadata = pageMetadata('/research/dui-dashboard', {
   title: "DUI × Innovation Efficiency — Research Dashboard",
   description:
     "Interactive panel regression diagnostics: decoupling uncertainty and innovation efficiency in Chinese A-share firms (2013–2024).",
-};
+});
 
 export default function DUIDashboardPage() {
   return (

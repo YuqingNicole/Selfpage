@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -50,6 +51,12 @@ function Sparkline({ values }: { values: number[] }) {
 
 export async function generateStaticParams() {
   return chainDefs.map((chain) => ({ slug: chain.slug }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const chain = chainDefs.find((item) => item.slug === slug);
+  return chain ? pageMetadata(`/ai-supply-chain-us/${slug}`, { title: chain.title, description: chain.desc }) : { title: 'Not Found', robots: { index: false } };
 }
 
 export default async function ChainDetailPage({ params }: { params: Promise<{ slug: string }> }) {

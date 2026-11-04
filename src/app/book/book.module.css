@@ -1,0 +1,44 @@
+.shelf { --book-ink: hsl(33 20% 20%); --book-muted: hsl(32 10% 44%); --book-line: hsl(35 20% 79%); --book-paper: hsl(43 44% 96%); color: var(--book-ink); padding: 64px 28px 72px; background: hsl(36 21% 92%); }
+.intro { max-width: 1040px; margin: 0 auto 76px; display: grid; grid-template-columns: 350px 1fr; gap: 100px; align-items: center; }
+.cover { position: relative; min-height: 460px; padding: 48px 36px 36px 45px; display: flex; flex-direction: column; color: hsl(43 46% 87%); background: hsl(151 18% 25%); border: 1px solid hsl(151 18% 19%); border-left: 12px solid hsl(151 17% 20%); border-radius: 2px 7px 7px 2px; box-shadow: 4px 3px 0 hsl(43 30% 87%), 7px 5px 0 hsl(36 18% 68%), 18px 24px 45px hsl(30 20% 15% / .17); transform: perspective(1300px) rotateY(-7deg) rotateZ(-1deg); transition: transform 400ms ease, box-shadow 400ms ease; }
+.cover:hover { transform: perspective(1300px) rotateY(-13deg) rotateZ(-1deg) translateY(-4px); }
+.cover:focus-visible { outline: 3px solid hsl(151 25% 40%); outline-offset: 10px; }
+.edition { font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em; opacity: .75; }
+.cover h1 { margin: 52px 0 24px; font-family: 'Songti SC', 'STSong', Georgia, serif; font-size: 36px; font-weight: 400; line-height: 1.6; letter-spacing: .16em; }
+.cover h1 span { display: block; }
+.coverSubtitle { font-size: 12px; line-height: 2.2; letter-spacing: .06em; opacity: .8; max-width: 205px; }
+.coverAuthor { margin-top: auto; padding-top: 48px; border-bottom: 1px solid hsl(43 46% 87% / .4); padding-bottom: 18px; font-family: var(--font-display); font-size: 22px; font-style: italic; letter-spacing: .08em; }
+.preface { padding: 12px 0; }
+.eyebrow { color: var(--book-muted); font-size: 11px; letter-spacing: .16em; margin-bottom: 24px; }
+.preface h2 { font-family: 'Songti SC', 'STSong', serif; font-size: 30px; font-weight: 400; line-height: 1.7; margin-bottom: 24px; }
+.preface p:not(.eyebrow) { font-size: 15px; line-height: 2.1; color: var(--book-muted); margin: 0 0 18px; }
+.open { display: inline-flex; align-items: center; justify-content: space-between; gap: 42px; padding: 14px 0; margin-top: 18px; border-bottom: 1px solid var(--book-ink); font-size: 14px; min-height: 48px; }
+.catalogue { max-width: 960px; margin: 0 auto; background: var(--book-paper); border: 1px solid var(--book-line); border-radius: 2px; padding: 42px 64px 48px; box-shadow: 0 8px 28px hsl(30 20% 15% / .04); }
+.catalogueHead { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--book-line); padding-bottom: 22px; }
+.catalogueHead h2 { font-family: 'Songti SC', 'STSong', serif; font-size: 26px; font-weight: 400; letter-spacing: .18em; }
+.catalogueHead span { font-size: 11px; letter-spacing: .12em; color: var(--book-muted); }
+.contents { list-style: none; padding: 0; margin: 16px 0 0; }
+.contents li + li { border-top: 1px solid hsl(35 20% 79% / .55); }
+.contents a { display: grid; grid-template-columns: 44px 1fr 24px; gap: 14px; padding: 25px 0; align-items: baseline; }
+.contents a:hover .chapterTitle { text-decoration: underline; text-underline-offset: 6px; }
+.number { font-family: var(--font-mono); font-size: 11px; color: var(--book-muted); }
+.chapterTitle { font-family: 'Songti SC', 'STSong', serif; font-size: 21px; line-height: 1.7; }
+.chapterDescription { font-size: 13px; color: var(--book-muted); line-height: 1.9; margin-top: 8px; }
+.chapterStatus { font-size: 10px; color: var(--book-muted); letter-spacing: .08em; margin-top: 10px; }
+.working { max-width: 960px; margin: 28px auto 0; color: var(--book-muted); font-size: 12px; line-height: 1.9; }
+.working summary { cursor: pointer; min-height: 44px; padding: 10px 0; width: fit-content; }
+.working p { margin: 12px 0; }
+.working nav { display: flex; flex-wrap: wrap; gap: 18px; }
+.working a { text-decoration: underline; text-underline-offset: 4px; padding: 8px 0; }
+.shelf :is(a, summary):focus-visible { outline: 2px solid hsl(151 25% 35%); outline-offset: 5px; }
+.chapterShell { padding: 36px 28px 56px; background: hsl(36 21% 92%); min-height: calc(100svh - 64px); }
+.chapterHeading { max-width: 1140px; margin: 0 auto 12px; color: hsl(33 20% 20%); }
+.chapterHeading p { color: hsl(32 10% 44%); font-size: 10px; letter-spacing: .14em; margin-bottom: 10px; }
+.chapterHeading h1 { font-family: 'Songti SC', 'STSong', serif; font-weight: 400; font-size: clamp(24px, 3vw, 34px); line-height: 1.6; }
+@media (max-width: 900px) { .intro { grid-template-columns: 290px 1fr; gap: 56px; } .cover { min-height: 400px; padding: 36px 26px 28px; } .cover h1 { font-size: 31px; margin-top: 42px; } .preface h2 { font-size: 25px; } .catalogue { padding: 32px; } }
+@media (max-width: 620px) { .shelf { padding: 42px 24px 48px; } .intro { grid-template-columns: 1fr; gap: 44px; margin-bottom: 40px; } .cover { width: min(286px, 85%); min-height: 380px; justify-self: center; padding-left: 30px; } .cover h1 { font-size: 30px; margin: 36px 0 20px; } .coverAuthor { font-size: 20px; padding-top: 30px; } .preface { padding: 0; } .preface h2 { font-size: 24px; margin-bottom: 16px; } .eyebrow { margin-bottom: 16px; } .catalogue { padding: 26px 22px; margin-inline: -8px; } .catalogueHead h2 { font-size: 23px; } .catalogueHead span { font-size: 9px; } .contents a { grid-template-columns: 25px 1fr 18px; gap: 8px; padding: 22px 0; } .chapterTitle { font-size: 18px; } .chapterDescription { font-size: 12px; } .chapterShell { padding: 22px 16px 40px; } .chapterHeading { padding-inline: 4px; margin-bottom: 10px; } }
+:global(.dark) .shelf { --book-ink: hsl(40 27% 86%); --book-muted: hsl(34 13% 65%); --book-line: hsl(32 12% 29%); --book-paper: hsl(32 13% 15%); background: hsl(30 10% 9%); }
+:global(.dark) .chapterShell { background: hsl(30 10% 9%); }
+:global(.dark) .chapterHeading { color: hsl(40 27% 86%); }
+:global(.dark) .chapterHeading p { color: hsl(34 13% 65%); }
+@media (prefers-reduced-motion: reduce) { .cover, .cover:hover { transition: none; transform: none; } }

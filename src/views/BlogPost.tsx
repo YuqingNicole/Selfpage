@@ -157,9 +157,9 @@ export default function BlogPost() {
           description: post.excerpt,
           image: post.coverImage,
           datePublished: post.publishedAt,
-          url: `https://nicoles.garden/blog/${post.slug}`,
-          author: { '@type': 'Person', name: 'Nicole Chen', url: 'https://nicoles.garden' },
-          publisher: { '@type': 'Person', name: 'Nicole Chen', url: 'https://nicoles.garden' },
+          url: `https://www.nicoles.garden/blog/${post.slug}`,
+          author: { '@type': 'Person', name: 'Nicole Chen', url: 'https://www.nicoles.garden' },
+          publisher: { '@type': 'Person', name: 'Nicole Chen', url: 'https://www.nicoles.garden' },
         }}
       />
 

@@ -23,4 +23,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://nicoles.garden/sitemap.xml
+Sitemap: https://www.nicoles.garden/sitemap.xml
