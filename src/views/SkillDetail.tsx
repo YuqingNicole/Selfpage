@@ -2,17 +2,17 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { claudeSkills } from '@/data/claude-skills';
+import { claudeSkills, type ClaudeSkill } from '@/data/claude-skills';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Terminal, Tag } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/data/translations';
 
-export default function SkillDetail() {
+export default function SkillDetail({ initialSkill }: { initialSkill?: ClaudeSkill }) {
   const params = useParams();
   const name = params?.name as string;
-  const skill = claudeSkills.find(s => s.name === name);
+  const skill = initialSkill ?? claudeSkills.find(s => s.name === name);
   const { lang } = useLanguage();
   const tr = t[lang].skillDetail;
 
@@ -41,7 +41,7 @@ export default function SkillDetail() {
           '@type': 'HowTo',
           name: `How to use /${skill.name} Claude Skill`,
           description: skill.description,
-          url: `https://nicoles.garden/skills/${skill.name}`,
+          url: `https://www.nicoles.garden/skills/${skill.name}`,
           step: [{
             '@type': 'HowToStep',
             name: 'Activate the skill',

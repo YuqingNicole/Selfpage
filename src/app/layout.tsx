@@ -5,7 +5,7 @@ import { SkipToContent } from '@/components/ui/SkipToContent';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nicoles.garden'),
+  metadataBase: new URL('https://www.nicoles.garden'),
   title: {
     default: 'Nicole Chen — Digital Garden',
     template: '%s | Nicole Chen',
@@ -17,10 +17,11 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: 'Nicole Chen',
     type: 'website',
-    images: ['/wechat-qr.jpg'],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Nicole Chen — Digital Garden' }],
   },
   twitter: {
     card: 'summary_large_image',
+    images: ['/opengraph-image'],
   },
 };
 

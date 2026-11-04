@@ -1,10 +1,11 @@
+import { pageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 import PartnerLinks from '@/views/PartnerLinks';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata('/partner-links', {
   title: 'Partner Links',
   description: 'Curated tools and resources.',
-};
+});
 
 export default function Page() {
   return <PartnerLinks />;

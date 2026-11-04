@@ -1,6 +1,14 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{
+      source: '/:path*',
+      has: [{ type: 'host', value: 'nicoles\\.garden' }],
+      destination: 'https://www.nicoles.garden/:path*',
+      permanent: true,
+    }];
+  },
   async rewrites() {
     return [
       {

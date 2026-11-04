@@ -302,7 +302,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
     });
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-8">
+    <div lang={isInvest || isArb || effectiveLang === 'zh' ? 'zh-CN' : 'en'} className="mx-auto w-full max-w-3xl px-4 pb-32 pt-8">
       {/* 环境光斑：低透明度彩色模糊球，明暗主题都成立 */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div

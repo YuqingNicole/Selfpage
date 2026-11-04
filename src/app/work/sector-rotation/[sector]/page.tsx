@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/seo';
 import Link from "next/link";
 
 import { SectorRotation } from "@/views/SectorRotation";
@@ -18,12 +19,12 @@ export async function generateMetadata({ params }: Params) {
   const { sector } = await params;
   const tk = sector.toUpperCase();
   const name = GICS_NAMES[tk];
-  return {
+  return pageMetadata(`/work/sector-rotation/${tk}`, {
     title: `${name ?? tk}${name ? "板块" : ""}详情 — Nicole`,
     description: name
       ? `美股${name}板块 (${tk}) 详情: 分周期收益、近一年走势、相关 ETF 与代表个股行情。`
       : `${tk} 个股行情`,
-  };
+  });
 }
 
 export default async function SectorDetailPage({ params }: Params) {

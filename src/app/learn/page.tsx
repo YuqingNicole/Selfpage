@@ -1,11 +1,12 @@
+import { pageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata('/learn', {
   title: '投资学园 — 从判断到期权与套利',
   description:
     '一个由判断框架、期权交易和套利机制组成的互动投资学习系统。选择你的学习路径，像闯关一样建立自己的投资能力。',
-};
+});
 
 const tracks = [
   {
@@ -48,7 +49,7 @@ const tracks = [
 
 export default function LearnHubPage() {
   return (
-    <main className="min-h-screen bg-[var(--background)] px-5 pb-20 pt-28 text-[var(--foreground)] sm:px-8">
+    <main lang="zh-CN" className="min-h-screen bg-[var(--background)] px-5 pb-20 pt-28 text-[var(--foreground)] sm:px-8">
       <section className="mx-auto max-w-6xl">
         <p className="mb-3 text-center text-xs font-extrabold tracking-[0.24em] text-[#ff9600]">INVESTING ACADEMY</p>
         <h1 className="text-center text-4xl font-extrabold tracking-tight sm:text-5xl">投资不是选答案，<br className="sm:hidden" /> 是建立判断系统。</h1>

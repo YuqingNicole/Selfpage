@@ -19,6 +19,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isHomepage = pathname === '/';
+  const isBook = pathname === '/book' || pathname.startsWith('/book/');
   const isSectorRotation = pathname.startsWith('/work/sector-rotation');
 
   return (
@@ -32,8 +33,8 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
       {!isSectorRotation && <Footer />}
-      {!isSectorRotation && <NewsletterBar />}
-      <ScrollToTop />
+      {!isSectorRotation && !isBook && <NewsletterBar />}
+      {!isBook && <ScrollToTop />}
     </div>
   );
 }

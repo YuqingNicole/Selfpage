@@ -7,6 +7,7 @@
 - [两章审阅说明与待补采访](review-notes.md)：第一章如何修订，第二章如何展开，以及需要作者确认的真实经历。
 - [第四章与第五章写作说明](automation-dialogue-review.md)：自动化与生活空间、改变目标，以及与 AI 共同写书的过程概述和来源边界。
 - [第四、第五章扩写审阅说明](chapter-4-5-expansion-review.md)：资料流程与核验成本、工作体验的收益，以及接受和修改写作建议的具体过程。
+- [补充观察与阅读体验修订](reading-experience-review.md)：工程时间安排与编辑量的反例，附来源边界及阅读界面验证入口。
 - [Readings 章节映射](readings-map.md)：优先材料能改变哪一段论证，哪些可作为反例。
 - [完整 40 条 Readings 索引](readings-index.md)：保留全部收藏入口；未读原文、访问失败与已核对的条目分别标注。
 - [人物报道素材](people-materials.md)：公开报道中的选择与代价，附后续采访问题。

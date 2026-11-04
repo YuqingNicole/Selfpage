@@ -1,149 +1,65 @@
+import { pageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { bookEditLinks, getAllBookChapters } from '@/lib/book';
+import styles from './book.module.css';
 
-export const metadata: Metadata = {
-  title: '书',
-  description: 'Nicole 的写书项目：关于 AI、context、判断、组织与价值重估。',
-};
-
-const keyPoints = [
-  '它写的不是技术本身，而是当世界越来越擅长替我们回答时，人怎样保有自己的看法。',
-  '每一章从具体人物和现场出发：欲望、矛盾、选择、代价，再抵达一个更深的问题。',
-  '第一、二、四、五章已写成审阅稿，第三章仍为提纲；后续会加入真实访谈，让观点在生活里得到检验。',
-];
+export const metadata: Metadata = pageMetadata('/book', {
+  title: '在平均答案之外 — 写书计划',
+  description: 'Nicole 的开放书稿《在平均答案之外》：关于 AI、判断、自动化与生活，以及在对话中写作。阅读章节审阅稿与持续修订。',
+  openGraph: { locale: 'zh_CN' },
+});
 
 export default function BookPage() {
   const chapters = getAllBookChapters();
-
+  const first = chapters[0];
+  const book = {
+    '@context': 'https://schema.org', '@type': 'Book', name: '在平均答案之外',
+    author: { '@type': 'Person', name: 'Nicole Chen' }, inLanguage: 'zh-CN',
+    url: 'https://www.nicoles.garden/book',
+    hasPart: chapters.map((chapter) => ({ '@type': 'Chapter', name: chapter.title,
+      position: Number(chapter.number), url: `https://www.nicoles.garden/book/${chapter.slug}` })),
+  };
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <section className="border-b border-border px-6 pt-28 pb-10">
-        <div className="mx-auto max-w-4xl space-y-4">
-          <p
-            className="text-xs uppercase tracking-[0.22em] text-muted-foreground"
-            style={{ fontFamily: 'var(--font-mono)' }}
-          >
-            写书计划
-          </p>
-          <h1
-            className="text-4xl md:text-5xl"
-            style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontStyle: 'italic' }}
-          >
-            在平均答案之外
-          </h1>
-          <p className="max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-            当世界越来越擅长替我们回答，如何仍然自己看、自己选、自己承担，并重新成为自己。
-          </p>
-          <div className="flex flex-wrap gap-3 pt-2">
-            <a
-              href={bookEditLinks.createChapter}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/40 hover:bg-card/50"
-            >
-              新建章节
-            </a>
-            <a
-              href={bookEditLinks.editChapterTemplateFolder}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/40 hover:bg-card/50"
-            >
-              编辑章节目录
-            </a>
-            <a
-              href={bookEditLinks.editBookHome}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/40 hover:bg-card/50"
-            >
-              编辑书页说明
-            </a>
-          </div>
+    <div className={styles.shelf} lang="zh-CN">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(book).replace(/</g, '\\u003c') }} />
+      <section className={styles.intro} aria-label="在平均答案之外，写书计划">
+        <Link href={first ? `/book/${first.slug}` : '#contents'} className={styles.cover} aria-label="翻开《在平均答案之外》">
+          <p className={styles.edition}>AN OPEN MANUSCRIPT · 写作中</p>
+          <h1><span>在平均</span><span>答案之外</span></h1>
+          <p className={styles.coverSubtitle}>当世界越来越擅长替我们回答，<br />如何仍然自己看、自己选、自己承担。</p>
+          <p className={styles.coverAuthor}>Nicole Chen</p>
+        </Link>
+        <div className={styles.preface}>
+          <p className={styles.eyebrow}>写在前面</p>
+          <h2>答案越来越容易，<br />自己的问题仍值得慢慢写。</h2>
+          <p>这本书从具体的人、选择与代价出发，讨论 AI 进入生活以后，我们怎样看、怎样选，以及什么时候愿意修改自己的判断。</p>
+          <p>第一、二、四、五章已写成审阅稿，第三章仍为提纲。它还在生长，新的材料和真实访谈会继续改变它。</p>
+          {first && <Link href={`/book/${first.slug}`} className={styles.open}>翻开第一章 <ArrowRight size={18} aria-hidden="true" /></Link>}
         </div>
       </section>
-
-      <section className="px-6 py-12">
-        <div className="mx-auto grid max-w-4xl gap-12">
-          <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-2xl border border-border bg-card/40 p-6">
-              <p className="text-sm text-muted-foreground">当前状态</p>
-              <p className="mt-3 leading-7 text-foreground/90">
-                第一、二、四、五章已写成审阅稿，第三章仍为提纲。接下来会持续补入真实人物、朋友访谈与可核验的现场，让观点接受更多生活经验的检验。
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-card/40 p-6">
-              <p className="text-sm text-muted-foreground">核心命题</p>
-              <p className="mt-3 leading-7 text-foreground/90">
-                当答案越来越便宜，真正稀缺的不是更快给出答案，而是在真实处境中看见、选择并承担后果。
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-light">章节导航</h2>
-                <p className="mt-1 text-sm text-muted-foreground">第一、二、四、五章为审阅稿，第三章为提纲；各章将随着访谈、案例和书写持续更新。</p>
-              </div>
-            </div>
-
-            <div className="grid gap-4">
-              {chapters.map((chapter) => {
-                return (
-                  <div
-                    key={chapter.number}
-                    className="group rounded-2xl border border-border bg-background px-5 py-5 transition-colors hover:border-foreground/30"
-                  >
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div className="space-y-2">
-                        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                          第 {chapter.number} 章
-                        </p>
-                        <h3 className="text-xl font-light group-hover:text-foreground/80">{chapter.title}</h3>
-                        <p className="max-w-2xl leading-7 text-muted-foreground">{chapter.description}</p>
-                      </div>
-                      <div className="text-sm text-muted-foreground md:text-right">
-                        <div>{chapter.status}</div>
-                        <div className="mt-2">
-                          <Link
-                            href={`/book/${chapter.slug}`}
-                            className="text-foreground transition-colors hover:text-foreground/80"
-                          >
-                            进入 →
-                          </Link>
-                        </div>
-                        <div className="mt-2">
-                          <a
-                            href={chapter.editUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-foreground/80 transition-colors hover:text-foreground"
-                          >
-                            编辑 Markdown
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-light">目前已经成立的部分</h2>
-            <div className="space-y-4">
-              {keyPoints.map((point) => (
-                <div key={point} className="border-l border-border pl-4 text-muted-foreground leading-7">
-                  {point}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      <section id="contents" className={styles.catalogue} aria-labelledby="contents-title">
+        <div className={styles.catalogueHead}><h2 id="contents-title">目录</h2><span>{chapters.length} 章 · 持续修订</span></div>
+        <ol className={styles.contents}>
+          {chapters.map((chapter) => <li key={chapter.slug}>
+            <Link href={`/book/${chapter.slug}`}>
+              <span className={styles.number}>{chapter.number}</span>
+              <div><h3 className={styles.chapterTitle}>{chapter.title}</h3>
+                <p className={styles.chapterDescription}>{chapter.description}</p>
+                <p className={styles.chapterStatus}>{chapter.status}</p></div>
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+          </li>)}
+        </ol>
       </section>
+      <details className={styles.working}>
+        <summary>关于书稿与作者工作台</summary>
+        <p>本书讨论的是在真实处境中看见、选择并承担后果。章节中的设想、研究、公开报道和作者判断保留各自边界，书稿随核实与审阅持续更新。</p>
+        <nav aria-label="书稿编辑"><a href={bookEditLinks.createChapter} target="_blank" rel="noreferrer">新建章节</a>
+          <a href={bookEditLinks.editChapterTemplateFolder} target="_blank" rel="noreferrer">编辑章节目录</a>
+          <a href={bookEditLinks.editBookHome} target="_blank" rel="noreferrer">编辑书页说明</a></nav>
+      </details>
     </div>
   );
 }
