@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '微信文章（标题待核实）',
+    author: '作者待核实',
+    url: 'https://mp.weixin.qq.com/s/b6J3_G9JaaszFYOshZGlFg',
+    description: '先保存原文链接；标题、作者和正文尚未核实，摘要待补。',
+  },
+  {
     title: '看十年——AI时代的商业、组织与战略的本质',
     author: '曾鸣书院',
     url: 'https://mp.weixin.qq.com/s/ymhYLsdpAgEVisrxskka6Q',
