@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '对这个世界的开放问题',
+    author: '作者待核实',
+    url: 'https://mp.weixin.qq.com/s/lg0ulaZLj7OZJF5mAHePgw?from=singlemessage&isappinstalled=0&scene=1&clicktime=1793963973&enterid=1793963973',
+    description: '先保存原文链接；作者和正文尚未核实，摘要待补。',
+  },
+  {
     title: '微信文章（标题待核实）',
     author: '作者待核实',
     url: 'https://mp.weixin.qq.com/s/b6J3_G9JaaszFYOshZGlFg',
