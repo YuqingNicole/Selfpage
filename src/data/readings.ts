@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '给字节跳动等公司的一点建议｜免费newsletter（085）',
+    author: '方可成 / 新闻实验室',
+    url: 'https://newsletter.newslab.info/to-tech-giants-of-china/',
+    description: '2026年11月9日。方可成从“字节时间”的争论谈平台对信息生态的责任，建议以常设、可审计的机制支持新闻教育、记者培训与独立研究，并以 Google News Initiative 和 Craig Newmark 的资助为例。文章提出的是公共投入的主张，不是对某家公司社会贡献的完整评估。',
+  },
+  {
     title: '微信文章（标题待核实）',
     author: '作者待核实',
     url: 'https://mp.weixin.qq.com/s/b6J3_G9JaaszFYOshZGlFg',
