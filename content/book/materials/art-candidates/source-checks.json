@@ -1,0 +1,630 @@
+{
+  "checked_on": "2026-11-10",
+  "scope": "Selected factual rights/image fields for added A08 onward, not a substitute for current source terms.",
+  "items": [
+    {
+      "id": "a08",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1992.277",
+      "artwork_url": "https://www.clevelandart.org/art/1992.277",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1992.277",
+        "https://openaccess-api.clevelandart.org/api/artworks/1992.277",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1992.277/1992.277_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2446,
+        3400
+      ],
+      "api_fields": {
+        "id": 156570,
+        "accession_number": "1992.277",
+        "share_license_status": "CC0",
+        "title": "Composition",
+        "creation_date": "1924",
+        "technique": "pastel",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1992.277/1992.277_web.jpg",
+            "width": "647",
+            "height": "900",
+            "filesize": "144349",
+            "filename": "1992.277_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1992.277/1992.277_print.jpg",
+            "width": "2446",
+            "height": "3400",
+            "filesize": "1808045",
+            "filename": "1992.277_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1992.277/1992.277_full.tif",
+            "width": "5279",
+            "height": "7339",
+            "filesize": "116256976",
+            "filename": "1992.277_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a09",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1963.1",
+      "artwork_url": "https://www.clevelandart.org/art/1963.1",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1963.1",
+        "https://openaccess-api.clevelandart.org/api/artworks/1963.1",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1963.1/1963.1_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2535,
+        3400
+      ],
+      "api_fields": {
+        "id": 138684,
+        "accession_number": "1963.1",
+        "share_license_status": "CC0",
+        "title": "Little Dance",
+        "creation_date": "1920",
+        "technique": "collage",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1963.1/1963.1_web.jpg",
+            "width": "671",
+            "height": "900",
+            "filesize": "148985",
+            "filename": "1963.1_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1963.1/1963.1_print.jpg",
+            "width": "2535",
+            "height": "3400",
+            "filesize": "2151638",
+            "filename": "1963.1_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1963.1/1963.1_full.tif",
+            "width": "5009",
+            "height": "6717",
+            "filesize": "100964372",
+            "filename": "1963.1_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a10",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1995.4",
+      "artwork_url": "https://www.clevelandart.org/art/1995.4",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1995.4",
+        "https://openaccess-api.clevelandart.org/api/artworks/1995.4",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1995.4/1995.4_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2785,
+        3400
+      ],
+      "api_fields": {
+        "id": 159216,
+        "accession_number": "1995.4",
+        "share_license_status": "CC0",
+        "title": "Merz 3 Portfolio:  Plate 1",
+        "creation_date": "1923",
+        "technique": "lithograph",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1995.4/1995.4_web.jpg",
+            "width": "737",
+            "height": "900",
+            "filesize": "202877",
+            "filename": "1995.4_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1995.4/1995.4_print.jpg",
+            "width": "2785",
+            "height": "3400",
+            "filesize": "2430164",
+            "filename": "1995.4_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1995.4/1995.4_full.tif",
+            "width": "4616",
+            "height": "5636",
+            "filesize": "78080644",
+            "filename": "1995.4_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a11",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1987.49",
+      "artwork_url": "https://www.clevelandart.org/art/1987.49",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1987.49",
+        "https://openaccess-api.clevelandart.org/api/artworks/1987.49",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1987.49/1987.49_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2429,
+        3400
+      ],
+      "api_fields": {
+        "id": 153747,
+        "accession_number": "1987.49",
+        "share_license_status": "CC0",
+        "title": "The Open Window",
+        "creation_date": "c. 1914",
+        "technique": "color woodcut",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1987.49/1987.49_web.jpg",
+            "width": "638",
+            "height": "893",
+            "filesize": "480208",
+            "filename": "1987.49_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1987.49/1987.49_print.jpg",
+            "width": "2429",
+            "height": "3400",
+            "filesize": "5816426",
+            "filename": "1987.49_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1987.49/1987.49_full.tif",
+            "width": "3931",
+            "height": "5503",
+            "filesize": "64930064",
+            "filename": "1987.49_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a12",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1959.228",
+      "artwork_url": "https://www.clevelandart.org/art/1959.228",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1959.228",
+        "https://openaccess-api.clevelandart.org/api/artworks/1959.228",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1959.228/1959.228_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2852,
+        3400
+      ],
+      "api_fields": {
+        "id": 135691,
+        "accession_number": "1959.228",
+        "share_license_status": "CC0",
+        "title": "Genesis II",
+        "creation_date": "1914",
+        "technique": "color woodcut",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1959.228/1959.228_web.jpg",
+            "width": "749",
+            "height": "893",
+            "filesize": "583568",
+            "filename": "1959.228_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1959.228/1959.228_print.jpg",
+            "width": "2852",
+            "height": "3400",
+            "filesize": "6843826",
+            "filename": "1959.228_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1959.228/1959.228_full.tif",
+            "width": "3050",
+            "height": "3636",
+            "filesize": "33306944",
+            "filename": "1959.228_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a13",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "2000.120",
+      "artwork_url": "https://www.clevelandart.org/art/2000.120",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/2000.120",
+        "https://openaccess-api.clevelandart.org/api/artworks/2000.120",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/2000.120/2000.120_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2360,
+        3400
+      ],
+      "api_fields": {
+        "id": 161433,
+        "accession_number": "2000.120",
+        "share_license_status": "CC0",
+        "title": "Play with Heads",
+        "creation_date": "1923",
+        "technique": "lithograph",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/2000.120/2000.120_web.jpg",
+            "width": "625",
+            "height": "900",
+            "filesize": "175703",
+            "filename": "2000.120_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/2000.120/2000.120_print.jpg",
+            "width": "2360",
+            "height": "3400",
+            "filesize": "2297135",
+            "filename": "2000.120_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/2000.120/2000.120_full.tif",
+            "width": "3870",
+            "height": "5576",
+            "filesize": "64761664",
+            "filename": "2000.120_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a14",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1978.18",
+      "artwork_url": "https://www.clevelandart.org/art/1978.18",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1978.18",
+        "https://openaccess-api.clevelandart.org/api/artworks/1978.18",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1978.18/1978.18_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2720,
+        3400
+      ],
+      "api_fields": {
+        "id": 149352,
+        "accession_number": "1978.18",
+        "share_license_status": "CC0",
+        "title": "The Calculating Old Man",
+        "creation_date": "1929",
+        "technique": "etching",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1978.18/1978.18_web.jpg",
+            "width": "720",
+            "height": "900",
+            "filesize": "242976",
+            "filename": "1978.18_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1978.18/1978.18_print.jpg",
+            "width": "2720",
+            "height": "3400",
+            "filesize": "2291907",
+            "filename": "1978.18_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1978.18/1978.18_full.tif",
+            "width": "5222",
+            "height": "6528",
+            "filesize": "102299792",
+            "filename": "1978.18_full.tif"
+          }
+        }
+      }
+    },
+    {
+      "id": "a15",
+      "museum": "National Gallery of Art, Washington",
+      "accession": "2012.92.273",
+      "artwork_url": "https://www.nga.gov/artworks/153658-composition",
+      "rights_sources": [
+        "https://www.nga.gov/artworks/153658-composition",
+        "https://www.nga.gov/terms-and-notices",
+        "https://raw.githubusercontent.com/NationalGalleryOfArt/opendata/main/data/published_images.csv"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://api.nga.gov/iiif/11e5a1d4-3939-479e-95e2-bbe5aeeff963/full/full/0/default.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        4096,
+        3371
+      ],
+      "image_dataset_fields": {
+        "uuid": "11e5a1d4-3939-479e-95e2-bbe5aeeff963",
+        "iiifurl": "https://api.nga.gov/iiif/11e5a1d4-3939-479e-95e2-bbe5aeeff963",
+        "iiifthumburl": "https://api.nga.gov/iiif/11e5a1d4-3939-479e-95e2-bbe5aeeff963/full/!200,200/0/default.jpg",
+        "viewtype": "primary",
+        "sequence": "0",
+        "width": "4242",
+        "height": "3491",
+        "maxpixels": "",
+        "openaccess": "1",
+        "created": "2012-05-24 15:29:20-04",
+        "modified": "2026-04-13 13:40:48-04",
+        "depictstmsobjectid": "153658",
+        "assistivetext": "The image displays an array of bold lines and jagged shapes forming an abstract composition. Black lines create partitions filled with rich colors resembling stained glass sections. The colors - red, green, yellow, and blue - form shapes that may suggest a landscape with a river, hills, and a dynamic sky. The composition resembles a puzzle with irregular pieces, encouraging viewers to find familiar objects within the abstraction."
+      },
+      "note": "API dataset image dimensions are catalogue values; actual download pixels are separately decoded."
+    },
+    {
+      "id": "a16",
+      "museum": "National Gallery of Art, Washington",
+      "accession": "2012.92.275",
+      "artwork_url": "https://www.nga.gov/artworks/153660-composition",
+      "rights_sources": [
+        "https://www.nga.gov/artworks/153660-composition",
+        "https://www.nga.gov/terms-and-notices",
+        "https://raw.githubusercontent.com/NationalGalleryOfArt/opendata/main/data/published_images.csv"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://api.nga.gov/iiif/999a5d40-37b3-470e-8219-726898761496/full/full/0/default.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        4096,
+        3206
+      ],
+      "image_dataset_fields": {
+        "uuid": "999a5d40-37b3-470e-8219-726898761496",
+        "iiifurl": "https://api.nga.gov/iiif/999a5d40-37b3-470e-8219-726898761496",
+        "iiifthumburl": "https://api.nga.gov/iiif/999a5d40-37b3-470e-8219-726898761496/full/!200,200/0/default.jpg",
+        "viewtype": "primary",
+        "sequence": "0",
+        "width": "4588",
+        "height": "3591",
+        "maxpixels": "",
+        "openaccess": "1",
+        "created": "2012-05-24 15:34:59-04",
+        "modified": "2026-11-02 18:07:07-05",
+        "depictstmsobjectid": "153660",
+        "assistivetext": "The artwork consists of bold, black shapes and lines forming an abstract composition. The lines twist and curve, creating a sense of movement. Some shapes resemble waves or organic forms. The use of negative space enhances the interplay between the dark shapes and the lighter background, giving the artwork a visual impact."
+      },
+      "note": "API dataset image dimensions are catalogue values; actual download pixels are separately decoded."
+    },
+    {
+      "id": "a17",
+      "museum": "National Gallery of Art, Washington",
+      "accession": "1995.77.4",
+      "artwork_url": "https://www.nga.gov/artworks/93943-wendingen",
+      "rights_sources": [
+        "https://www.nga.gov/artworks/93943-wendingen",
+        "https://www.nga.gov/terms-and-notices",
+        "https://raw.githubusercontent.com/NationalGalleryOfArt/opendata/main/data/published_images.csv"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://api.nga.gov/iiif/f5b758cb-7d21-4327-bc2f-f869b7317731/full/full/0/default.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        4096,
+        2051
+      ],
+      "image_dataset_fields": {
+        "uuid": "f5b758cb-7d21-4327-bc2f-f869b7317731",
+        "iiifurl": "https://api.nga.gov/iiif/f5b758cb-7d21-4327-bc2f-f869b7317731",
+        "iiifthumburl": "https://api.nga.gov/iiif/f5b758cb-7d21-4327-bc2f-f869b7317731/full/!200,200/0/default.jpg",
+        "viewtype": "primary",
+        "sequence": "0",
+        "width": "5395",
+        "height": "2702",
+        "maxpixels": "",
+        "openaccess": "1",
+        "created": "2012-02-03 15:09:45-05",
+        "modified": "2026-11-02 18:06:13-05",
+        "depictstmsobjectid": "93943",
+        "assistivetext": "The artwork features a composition of geometric shapes and lines. An arrangement includes a large red rectangle, a black circle, and multiple intersecting lines that divide the canvas into sections. There's a diagonal line and a smaller black semicircle on the right. The word \"WENDINGEN\" is oriented diagonally across the piece."
+      },
+      "note": "API dataset image dimensions are catalogue values; actual download pixels are separately decoded."
+    },
+    {
+      "id": "a18",
+      "museum": "Museum De Lakenhal, Leiden",
+      "accession": "S 5794",
+      "artwork_url": "https://www.lakenhal.nl/nl/collectie/s-5794",
+      "rights_sources": [
+        "https://www.lakenhal.nl/nl/collectie/s-5794",
+        "https://www.lakenhal.nl/nl/verhaal/beeld-aanvragen",
+        "https://creativecommons.org/publicdomain/zero/1.0/deed.nl"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://lh3.googleusercontent.com/a-q-xjmixHN1veo8WwIpyUuQT7ghcXPiTO5rD-u9YwbrcLK_rHnt7tH6wLcQTG5j0SGIQ04HAkbmWKXM0PtG3EL1VA=s0",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        7333,
+        5491
+      ],
+      "item_rights_link": "https://creativecommons.org/publicdomain/zero/1.0/deed.nl",
+      "item_public_domain_value": "ja",
+      "source_page_pixel_dimensions": [
+        7333,
+        5491
+      ]
+    },
+    {
+      "id": "a19",
+      "museum": "The Art Institute of Chicago",
+      "accession": "1931.511",
+      "artwork_url": "https://www.artic.edu/artworks/8991",
+      "rights_sources": [
+        "https://commons.wikimedia.org/wiki/File:Vasily_Kandinsky_-_Improvisation_No._30_(Cannons)_-_1931.511_-_Art_Institute_of_Chicago.jpg",
+        "https://api.artic.edu/api/v1/artworks/8991",
+        "https://github.com/art-institute-of-chicago/api-data",
+        "https://artic-api-data.s3.amazonaws.com/artic-api-data.tar.bz2",
+        "https://www.artic.edu/open-access/open-access-images"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Vasily_Kandinsky_-_Improvisation_No._30_(Cannons)_-_1931.511_-_Art_Institute_of_Chicago.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        3000,
+        2997
+      ],
+      "museum_rights_fields": {
+        "museum_is_public_domain": true,
+        "museum_copyright_notice": null,
+        "museum_record_source": "Official museum full API data export, linked by official museum GitHub README; exact record retained locally.",
+        "museum_source_updated_at": "2026-07-14T15:41:07-05:00",
+        "mirror_license": "Explicit CC0 digital reproduction in Commons Licensing section",
+        "commons_source": "Original AIC artwork page and original IIIF upload URL in file history"
+      },
+      "museum_image_id_current": "b5bc6b66-9e6e-fe57-dcec-fc49e820e904",
+      "historic_museum_iiif_url": "https://www.artic.edu/iiif/2/9655c63f-e333-e64b-5f08-fab90ba07eff/full/full/0/default.jpg"
+    },
+    {
+      "id": "a20",
+      "museum": "The Art Institute of Chicago",
+      "accession": "1957.307",
+      "artwork_url": "https://www.artic.edu/artworks/109819",
+      "rights_sources": [
+        "https://commons.wikimedia.org/wiki/File:Piet_Mondrian_-_Lozenge_Composition_with_Yellow,_Black,_Blue,_Red,_and_Gray_-_1957.307_-_Art_Institute_of_Chicago.jpg",
+        "https://api.artic.edu/api/v1/artworks/109819",
+        "https://github.com/art-institute-of-chicago/api-data",
+        "https://artic-api-data.s3.amazonaws.com/artic-api-data.tar.bz2",
+        "https://www.artic.edu/open-access/open-access-images"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Piet_Mondrian_-_Lozenge_Composition_with_Yellow,_Black,_Blue,_Red,_and_Gray_-_1957.307_-_Art_Institute_of_Chicago.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        3000,
+        3000
+      ],
+      "museum_rights_fields": {
+        "museum_is_public_domain": true,
+        "museum_copyright_notice": null,
+        "museum_record_source": "Official museum full API data export, linked by official museum GitHub README; exact record retained locally.",
+        "museum_source_updated_at": "2026-07-14T15:41:08-05:00",
+        "mirror_license": "Explicit CC0 digital reproduction in Commons Licensing section",
+        "commons_source": "Original AIC artwork page and original IIIF upload URL in file history"
+      },
+      "museum_image_id_current": "25f660ee-f1db-d13b-42a5-56df97c98ba7",
+      "historic_museum_iiif_url": "https://www.artic.edu/iiif/2/faae120a-653c-50fe-33b2-0bd766939bdb/full/full/0/default.jpg"
+    },
+    {
+      "id": "a21",
+      "museum": "The Art Institute of Chicago",
+      "accession": "1931.509",
+      "artwork_url": "https://www.artic.edu/artworks/8983",
+      "rights_sources": [
+        "https://commons.wikimedia.org/wiki/File:Vasily_Kandinsky_-_Painting_with_Troika_-_1931.509_-_Art_Institute_of_Chicago.jpg",
+        "https://api.artic.edu/api/v1/artworks/8983",
+        "https://github.com/art-institute-of-chicago/api-data",
+        "https://artic-api-data.s3.amazonaws.com/artic-api-data.tar.bz2",
+        "https://www.artic.edu/open-access/open-access-images"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Vasily_Kandinsky_-_Painting_with_Troika_-_1931.509_-_Art_Institute_of_Chicago.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        3000,
+        2136
+      ],
+      "museum_rights_fields": {
+        "museum_is_public_domain": true,
+        "museum_copyright_notice": null,
+        "museum_record_source": "Official museum full API data export, linked by official museum GitHub README; exact record retained locally.",
+        "museum_source_updated_at": "2026-07-14T15:41:07-05:00",
+        "mirror_license": "Explicit CC0 digital reproduction in Commons Licensing section",
+        "commons_source": "Original AIC artwork page and original IIIF upload URL in file history"
+      },
+      "museum_image_id_current": "a45e5f55-d02b-ce98-8bab-3af549684f58",
+      "historic_museum_iiif_url": "https://www.artic.edu/iiif/2/a17821ca-f5e5-943f-8fe8-1b930bb89064/full/full/0/default.jpg"
+    },
+    {
+      "id": "a22",
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1961.154",
+      "artwork_url": "https://www.clevelandart.org/art/1961.154",
+      "rights_sources": [
+        "https://www.clevelandart.org/art/1961.154",
+        "https://openaccess-api.clevelandart.org/api/artworks/1961.154",
+        "https://www.clevelandart.org/terms-and-conditions",
+        "https://www.clevelandart.org/open-access"
+      ],
+      "verified_on": "2026-11-10",
+      "download_url": "https://openaccess-cdn.clevelandart.org/1961.154/1961.154_print.jpg",
+      "license": "CC0-1.0",
+      "actual_pixels": [
+        2120,
+        3400
+      ],
+      "api_fields": {
+        "id": 136592,
+        "accession_number": "1961.154",
+        "share_license_status": "CC0",
+        "title": "Tightrope Walker",
+        "creation_date": "1923",
+        "technique": "color lithograph",
+        "images": {
+          "annotation": null,
+          "web": {
+            "url": "https://openaccess-cdn.clevelandart.org/1961.154/1961.154_web.jpg",
+            "width": "557",
+            "height": "893",
+            "filesize": "448687",
+            "filename": "1961.154_web.jpg"
+          },
+          "print": {
+            "url": "https://openaccess-cdn.clevelandart.org/1961.154/1961.154_print.jpg",
+            "width": "2120",
+            "height": "3400",
+            "filesize": "7058469",
+            "filename": "1961.154_print.jpg"
+          },
+          "full": {
+            "url": "https://openaccess-cdn.clevelandart.org/1961.154/1961.154_full.tif",
+            "width": "3205",
+            "height": "5139",
+            "filesize": "49445344",
+            "filename": "1961.154_full.tif"
+          }
+        }
+      }
+    }
+  ]
+}
