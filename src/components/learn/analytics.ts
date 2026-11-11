@@ -1,6 +1,7 @@
 'use client';
 
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 /**
  * 学园埋点：匿名设备号 + 事件流，直接写入 Supabase learn_events 表。
@@ -29,7 +30,7 @@ function deviceId(): string {
 }
 
 /** 关键漏斗事件；fire-and-forget，任何失败都吞掉 */
-export function track(event: string, props: Record<string, unknown> = {}) {
+export function track(event: string, props: Record<string, Json | undefined> = {}) {
   if (typeof window === 'undefined') return;
   if (!configured) {
     if (process.env.NODE_ENV === 'development') console.debug('[track]', event, props);

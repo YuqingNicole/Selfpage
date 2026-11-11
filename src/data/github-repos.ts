@@ -1,3 +1,5 @@
+import { variantDesignProject } from '@/data/projects';
+
 export interface GitHubRepo {
   name: string;
   description: string;
@@ -36,6 +38,7 @@ export const githubRepos: GitHubRepo[] = [
 export interface UseCase {
   title: string;
   description: string;
+  descriptionZh?: string;
   tags: string[];
   url?: string;
 }
@@ -65,6 +68,13 @@ export const partnerLinks: PartnerLink[] = [
 ];
 
 export const useCases: UseCase[] = [
+  {
+    title: variantDesignProject.title,
+    description: variantDesignProject.description,
+    descriptionZh: variantDesignProject.descriptionZh,
+    tags: ['Design Inspiration', 'Agent Skill', 'Open Source'],
+    url: variantDesignProject.externalUrl,
+  },
   {
     title: 'PDF Watermark Removal Pipeline',
     description: 'Built an automated pipeline to detect and remove watermarks from PDF slides while preserving layout fidelity.',

@@ -440,6 +440,7 @@ Jeff Dean 这场访谈的价值，也许恰恰在这里：它没有试图制造�
     tags: ['Arti', 'AI Research', 'LLM Architecture', 'Benchmark'],
     publishedAt: '2026-07-27',
     readingTime: '6 min read',
+    substackUrl: '',
     author: { name: photographerInfo.name, avatar: nicoleAvatar },
   },
   {

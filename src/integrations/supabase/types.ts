@@ -68,6 +68,57 @@ export type Database = {
         }
         Relationships: []
       }
+      learn_cloud: {
+        Row: {
+          user_id: string
+          updated_at: string
+          progress: Json
+          srs: Json
+          badges: Json
+          daily: Json
+        }
+        Insert: {
+          user_id: string
+          updated_at?: string
+          progress?: Json
+          srs?: Json
+          badges?: Json
+          daily?: Json
+        }
+        Update: {
+          user_id?: string
+          updated_at?: string
+          progress?: Json
+          srs?: Json
+          badges?: Json
+          daily?: Json
+        }
+        Relationships: []
+      }
+      learn_events: {
+        Row: {
+          id: string
+          created_at: string
+          device_id: string
+          event: string
+          props: Json
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          device_id: string
+          event: string
+          props?: Json
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          device_id?: string
+          event?: string
+          props?: Json
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string

@@ -23,6 +23,7 @@ export interface Project {
   coverImage: string;
   images: ProjectImage[];
   description: string;
+  descriptionZh?: string;
   client?: string;
   camera?: string;
   location?: string;
