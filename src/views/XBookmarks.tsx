@@ -17,6 +17,7 @@ import {
   type BookmarkStatus,
   xBookmarks,
 } from '@/data/xBookmarks';
+import { useSyncedXBookmarks } from '@/hooks/useSyncedXBookmarks';
 import { cn } from '@/lib/utils';
 
 const statusStyles: Record<BookmarkStatus, string> = {
@@ -29,18 +30,27 @@ const statusStyles: Record<BookmarkStatus, string> = {
 export default function XBookmarks() {
   const [category, setCategory] = useState<BookmarkCategory>('All');
   const [query, setQuery] = useState('');
+  const syncedBookmarks = useSyncedXBookmarks();
+
+  const allBookmarks = useMemo(() => {
+    const byUrl = new Map(xBookmarks.map((item) => [item.url, item]));
+    for (const item of syncedBookmarks) {
+      if (!byUrl.has(item.url)) byUrl.set(item.url, item);
+    }
+    return [...byUrl.values()];
+  }, [syncedBookmarks]);
 
   const filteredBookmarks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return xBookmarks.filter((item) => {
+    return allBookmarks.filter((item) => {
       const matchesCategory = category === 'All' || item.category === category;
       const haystack = `${item.title} ${item.author} ${item.handle} ${item.note} ${item.next}`.toLowerCase();
       return matchesCategory && (!normalizedQuery || haystack.includes(normalizedQuery));
     });
-  }, [category, query]);
+  }, [allBookmarks, category, query]);
 
-  const contentSeeds = xBookmarks.filter((item) => item.contentSeed).length;
-  const readyToUse = xBookmarks.filter((item) => item.status === 'Use now').length;
+  const contentSeeds = allBookmarks.filter((item) => item.contentSeed).length;
+  const readyToUse = allBookmarks.filter((item) => item.status === 'Use now').length;
 
   return (
     <div className="min-h-screen">
@@ -80,7 +90,7 @@ export default function XBookmarks() {
               className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border"
             >
               {[
-                [String(xBookmarks.length), 'saved'],
+                [String(allBookmarks.length), 'saved'],
                 [String(readyToUse), 'use now'],
                 [String(contentSeeds), 'content seeds'],
               ].map(([value, label]) => (
@@ -136,7 +146,7 @@ export default function XBookmarks() {
               {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'entry' : 'entries'}
             </p>
             <p className="hidden text-xs font-light text-muted-foreground md:block">
-              Last reviewed · July 28, 2026
+              Selfpage folder · syncs about every 5 minutes
             </p>
           </div>
 

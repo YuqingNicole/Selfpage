@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "add-reading": "node scripts/add-reading.mjs"
+    "add-reading": "node scripts/add-reading.mjs",
+    "x:authorize": "node scripts/authorize-x-bookmarks.mjs",
+    "x:configure": "node scripts/configure-x-bookmark-secrets.mjs",
+    "x:sync": "node scripts/sync-x-bookmarks.mjs",
+    "x:test": "node --test scripts/sync-x-bookmarks.test.mjs",
+    "x:fixture": "node scripts/sync-x-bookmarks.mjs --fixture scripts/fixtures/x-bookmark-folder.json"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.5",
