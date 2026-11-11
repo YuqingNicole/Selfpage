@@ -64,7 +64,7 @@ export function FeaturedProjects() {
                     className="text-sm font-light leading-relaxed"
                     style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-sans)" }}
                   >
-                    {project.description}
+                    {lang === 'zh' ? project.descriptionZh ?? project.description : project.description}
                   </p>
                 </div>
                 <Link

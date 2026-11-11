@@ -1,11 +1,35 @@
 import type { Project } from '@/types';
 import deckcleanerCoverImg from '@/assets/deckcleaner-cover.png';
 import magpiechinaCoverImg from '@/assets/magpiechina-cover.png';
+import variantDesignCoverImg from '@/assets/variant-design-cover.jpg';
 
 const deckcleanerCover = deckcleanerCoverImg.src;
 const magpiechinaCover = magpiechinaCoverImg.src;
 
+export const variantDesignProject: Project = {
+  id: 'variant-design',
+  title: 'Variant Design',
+  category: 'product',
+  year: '2026',
+  slug: 'variant-design',
+  coverImage: variantDesignCoverImg.src,
+  description: 'A curated library of websites, interfaces, and motion references with source links and design notes. Its open-source Agent skill turns one brief into three runnable design directions to compare, edit locally, undo changes, and bring into a project.',
+  descriptionZh: '精选网站、界面与动效灵感，附原始出处和设计笔记。配套开源 Agent 技能将一份需求展开为三个可运行的设计方向，支持比较、局部修改、撤回与接入项目。',
+  client: 'Personal Project',
+  location: 'Web',
+  externalUrl: 'https://variantdesign.xyz/',
+  images: [
+    {
+      id: 'variant-design-home',
+      src: variantDesignCoverImg.src,
+      alt: 'Variant Design homepage with design references, categories, and search',
+      aspectRatio: 'landscape',
+    },
+  ],
+};
+
 export const projects: Project[] = [
+  variantDesignProject,
   {
     id: '3',
     title: 'AutoReddit',

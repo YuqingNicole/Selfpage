@@ -4,19 +4,21 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Camera, User } from 'lucide-react';
+import { Calendar, MapPin, Camera, User, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { getProjectBySlug } from '@/data/projects';
 import { ImageWithLightbox } from '@/components/portfolio/ImageWithLightbox';
 import { Lightbox } from '@/components/portfolio/Lightbox';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * Project detail page with hero image, gallery, and full-screen lightbox
  * Features smooth animations and immersive image viewing experience
  */
 export default function ProjectDetail() {
+  const { lang } = useLanguage();
   const params = useParams();
   const slug = params?.slug as string;
   const project = slug ? getProjectBySlug(slug) : undefined;
@@ -28,6 +30,8 @@ export default function ProjectDetail() {
   if (!project) {
     notFound();
   }
+
+  const description = lang === 'zh' ? project.descriptionZh ?? project.description : project.description;
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
@@ -42,7 +46,7 @@ export default function ProjectDetail() {
     <>
       <SEOHead
         title={project.title}
-        description={project.description}
+        description={description}
         image={project.coverImage}
         type="article"
       />
@@ -105,8 +109,19 @@ export default function ProjectDetail() {
           {/* Description */}
           <div className="space-y-4">
             <p className="text-lg md:text-xl font-light leading-relaxed text-foreground">
-              {project.description}
+              {description}
             </p>
+            {project.externalUrl && (
+              <a
+                href={project.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+              >
+                {lang === 'zh' ? '访问' : 'Visit'} {project.title}
+                <ExternalLink className="size-4" aria-hidden="true" />
+              </a>
+            )}
           </div>
 
           {/* Technical Details */}

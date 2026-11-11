@@ -131,7 +131,7 @@ export default function Portfolio() {
                       {uc.url && <ExternalLink className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />}
                     </div>
                     <p className="text-sm text-muted-foreground font-light leading-relaxed mb-4">
-                      {uc.description}
+                      {lang === 'zh' ? uc.descriptionZh ?? uc.description : uc.description}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {uc.tags.map(tag => (
