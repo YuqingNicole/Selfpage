@@ -1,3 +1,5 @@
+import type { Unit } from '../optionsCourse';
+
 export const optionsEnU15U18 = {
   u15: {
     id: 'u15',
@@ -801,4 +803,4 @@ export const optionsEnU15U18 = {
       },
     ],
   },
-};
+} satisfies Record<string, Unit>;

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 /**
  * 账户 + 云同步：魔法链接登录，进度/错题本/徽章/每日任务上云。
@@ -21,7 +22,7 @@ const KEYS = {
   daily: 'options-course-daily-v1',
 } as const;
 
-type Blob = Record<string, unknown>;
+type Blob = Record<string, Json | undefined>;
 
 interface CloudRow {
   progress: Blob;
@@ -30,11 +31,15 @@ interface CloudRow {
   daily: Blob;
 }
 
+function asObject(value: Json): Blob {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
 function readLocal(): CloudRow {
   const read = (key: string): Blob => {
     try {
       const parsed = JSON.parse(localStorage.getItem(key) ?? '{}');
-      return parsed && typeof parsed === 'object' ? parsed : {};
+      return asObject(parsed);
     } catch {
       return {};
     }
@@ -118,7 +123,12 @@ async function fetchCloud(userId: string): Promise<CloudRow | null> {
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw error;
-  return (data as CloudRow | null) ?? null;
+  return data ? {
+    progress: asObject(data.progress),
+    srs: asObject(data.srs),
+    badges: asObject(data.badges),
+    daily: asObject(data.daily),
+  } : null;
 }
 
 async function upsertCloud(userId: string, row: CloudRow) {

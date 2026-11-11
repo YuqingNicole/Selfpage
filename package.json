@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "test:learning": "node --test scripts/test-learning-data.mjs",
     "start": "next start",
     "lint": "next lint",
     "add-reading": "node scripts/add-reading.mjs"
