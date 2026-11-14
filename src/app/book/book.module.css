@@ -42,3 +42,17 @@
 :global(.dark) .chapterHeading { color: hsl(40 27% 86%); }
 :global(.dark) .chapterHeading p { color: hsl(34 13% 65%); }
 @media (prefers-reduced-motion: reduce) { .cover, .cover:hover { transition: none; transform: none; } }
+
+.directoryNote { color: var(--book-muted); font-size: 13px; line-height: 2; margin: 20px 0; }
+.partNav { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 22px 0; font-size: 12px; line-height: 2; }
+.partNav a { text-decoration: underline; text-underline-offset: 5px; padding-block: 7px; }
+.part { border-top: 1px solid var(--book-line); padding: 28px 0; scroll-margin-top: 90px; }
+.partTitle { font-family: 'Songti SC', 'STSong', serif; font-size: clamp(21px, 3vw, 26px); line-height: 1.7; margin-top: 8px; }
+.essayList { list-style: decimal; padding-left: 1.6em; margin: 22px 0; font-size: 15px; line-height: 1.9; }
+.essayList li { padding: 6px 0 6px 4px; }
+.biography { border-left: 2px solid var(--book-line); padding-left: 16px; margin: 22px 0; font-size: 13px; line-height: 1.9; }
+.biography h4 { color: var(--book-muted); font-size: 11px; font-weight: 400; margin-bottom: 6px; }
+.mapping { color: var(--book-muted); font-size: 12px; line-height: 2; }
+.mapping a { text-decoration: underline; text-underline-offset: 4px; }
+.drafts { margin-top: 32px; }
+@media (max-width: 620px) { .catalogueHead { flex-wrap: wrap; gap: 12px; } .essayList { font-size: 14px; } }

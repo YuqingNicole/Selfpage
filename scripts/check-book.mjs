@@ -44,3 +44,25 @@ for (const file of fs.readdirSync('content/book/materials').filter((name) => nam
 }
 console.log(`${slugs.size} chapters: fields, unique slugs/numbers, titles, ${links} link structures and material links passed.`);
 console.log('All five server-rendered article bodies match the complete Markdown text (whitespace ignored).');
+
+const directory = JSON.parse(fs.readFileSync('content/book/directory.json', 'utf8'));
+assert.equal(directory.length, 4, 'four planned parts');
+assert.equal(new Set(directory.map((part) => part.id)).size, 4, 'unique part anchors');
+const homeResponse = await fetch(`${base}/book`);
+assert.equal(homeResponse.status, 200);
+const home = await homeResponse.text();
+assert(home.includes('拟定篇目') && home.includes('现有审阅稿'), 'plans and drafts distinguished');
+assert(!home.includes('第三章仍为提纲'), 'outdated third-chapter status removed');
+const mapped = new Set();
+for (const part of directory) {
+  assert(home.includes(`id="${part.id}"`));
+  assert(part.essays.length > 0 && part.biography);
+  for (const essay of part.essays) assert(text(home).includes(text(essay)), `planned title: ${essay}`);
+  for (const slug of part.sources) {
+    assert(slugs.has(slug), `mapped draft exists: ${slug}`);
+    assert(home.includes(`href="/book/${slug}"`), `draft linked: ${slug}`);
+    mapped.add(slug);
+  }
+}
+assert.deepEqual(mapped, slugs, 'all original chapters mapped');
+console.log('Four-part directory, planned status, biography slots and five original chapter links passed.');
