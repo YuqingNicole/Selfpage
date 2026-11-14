@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { bookEditLinks, getAllBookChapters } from '@/lib/book';
 import styles from './book.module.css';
+import directory from '../../../content/book/directory.json';
 
 export const metadata: Metadata = pageMetadata('/book', {
   title: '在平均答案之外 — 写书计划',
-  description: 'Nicole 的开放书稿《在平均答案之外》：关于 AI、判断、自动化与生活，以及在对话中写作。阅读章节审阅稿与持续修订。',
+  description: 'Nicole 的开放书稿《在平均答案之外》：从年轻人的具体处境出发，写判断、机会、价值与生活。四部独立篇目规划与现有章节审阅稿。',
   openGraph: { locale: 'zh_CN' },
 });
 
@@ -34,13 +35,39 @@ export default function BookPage() {
         <div className={styles.preface}>
           <p className={styles.eyebrow}>写在前面</p>
           <h2>答案越来越容易，<br />自己的问题仍值得慢慢写。</h2>
-          <p>这本书从具体的人、选择与代价出发，讨论 AI 进入生活以后，我们怎样看、怎样选，以及什么时候愿意修改自己的判断。</p>
-          <p>第一、二、四、五章已写成审阅稿，第三章仍为提纲。它还在生长，新的材料和真实访谈会继续改变它。</p>
+          <p>从普通年轻人的处境出发，写一个周末、一笔报价、一次没有想清楚的选择。技术和时代怎样改变生活，也要到这些小事里去看。</p>
+          <p>目录按四部重新组织，每篇可独立阅读。下面的篇名是写作计划，不代表正文已完成；现有五章审阅稿完整保留，供阅读和后续修订。</p>
           {first && <Link href={`/book/${first.slug}`} className={styles.open}>翻开第一章 <ArrowRight size={18} aria-hidden="true" /></Link>}
         </div>
       </section>
       <section id="contents" className={styles.catalogue} aria-labelledby="contents-title">
-        <div className={styles.catalogueHead}><h2 id="contents-title">目录</h2><span>{chapters.length} 章 · 持续修订</span></div>
+        <div className={styles.catalogueHead}><h2 id="contents-title">目录</h2><span>四部 · 篇目拟定中</span></div>
+        <p className={styles.directoryNote}>不必从头读到尾。可以从一个问题进入，再读另一个人的处境。篇幅由故事决定，不要求每篇都给出一套方法。</p>
+        <nav className={styles.partNav} aria-label="四部目录">
+          {directory.map((part) => <a key={part.id} href={`#${part.id}`}>{part.number} · {part.title}</a>)}
+        </nav>
+        {directory.map((part) => <section key={part.id} id={part.id} className={styles.part} aria-labelledby={`${part.id}-title`}>
+          <p className={styles.chapterStatus}>第{part.number}部 · 拟定篇目</p>
+          <h3 id={`${part.id}-title`} className={styles.partTitle}>{part.title}</h3>
+          <p className={styles.chapterDescription}>{part.description}</p>
+          <ol className={styles.essayList}>{part.essays.map((essay) => <li key={essay}>{essay}</li>)}</ol>
+          <aside className={styles.biography}>
+            <h4>穿插的传记札记 · 待选人与核实</h4>
+            <p>{part.biography}</p>
+          </aside>
+          <div className={styles.mapping}>
+            <p>{part.mapping}</p>
+            <p>现有底稿：{part.sources.map((slug, index) => {
+              const chapter = chapters.find((item) => item.slug === slug);
+              return chapter ? <span key={slug}>{index > 0 && '、'}<Link href={`/book/${slug}`}>原第{Number(chapter.number)}章《{chapter.title}》</Link></span> : null;
+            })}</p>
+          </div>
+        </section>)}
+        <p className={styles.directoryNote}>传记札记关注一个具体决定：当时知道什么、误判了什么、机会来自哪里、后来付了什么代价。不以成功结局倒推一套秘诀，也不将第三方经历写成作者亲历。</p>
+      </section>
+      <section className={`${styles.catalogue} ${styles.drafts}`} aria-labelledby="drafts-title">
+        <div className={styles.catalogueHead}><h2 id="drafts-title">现有审阅稿</h2><span>{chapters.length} 章 · 保留原链接</span></div>
+        <p className={styles.directoryNote}>以下仍按原五章顺序阅读，正文尚未按新目录拆分。新目录中的篇目完成后，再逐篇补上阅读入口。</p>
         <ol className={styles.contents}>
           {chapters.map((chapter) => <li key={chapter.slug}>
             <Link href={`/book/${chapter.slug}`}>
