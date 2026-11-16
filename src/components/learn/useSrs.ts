@@ -92,7 +92,7 @@ export function resolveKey(key: string): { exercise: Exercise; unit: Unit; lesso
 export function exerciseSummary(ex: Exercise): string {
   switch (ex.type) {
     case 'choice':
-      return ex.question;
+      return ex.display ? `${ex.display} — ${ex.question}` : ex.question;
     case 'tf':
       return ex.statement;
     case 'fill':

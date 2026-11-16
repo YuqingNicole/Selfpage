@@ -1,6 +1,6 @@
 # 投资学园 · 课程设计模板（steps 课程流）
 
-样板课：期权篇 第 1 单元第 1 课「权利与义务」，见 `src/data/lesson-flows/u1l1.ts`。
+样板：期权篇第 1 单元全部 3 课（`src/data/lesson-flows/u1l1.ts`–`u1l3.ts`）。同一单元的课程共用一个例子（XYZ 现价 $100、行权价 $100、权利金 $3/股），后一课直接接着前一课讲。
 
 ## 为什么改
 
@@ -37,6 +37,8 @@
 ## 技术备注
 
 - 步骤类型：经典题型（`choice` / `tf` / `fill` / `match`）+ `concept` + `slider`，定义在 `src/data/optionsCourse.ts`。
+- `display`（`concept` / `choice` 可用）：等宽展示卡，适合一行报价、一个公式；题目可以直接指着它问。
+- `slider.refLine`：额外参考竖线，股票、期货这类没有行权价的仓位用它标出买入价。
 - `concept` 与 `slider explore` 不计分、不扣红心；正确率只按计分步骤计算。
 - 错题本只收录 `steps` 中的经典题型，key 为 `lessonId:f{index}`。
 - 新课程流写在 `src/data/lesson-flows/<lessonId>.ts`，中英文各导出一份，分别挂到中文课程数据和 `options-course-en-parts`。

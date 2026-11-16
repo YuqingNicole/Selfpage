@@ -456,6 +456,18 @@ function optionClass(state: 'idle' | 'selected-right' | 'selected-wrong' | 'reve
   }
 }
 
+/* ---------- 等宽展示卡（报价行等） ---------- */
+
+function DisplayCard({ text, className = '' }: { text: string; className?: string }) {
+  return (
+    <div
+      className={`overflow-x-auto rounded-2xl border-2 border-[var(--border)] bg-[var(--muted)] px-4 py-3.5 text-center font-mono text-base font-bold tracking-wide sm:text-lg ${className}`}
+    >
+      <span className="whitespace-pre">{text}</span>
+    </div>
+  );
+}
+
 /* ---------- 讲解步（不计分） ---------- */
 
 function ConceptView({ step, color, onContinue }: { step: ConceptStep; color: string; onContinue: () => void }) {
@@ -474,6 +486,7 @@ function ConceptView({ step, color, onContinue }: { step: ConceptStep; color: st
       )}
       <h2 className="mb-4 text-2xl font-extrabold leading-snug sm:text-3xl">{step.title}</h2>
       <p className="whitespace-pre-line text-base leading-relaxed sm:text-lg">{step.body}</p>
+      {step.display && <DisplayCard text={step.display} className="mt-5" />}
       {step.bullets && (
         <ul className="mt-5 space-y-2.5">
           {step.bullets.map((b, i) => (
@@ -520,6 +533,7 @@ function ChoiceView({
       <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">
         {/[\u4e00-\u9fff]/.test(ex.question) ? '选出正确答案' : 'Choose the correct answer'}
       </p>
+      {ex.display && <DisplayCard text={ex.display} className="mb-5" />}
       <h2 className="mb-6 text-xl font-extrabold sm:text-2xl">{ex.question}</h2>
       <div className="space-y-3">
         {ex.options.map((opt, i) => {
@@ -585,7 +599,7 @@ function TrueFalseView({
               onClick={() => pick(v)}
               className={`${optionClass(state)} text-center text-lg`}
             >
-              {/[^\x00-\x7F]/.test(ex.statement) ? (v ? '✅ 正确' : '❌ 错误') : v ? '✅ True' : '❌ False'}
+              {/[\u4e00-\u9fff]/.test(ex.statement) ? (v ? '✅ 正确' : '❌ 错误') : v ? '✅ True' : '❌ False'}
             </button>
           );
         })}

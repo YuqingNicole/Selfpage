@@ -5,9 +5,13 @@
 import { investCourse } from './investCourse';
 
 import { u1l1StepsZh } from './lesson-flows/u1l1';
+import { u1l2StepsZh } from './lesson-flows/u1l2';
+import { u1l3StepsZh } from './lesson-flows/u1l3';
 
 export type ChoiceExercise = {
   type: 'choice';
+  /** 题干上方的等宽展示卡，如一行期权报价 */
+  display?: string;
   question: string;
   options: string[];
   correct: number;
@@ -47,6 +51,8 @@ export type ConceptStep = {
   kicker?: string;
   title: string;
   body: string;
+  /** 正文下方的等宽展示卡，如一行期权报价 */
+  display?: string;
   bullets?: string[];
   /** 列表之后的收尾句，如下一课预告 */
   footer?: string;
@@ -64,6 +70,8 @@ export type PayoffSliderStep = {
   shares?: number;
   range: [number, number];
   start: number;
+  /** 额外的参考竖线，如股票/期货的买入价（期权腿会自动标出行权价） */
+  refLine?: { x: number; label: string };
   /** explore：必须拖到 ≤ visit[0] 且 ≥ visit[1] 才能继续，确保真的看过两侧 */
   visit?: [number, number];
   /** target：正确价格与容差 */
@@ -189,6 +197,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u1l2',
+        steps: u1l2StepsZh,
         analogy: '一张期权合约像一张电影票：写着哪家影院（标的资产）、哪个场次（到期日）、哪个座位价（行权价），而票价本身就是权利金。过了场次，票就作废了。',
         title: '合约四要素',
         tips: [
@@ -247,6 +256,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u1l3',
+        steps: u1l3StepsZh,
         analogy: '买股票像直接买下房子，房子永远是你的；买期权像花小钱买「按约定价买房的资格」——房价涨了资格越来越值钱，房价跌了顶多放弃定金。但资格有有效期，房子没有。',
         diagram: 'stockVsCall',
         title: '期权 vs 股票 vs 期货',

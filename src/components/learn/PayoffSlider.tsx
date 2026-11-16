@@ -152,6 +152,14 @@ export function PayoffSliderView({
               </text>
             </g>
           ))}
+          {step.refLine && (
+            <g>
+              <line x1={sx(step.refLine.x)} x2={sx(step.refLine.x)} y1={PAD.t} y2={H - PAD.b} stroke="var(--border)" strokeDasharray="3 3" />
+              <text x={sx(step.refLine.x)} y={H - 8} textAnchor="middle" fontSize={10} fontWeight={700} fill="var(--muted-foreground)">
+                {step.refLine.label}
+              </text>
+            </g>
+          )}
           {revealed && (
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
               {posPolys.map((p, i) => <polygon key={`p${i}`} points={p} fill="rgba(88,204,2,0.2)" />)}
