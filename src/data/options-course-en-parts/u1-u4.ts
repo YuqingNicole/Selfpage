@@ -1,4 +1,5 @@
 import type { Unit } from '../optionsCourse';
+import { u1l1StepsEn } from '../lesson-flows/u1l1';
 
 export const optionsEnU1U4 = {
   u1: {
@@ -11,6 +12,7 @@ export const optionsEnU1U4 = {
     lessons: [
       {
         id: 'u1l1',
+        steps: u1l1StepsEn,
         analogy:
           'An option is like putting down a deposit on a home purchase agreement: you pay a small deposit to lock in the house price. If prices surge later, you can still buy at the original price (exercise). If prices fall, you can simply walk away and only lose the deposit (the premium). But the developer or seller, after taking your deposit, must sell to you if you choose to buy.',
         diagram: 'buyerSeller',

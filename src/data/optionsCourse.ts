@@ -4,6 +4,8 @@
  */
 import { investCourse } from './investCourse';
 
+import { u1l1StepsZh } from './lesson-flows/u1l1';
+
 export type ChoiceExercise = {
   type: 'choice';
   question: string;
@@ -36,6 +38,54 @@ export type MatchExercise = {
 
 export type Exercise = ChoiceExercise | TrueFalseExercise | FillExercise | MatchExercise;
 
+/* ---------- 新版课程流（steps）：边做边学 ---------- */
+
+/** 讲解步：一次只讲一个点，不计分 */
+export type ConceptStep = {
+  type: 'concept';
+  /** 小标题上方的标签，如「一个难题」「起个名字」 */
+  kicker?: string;
+  title: string;
+  body: string;
+  bullets?: string[];
+  /** 列表之后的收尾句，如下一课预告 */
+  footer?: string;
+};
+
+/** 损益图滑块：拖动到期股价。explore 自由探索（不计分），target 先猜后揭晓（计分） */
+export type PayoffSliderStep = {
+  type: 'slider';
+  mode: 'explore' | 'target';
+  prompt: string;
+  legs: { type: 'call' | 'put' | 'stock'; strike: number; qty: number }[];
+  /** 每股净支出的权利金（负数 = 净收取） */
+  premium: number;
+  /** 每张合约股数，默认 100 */
+  shares?: number;
+  range: [number, number];
+  start: number;
+  /** explore：必须拖到 ≤ visit[0] 且 ≥ visit[1] 才能继续，确保真的看过两侧 */
+  visit?: [number, number];
+  /** target：正确价格与容差 */
+  answer?: number;
+  tolerance?: number;
+  /** explore 完成后 / target 揭晓后的说明 */
+  explain: string;
+};
+
+export type LessonStep = Exercise | ConceptStep | PayoffSliderStep;
+
+/** 是否计分：讲解步与探索滑块不计分 */
+export function isGradedStep(step: LessonStep): boolean {
+  if (step.type === 'concept') return false;
+  if (step.type === 'slider') return step.mode === 'target';
+  return true;
+}
+
+export function isClassicExercise(step: LessonStep): step is Exercise {
+  return step.type === 'choice' || step.type === 'tf' || step.type === 'fill' || step.type === 'match';
+}
+
 export interface Lesson {
   id: string;
   title: string;
@@ -47,6 +97,11 @@ export interface Lesson {
   exercises: Exercise[];
   /** 可选的基础版练习；适合第一次接触这个主题的学习者。 */
   simpleExercises?: Exercise[];
+  /**
+   * 新版课程流：讲解与练习交错、含互动题。存在时课程按 steps 播放、不再显示知识卡片墙；
+   * exercises 仍保留，作为 Boss 战与分级测试的题库。
+   */
+  steps?: LessonStep[];
 }
 
 export interface Unit {
@@ -78,6 +133,7 @@ export const optionsCourse: Unit[] = [
         analogy: '期权就像交了定金的购房意向书：你付一笔小定金锁定房价，之后房价暴涨你可以按原价买（行权），房价跌了你大不了不买，损失定金（权利金）。而开发商（卖方）收了定金，你要买他就必须卖。',
         diagram: 'buyerSeller',
         title: '权利与义务',
+        steps: u1l1StepsZh,
         tips: [
           '期权（Option）是一种合约：买方付出权利金，获得在未来以约定价格买入或卖出标的资产的「权利」，而非义务。',
           '看涨期权（Call）赋予买方「买入」标的的权利；看跌期权（Put）赋予买方「卖出」标的的权利。',

@@ -1,0 +1,258 @@
+import type { LessonStep } from '../optionsCourse';
+
+/**
+ * 样板课 · 第 1 单元第 1 课「权利与义务」的新版课程流。
+ * 设计要点见 docs/learn-lesson-design.md：
+ * 先给一个真实决策 → 先算再命名 → 一步一个概念 → 拖动损益图 → 换视角 → 镜像迁移 → 收束 + 预告。
+ * 全课贯穿同一个例子：现价 $100 的股票，行权价 $100、权利金 $3/股（一张 $300）的合约。
+ */
+
+export const u1l1StepsZh: LessonStep[] = [
+  {
+    type: 'concept',
+    kicker: '一个难题',
+    title: '你看好一只股票，但钱不够',
+    body: '某只股票现价 $100。你很有把握：一个月内它会涨到 $130。\n\n问题是，买 100 股要 $10,000，而你手上只有 $300。',
+  },
+  {
+    type: 'concept',
+    kicker: '有人给你一个提议',
+    title: '花 $300，买一个「可以」',
+    body: '有人愿意卖给你一张凭证：\n\n「未来一个月内，你随时可以按 $100 一股，买入 100 股。」\n\n这张凭证卖 $300。注意，是「可以」买，不是「必须」买。',
+  },
+  {
+    type: 'choice',
+    question: '一个月后，股价真的涨到了 $130。这张凭证现在值多少钱？',
+    options: ['$300', '$1,000', '$3,000', '$13,000'],
+    correct: 2,
+    explain: '你可以按 $100 买入，再按 $130 卖出：每股赚 $30 × 100 股 = $3,000。扣掉当初的 $300，净赚 $2,700——用 $300 吃到了 $10,000 股票的涨幅。',
+  },
+  {
+    type: 'concept',
+    kicker: '起个名字',
+    title: '这张凭证，就是看涨期权（Call）',
+    body: '你刚才算的，就是期权最核心的逻辑。把名字对上：',
+    bullets: [
+      '看涨期权（Call）：按约定价格「买入」的权利',
+      '权利金（Premium）：为这份权利付的钱，这里是 $300',
+      '行权价（Strike）：约定的买入价，这里是 $100',
+      '行权：真的动用这份权利去买',
+    ],
+  },
+  {
+    type: 'choice',
+    question: '换个结局：一个月后股价跌到了 $80。你手里这张 Call 怎么处理最划算？',
+    options: ['按 $100 行权买入', '放弃，不行权', '补钱给卖方', '必须拿到股价回到 $100'],
+    correct: 1,
+    explain: '没有人会用 $100 去买市价 $80 的股票。你有权利、没义务，直接放弃就好——损失只有当初的 $300 权利金。',
+  },
+  {
+    type: 'slider',
+    mode: 'explore',
+    prompt: '拖动到期股价，看看 Call 买方的盈亏怎么变。',
+    legs: [{ type: 'call', strike: 100, qty: 1 }],
+    premium: 3,
+    range: [70, 140],
+    start: 100,
+    visit: [85, 120],
+    explain: '发现了吗？股价跌破 $100 后是一条平线：跌到多少都最多亏 $300。涨过 $100 后，每涨 $1 多赚 $100。亏损有底、盈利没顶——这就是「买权利」的形状。',
+  },
+  {
+    type: 'tf',
+    statement: '股价跌得越多，Call 买方亏得越多。',
+    answer: false,
+    explain: '错误。跌破行权价后亏损固定在权利金 $300——你只是不行权而已。',
+  },
+  {
+    type: 'slider',
+    mode: 'target',
+    prompt: '股价至少要涨到多少，这张 Call 才刚好回本？拖到你认为的位置。',
+    legs: [{ type: 'call', strike: 100, qty: 1 }],
+    premium: 3,
+    range: [90, 120],
+    start: 95,
+    answer: 103,
+    tolerance: 0,
+    explain: '行权价 $100 + 每股权利金 $3 = $103。光涨过 $100 还不够，得先把买权利的钱赚回来。',
+  },
+  {
+    type: 'concept',
+    kicker: '换个视角',
+    title: '这张凭证是谁卖给你的？',
+    body: '有人收了你的 $300，承诺「你要买，我就按 $100 卖」。他就是期权卖方。\n\n买方付钱，换来权利；卖方收钱，扛起义务。你一旦行权，不管那时股价是 $130 还是 $200，他都必须按 $100 卖给你。',
+  },
+  {
+    type: 'choice',
+    question: '股价涨到 $130，你行权了。卖方这笔交易最终盈亏是多少？',
+    options: ['+$300', '$0', '−$2,700', '−$3,000'],
+    correct: 2,
+    explain: '他必须按 $100 卖出市价 $130 的股票：每股亏 $30 × 100 = $3,000，扣掉收到的 $300，净亏 $2,700。股价越高，他亏得越多。',
+  },
+  {
+    type: 'tf',
+    statement: '卖方觉得亏太多，可以拒绝履约。',
+    answer: false,
+    explain: '错误。收了权利金就承担了义务——买方行权时卖方必须履约，这正是合约的意义。',
+  },
+  {
+    type: 'concept',
+    kicker: '反过来想',
+    title: '如果你担心的是下跌呢？',
+    body: '假设你已经持有 100 股，现价 $100，你担心它暴跌。\n\n另有一种凭证：「未来一个月内，你随时可以按 $100 一股卖出。」这就是看跌期权（Put）——按约定价格「卖出」的权利。',
+  },
+  {
+    type: 'choice',
+    question: '你买了一张行权价 $100 的 Put。一个月后股价暴跌到 $70，你行权后每股能卖多少？',
+    options: ['$70', '$100', '$130', '$0，Put 已作废'],
+    correct: 1,
+    explain: 'Put 让你按行权价 $100 卖出，哪怕市价只剩 $70。它像给持股买了一份保险，权利金就是保费。',
+  },
+  {
+    type: 'match',
+    prompt: '把角色和它的特征配对',
+    pairs: [
+      ['期权买方', '付出权利金，获得权利'],
+      ['期权卖方', '收取权利金，承担义务'],
+      ['Call', '买入标的的权利'],
+      ['Put', '卖出标的的权利'],
+    ],
+  },
+  {
+    type: 'concept',
+    kicker: '这一课你学会了',
+    title: '期权，就是花钱买一个「可以」',
+    body: '把今天的例子压缩成四句话：',
+    bullets: [
+      'Call 是按约定价格买入的权利，Put 是卖出的权利',
+      '买方付权利金、得权利，最多亏掉权利金',
+      '卖方收权利金、扛义务，买方行权时必须履约',
+      'Call 的回本价 = 行权价 + 权利金',
+    ],
+    footer: '下一课：一张期权合约上，到底写了哪四样东西？',
+  },
+];
+
+export const u1l1StepsEn: LessonStep[] = [
+  {
+    type: 'concept',
+    kicker: 'A problem',
+    title: 'You like a stock, but you’re short on cash',
+    body: 'A stock trades at $100. You’re confident it will hit $130 within a month.\n\nThe catch: 100 shares cost $10,000, and you only have $300.',
+  },
+  {
+    type: 'concept',
+    kicker: 'An offer',
+    title: 'Pay $300 for a “may”',
+    body: 'Someone offers to sell you a voucher:\n\n“Any time in the next month, you may buy 100 shares at $100 each.”\n\nThe voucher costs $300. Note the word: you may buy — you don’t have to.',
+  },
+  {
+    type: 'choice',
+    question: 'A month later the stock really is at $130. What is the voucher worth now?',
+    options: ['$300', '$1,000', '$3,000', '$13,000'],
+    correct: 2,
+    explain: 'Buy at $100, sell at $130: $30 per share × 100 shares = $3,000. Minus the $300 you paid, that’s $2,700 profit — $300 captured the gain on $10,000 of stock.',
+  },
+  {
+    type: 'concept',
+    kicker: 'Give it a name',
+    title: 'That voucher is a call option',
+    body: 'What you just worked out is the core logic of options. Here are the names:',
+    bullets: [
+      'Call: the right to buy at an agreed price',
+      'Premium: what you pay for that right — $300 here',
+      'Strike: the agreed buying price — $100 here',
+      'Exercise: actually using the right to buy',
+    ],
+  },
+  {
+    type: 'choice',
+    question: 'Different ending: a month later the stock is at $80. What’s the smartest thing to do with your call?',
+    options: ['Exercise and buy at $100', 'Let it go — don’t exercise', 'Pay extra to the seller', 'Hold until the stock is back to $100'],
+    correct: 1,
+    explain: 'Nobody pays $100 for a stock trading at $80. You have the right but no obligation, so you just walk away — losing only the $300 premium.',
+  },
+  {
+    type: 'slider',
+    mode: 'explore',
+    prompt: 'Drag the price at expiry and watch how the call buyer’s P/L changes.',
+    legs: [{ type: 'call', strike: 100, qty: 1 }],
+    premium: 3,
+    range: [70, 140],
+    start: 100,
+    visit: [85, 120],
+    explain: 'Notice it? Below $100 the line is flat: however far it falls, you lose at most $300. Above $100, every $1 up adds $100. Capped loss, uncapped gain — that’s the shape of buying a right.',
+  },
+  {
+    type: 'tf',
+    statement: 'The further the stock falls, the more the call buyer loses.',
+    answer: false,
+    explain: 'False. Below the strike the loss is fixed at the $300 premium — you simply don’t exercise.',
+  },
+  {
+    type: 'slider',
+    mode: 'target',
+    prompt: 'How high must the stock be at expiry for this call to exactly break even? Drag to your answer.',
+    legs: [{ type: 'call', strike: 100, qty: 1 }],
+    premium: 3,
+    range: [90, 120],
+    start: 95,
+    answer: 103,
+    tolerance: 0,
+    explain: 'Strike $100 + $3 premium per share = $103. Getting above $100 isn’t enough — you first have to earn back what the right cost.',
+  },
+  {
+    type: 'concept',
+    kicker: 'Switch sides',
+    title: 'Who sold you that voucher?',
+    body: 'Someone took your $300 and promised, “If you want to buy, I’ll sell at $100.” That’s the option seller.\n\nThe buyer pays and gets a right; the seller gets paid and takes on an obligation. Once you exercise, the seller must sell at $100 — whether the stock is at $130 or $200.',
+  },
+  {
+    type: 'choice',
+    question: 'The stock hits $130 and you exercise. What is the seller’s final P/L on this trade?',
+    options: ['+$300', '$0', '−$2,700', '−$3,000'],
+    correct: 2,
+    explain: 'They must sell $130 stock for $100: −$30 × 100 = −$3,000, plus the $300 they collected, for a net −$2,700. The higher the stock goes, the more they lose.',
+  },
+  {
+    type: 'tf',
+    statement: 'If the seller is losing too much, they can refuse to deliver.',
+    answer: false,
+    explain: 'False. Collecting the premium means taking on the obligation — when the buyer exercises, the seller must deliver. That’s the whole point of the contract.',
+  },
+  {
+    type: 'concept',
+    kicker: 'Flip it around',
+    title: 'What if you’re worried about a drop?',
+    body: 'Say you already own 100 shares at $100 and you’re afraid of a crash.\n\nThere’s another voucher: “Any time in the next month, you may sell at $100 per share.” That’s a put option — the right to sell at an agreed price.',
+  },
+  {
+    type: 'choice',
+    question: 'You bought a $100-strike put. A month later the stock has crashed to $70. If you exercise, what do you get per share?',
+    options: ['$70', '$100', '$130', '$0 — the put is void'],
+    correct: 1,
+    explain: 'The put lets you sell at the $100 strike even though the market is at $70. It works like insurance on your shares, and the premium is the insurance cost.',
+  },
+  {
+    type: 'match',
+    prompt: 'Match each role to its feature',
+    pairs: [
+      ['Option buyer', 'Pays premium, gets a right'],
+      ['Option seller', 'Collects premium, takes an obligation'],
+      ['Call', 'Right to buy the underlying'],
+      ['Put', 'Right to sell the underlying'],
+    ],
+  },
+  {
+    type: 'concept',
+    kicker: 'What you learned',
+    title: 'An option is paying for a “may”',
+    body: 'Today’s example in four lines:',
+    bullets: [
+      'A call is the right to buy at an agreed price; a put is the right to sell',
+      'The buyer pays the premium for the right and can lose at most the premium',
+      'The seller collects the premium and must deliver if the buyer exercises',
+      'A call’s break-even = strike + premium',
+    ],
+    footer: 'Next lesson: what four things are written on an option contract?',
+  },
+];
