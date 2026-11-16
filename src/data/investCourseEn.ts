@@ -1,4 +1,16 @@
 import type { Unit } from './optionsCourse';
+import { i1l1StepsEn } from './lesson-flows/i1l1';
+import { i1l2StepsEn } from './lesson-flows/i1l2';
+import { i1l3StepsEn } from './lesson-flows/i1l3';
+import { i2l1StepsEn } from './lesson-flows/i2l1';
+import { i2l2StepsEn } from './lesson-flows/i2l2';
+import { i2l3StepsEn } from './lesson-flows/i2l3';
+import { i3l1StepsEn } from './lesson-flows/i3l1';
+import { i3l2StepsEn } from './lesson-flows/i3l2';
+import { i3l3StepsEn } from './lesson-flows/i3l3';
+import { i4l1StepsEn } from './lesson-flows/i4l1';
+import { i4l2StepsEn } from './lesson-flows/i4l2';
+import { i4l3StepsEn } from './lesson-flows/i4l3';
 
 /** Investing Academy — Judgment track L1 (Market Language), English mirror of investCourse.ts */
 
@@ -13,6 +25,7 @@ export const investCourseEn: Unit[] = [
     lessons: [
       {
         id: 'i1l1',
+        steps: i1l1StepsEn,
         title: 'Share price says nothing about value',
         tips: [
           'One Berkshire A share costs ~$600k; plenty of penny stocks trade under $1 — neither number tells you which is expensive.',
@@ -55,6 +68,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i1l2',
+        steps: i1l2StepsEn,
         title: 'Market cap: pricing the whole company',
         tips: [
           'Market cap = price × total shares. Apple at ~$3 trillion means buying all of Apple is priced at $3T.',
@@ -100,6 +114,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i1l3',
+        steps: i1l3StepsEn,
         title: 'Share counts change: buybacks vs dilution',
         tips: [
           'The share count is not fixed. Buybacks retire shares; issuance and stock-based compensation (SBC) add them.',
@@ -152,6 +167,7 @@ export const investCourseEn: Unit[] = [
     lessons: [
       {
         id: 'i2l1',
+        steps: i2l1StepsEn,
         title: 'Four floors of the income statement',
         tips: [
           'Revenue (what you sold) → gross profit (minus direct costs) → operating profit (minus R&D/sales/admin) → net income (minus interest and tax).',
@@ -197,6 +213,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i2l2',
+        steps: i2l2StepsEn,
         title: 'Gross margin tells the story',
         tips: [
           'Gross margin = gross profit ÷ revenue — the fingerprint of a business model: Apple hardware ~37%, Apple services ~74%, Nvidia data center peaked above 75%.',
@@ -242,6 +259,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i2l3',
+        steps: i2l3StepsEn,
         title: 'EPS and the "adjusted" games',
         tips: [
           'EPS = net income ÷ shares. Street expectations and beats/misses usually refer to EPS.',
@@ -294,6 +312,7 @@ export const investCourseEn: Unit[] = [
     lessons: [
       {
         id: 'i3l1',
+        steps: i3l1StepsEn,
         title: 'Profit is not cash',
         tips: [
           'Profit is an accounting result; cash is money in the bank — the two can diverge widely.',
@@ -336,6 +355,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i3l2',
+        steps: i3l2StepsEn,
         title: 'Free cash flow: what owners can actually take',
         tips: [
           'FCF = operating cash flow − capital expenditure. What is truly "free" after sustaining and growing the business.',
@@ -381,6 +401,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i3l3',
+        steps: i3l3StepsEn,
         title: 'The capex cycle: today’s spend, tomorrow’s depreciation',
         tips: [
           'Around 2024–2025, Microsoft, Meta, Google and Amazon together spent $200B+ a year on AI data centers — the money artery of this AI cycle.',
@@ -433,6 +454,7 @@ export const investCourseEn: Unit[] = [
     lessons: [
       {
         id: 'i4l1',
+        steps: i4l1StepsEn,
         title: 'The risk-free rate is the yardstick',
         tips: [
           'US Treasury yields are treated as the "risk-free rate": the return for doing nothing and taking (almost) no risk.',
@@ -475,6 +497,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i4l2',
+        steps: i4l2StepsEn,
         title: 'P/E intuition: flip it into a yield',
         tips: [
           'P/E = market cap ÷ annual net income = the price paid per $1 of profit. 25× ≈ 25 years to earn back statically.',
@@ -517,6 +540,7 @@ export const investCourseEn: Unit[] = [
       },
       {
         id: 'i4l3',
+        steps: i4l3StepsEn,
         title: 'Live replay: 2022, rates kill multiples',
         tips: [
           '2022: inflation peaked at 9.1% CPI; the Fed hiked 425bp in one year — from zero to 4.25%+, the steepest in four decades.',
