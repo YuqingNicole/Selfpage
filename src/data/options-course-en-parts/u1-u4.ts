@@ -5,6 +5,9 @@ import { u1l3StepsEn } from '../lesson-flows/u1l3';
 import { u2l1StepsEn } from '../lesson-flows/u2l1';
 import { u2l2StepsEn } from '../lesson-flows/u2l2';
 import { u2l3StepsEn } from '../lesson-flows/u2l3';
+import { u3l1StepsEn } from '../lesson-flows/u3l1';
+import { u3l2StepsEn } from '../lesson-flows/u3l2';
+import { u3l3StepsEn } from '../lesson-flows/u3l3';
 
 export const optionsEnU1U4 = {
   u1: {
@@ -463,6 +466,7 @@ export const optionsEnU1U4 = {
     lessons: [
       {
         id: 'u3l1',
+        steps: u3l1StepsEn,
         analogy:
           'Imagine a coupon that lets you buy an iPhone for $100. If the market price is $120, the coupon clearly has $20 of real value—it is in the money. If the market price is $99, it is about at the money. If the market price is $80, it is currently useless—out of the money. But if expiration is still far away, who knows whether the price may rise again?',
         diagram: 'moneyness',
@@ -533,6 +537,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u3l2',
+        steps: u3l2StepsEn,
         analogy:
           'Think of a concert ticket: the amount a scalper charges above face value is like intrinsic value, while the extra imagination of “the show is still three months away and could become even more popular” is like time value. The moment the concert starts, that imagination value drops to zero.',
         diagram: 'valueComposition',
@@ -597,6 +602,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u3l3',
+        steps: u3l3StepsEn,
         analogy:
           'An option is like an ice cream cone in your hand: no matter how nice the weather is, it is melting, and it melts faster as the end approaches. The buyer is running while holding the melting ice cream, and the seller stands at the finish line collecting the “melting fee.”',
         diagram: 'timeDecay',

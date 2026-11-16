@@ -15,6 +15,7 @@ import type {
 import { isGradedStep, MAX_HEARTS } from '@/data/optionsCourse';
 import { PayoffSliderView } from './PayoffSlider';
 import { ShapePickerView } from './ShapePicker';
+import { ValueExplorerView } from './ValueExplorer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LessonDiagram } from './diagrams';
 import { sfx } from './sounds';
@@ -426,6 +427,8 @@ function ExerciseView({
   switch (exercise.type) {
     case 'concept':
       return <ConceptView step={exercise} color={color} onContinue={onContinue} />;
+    case 'value':
+      return <ValueExplorerView step={exercise} color={color} locked={locked} onAnswer={onAnswer} onContinue={onContinue} />;
     case 'shape':
       return <ShapePickerView step={exercise} color={color} locked={locked} onAnswer={onAnswer} />;
     case 'slider':
@@ -696,51 +699,46 @@ function shuffled<T>(arr: T[], seed: number): T[] {
 }
 
 function MatchView({ ex, onDone }: { ex: MatchExercise; onDone: () => void }) {
+  // 按位置而不是文字识别卡片：同一道题里出现文字相同的卡片（如两个「实值 ITM」）时，
+  // 它们可以互相替换，但各自单独记录是否已配对，题目不会卡死。
   const left = useMemo(() => ex.pairs.map((p) => p[0]), [ex]);
   const right = useMemo(() => shuffled(ex.pairs.map((p) => p[1]), ex.pairs[0][0].length * 7 + 13), [ex]);
-  const [selLeft, setSelLeft] = useState<string | null>(null);
-  const [selRight, setSelRight] = useState<string | null>(null);
-  const [matched, setMatched] = useState<Set<string>>(new Set());
-  const [wrongFlash, setWrongFlash] = useState<[string, string] | null>(null);
+  const [selLeft, setSelLeft] = useState<number | null>(null);
+  const [selRight, setSelRight] = useState<number | null>(null);
+  const [doneLeft, setDoneLeft] = useState<Set<number>>(new Set());
+  const [doneRight, setDoneRight] = useState<Set<number>>(new Set());
+  const [wrongFlash, setWrongFlash] = useState<{ l: number; r: number } | null>(null);
 
-  function isPair(l: string, r: string) {
-    return ex.pairs.some(([a, b]) => a === l && b === r);
-  }
+  function trySelect(side: 'l' | 'r', index: number) {
+    if (wrongFlash) return;
+    if (side === 'l' ? doneLeft.has(index) : doneRight.has(index)) return;
+    const l = side === 'l' ? index : selLeft;
+    const r = side === 'r' ? index : selRight;
+    if (side === 'l') setSelLeft(index);
+    else setSelRight(index);
+    if (l === null || r === null) return;
 
-  function trySelect(side: 'l' | 'r', value: string) {
-    if (matched.has(value)) return;
-    const l = side === 'l' ? value : selLeft;
-    const r = side === 'r' ? value : selRight;
-    if (side === 'l') setSelLeft(value);
-    else setSelRight(value);
-
-    if (l && r) {
-      if (isPair(l, r)) {
-        const next = new Set(matched);
-        next.add(l);
-        next.add(r);
-        setMatched(next);
+    if (ex.pairs[l][1] === right[r]) {
+      const nextL = new Set(doneLeft).add(l);
+      const nextR = new Set(doneRight).add(r);
+      setDoneLeft(nextL);
+      setDoneRight(nextR);
+      setSelLeft(null);
+      setSelRight(null);
+      if (nextL.size === ex.pairs.length) setTimeout(onDone, 350);
+    } else {
+      setWrongFlash({ l, r });
+      setTimeout(() => {
+        setWrongFlash(null);
         setSelLeft(null);
         setSelRight(null);
-        if (next.size === ex.pairs.length * 2) {
-          setTimeout(onDone, 350);
-        }
-      } else {
-        setWrongFlash([l, r]);
-        setTimeout(() => {
-          setWrongFlash(null);
-          setSelLeft(null);
-          setSelRight(null);
-        }, 600);
-      }
+      }, 600);
     }
   }
 
-  function cellClass(value: string, selected: boolean) {
-    if (matched.has(value))
-      return `${optionBase} border-[#a5ed6e] bg-[#d7ffb8] text-[#58a700] opacity-60`;
-    if (wrongFlash && (wrongFlash[0] === value || wrongFlash[1] === value))
-      return `${optionBase} border-[#ffb2b2] bg-[#ffdfe0] text-[#ea2b2b]`;
+  function cellClass(done: boolean, wrong: boolean, selected: boolean) {
+    if (done) return `${optionBase} border-[#a5ed6e] bg-[#d7ffb8] text-[#58a700] opacity-60`;
+    if (wrong) return `${optionBase} border-[#ffb2b2] bg-[#ffdfe0] text-[#ea2b2b]`;
     if (selected) return `${optionBase} border-[#84d8ff] bg-[#ddf4ff] text-[#1899d6]`;
     return `${optionBase} border-[var(--border)] bg-[var(--card)] hover:bg-[var(--muted)]`;
   }
@@ -753,22 +751,22 @@ function MatchView({ ex, onDone }: { ex: MatchExercise; onDone: () => void }) {
       <h2 className="mb-6 text-xl font-extrabold sm:text-2xl">{ex.prompt}</h2>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-3">
-          {left.map((v) => (
+          {left.map((v, i) => (
             <button
-              key={v}
-              onClick={() => trySelect('l', v)}
-              className={`${cellClass(v, selLeft === v)} !px-3 text-sm`}
+              key={`l${i}`}
+              onClick={() => trySelect('l', i)}
+              className={`${cellClass(doneLeft.has(i), wrongFlash?.l === i, selLeft === i)} !px-3 text-sm`}
             >
               {v}
             </button>
           ))}
         </div>
         <div className="space-y-3">
-          {right.map((v) => (
+          {right.map((v, i) => (
             <button
-              key={v}
-              onClick={() => trySelect('r', v)}
-              className={`${cellClass(v, selRight === v)} !px-3 text-sm`}
+              key={`r${i}`}
+              onClick={() => trySelect('r', i)}
+              className={`${cellClass(doneRight.has(i), wrongFlash?.r === i, selRight === i)} !px-3 text-sm`}
             >
               {v}
             </button>
