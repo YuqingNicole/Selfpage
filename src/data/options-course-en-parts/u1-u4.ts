@@ -8,6 +8,9 @@ import { u2l3StepsEn } from '../lesson-flows/u2l3';
 import { u3l1StepsEn } from '../lesson-flows/u3l1';
 import { u3l2StepsEn } from '../lesson-flows/u3l2';
 import { u3l3StepsEn } from '../lesson-flows/u3l3';
+import { u4l1StepsEn } from '../lesson-flows/u4l1';
+import { u4l2StepsEn } from '../lesson-flows/u4l2';
+import { u4l3StepsEn } from '../lesson-flows/u4l3';
 
 export const optionsEnU1U4 = {
   u1: {
@@ -682,6 +685,7 @@ export const optionsEnU1U4 = {
     lessons: [
       {
         id: 'u4l1',
+        steps: u4l1StepsEn,
         analogy:
           'Option pricing is like car insurance pricing: the more expensive the car is (stock price), the lower the deductible or payout threshold is (strike price), the longer the coverage period is (time), and the more aggressively the driver behaves (volatility), the more expensive the premium becomes. Interest rates and dividends are like smaller service charges—less important, but still part of the calculation.',
         title: 'The Six Pricing Factors',
@@ -745,6 +749,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u4l2',
+        steps: u4l2StepsEn,
         analogy:
           'When a typhoon warning is announced, umbrellas and insurance both become more expensive—just like implied volatility rising before earnings. Once the storm passes without much damage, prices collapse back to normal overnight. Buying the umbrella when the warning is loudest often means buying at the most expensive moment.',
         diagram: 'ivCrush',
@@ -819,6 +824,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u4l3',
+        steps: u4l3StepsEn,
         analogy:
           'The Black-Scholes model is like a translation machine: it translates an option’s price into volatility so different contracts can all be compared using the same ruler. Put-call parity is like a balance scale—if the two sides get out of line, arbitrage traders immediately step in and bring it back into balance.',
         title: 'Pricing Models and Put-Call Parity',

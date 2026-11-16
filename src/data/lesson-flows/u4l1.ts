@@ -1,0 +1,213 @@
+import type { LessonStep } from '../optionsCourse';
+
+/**
+ * 第 4 单元第 1 课「定价六因素」。
+ * 沿用第 3 单元的合约：XYZ 现价 $100、30 天后到期的 $100 期权，IV 25%（Call $3.02、Put $2.69）。
+ * 两张条款完全相同、价格却差一倍的 Call 开场 → 找出波动率 → 命名六因素 → 先猜 Put 怎么变 →
+ * 拖 IV 看 Call 和 Put 一起涨 → 拖股价看二者反向 → 汇总配对。
+ * 数字由 Black-Scholes（无风险利率 4%）算出。
+ */
+
+export const u4l1StepsZh: LessonStep[] = [
+  {
+    type: 'concept',
+    kicker: '两张一样的合约',
+    title: '条款一模一样，价格差了快一倍',
+    body: 'XYZ 和 ABC 现价都是 $100。两只股票各有一张 30 天后到期、行权价 $100 的 Call：\n\n· XYZ 的卖 $3.02\n· ABC 的卖 $5.87\n\n股价、行权价、到期日全都一样。',
+  },
+  {
+    type: 'choice',
+    question: 'ABC 的 Call 为什么贵这么多？',
+    options: ['ABC 公司规模更大', 'ABC 的股价平时波动得更厉害', 'ABC 分红更多', 'ABC 的期权成交量更大'],
+    correct: 1,
+    explain: '波动越大，30 天内涨过 $100 很多的机会就越大，这份「可能性」就越值钱。ABC 的波动率按 50% 算，XYZ 只有 25%。',
+  },
+  {
+    type: 'concept',
+    kicker: '起个名字',
+    title: '决定期权价格的六个因素',
+    body: '前三个你已经见过，第四个是今天的主角：',
+    bullets: [
+      '股价、行权价：决定现在是实值还是虚值',
+      '剩余时间：时间越多，时间价值越高',
+      '波动率：波动越大，期权越贵（新）',
+      '利率和分红：影响较小，知道它们存在就好',
+    ],
+  },
+  {
+    type: 'choice',
+    question: '先猜：波动率变大时，同一只股票的 Put 会怎样？',
+    options: ['变贵', '变便宜', '不变'],
+    correct: 0,
+    explain: '波动是双向的：大涨的机会多了，大跌的机会也多了。Call 和 Put 都会变贵——下一步拖一下验证。',
+  },
+  {
+    type: 'value',
+    mode: 'explore',
+    prompt: '股价 $100、还剩 30 天不变。拖动 IV，看 Call 和 Put 的价格怎么变。',
+    option: 'call',
+    strike: 100,
+    iv: 0.25,
+    ivRange: [10, 60],
+    compare: 'both',
+    showSplit: false,
+    spot: { range: [80, 120], start: 100, fixed: true },
+    days: { range: [30, 30], start: 30, fixed: true },
+    xAxis: 'spot',
+    visit: { iv: [15, 50] },
+    explain: 'IV 从 15% 拉到 50%：Call 从 $1.88 涨到 $5.87，Put 从 $1.55 涨到 $5.54，两个一起涨。波动率是唯一一个让 Call 和 Put 同涨同跌的因素（时间也会，但方向是一起跌）。',
+  },
+  {
+    type: 'value',
+    mode: 'explore',
+    prompt: '这次 IV 不动，拖动股价。Call 和 Put 还会一起变吗？',
+    option: 'call',
+    strike: 100,
+    iv: 0.25,
+    compare: 'both',
+    showSplit: false,
+    spot: { range: [85, 115], start: 100 },
+    days: { range: [30, 30], start: 30, fixed: true },
+    xAxis: 'spot',
+    visit: { spot: [92, 108] },
+    explain: '股价往上，Call 变贵、Put 变便宜；往下正好反过来。股价是「跷跷板」因素，波动率是「水涨船高」因素。',
+  },
+  {
+    type: 'match',
+    prompt: '把因素变化和它对期权价格的影响配对',
+    pairs: [
+      ['股价上涨', 'Call 涨价、Put 跌价'],
+      ['波动率上升', 'Call 和 Put 都涨价'],
+      ['时间流逝', 'Call 和 Put 都跌价'],
+      ['行权价更高', 'Call 更便宜、Put 更贵'],
+    ],
+  },
+  {
+    type: 'tf',
+    statement: '其他条件相同时，行权价越高的 Call 越贵。',
+    answer: false,
+    explain: '错误。行权价越高，Call 越难变成实值，价格越便宜——回想第 3 单元的 $90、$100、$110 三张 Call。Put 才是行权价越高越贵。',
+  },
+  {
+    type: 'choice',
+    question: '六个因素里，日常交易中影响通常最小的是？',
+    options: ['股价变动', '波动率变化', '无风险利率的小幅变动', '剩余时间'],
+    correct: 2,
+    explain: '利率小幅变动对短期期权几乎没有影响。真正的主角是股价、时间和波动率。',
+  },
+  {
+    type: 'concept',
+    kicker: '这一课你学会了',
+    title: '股价是跷跷板，波动率是水位',
+    body: '四句话带走：',
+    bullets: [
+      '六因素：股价、行权价、时间、波动率、利率、分红',
+      '股价上涨：Call 涨、Put 跌（跷跷板）',
+      '波动率上升：Call 和 Put 一起涨（水涨船高）',
+      '时间流逝：Call 和 Put 一起跌',
+    ],
+    footer: '下一课：股价、时间都查得到，可「未来的波动率」没人知道。期权价格里那个波动率，是从哪来的？',
+  },
+];
+
+export const u4l1StepsEn: LessonStep[] = [
+  {
+    type: 'concept',
+    kicker: 'Two identical contracts',
+    title: 'Same terms, nearly double the price',
+    body: 'XYZ and ABC both trade at $100. Each has a $100-strike call expiring in 30 days:\n\n· XYZ’s costs $3.02\n· ABC’s costs $5.87\n\nSame stock price, same strike, same expiry.',
+  },
+  {
+    type: 'choice',
+    question: 'Why is ABC’s call so much more expensive?',
+    options: ['ABC is a bigger company', 'ABC’s stock usually swings much more', 'ABC pays bigger dividends', 'ABC’s options trade more volume'],
+    correct: 1,
+    explain: 'The bigger the swings, the better the chance of finishing well above $100 within 30 days — and the more that chance is worth. ABC is priced at 50% volatility; XYZ at just 25%.',
+  },
+  {
+    type: 'concept',
+    kicker: 'Give it a name',
+    title: 'The six factors behind an option’s price',
+    body: 'You’ve met three already; the fourth is today’s star:',
+    bullets: [
+      'Stock price and strike: decide whether it’s in or out of the money',
+      'Time left: more time, more time value',
+      'Volatility: bigger swings make options pricier (new)',
+      'Interest rates and dividends: small effects — just know they exist',
+    ],
+  },
+  {
+    type: 'choice',
+    question: 'Guess first: when volatility rises, what happens to a put on the same stock?',
+    options: ['It gets more expensive', 'It gets cheaper', 'No change'],
+    correct: 0,
+    explain: 'Swings go both ways: more chance of a big rise, and more chance of a big drop. Calls and puts both get pricier — check it in the next step.',
+  },
+  {
+    type: 'value',
+    mode: 'explore',
+    prompt: 'Stock fixed at $100, 30 days left. Drag IV and watch the call and put prices.',
+    option: 'call',
+    strike: 100,
+    iv: 0.25,
+    ivRange: [10, 60],
+    compare: 'both',
+    showSplit: false,
+    spot: { range: [80, 120], start: 100, fixed: true },
+    days: { range: [30, 30], start: 30, fixed: true },
+    xAxis: 'spot',
+    visit: { iv: [15, 50] },
+    explain: 'Raise IV from 15% to 50%: the call goes from $1.88 to $5.87 and the put from $1.55 to $5.54 — both rise together. Volatility is the one factor that lifts calls and puts together (time moves them together too, but downward).',
+  },
+  {
+    type: 'value',
+    mode: 'explore',
+    prompt: 'Now keep IV fixed and drag the stock price. Do the call and put still move together?',
+    option: 'call',
+    strike: 100,
+    iv: 0.25,
+    compare: 'both',
+    showSplit: false,
+    spot: { range: [85, 115], start: 100 },
+    days: { range: [30, 30], start: 30, fixed: true },
+    xAxis: 'spot',
+    visit: { spot: [92, 108] },
+    explain: 'Stock up: the call gets pricier and the put cheaper; stock down, the reverse. The stock price is a seesaw factor; volatility is a rising-tide factor.',
+  },
+  {
+    type: 'match',
+    prompt: 'Match each change to its effect on option prices',
+    pairs: [
+      ['Stock rises', 'Call up, put down'],
+      ['Volatility rises', 'Call and put both up'],
+      ['Time passes', 'Call and put both down'],
+      ['Higher strike', 'Call cheaper, put pricier'],
+    ],
+  },
+  {
+    type: 'tf',
+    statement: 'All else equal, a call with a higher strike is more expensive.',
+    answer: false,
+    explain: 'False. The higher the strike, the harder it is for a call to finish in the money, so the cheaper it is — remember Unit 3’s $90, $100 and $110 calls. It’s puts that get pricier with higher strikes.',
+  },
+  {
+    type: 'choice',
+    question: 'Of the six factors, which usually matters least in day-to-day trading?',
+    options: ['Stock moves', 'Volatility changes', 'Small moves in the risk-free rate', 'Time left'],
+    correct: 2,
+    explain: 'Small rate changes barely affect short-dated options. The real drivers are the stock, time and volatility.',
+  },
+  {
+    type: 'concept',
+    kicker: 'What you learned',
+    title: 'The stock is a seesaw; volatility is the tide',
+    body: 'Four lines to take with you:',
+    bullets: [
+      'Six factors: stock price, strike, time, volatility, rates, dividends',
+      'Stock up: call up, put down (seesaw)',
+      'Volatility up: call and put both up (rising tide)',
+      'Time passing: call and put both down',
+    ],
+    footer: 'Next lesson: you can look up the stock and the time, but nobody knows future volatility. So where does the volatility in an option’s price come from?',
+  },
+];

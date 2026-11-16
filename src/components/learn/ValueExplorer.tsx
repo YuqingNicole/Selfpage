@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { ValueStep } from '@/data/optionsCourse';
-import { legPrice } from './blackScholes';
+import { legPrice, RISK_FREE } from './blackScholes';
 
 /**
  * 价值拆解：到期前的期权价格 = 内在价值 + 时间价值。
@@ -35,15 +35,20 @@ export function ValueExplorerView({
   onContinue: () => void;
 }) {
   const zh = isZh(step.prompt);
-  const { option, strike: K, iv } = step;
+  const { option, strike: K } = step;
   const showSplit = step.showSplit ?? true;
+  const ivStart = Math.round(step.iv * 100);
   const [spot, setSpot] = useState(step.spot.start);
   const [days, setDays] = useState(step.days.start);
+  const [ivPct, setIvPct] = useState(ivStart);
+  const iv = ivPct / 100;
   const [seen, setSeen] = useState({
     spotMin: step.spot.start,
     spotMax: step.spot.start,
     daysMin: step.days.start,
     daysMax: step.days.start,
+    ivMin: ivStart,
+    ivMax: ivStart,
   });
   const [submitted, setSubmitted] = useState(false);
 
@@ -51,7 +56,7 @@ export function ValueExplorerView({
   const intrinsic = (S: number) => (option === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0));
 
   const isTarget = step.mode === 'target';
-  const revealed = !isTarget || locked || submitted;
+  const revealed = !isTarget || locked || submitted || Boolean(step.target?.live);
   const frozen = isTarget && (locked || submitted);
 
   const value = price(spot, days);
@@ -87,16 +92,26 @@ export function ValueExplorerView({
       ' ' +
       [...xs].reverse().map((x, j) => `${sx(x).toFixed(1)},${sy(intrY[N - j]).toFixed(1)}`).join(' ');
     return { sx, sy, curve: path(curveY), intrPath: path(intrY), band };
-    // price/intrinsic 只依赖 step 字段与当前 spot/days
+    // price/intrinsic 只依赖 step 字段与当前 spot/days/iv
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, days, spot]);
+  }, [step, days, spot, ivPct]);
 
   const xNow = step.xAxis === 'spot' ? spot : days;
+  // 同时显示 Call 和 Put 时，曲线颜色跟着所画的那一种期权走，避免和单元主题色混淆
+  const CALL_COLOR = '#1cb0f6';
+  const PUT_COLOR = '#ff9600';
+  const curveColor = step.compare ? (option === 'call' ? CALL_COLOR : PUT_COLOR) : color;
+  const curveLegend = !step.compare
+    ? ''
+    : zh
+      ? `${option === 'call' ? '蓝线' : '橙线'}：$${K} ${option === 'call' ? 'Call' : 'Put'} 价格　`
+      : `${option === 'call' ? 'Blue' : 'Orange'}: $${K} ${option} price · `;
 
   const visit = step.visit;
   const visitDone =
     (!visit?.spot || (seen.spotMin <= visit.spot[0] && seen.spotMax >= visit.spot[1])) &&
-    (!visit?.days || (seen.daysMin <= visit.days[0] && seen.daysMax >= visit.days[1]));
+    (!visit?.days || (seen.daysMin <= visit.days[0] && seen.daysMax >= visit.days[1])) &&
+    (!visit?.iv || (seen.ivMin <= visit.iv[0] && seen.ivMax >= visit.iv[1]));
 
   function moveSpot(v: number) {
     if (frozen) return;
@@ -109,10 +124,16 @@ export function ValueExplorerView({
     setSeen((p) => ({ ...p, daysMin: Math.min(p.daysMin, v), daysMax: Math.max(p.daysMax, v) }));
   }
 
+  function moveIv(v: number) {
+    if (frozen) return;
+    setIvPct(v);
+    setSeen((p) => ({ ...p, ivMin: Math.min(p.ivMin, v), ivMax: Math.max(p.ivMax, v) }));
+  }
+
   function check() {
     if (submitted || !step.target) return;
     setSubmitted(true);
-    const guess = step.target.control === 'spot' ? spot : days;
+    const guess = step.target.control === 'spot' ? spot : step.target.control === 'days' ? days : ivPct;
     onAnswer(Math.abs(guess - step.target.answer) <= step.target.tolerance, step.explain);
   }
 
@@ -134,14 +155,40 @@ export function ValueExplorerView({
             {zh ? '股价' : 'Stock'} <span className="text-base font-extrabold text-[var(--foreground)] tabular-nums">${spot}</span>
             <span className="mx-1.5">·</span>
             {zh ? '剩余' : ''} <span className="text-base font-extrabold text-[var(--foreground)] tabular-nums">{days}</span> {zh ? '天' : days === 1 ? 'day left' : 'days left'}
+            {step.ivRange && (
+              <>
+                <span className="mx-1.5">·</span>IV <span className="text-base font-extrabold text-[var(--foreground)] tabular-nums">{ivPct}%</span>
+              </>
+            )}
           </span>
           <span className="rounded-full border-2 px-2 py-0.5 text-[11px] font-extrabold" style={{ borderColor: moneyColor, color: moneyColor }}>
             ${K} {option === 'call' ? 'Call' : 'Put'} · {moneyLabel}
           </span>
         </div>
 
+        {/* Call 与 Put 并排（定价因素 / 平价） */}
+        {step.compare && (
+          <div className="mb-1 grid grid-cols-2 gap-2 px-1">
+            {(['call', 'put'] as const).map((t) => (
+              <div key={t} className="rounded-xl border-2 border-[var(--border)] px-3 py-2">
+                <p className="text-[11px] font-extrabold text-[var(--muted-foreground)]">${K} {t === 'call' ? 'Call' : 'Put'}</p>
+                <p className="text-xl font-extrabold tabular-nums" style={{ color: t === 'call' ? CALL_COLOR : PUT_COLOR }}>
+                  {revealed ? usd(legPrice(t, spot, K, days / 365, iv)) : '?'}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+        {step.compare === 'parity' && revealed && (
+          <div className="mb-2 rounded-xl bg-[var(--muted)] px-3 py-2 text-center font-mono text-xs font-bold tabular-nums">
+            Call − Put = {usd(legPrice('call', spot, K, days / 365, iv) - legPrice('put', spot, K, days / 365, iv))}
+            <span className="mx-2 text-[#58a700]">=</span>
+            {zh ? '股价 − 行权价现值' : 'stock − PV(strike)'} = {usd(spot - K * Math.exp((-RISK_FREE * days) / 365))}
+          </div>
+        )}
+
         {/* 价格与拆分 */}
-        <div className="px-1">
+        <div className={step.compare ? 'hidden' : 'px-1'}>
           <p className="text-xs font-bold text-[var(--muted-foreground)]">
             {zh ? '期权价格' : 'Option price'}{' '}
             <span className="text-xl font-extrabold tabular-nums" style={{ color: revealed ? color : 'var(--muted-foreground)' }}>
@@ -183,7 +230,7 @@ export function ValueExplorerView({
           {revealed && (
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
               {showSplit && <polygon points={chart.band} fill={TIME_FILL} />}
-              <path d={chart.curve} fill="none" stroke={color} strokeWidth={3} strokeLinejoin="round" />
+              <path d={chart.curve} fill="none" stroke={curveColor} strokeWidth={3} strokeLinejoin="round" />
             </motion.g>
           )}
           {/* 正确答案（揭晓后） */}
@@ -200,6 +247,7 @@ export function ValueExplorerView({
           {revealed && <circle cx={chart.sx(xNow)} cy={chart.sy(value)} r={6} fill="var(--card)" stroke="var(--foreground)" strokeWidth={2.5} />}
         </svg>
         <p className="px-1 text-[10px] font-bold text-[var(--muted-foreground)]">
+          {curveLegend}
           {zh ? '虚线：内在价值（到期时的价值）' : 'Dashed: intrinsic value (worth at expiry)'}
           {showSplit && (zh ? '　紫色：时间价值' : ' · purple: time value')}
         </p>
@@ -242,6 +290,24 @@ export function ValueExplorerView({
             />
           </label>
         )}
+        {step.ivRange && (
+          <label className="mt-3 block">
+            <span className="text-[11px] font-extrabold text-[var(--muted-foreground)]">{zh ? '拖动隐含波动率（IV）' : 'Drag implied volatility (IV)'}</span>
+            <input
+              type="range"
+              min={step.ivRange[0]}
+              max={step.ivRange[1]}
+              step={1}
+              value={ivPct}
+              disabled={frozen}
+              onChange={(e) => moveIv(Number(e.target.value))}
+              aria-label={zh ? '隐含波动率' : 'Implied volatility'}
+              data-control="iv"
+              className="w-full cursor-pointer"
+              style={{ accentColor: color }}
+            />
+          </label>
+        )}
       </div>
 
       {/* 探索任务 */}
@@ -254,6 +320,16 @@ export function ValueExplorerView({
               </span>
               <span className={seen.spotMax >= visit.spot[1] ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
                 {seen.spotMax >= visit.spot[1] ? '✓' : '○'} {zh ? `股价拖到 $${visit.spot[1]} 以上` : `stock above $${visit.spot[1]}`}
+              </span>
+            </>
+          )}
+          {visit.iv && (
+            <>
+              <span className={seen.ivMin <= visit.iv[0] ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
+                {seen.ivMin <= visit.iv[0] ? '✓' : '○'} {zh ? `IV 拖到 ${visit.iv[0]}% 以下` : `IV below ${visit.iv[0]}%`}
+              </span>
+              <span className={seen.ivMax >= visit.iv[1] ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
+                {seen.ivMax >= visit.iv[1] ? '✓' : '○'} {zh ? `IV 拖到 ${visit.iv[1]}% 以上` : `IV above ${visit.iv[1]}%`}
               </span>
             </>
           )}
