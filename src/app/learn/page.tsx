@@ -1,6 +1,7 @@
 import { pageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { arbCourse, optionsCourse } from '@/data/optionsCourse';
 
 export const metadata: Metadata = pageMetadata('/learn', {
   title: '投资学园 — 从判断到期权与套利',
@@ -28,7 +29,7 @@ const tracks = [
     title: '期权篇',
     subtitle: '把方向、时间与波动拆开看',
     description: '从基础定价与 Greeks，到波动率、价差策略和机制交易；配套策略实验室与交易生存挑战。',
-    meta: '24 单元 · 策略实验室 · 生存挑战',
+    meta: `${optionsCourse.length} 单元 · 策略实验室 · 生存挑战`,
     color: '#1cb0f6',
     dark: '#1899d6',
     glow: 'rgba(28, 176, 246, 0.22)',
@@ -40,7 +41,7 @@ const tracks = [
     title: '套利篇',
     subtitle: '寻找可执行的价格关系',
     description: '理解 AMM、滑点、资金费、MEV 与跨市场价差。不是找价差，而是构造能闭环的执行路径。',
-    meta: '5 单元 · 套利工坊 · 真实案例',
+    meta: `${arbCourse.length} 单元 · 套利工坊 · 真实案例`,
     color: '#627eea',
     dark: '#4c63bb',
     glow: 'rgba(98, 126, 234, 0.24)',
