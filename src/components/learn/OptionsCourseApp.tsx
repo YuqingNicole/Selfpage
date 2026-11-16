@@ -675,7 +675,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
             zh: '🦉 期权篇',
             en: '🦉 Options Track',
             zhDesc: `${optionsCourse.length} 个单元的期权课：希腊字母、tastylive 机制、技术面、策略实验室与生存挑战。`,
-            enDesc: `${optionsCourseEn.length} units of options: Greeks, tastylive mechanics, Strategy Lab and the Survival Challenge.`,
+            enDesc: `${optionsCourseEn.length} units of options: Greeks, tastylive mechanics, technicals, Strategy Lab and the Survival Challenge.`,
           },
           {
             key: 'arb',
