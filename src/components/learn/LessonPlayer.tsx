@@ -16,6 +16,7 @@ import { isGradedStep, MAX_HEARTS } from '@/data/optionsCourse';
 import { PayoffSliderView } from './PayoffSlider';
 import { ShapePickerView } from './ShapePicker';
 import { ValueExplorerView } from './ValueExplorer';
+import { CalcView } from './CalcView';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LessonDiagram } from './diagrams';
 import { sfx } from './sounds';
@@ -429,6 +430,8 @@ function ExerciseView({
       return <ConceptView step={exercise} color={color} onContinue={onContinue} />;
     case 'value':
       return <ValueExplorerView step={exercise} color={color} locked={locked} onAnswer={onAnswer} onContinue={onContinue} />;
+    case 'calc':
+      return <CalcView step={exercise} color={color} locked={locked} onAnswer={onAnswer} onContinue={onContinue} />;
     case 'shape':
       return <ShapePickerView step={exercise} color={color} locked={locked} onAnswer={onAnswer} />;
     case 'slider':

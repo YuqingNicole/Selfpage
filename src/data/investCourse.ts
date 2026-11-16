@@ -1,4 +1,16 @@
 import type { Unit } from './optionsCourse';
+import { i1l1StepsZh } from './lesson-flows/i1l1';
+import { i1l2StepsZh } from './lesson-flows/i1l2';
+import { i1l3StepsZh } from './lesson-flows/i1l3';
+import { i2l1StepsZh } from './lesson-flows/i2l1';
+import { i2l2StepsZh } from './lesson-flows/i2l2';
+import { i2l3StepsZh } from './lesson-flows/i2l3';
+import { i3l1StepsZh } from './lesson-flows/i3l1';
+import { i3l2StepsZh } from './lesson-flows/i3l2';
+import { i3l3StepsZh } from './lesson-flows/i3l3';
+import { i4l1StepsZh } from './lesson-flows/i4l1';
+import { i4l2StepsZh } from './lesson-flows/i4l2';
+import { i4l3StepsZh } from './lesson-flows/i4l3';
 
 /**
  * 投资学园 — 判断框架主线（L1 看懂市场语言）
@@ -17,6 +29,7 @@ export const investCourse: Unit[] = [
     lessons: [
       {
         id: 'i1l1',
+        steps: i1l1StepsZh,
         title: '股价不等于贵贱',
         tips: [
           '伯克希尔 A 股一股约 $60 万，很多"仙股"一股不到 $1 —— 但这说明不了哪个贵哪个便宜。',
@@ -59,6 +72,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i1l2',
+        steps: i1l2StepsZh,
         title: '市值：给整家公司标价',
         tips: [
           '市值 = 股价 × 总股数。苹果约 $3 万亿市值，意味着"整体买下苹果"的标价是 3 万亿美元。',
@@ -104,6 +118,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i1l3',
+        steps: i1l3StepsZh,
         title: '股数会变：回购与稀释',
         tips: [
           '总股数不是恒定的。回购注销让股数变少，增发和股权激励（SBC）让股数变多。',
@@ -156,6 +171,7 @@ export const investCourse: Unit[] = [
     lessons: [
       {
         id: 'i2l1',
+        steps: i2l1StepsZh,
         title: '利润表的四层楼',
         tips: [
           '收入（卖了多少钱）→ 毛利（扣掉直接成本）→ 营业利润（再扣研发/销售/管理费）→ 净利润（再扣利息和税）。',
@@ -201,6 +217,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i2l2',
+        steps: i2l2StepsZh,
         title: '毛利率讲故事',
         tips: [
           '毛利率 = 毛利 ÷ 收入。它是商业模式的"指纹"：苹果硬件约 37%，苹果服务约 74%，英伟达数据中心峰值 75%+。',
@@ -246,6 +263,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i2l3',
+        steps: i2l3StepsZh,
         title: 'EPS 与「调整后」的猫腻',
         tips: [
           'EPS（每股收益）= 净利润 ÷ 股数。华尔街预期、财报 beat/miss，说的多半是 EPS。',
@@ -298,6 +316,7 @@ export const investCourse: Unit[] = [
     lessons: [
       {
         id: 'i3l1',
+        steps: i3l1StepsZh,
         title: '利润不是现金',
         tips: [
           '利润是会计记账的结果，现金是银行账户里的钱——两者可以差很远。',
@@ -340,6 +359,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i3l2',
+        steps: i3l2StepsZh,
         title: '自由现金流：股东真正能拿的钱',
         tips: [
           '自由现金流 FCF = 经营现金流 − 资本开支（Capex）。这是维持并发展业务之后，真正"自由"的钱。',
@@ -385,6 +405,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i3l3',
+        steps: i3l3StepsZh,
         title: 'Capex 周期：今天的开支，明天的折旧',
         tips: [
           '2024-2025 年微软、Meta、谷歌、亚马逊四家年 Capex 合计超 $2000 亿，砸向 AI 数据中心——这是本轮 AI 行情的资金主线。',
@@ -437,6 +458,7 @@ export const investCourse: Unit[] = [
     lessons: [
       {
         id: 'i4l1',
+        steps: i4l1StepsZh,
         title: '无风险利率是所有资产的标尺',
         tips: [
           '美国国债收益率被视为"无风险利率"：什么都不用做、几乎不承担风险就能拿到的回报。',
@@ -479,6 +501,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i4l2',
+        steps: i4l2StepsZh,
         title: 'P/E 的直觉：倒过来看是收益率',
         tips: [
           'P/E（市盈率）= 市值 ÷ 年净利润 = 为每 1 元利润支付的价格。25 倍 P/E ≈ 静态回本 25 年。',
@@ -521,6 +544,7 @@ export const investCourse: Unit[] = [
       },
       {
         id: 'i4l3',
+        steps: i4l3StepsZh,
         title: '实景复盘：2022 利率杀估值',
         tips: [
           '2022 年通胀失控（CPI 峰值 9.1%），联储一年加息 425bp——从 0 直接拉到 4.25%以上，为四十年最陡。',

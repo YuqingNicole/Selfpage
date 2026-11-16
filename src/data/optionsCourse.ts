@@ -126,12 +126,48 @@ export type ValueStep = {
   explain: string;
 };
 
-export type LessonStep = Exercise | ConceptStep | PayoffSliderStep | ShapeStep | ValueStep;
+/**
+ * 计算器：几个输入滑块 + 实时输出（如 市值 = 股价 × 股数、EPS = 利润 ÷ 股数）。
+ * 输出的计算与格式化写成函数，所以只能放在 TS 数据里（不会被持久化，错题本也不收录这类题）。
+ * explore 自由拖动（不计分）；target 拖到某个值算对（计分），hideOutputs 时先心算、提交后揭晓输出。
+ */
+export type CalcStep = {
+  type: 'calc';
+  mode: 'explore' | 'target';
+  prompt: string;
+  /** 输出卡片上方的等宽公式，如「市值 = 股价 × 总股数」 */
+  display?: string;
+  inputs: {
+    key: string;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+    start: number;
+    /** 固定值：只展示不可拖动 */
+    fixed?: boolean;
+    format: (v: number) => string;
+  }[];
+  outputs: {
+    label: string;
+    value: (v: Record<string, number>) => number;
+    format: (n: number) => string;
+    /** 主输出：字号更大 */
+    main?: boolean;
+  }[];
+  /** explore：各输入必须拖到 ≤ a 且 ≥ b 才能继续 */
+  visit?: Record<string, [number, number]>;
+  /** target：哪个输入、正确值、容差；hideOutputs 时提交前隐藏输出 */
+  target?: { key: string; answer: number; tolerance: number; hideOutputs?: boolean };
+  explain: string;
+};
+
+export type LessonStep = Exercise | ConceptStep | PayoffSliderStep | ShapeStep | ValueStep | CalcStep;
 
 /** 是否计分：讲解步与探索滑块不计分 */
 export function isGradedStep(step: LessonStep): boolean {
   if (step.type === 'concept') return false;
-  if (step.type === 'slider' || step.type === 'value') return step.mode === 'target';
+  if (step.type === 'slider' || step.type === 'value' || step.type === 'calc') return step.mode === 'target';
   return true;
 }
 

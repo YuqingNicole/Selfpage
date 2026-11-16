@@ -50,3 +50,12 @@
 - `concept` 与 `slider explore` 不计分、不扣红心；正确率只按计分步骤计算。
 - 错题本只收录 `steps` 中的经典题型，key 为 `lessonId:f{index}`。
 - 新课程流写在 `src/data/lesson-flows/<lessonId>.ts`，中英文各导出一份，分别挂到中文课程数据和 `options-course-en-parts`。
+
+## 投资主线（/learn/investing）
+
+已完成：L1「看懂市场语言」第 1–4 单元（`src/data/lesson-flows/i1l*.ts`–`i4l*.ts`），中英文分别挂到 `investCourse.ts` 和 `investCourseEn.ts`。
+
+- **保留这条主线的原则：每道题嵌在真实公司、真实数据、真实时间点里。** 数字为历史近似值，在课文里标「约」。
+- 每个单元用一家公司贯穿：第 1 单元苹果（拆股、市值、回购）；第 2 单元苹果 FY2023 利润表（硬件 vs 服务毛利率），亚马逊和 Costco 作对照；第 3 单元亚马逊（利润 vs 现金、自由现金流、AI Capex）；第 4 单元 2020–2023 年的利率周期。
+- 互动题用 `calc`（计算器）：输入滑块 + 实时输出，输出的计算和格式化写成函数（所以只能放在 TS 数据里）。`target` + `hideOutputs` 适合「先心算、再揭晓」；拖一个「你的答案」滑块也可以当数值题用。金额格式化用 `lesson-flows/fmt.ts`（中文用亿 / 万亿，英文用 B / T）。
+- 投资主线原有的「🌱 简单题」开关只替换旧版题目；已改成 `steps` 的课程不受影响（新版课程本身就是从直觉题开始的）。
