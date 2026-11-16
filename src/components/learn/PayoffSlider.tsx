@@ -24,6 +24,64 @@ function money(v: number) {
   return `${r > 0 ? '+' : '−'}$${Math.abs(r).toLocaleString('en-US')}`;
 }
 
+type Legs = PayoffSliderStep['legs'];
+
+/** 到期损益图的几何：曲线路径、盈/亏填充多边形、坐标换算。滑块与「选形状」题共用。 */
+export function payoffGeometry(
+  legs: Legs,
+  premium: number,
+  shares: number,
+  range: [number, number],
+  box: { w: number; h: number; pad: { l: number; r: number; t: number; b: number } },
+) {
+  const [lo, hi] = range;
+  const xs = Array.from({ length: SAMPLES + 1 }, (_, i) => lo + ((hi - lo) * i) / SAMPLES);
+  const ys = xs.map((x) => (positionExpiryValue(legs, x) - premium) * shares);
+  const yMax = Math.max(...ys, 0);
+  const yMin = Math.min(...ys, 0);
+  const span = yMax - yMin || 1;
+  const top = yMax + span * 0.12;
+  const bot = yMin - span * 0.12;
+  const sxF = (x: number) => box.pad.l + ((x - lo) / (hi - lo)) * (box.w - box.pad.l - box.pad.r);
+  const syF = (y: number) => box.pad.t + ((top - y) / (top - bot)) * (box.h - box.pad.t - box.pad.b);
+  const pts = xs.map((x, i) => [sxF(x), syF(ys[i])] as const);
+  const z = syF(0);
+  // 按正负拆分填充区域
+  const pos: string[] = [];
+  const neg: string[] = [];
+  let run: (readonly [number, number])[] = [];
+  let sign = 0;
+  const flush = () => {
+    if (run.length > 1 && sign !== 0) {
+      const poly = [...run, [run[run.length - 1][0], z], [run[0][0], z]].map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ');
+      (sign > 0 ? pos : neg).push(poly);
+    }
+    run = [];
+  };
+  for (let i = 0; i < pts.length; i++) {
+    const sgn = ys[i] > 1e-9 ? 1 : ys[i] < -1e-9 ? -1 : 0;
+    if (sgn !== sign && i > 0) {
+      // 插值出零点，两段都闭合到零线
+      const t = ys[i - 1] / (ys[i - 1] - ys[i] || 1);
+      const xc = pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * t;
+      run.push([xc, z]);
+      flush();
+      run.push([xc, z]);
+    }
+    sign = sgn || sign;
+    run.push(pts[i]);
+  }
+  flush();
+  return {
+    sx: sxF,
+    sy: syF,
+    curve: pts.map(([a, b], i) => `${i === 0 ? 'M' : 'L'}${a.toFixed(1)},${b.toFixed(1)}`).join(' '),
+    posPolys: pos,
+    negPolys: neg,
+    zeroY: z,
+  };
+}
+
 export function PayoffSliderView({
   step,
   color,
@@ -46,53 +104,10 @@ export function PayoffSliderView({
 
   const pnl = (s: number) => (positionExpiryValue(step.legs, s) - step.premium) * shares;
 
-  const { sx, sy, curve, posPolys, negPolys, zeroY } = useMemo(() => {
-    const xs = Array.from({ length: SAMPLES + 1 }, (_, i) => lo + ((hi - lo) * i) / SAMPLES);
-    const ys = xs.map((x) => (positionExpiryValue(step.legs, x) - step.premium) * shares);
-    const yMax = Math.max(...ys, 0);
-    const yMin = Math.min(...ys, 0);
-    const span = yMax - yMin || 1;
-    const top = yMax + span * 0.12;
-    const bot = yMin - span * 0.12;
-    const sxF = (x: number) => PAD.l + ((x - lo) / (hi - lo)) * (W - PAD.l - PAD.r);
-    const syF = (y: number) => PAD.t + ((top - y) / (top - bot)) * (H - PAD.t - PAD.b);
-    const pts = xs.map((x, i) => [sxF(x), syF(ys[i])] as const);
-    const z = syF(0);
-    // 按正负拆分填充区域
-    const pos: string[] = [];
-    const neg: string[] = [];
-    let run: (readonly [number, number])[] = [];
-    let sign = 0;
-    const flush = () => {
-      if (run.length > 1 && sign !== 0) {
-        const poly = [...run, [run[run.length - 1][0], z], [run[0][0], z]].map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ');
-        (sign > 0 ? pos : neg).push(poly);
-      }
-      run = [];
-    };
-    for (let i = 0; i < pts.length; i++) {
-      const sgn = ys[i] > 1e-9 ? 1 : ys[i] < -1e-9 ? -1 : 0;
-      if (sgn !== sign && i > 0) {
-        // 插值出零点，两段都闭合到零线
-        const t = ys[i - 1] / (ys[i - 1] - ys[i] || 1);
-        const xc = pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * t;
-        run.push([xc, z]);
-        flush();
-        run.push([xc, z]);
-      }
-      sign = sgn || sign;
-      run.push(pts[i]);
-    }
-    flush();
-    return {
-      sx: sxF,
-      sy: syF,
-      curve: pts.map(([a, b], i) => `${i === 0 ? 'M' : 'L'}${a.toFixed(1)},${b.toFixed(1)}`).join(' '),
-      posPolys: pos,
-      negPolys: neg,
-      zeroY: z,
-    };
-  }, [step, lo, hi, shares]);
+  const { sx, sy, curve, posPolys, negPolys, zeroY } = useMemo(
+    () => payoffGeometry(step.legs, step.premium, shares, step.range, { w: W, h: H, pad: PAD }),
+    [step, shares],
+  );
 
   const isTarget = step.mode === 'target';
   const revealed = !isTarget || locked || submitted;
@@ -155,7 +170,8 @@ export function PayoffSliderView({
           {step.refLine && (
             <g>
               <line x1={sx(step.refLine.x)} x2={sx(step.refLine.x)} y1={PAD.t} y2={H - PAD.b} stroke="var(--border)" strokeDasharray="3 3" />
-              <text x={sx(step.refLine.x)} y={H - 8} textAnchor="middle" fontSize={10} fontWeight={700} fill="var(--muted-foreground)">
+              {/* 标在顶部，避免和底部的行权价标签重叠 */}
+              <text x={sx(step.refLine.x) + 4} y={PAD.t + 9} textAnchor="start" fontSize={10} fontWeight={700} fill="var(--muted-foreground)">
                 {step.refLine.label}
               </text>
             </g>

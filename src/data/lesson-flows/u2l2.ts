@@ -1,0 +1,208 @@
+import type { LessonStep } from '../optionsCourse';
+import { LONG_PUT, SHAPE_RANGE, SHAPES, STOCK_PLUS_PUT } from './u2-shared';
+
+/**
+ * 第 2 单元第 2 课「买入看跌（Long Put）」。
+ * 先凭第 1 课的 Long Call 推测 Put 的形状 → 拖动验证 → 回本价 → 归零时的最大收益（有上限）
+ * → 第二种用法：持股 + Put = 保险，拖动组合损益看「下方被托住」。
+ */
+
+export const u2l2StepsZh: LessonStep[] = [
+  {
+    type: 'concept',
+    kicker: '反方向',
+    title: '如果你觉得它要跌？',
+    body: 'XYZ 现价 $100，你觉得下个月财报要暴雷。\n\n做空股票要借券，亏损还没有上限。另一种做法：花 $3（一张 $300）买一张行权价 $95 的 Put——到期前随时能按 $95 卖出 100 股。',
+  },
+  {
+    type: 'shape',
+    question: '先凭直觉猜：这张 Long Put 的到期损益，是哪一张图？',
+    options: [
+      { ...SHAPES.longCall, label: 'Long Call' },
+      { ...SHAPES.shortPut, label: 'Short Put' },
+      { ...SHAPES.longPut, label: 'Long Put' },
+      { ...SHAPES.shortCall, label: 'Short Call' },
+    ],
+    correct: 2,
+    range: SHAPE_RANGE,
+    explain: 'Long Put 是 Long Call 的左右镜像：右边是一条亏损封顶的平线，左边股价越跌，赚得越多。',
+  },
+  {
+    type: 'slider',
+    mode: 'explore',
+    prompt: '拖动到期股价，验证你的猜测。',
+    legs: LONG_PUT,
+    premium: 3,
+    range: [60, 120],
+    start: 100,
+    visit: [80, 105],
+    explain: '$95 以上，最多亏 $300；跌破 $92 开始赚，之后每跌 $1 多赚 $100。',
+  },
+  {
+    type: 'slider',
+    mode: 'target',
+    prompt: '这张 Put 的回本价在哪？拖到你认为的位置。',
+    legs: LONG_PUT,
+    premium: 3,
+    range: [80, 105],
+    start: 100,
+    answer: 92,
+    tolerance: 0,
+    explain: '$95 − $3 = $92。Put 的回本价在行权价「下面」：先付出去的权利金，要靠股价多跌一段才能赚回来。',
+  },
+  {
+    type: 'choice',
+    question: '最坏的情况——公司破产，股价归零。这张 Put 最多能赚多少？',
+    options: ['无限', '$9,200', '$9,500', '$300'],
+    correct: 1,
+    explain: '按 $95 卖出一文不值的股票：每股赚 $95，减去 $3 成本 = $92 × 100 = $9,200。股价最低只能到 0，所以 Put 的收益很大，但有上限。',
+  },
+  {
+    type: 'concept',
+    kicker: '另一种用法',
+    title: '已经持股？Put 是一份保险',
+    body: '假设你已经持有 100 股 XYZ，成本 $100，不想卖，又怕暴跌。\n\n再买一张 $95 的 Put：就算股价跌到 $60，你也能按 $95 卖出。最多亏 $5 的跌幅加 $3 的保费，也就是每股 $8、一共 $800。这叫保护性看跌（Protective Put）。',
+  },
+  {
+    type: 'slider',
+    mode: 'explore',
+    prompt: '持股 + 一张 $95 Put。拖动到期股价，看这个组合的盈亏。',
+    legs: STOCK_PLUS_PUT,
+    premium: 103,
+    range: [60, 140],
+    start: 100,
+    refLine: { x: 100, label: '买入价 $100' },
+    visit: [80, 120],
+    explain: '下方被托住：跌到多少都最多亏 $800。上方照常：股价涨你照样赚，只是比单纯持股少赚了 $300 保费。',
+  },
+  {
+    type: 'choice',
+    question: '持股 + $95 Put，到期股价跌到 $70。这个组合一共亏多少？',
+    options: ['$3,000', '$2,200', '$800', '$300'],
+    correct: 2,
+    explain: '股票亏 $3,000；Put 赚 ($95 − $70) × 100 − $300 = $2,200。合计亏 $800，正好是保底的最大亏损。',
+  },
+  {
+    type: 'match',
+    prompt: '把 Long Call 和 Long Put 的特征配对',
+    pairs: [
+      ['Long Call 回本价', '行权价 + 权利金'],
+      ['Long Put 回本价', '行权价 − 权利金'],
+      ['买方最大亏损', '权利金'],
+      ['Long Put 最大收益', '股价归零时，行权价 − 权利金'],
+    ],
+  },
+  {
+    type: 'concept',
+    kicker: '这一课你学会了',
+    title: 'Long Put：看跌的工具，也是持股的保险',
+    body: '四句话带走：',
+    bullets: [
+      '回本价 = 行权价 − 权利金',
+      '最大亏损 = 权利金；最大收益 = 行权价 − 权利金（股价归零时）',
+      '形状是 Long Call 的左右镜像',
+      '持股 + Put = 保护性看跌，给持仓设了一个保底价',
+    ],
+    footer: '下一课：每张期权背后都有一个收钱的人。这次，你来当卖方。',
+  },
+];
+
+export const u2l2StepsEn: LessonStep[] = [
+  {
+    type: 'concept',
+    kicker: 'The other direction',
+    title: 'What if you think it’s going down?',
+    body: 'XYZ is at $100, and you think next month’s earnings will be a disaster.\n\nShorting the stock means borrowing shares, with no cap on the loss. Another way: pay $3 ($300 a contract) for a $95-strike put — the right to sell 100 shares at $95 any time before expiry.',
+  },
+  {
+    type: 'shape',
+    question: 'Trust your gut: which chart is this long put’s payoff at expiry?',
+    options: [
+      { ...SHAPES.longCall, label: 'Long call' },
+      { ...SHAPES.shortPut, label: 'Short put' },
+      { ...SHAPES.longPut, label: 'Long put' },
+      { ...SHAPES.shortCall, label: 'Short call' },
+    ],
+    correct: 2,
+    range: SHAPE_RANGE,
+    explain: 'A long put is the long call flipped left-to-right: a flat, capped loss on the right, and growing profit the further the stock falls on the left.',
+  },
+  {
+    type: 'slider',
+    mode: 'explore',
+    prompt: 'Drag the price at expiry to check your guess.',
+    legs: LONG_PUT,
+    premium: 3,
+    range: [60, 120],
+    start: 100,
+    visit: [80, 105],
+    explain: 'Above $95 you lose at most $300; below $92 you start making money, and every $1 lower adds $100.',
+  },
+  {
+    type: 'slider',
+    mode: 'target',
+    prompt: 'Where is this put’s break-even? Drag to your answer.',
+    legs: LONG_PUT,
+    premium: 3,
+    range: [80, 105],
+    start: 100,
+    answer: 92,
+    tolerance: 0,
+    explain: '$95 − $3 = $92. A put’s break-even sits below the strike: the premium you paid has to be earned back by an extra drop.',
+  },
+  {
+    type: 'choice',
+    question: 'Worst case for the company — it goes bankrupt and the stock hits zero. What’s the most this put can make?',
+    options: ['Unlimited', '$9,200', '$9,500', '$300'],
+    correct: 1,
+    explain: 'Sell worthless stock at $95: $95 per share, minus the $3 cost = $92 × 100 = $9,200. A stock can’t fall below zero, so a put’s profit is large but capped.',
+  },
+  {
+    type: 'concept',
+    kicker: 'A second use',
+    title: 'Already own the stock? A put is insurance',
+    body: 'Say you already own 100 shares of XYZ bought at $100. You don’t want to sell, but you fear a crash.\n\nAdd a $95 put: even if the stock falls to $60, you can still sell at $95. The most you can lose is the $5 drop plus the $3 premium — $8 a share, $800 in total. This is a protective put.',
+  },
+  {
+    type: 'slider',
+    mode: 'explore',
+    prompt: 'Stock plus a $95 put. Drag the price at expiry and watch the combined P/L.',
+    legs: STOCK_PLUS_PUT,
+    premium: 103,
+    range: [60, 140],
+    start: 100,
+    refLine: { x: 100, label: 'buy price $100' },
+    visit: [80, 120],
+    explain: 'The downside has a floor: however far it falls, you lose at most $800. The upside stays open: if the stock rises you still profit — just $300 less than holding the stock alone.',
+  },
+  {
+    type: 'choice',
+    question: 'Stock plus the $95 put, and at expiry the stock has fallen to $70. What’s the combined loss?',
+    options: ['$3,000', '$2,200', '$800', '$300'],
+    correct: 2,
+    explain: 'The stock loses $3,000; the put makes ($95 − $70) × 100 − $300 = $2,200. Together that’s −$800 — exactly the protected maximum loss.',
+  },
+  {
+    type: 'match',
+    prompt: 'Match the long call and long put facts',
+    pairs: [
+      ['Long call break-even', 'Strike + premium'],
+      ['Long put break-even', 'Strike − premium'],
+      ['Buyer’s max loss', 'The premium'],
+      ['Long put max profit', 'Strike − premium, if the stock hits zero'],
+    ],
+  },
+  {
+    type: 'concept',
+    kicker: 'What you learned',
+    title: 'Long put: a bearish bet, and insurance for your shares',
+    body: 'Four lines to take with you:',
+    bullets: [
+      'Break-even = strike − premium',
+      'Max loss = the premium; max profit = strike − premium (if the stock hits zero)',
+      'Its shape is the long call flipped left-to-right',
+      'Stock + put = a protective put, which sets a floor under your position',
+    ],
+    footer: 'Next lesson: behind every option is someone collecting the premium. This time, you’re the seller.',
+  },
+];

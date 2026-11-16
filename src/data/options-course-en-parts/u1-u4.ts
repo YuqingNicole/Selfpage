@@ -2,6 +2,9 @@ import type { Unit } from '../optionsCourse';
 import { u1l1StepsEn } from '../lesson-flows/u1l1';
 import { u1l2StepsEn } from '../lesson-flows/u1l2';
 import { u1l3StepsEn } from '../lesson-flows/u1l3';
+import { u2l1StepsEn } from '../lesson-flows/u2l1';
+import { u2l2StepsEn } from '../lesson-flows/u2l2';
+import { u2l3StepsEn } from '../lesson-flows/u2l3';
 
 export const optionsEnU1U4 = {
   u1: {
@@ -242,6 +245,7 @@ export const optionsEnU1U4 = {
     lessons: [
       {
         id: 'u2l1',
+        steps: u2l1StepsEn,
         analogy:
           'Imagine paying $5 for the right to buy a limited-edition pair of sneakers for $100. If the resale price jumps to $130, your right is worth $30. If the sneakers never become popular, the right expires worthless and you only lose $5. Paying a little for a chance at a big upside—that is a Long Call.',
         diagram: 'longCall',
@@ -311,6 +315,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u2l2',
+        steps: u2l2StepsEn,
         analogy:
           'It is like buying a guaranteed buyback agreement for a used car: you lock in the right to sell it back to the dealer for $100,000 at any time. If the car’s market value crashes to $60,000, that agreement is worth $40,000. The harder the price falls, the more valuable the agreement becomes.',
         diagram: 'longPut',
@@ -378,6 +383,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u2l3',
+        steps: u2l3StepsEn,
         analogy:
           'Selling options is like running an insurance company: collecting premiums feels great most of the time, but one big storm can wipe out many small gains at once. Naked call selling is like insuring something whose price has no upper limit—the most dangerous kind of policy.',
         diagram: 'shortCallPut',
