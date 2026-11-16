@@ -7,6 +7,9 @@ import { investCourse } from './investCourse';
 import { u1l1StepsZh } from './lesson-flows/u1l1';
 import { u1l2StepsZh } from './lesson-flows/u1l2';
 import { u1l3StepsZh } from './lesson-flows/u1l3';
+import { u2l1StepsZh } from './lesson-flows/u2l1';
+import { u2l2StepsZh } from './lesson-flows/u2l2';
+import { u2l3StepsZh } from './lesson-flows/u2l3';
 
 export type ChoiceExercise = {
   type: 'choice';
@@ -81,7 +84,22 @@ export type PayoffSliderStep = {
   explain: string;
 };
 
-export type LessonStep = Exercise | ConceptStep | PayoffSliderStep;
+/** 选形状：四张迷你到期损益图，选出与仓位匹配的一张（计分） */
+export type ShapeStep = {
+  type: 'shape';
+  question: string;
+  options: {
+    legs: PayoffSliderStep['legs'];
+    premium: number;
+    /** 作答后揭晓的名字，如 Long Call */
+    label: string;
+  }[];
+  correct: number;
+  range: [number, number];
+  explain: string;
+};
+
+export type LessonStep = Exercise | ConceptStep | PayoffSliderStep | ShapeStep;
 
 /** 是否计分：讲解步与探索滑块不计分 */
 export function isGradedStep(step: LessonStep): boolean {
@@ -335,6 +353,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u2l1',
+        steps: u2l1StepsZh,
         analogy: '像花 $5 抢到「以 $100 购买限量球鞋」的资格：市价炒到 $130，你的资格就值 $30；球鞋没火，资格作废，只亏 $5。花小钱赌大涨，就是 Long Call。',
         diagram: 'longCall',
         title: '买入看涨（Long Call）',
@@ -390,6 +409,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u2l2',
+        steps: u2l2StepsZh,
         analogy: '像给二手车买了「保值回购协议」：约好随时能按 10 万卖回给车商。车价暴跌到 6 万，这份协议就值 4 万——跌得越狠，协议越值钱。',
         diagram: 'longPut',
         title: '买入看跌（Long Put）',
@@ -449,6 +469,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u2l3',
+        steps: u2l3StepsZh,
         analogy: '卖期权就是开保险公司：平时一单单收保费很舒服，但一场台风可能一次赔穿。裸卖 Call 相当于给「价格上不封顶」的东西承保——最危险的保单。',
         diagram: 'shortCallPut',
         title: '卖出期权（Short）',

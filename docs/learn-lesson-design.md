@@ -1,6 +1,10 @@
 # 投资学园 · 课程设计模板（steps 课程流）
 
-样板：期权篇第 1 单元全部 3 课（`src/data/lesson-flows/u1l1.ts`–`u1l3.ts`）。同一单元的课程共用一个例子（XYZ 现价 $100、行权价 $100、权利金 $3/股），后一课直接接着前一课讲。
+已完成：期权篇第 1、2 单元（`src/data/lesson-flows/u1l*.ts`、`u2l*.ts`）。
+
+同一单元的课程共用一个例子，后一课直接接着前一课讲：
+- 第 1 单元：XYZ 现价 $100，行权价 $100 的 Call，权利金 $3/股
+- 第 2 单元：XYZ 现价 $100，$105 Call（$2）与 $95 Put（$3）；前两课站在买方，第 3 课站在卖方，交易的是同两张合约。共用数据在 `u2-shared.ts`
 
 ## 为什么改
 
@@ -21,7 +25,7 @@
 | 6. 预测 | 先落点猜测，再揭晓曲线 | `slider` · `target` |
 | 7. 换视角 | 站到交易对手一侧，同一笔交易再算一遍 | `concept` + `choice` |
 | 8. 迁移 | 用镜像概念（Call → Put）检验能否举一反三 | `concept` + `choice` |
-| 9. 巩固 | 把本课要素放在一起 | `match` |
+| 9. 巩固 | 把本课要素放在一起 | `match` / `shape` |
 | 10. 收束 | 四句话总结 + 下一课预告 | `concept` + `bullets` + `footer` |
 
 ## 规则
@@ -38,6 +42,7 @@
 
 - 步骤类型：经典题型（`choice` / `tf` / `fill` / `match`）+ `concept` + `slider`，定义在 `src/data/optionsCourse.ts`。
 - `display`（`concept` / `choice` 可用）：等宽展示卡，适合一行报价、一个公式；题目可以直接指着它问。
+- `shape`：四张迷你损益图选一张（每张图各自缩放纵轴，比的是形状），作答后揭晓名字。适合先凭直觉猜形状、再用滑块验证。
 - `slider.refLine`：额外参考竖线，股票、期货这类没有行权价的仓位用它标出买入价。
 - `concept` 与 `slider explore` 不计分、不扣红心；正确率只按计分步骤计算。
 - 错题本只收录 `steps` 中的经典题型，key 为 `lessonId:f{index}`。
