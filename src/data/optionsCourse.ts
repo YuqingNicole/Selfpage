@@ -13,6 +13,9 @@ import { u2l3StepsZh } from './lesson-flows/u2l3';
 import { u3l1StepsZh } from './lesson-flows/u3l1';
 import { u3l2StepsZh } from './lesson-flows/u3l2';
 import { u3l3StepsZh } from './lesson-flows/u3l3';
+import { u4l1StepsZh } from './lesson-flows/u4l1';
+import { u4l2StepsZh } from './lesson-flows/u4l2';
+import { u4l3StepsZh } from './lesson-flows/u4l3';
 
 export type ChoiceExercise = {
   type: 'choice';
@@ -112,17 +115,24 @@ export type ValueStep = {
   prompt: string;
   option: 'call' | 'put';
   strike: number;
-  /** 隐含波动率（小数，0.25 = 25%） */
+  /** 隐含波动率（小数，0.25 = 25%）；给了 ivRange 时为滑块初始值 */
   iv: number;
+  /** 可拖动的 IV 范围（百分数，如 [10, 60]）；不给则 IV 固定 */
+  ivRange?: [number, number];
+  /** both：同时显示同行权价 Call 与 Put 的价格；parity：再加上 Put-Call 平价读数 */
+  compare?: 'both' | 'parity';
   spot: { range: [number, number]; start: number; fixed?: boolean };
   days: { range: [number, number]; start: number; fixed?: boolean };
   xAxis: 'spot' | 'days';
   /** 是否拆分显示内在价值与时间价值；讲「状态」时可先关掉，一步只讲一个点 */
   showSplit?: boolean;
   /** explore：各控件必须拖到 ≤ a 且 ≥ b 才能继续 */
-  visit?: { spot?: [number, number]; days?: [number, number] };
-  /** target：评判哪个控件、正确值与容差；揭晓前隐藏价格曲线和读数 */
-  target?: { control: 'spot' | 'days'; answer: number; tolerance: number };
+  visit?: { spot?: [number, number]; days?: [number, number]; iv?: [number, number] };
+  /**
+   * target：评判哪个控件、正确值与容差（iv 为百分数）。默认揭晓前隐藏价格曲线和读数；
+   * live 为 true 时读数始终可见（如「调 IV 去对上市场报价」这类反推题）
+   */
+  target?: { control: 'spot' | 'days' | 'iv'; answer: number; tolerance: number; live?: boolean };
   explain: string;
 };
 
@@ -765,6 +775,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u4l1',
+        steps: u4l1StepsZh,
         analogy: '像车险定价：车越贵（股价）、赔付门槛越低（行权价）、保期越长（时间）、司机开车越野（波动率），保费就越贵。利率和分红像手续费，影响不大但也算在内。',
         title: '定价六因素',
         tips: [
@@ -822,6 +833,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u4l2',
+        steps: u4l2StepsZh,
         analogy: '台风预报一发布（财报临近），雨伞和保险全涨价（IV 升高）；台风过境没造成损失，价格连夜崩回原形（IV Crush）。在预报最响的时候买伞，往往买在最贵的一刻。',
         diagram: 'ivCrush',
         title: '隐含波动率',
@@ -887,6 +899,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u4l3',
+        steps: u4l3StepsZh,
         analogy: 'BSM 模型像一台翻译机：把期权价格翻译成波动率，让所有合约能用同一把尺子比贵贱。Put-Call 平价则像天平——两端不平衡时，套利者立刻上来搬砖，把它压回平衡。',
         title: '定价模型与平价关系',
         tips: [

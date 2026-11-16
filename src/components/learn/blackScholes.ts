@@ -21,7 +21,7 @@ export interface Greeks {
   vega: number;
 }
 
-const RISK_FREE = 0.04;
+export const RISK_FREE = 0.04;
 
 /** 标准正态 CDF（Abramowitz–Stegun 近似，误差 < 7.5e-8） */
 export function normCdf(x: number): number {
