@@ -11,6 +11,18 @@ import { i3l3StepsZh } from './lesson-flows/i3l3';
 import { i4l1StepsZh } from './lesson-flows/i4l1';
 import { i4l2StepsZh } from './lesson-flows/i4l2';
 import { i4l3StepsZh } from './lesson-flows/i4l3';
+import { i5l1StepsZh } from './lesson-flows/i5l1';
+import { i5l2StepsZh } from './lesson-flows/i5l2';
+import { i5l3StepsZh } from './lesson-flows/i5l3';
+import { i6l1StepsZh } from './lesson-flows/i6l1';
+import { i6l2StepsZh } from './lesson-flows/i6l2';
+import { i6l3StepsZh } from './lesson-flows/i6l3';
+import { i7l1StepsZh } from './lesson-flows/i7l1';
+import { i7l2StepsZh } from './lesson-flows/i7l2';
+import { i7l3StepsZh } from './lesson-flows/i7l3';
+import { i8l1StepsZh } from './lesson-flows/i8l1';
+import { i8l2StepsZh } from './lesson-flows/i8l2';
+import { i8l3StepsZh } from './lesson-flows/i8l3';
 
 /**
  * 投资学园 — 判断框架主线（L1 看懂市场语言）
@@ -605,6 +617,7 @@ investCourse.push(
       {
         id: 'i5l1',
         title: '钱从哪来：四种原型',
+        steps: i5l1StepsZh,
         tips: [
           '拆一家公司的第一问永远是：谁在付钱、付的是什么钱、为什么会一直付。',
           '四种常见原型：卖广告（谷歌约 76%、Meta 约 98% 的收入来自广告）、卖订阅（Netflix、Spotify）、做抽成（App Store 抽 15-30%、Visa 每笔刷卡抽一小口）、卖硬件（iPhone 约占苹果收入一半）。',
@@ -650,6 +663,7 @@ investCourse.push(
       {
         id: 'i5l2',
         title: '单位经济学：一单到底赚不赚',
+        steps: i5l2StepsZh,
         tips: [
           '把生意缩小到「一单/一个用户」来看：这一单的收入、成本、毛利各是多少？这就是单位经济学。',
           '两个关键量：获取一个用户花多少钱（CAC），这个用户一生能贡献多少毛利（LTV）。LTV 明显大于 CAC，烧钱扩张才有意义。',
@@ -697,6 +711,7 @@ investCourse.push(
       {
         id: 'i5l3',
         title: '护城河：为什么别人抢不走',
+        steps: i5l3StepsZh,
         tips: [
           '高利润会招来竞争，护城河回答「凭什么守得住」。四种经典：切换成本（企业软件、苹果生态）、网络效应（微信、Visa）、品牌（茅台、爱马仕）、成本优势（Costco、台积电的规模）。',
           '护城河的财务证据：多年维持的高毛利率 + 稳定或上升的市场份额。嘴上的护城河不算，报表上的才算。',
@@ -752,6 +767,7 @@ investCourse.push(
       {
         id: 'i6l1',
         title: '量价拆解：增长的第一把刀',
+        steps: i6l1StepsZh,
         tips: [
           '任何收入增长都能拆成 量 × 价：卖出更多（量），或每份卖更贵（价）。两种增长的可持续性完全不同。',
           '苹果的教科书操作：2015-2023 年 iPhone 年销量基本停在 2 亿部上下，但平均售价从约 $650 提到 $900+——增长几乎全靠「价」。',
@@ -794,6 +810,7 @@ investCourse.push(
       {
         id: 'i6l2',
         title: '渗透率与天花板',
+        steps: i6l2StepsZh,
         tips: [
           '渗透式增长走 S 曲线：早期慢、中段爆发、饱和后骤停。判断一家公司处在曲线哪一段，比判断它「好不好」更重要。',
           '实景：智能手机渗透率 2010 年代中期见顶，手机厂商增长集体熄火——苹果随即把叙事切到服务；电动车渗透率从 2020 年全球约 5% 冲到 2023 年约 18%（中国超 35%），正处爆发段。',
@@ -841,6 +858,7 @@ investCourse.push(
       {
         id: 'i6l3',
         title: '第二曲线：新业务何时值得定价',
+        steps: i6l3StepsZh,
         tips: [
           '成熟公司的再增长几乎都靠第二曲线：亚马逊长出 AWS、微软长出 Azure、苹果长出服务、英伟达从游戏显卡长出数据中心。',
           '第二曲线的价值兑现有一个标志性时刻——首次单独披露。2015 年亚马逊首次披露 AWS 分部：利润率远超零售，股价当年接近翻倍。',
@@ -905,6 +923,7 @@ investCourse.push(
       {
         id: 'i7l1',
         title: '订阅业务：留存是一切',
+        steps: i7l1StepsZh,
         tips: [
           '订阅/SaaS 的命门不是拉新，是留存。核心指标 NRR（净收入留存率）：只看老客户，今年贡献的收入是去年的多少。',
           'NRR > 100% 意味着一个新客都不拉、收入也在自然增长。顶级 SaaS 如 Snowflake 早期 NRR 高达 170%+，120%+ 即为优秀。',
@@ -947,6 +966,7 @@ investCourse.push(
       {
         id: 'i7l2',
         title: '零售与平台：同店、GMV 与口径陷阱',
+        steps: i7l2StepsZh,
         tips: [
           '实体零售的核心是同店销售（SSS）：剔除新开店后，老店收入还长不长。开店冲总收入谁都会，同店增长才是真功夫。',
           '电商平台看 GMV（平台流水）× take rate（抽成率）= 平台收入。注意口径：拼多多/淘宝记抽成为收入，京东自营记全额商品款——两者「收入」不可直接对比。',
@@ -989,6 +1009,7 @@ investCourse.push(
       {
         id: 'i7l3',
         title: '硬件与周期：库存与产能的钟摆',
+        steps: i7l3StepsZh,
         tips: [
           '芯片、面板、航运这类周期行业，利润随供需钟摆大起大落，不能用稳态公司的框架看。',
           '半导体的先行指标是库存：下游库存高企 → 砍单 → 厂商收入跳水。美光（存储芯片）2023 财年从大赚变巨亏，一年之内。',
@@ -1049,6 +1070,7 @@ investCourse.push(
       {
         id: 'i8l1',
         title: '指引的语言学',
+        steps: i8l1StepsZh,
         tips: [
           '指引（guidance）是管理层对下季度/全年的官方预测——市场对财报的反应，一半以上由指引而非本季数字决定。',
           '潜规则：管理层普遍「保守指引、然后超越」（beat-and-raise）。苹果常年小幅 beat 自己的指引——所以「恰好符合指引」有时反而是转弱信号。',
@@ -1091,6 +1113,7 @@ investCourse.push(
       {
         id: 'i8l2',
         title: '电话会问答：回避即信息',
+        steps: i8l2StepsZh,
         tips: [
           '财报电话会的问答（Q&A）环节比开场白值钱：开场白是写好的剧本，Q&A 里藏着管理层不想说的。',
           '经典回避术：用增长话题岔开利润率追问、「我们不按这个口径看业务」、反复念愿景不给数字。分析师连续追问同一件事 = 市场最焦虑的那件事。',
@@ -1138,6 +1161,7 @@ investCourse.push(
       {
         id: 'i8l3',
         title: '红旗清单：撤退的信号',
+        steps: i8l3StepsZh,
         tips: [
           '单个红旗可能是巧合，多个红旗同时出现就是行为模式。清单：CFO 突然离职、更换审计师、推迟财报、应收账款增速远超收入、频繁修改业务口径、SBC 暴增、内部人持续减持。',
           '级别最高的三面红旗：审计师辞任（SMCI 2024，安永辞任后股价 -80%）、推迟年报、被曝关联交易。',

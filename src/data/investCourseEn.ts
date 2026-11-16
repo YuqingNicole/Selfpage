@@ -11,6 +11,18 @@ import { i3l3StepsEn } from './lesson-flows/i3l3';
 import { i4l1StepsEn } from './lesson-flows/i4l1';
 import { i4l2StepsEn } from './lesson-flows/i4l2';
 import { i4l3StepsEn } from './lesson-flows/i4l3';
+import { i5l1StepsEn } from './lesson-flows/i5l1';
+import { i5l2StepsEn } from './lesson-flows/i5l2';
+import { i5l3StepsEn } from './lesson-flows/i5l3';
+import { i6l1StepsEn } from './lesson-flows/i6l1';
+import { i6l2StepsEn } from './lesson-flows/i6l2';
+import { i6l3StepsEn } from './lesson-flows/i6l3';
+import { i7l1StepsEn } from './lesson-flows/i7l1';
+import { i7l2StepsEn } from './lesson-flows/i7l2';
+import { i7l3StepsEn } from './lesson-flows/i7l3';
+import { i8l1StepsEn } from './lesson-flows/i8l1';
+import { i8l2StepsEn } from './lesson-flows/i8l2';
+import { i8l3StepsEn } from './lesson-flows/i8l3';
 
 /** Investing Academy — Judgment track L1 (Market Language), English mirror of investCourse.ts */
 
@@ -601,6 +613,7 @@ investCourseEn.push(
       {
         id: 'i5l1',
         title: 'Where the money comes from: four archetypes',
+        steps: i5l1StepsEn,
         tips: [
           'The first question when dissecting any company: who pays, what are they paying for, and why will they keep paying.',
           'Four common archetypes: selling ads (~76% of Google’s and ~98% of Meta’s revenue), subscriptions (Netflix, Spotify), taking a cut (App Store’s 15–30%, Visa’s sliver of every swipe), selling hardware (iPhone ≈ half of Apple’s revenue).',
@@ -646,6 +659,7 @@ investCourseEn.push(
       {
         id: 'i5l2',
         title: 'Unit economics: does one order make money',
+        steps: i5l2StepsEn,
         tips: [
           'Shrink the business to a single order or user: what are the revenue, cost and gross profit of that one unit? That is unit economics.',
           'Two key quantities: what it costs to acquire a user (CAC) and the gross profit that user contributes over a lifetime (LTV). Burning cash to grow only makes sense when LTV clearly exceeds CAC.',
@@ -693,6 +707,7 @@ investCourseEn.push(
       {
         id: 'i5l3',
         title: 'Moats: why can’t rivals take it',
+        steps: i5l3StepsEn,
         tips: [
           'High profits invite competition; the moat answers "what keeps them out". Four classics: switching costs (enterprise software, the Apple ecosystem), network effects (WeChat, Visa), brand (Moutai, Hermès), cost advantage (Costco, TSMC scale).',
           'Financial evidence of a moat: years of sustained high gross margin plus stable-or-rising market share. Moats claimed in speeches don’t count; moats visible in statements do.',
@@ -748,6 +763,7 @@ investCourseEn.push(
       {
         id: 'i6l1',
         title: 'Volume × price: the first cut',
+        steps: i6l1StepsEn,
         tips: [
           'All revenue growth decomposes into volume × price: sell more units, or sell each unit dearer. The two differ completely in sustainability.',
           'Apple’s textbook move: iPhone units have hovered around 200M a year since the mid-2010s while average selling price climbed from ~$650 to $900+ — growth almost entirely from price.',
@@ -790,6 +806,7 @@ investCourseEn.push(
       {
         id: 'i6l2',
         title: 'Penetration and the ceiling',
+        steps: i6l2StepsEn,
         tips: [
           'Penetration growth follows an S-curve: slow start, explosive middle, abrupt stall at saturation. Locating a company on the curve matters more than judging whether it is "good".',
           'Live examples: smartphone penetration topped out mid-2010s and handset growth died — Apple pivoted the story to services. EV penetration went from ~5% globally in 2020 to ~18% in 2023 (35%+ in China): mid-curve explosion.',
@@ -837,6 +854,7 @@ investCourseEn.push(
       {
         id: 'i6l3',
         title: 'Second curves: when a new business earns a price',
+        steps: i6l3StepsEn,
         tips: [
           'Mature companies regrow almost exclusively through second curves: Amazon grew AWS, Microsoft grew Azure, Apple grew services, Nvidia grew from gaming into data center.',
           'Value crystallizes at a signature moment — first standalone disclosure. In 2015 Amazon first broke out AWS: margins far above retail, and the stock nearly doubled that year.',
@@ -901,6 +919,7 @@ investCourseEn.push(
       {
         id: 'i7l1',
         title: 'Subscriptions: retention is everything',
+        steps: i7l1StepsEn,
         tips: [
           'The lifeline of subscription/SaaS is not acquisition but retention. The core metric is NRR (net revenue retention): from existing customers only, this year’s revenue as a share of last year’s.',
           'NRR above 100% means revenue grows without a single new customer. Elite SaaS like early Snowflake ran 170%+; 120%+ counts as excellent.',
@@ -943,6 +962,7 @@ investCourseEn.push(
       {
         id: 'i7l2',
         title: 'Retail and platforms: comps, GMV and measurement traps',
+        steps: i7l2StepsEn,
         tips: [
           'Physical retail’s core is same-store sales (SSS): with new openings stripped out, are the old stores still growing? Anyone can grow total revenue by opening stores; comp growth is the real skill.',
           'E-commerce platforms: GMV (flow through the platform) × take rate = platform revenue. Mind the measurement: PDD/Taobao book the cut as revenue, JD books the whole item — their "revenues" cannot be compared directly.',
@@ -985,6 +1005,7 @@ investCourseEn.push(
       {
         id: 'i7l3',
         title: 'Hardware and cycles: the inventory pendulum',
+        steps: i7l3StepsEn,
         tips: [
           'Chips, panels, shipping — cyclical industries swing between feast and famine with supply and demand; steady-state frameworks do not apply.',
           'Semis’ leading indicator is inventory: downstream stockpiles → order cuts → revenue cliff. Micron (memory) swung from record profit to deep loss inside a year into FY2023.',
@@ -1045,6 +1066,7 @@ investCourseEn.push(
       {
         id: 'i8l1',
         title: 'The language of guidance',
+        steps: i8l1StepsEn,
         tips: [
           'Guidance is management’s official forecast for next quarter/year — more than half of the market’s earnings reaction is driven by guidance, not the reported quarter.',
           'The unwritten rule: managements guide conservatively and then beat ("beat-and-raise"). Apple beats its own guidance almost ritually — so merely meeting guidance can itself signal weakening.',
@@ -1087,6 +1109,7 @@ investCourseEn.push(
       {
         id: 'i8l2',
         title: 'The Q&A: evasion is information',
+        steps: i8l2StepsEn,
         tips: [
           'The Q&A beats the prepared remarks: the script is rehearsed; what management doesn’t want to say hides in the answers.',
           'Classic evasions: deflecting a margin question into growth talk, "we don’t look at the business that way", reciting vision instead of numbers. Whatever analysts keep re-asking is the market’s biggest anxiety.',
@@ -1134,6 +1157,7 @@ investCourseEn.push(
       {
         id: 'i8l3',
         title: 'The red-flag checklist',
+        steps: i8l3StepsEn,
         tips: [
           'One red flag may be coincidence; several at once are a behavior pattern. The list: sudden CFO exit, auditor change, delayed filings, receivables growing far faster than revenue, shifting business definitions, exploding SBC, sustained insider selling.',
           'The three highest-severity flags: auditor resignation (SMCI 2024 — EY quit, stock -80% from peak), delayed annual reports, exposed related-party dealings.',
