@@ -10,6 +10,9 @@ import { u1l3StepsZh } from './lesson-flows/u1l3';
 import { u2l1StepsZh } from './lesson-flows/u2l1';
 import { u2l2StepsZh } from './lesson-flows/u2l2';
 import { u2l3StepsZh } from './lesson-flows/u2l3';
+import { u3l1StepsZh } from './lesson-flows/u3l1';
+import { u3l2StepsZh } from './lesson-flows/u3l2';
+import { u3l3StepsZh } from './lesson-flows/u3l3';
 
 export type ChoiceExercise = {
   type: 'choice';
@@ -99,12 +102,36 @@ export type ShapeStep = {
   explain: string;
 };
 
-export type LessonStep = Exercise | ConceptStep | PayoffSliderStep | ShapeStep;
+/**
+ * 价值拆解：到期前的期权价格（Black-Scholes）= 内在价值 + 时间价值。
+ * 可拖动股价和/或剩余天数；横轴可以是股价（看价值随股价变）或剩余天数（看时间衰减）。
+ */
+export type ValueStep = {
+  type: 'value';
+  mode: 'explore' | 'target';
+  prompt: string;
+  option: 'call' | 'put';
+  strike: number;
+  /** 隐含波动率（小数，0.25 = 25%） */
+  iv: number;
+  spot: { range: [number, number]; start: number; fixed?: boolean };
+  days: { range: [number, number]; start: number; fixed?: boolean };
+  xAxis: 'spot' | 'days';
+  /** 是否拆分显示内在价值与时间价值；讲「状态」时可先关掉，一步只讲一个点 */
+  showSplit?: boolean;
+  /** explore：各控件必须拖到 ≤ a 且 ≥ b 才能继续 */
+  visit?: { spot?: [number, number]; days?: [number, number] };
+  /** target：评判哪个控件、正确值与容差；揭晓前隐藏价格曲线和读数 */
+  target?: { control: 'spot' | 'days'; answer: number; tolerance: number };
+  explain: string;
+};
+
+export type LessonStep = Exercise | ConceptStep | PayoffSliderStep | ShapeStep | ValueStep;
 
 /** 是否计分：讲解步与探索滑块不计分 */
 export function isGradedStep(step: LessonStep): boolean {
   if (step.type === 'concept') return false;
-  if (step.type === 'slider') return step.mode === 'target';
+  if (step.type === 'slider' || step.type === 'value') return step.mode === 'target';
   return true;
 }
 
@@ -543,6 +570,7 @@ export const optionsCourse: Unit[] = [
     lessons: [
       {
         id: 'u3l1',
+        steps: u3l1StepsZh,
         analogy: '一张「凭券以 100 元买 iPhone」的优惠券：iPhone 市价 120 元时，这券实实在在值 20 元（实值）；市价 99 元时，它可有可无（平值）；市价 80 元时暂时没用（虚值）——但离过期还早，谁知道会不会涨回来？',
         diagram: 'moneyness',
         title: '实值、平值、虚值',
@@ -607,6 +635,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u3l2',
+        steps: u3l2StepsZh,
         analogy: '像演唱会门票：黄牛价比面值高出的「实差价」是内在价值；而「离开唱还有三个月、说不定还会更火」的想象空间，就是时间价值。开唱那一刻，想象空间归零。',
         diagram: 'valueComposition',
         title: '内在价值与时间价值',
@@ -662,6 +691,7 @@ export const optionsCourse: Unit[] = [
       },
       {
         id: 'u3l3',
+        steps: u3l3StepsZh,
         analogy: '期权是你手里的冰淇淋：天气再好它也在化，而且越接近最后越化得快。买方拿着冰淇淋赛跑，卖方在终点收「融化费」。',
         diagram: 'timeDecay',
         title: '时间衰减',
