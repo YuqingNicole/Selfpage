@@ -1,4 +1,7 @@
 import type { Unit } from '../optionsCourse';
+import { u1l1StepsEn } from '../lesson-flows/u1l1';
+import { u1l2StepsEn } from '../lesson-flows/u1l2';
+import { u1l3StepsEn } from '../lesson-flows/u1l3';
 
 export const optionsEnU1U4 = {
   u1: {
@@ -11,6 +14,7 @@ export const optionsEnU1U4 = {
     lessons: [
       {
         id: 'u1l1',
+        steps: u1l1StepsEn,
         analogy:
           'An option is like putting down a deposit on a home purchase agreement: you pay a small deposit to lock in the house price. If prices surge later, you can still buy at the original price (exercise). If prices fall, you can simply walk away and only lose the deposit (the premium). But the developer or seller, after taking your deposit, must sell to you if you choose to buy.',
         diagram: 'buyerSeller',
@@ -87,6 +91,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u1l2',
+        steps: u1l2StepsEn,
         analogy:
           'An option contract is like a movie ticket: it tells you which theater it is for (the underlying asset), which showtime (expiration date), and what the seat price is (strike price), while the ticket price itself is the premium. Once the showtime has passed, the ticket is worthless.',
         title: 'The Four Core Contract Terms',
@@ -152,6 +157,7 @@ export const optionsEnU1U4 = {
       },
       {
         id: 'u1l3',
+        steps: u1l3StepsEn,
         analogy:
           'Buying stock is like buying the whole house outright—the house is yours indefinitely. Buying an option is like paying a small amount for the right to buy the house later at a fixed price. If house prices rise, that right becomes more valuable. If prices fall, you can simply walk away and only lose the deposit. But the right has an expiration date; the house does not.',
         diagram: 'stockVsCall',

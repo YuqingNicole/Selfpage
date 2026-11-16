@@ -4,14 +4,16 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type {
   ChoiceExercise,
-  Exercise,
+  ConceptStep,
   FillExercise,
   Lesson,
+  LessonStep,
   MatchExercise,
   TrueFalseExercise,
   Unit,
 } from '@/data/optionsCourse';
-import { MAX_HEARTS } from '@/data/optionsCourse';
+import { isGradedStep, MAX_HEARTS } from '@/data/optionsCourse';
+import { PayoffSliderView } from './PayoffSlider';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LessonDiagram } from './diagrams';
 import { sfx } from './sounds';
@@ -23,7 +25,8 @@ import { Mascot } from './Mascot';
 
 export interface SessionItem {
   key: string;
-  exercise: Exercise;
+  /** 经典题型，或新版课程流中的讲解步 / 互动题 */
+  exercise: LessonStep;
 }
 
 interface SessionCoreProps {
@@ -168,8 +171,10 @@ function SessionCore({
           <ExerciseView
             key={`${qIndex}-${queue.length}`}
             exercise={current.exercise}
+            color={color}
             locked={phase === 'feedback'}
             onAnswer={handleAnswer}
+            onContinue={handleContinue}
             onMatchDone={() => handleAnswer(true, lang === 'en' ? 'All pairs matched correctly!' : '全部配对成功！')}
           />
         )}
@@ -178,7 +183,7 @@ function SessionCore({
           <CompleteCard
             color={color}
             title={mistakes === 0 ? completePerfectTitle : completeTitle}
-            total={items.length}
+            total={items.filter((it) => isGradedStep(it.exercise)).length}
             xp={earnedXp}
             critBonus={critCount * CRIT_XP}
             maxCombo={maxCombo}
@@ -262,8 +267,13 @@ export function LessonPlayer({
   onCritBonus,
 }: LessonPlayerProps) {
   const { lang } = useLanguage();
-  const items = useMemo(
-    () => lesson.exercises.map((exercise, i) => ({ key: `${lesson.id}:${i}`, exercise })),
+  // 新版课程流：讲解与练习交错，不再先读一整墙知识卡片
+  const hasFlow = Boolean(lesson.steps?.length);
+  const items = useMemo<SessionItem[]>(
+    () =>
+      lesson.steps?.length
+        ? lesson.steps.map((exercise, i) => ({ key: `${lesson.id}:f${i}`, exercise }))
+        : lesson.exercises.map((exercise, i) => ({ key: `${lesson.id}:${i}`, exercise })),
     [lesson],
   );
   return (
@@ -272,7 +282,7 @@ export function LessonPlayer({
       color={unit.color}
       colorDark={unit.colorDark}
       useHearts
-      intro={(start) => (
+      intro={hasFlow ? undefined : (start) => (
         <TipsCard
           unit={unit}
           lesson={lesson}
@@ -399,16 +409,24 @@ function TipsCard({
 
 function ExerciseView({
   exercise,
+  color,
   locked,
   onAnswer,
+  onContinue,
   onMatchDone,
 }: {
-  exercise: Exercise;
+  exercise: LessonStep;
+  color: string;
   locked: boolean;
   onAnswer: (correct: boolean, explain: string) => void;
+  onContinue: () => void;
   onMatchDone: () => void;
 }) {
   switch (exercise.type) {
+    case 'concept':
+      return <ConceptView step={exercise} color={color} onContinue={onContinue} />;
+    case 'slider':
+      return <PayoffSliderView step={exercise} color={color} locked={locked} onAnswer={onAnswer} onContinue={onContinue} />;
     case 'choice':
       return <ChoiceView ex={exercise} locked={locked} onAnswer={onAnswer} />;
     case 'tf':
@@ -438,6 +456,59 @@ function optionClass(state: 'idle' | 'selected-right' | 'selected-wrong' | 'reve
   }
 }
 
+/* ---------- 等宽展示卡（报价行等） ---------- */
+
+function DisplayCard({ text, className = '' }: { text: string; className?: string }) {
+  return (
+    <div
+      className={`overflow-x-auto rounded-2xl border-2 border-[var(--border)] bg-[var(--muted)] px-4 py-3.5 text-center font-mono text-base font-bold tracking-wide sm:text-lg ${className}`}
+    >
+      <span className="whitespace-pre">{text}</span>
+    </div>
+  );
+}
+
+/* ---------- 讲解步（不计分） ---------- */
+
+function ConceptView({ step, color, onContinue }: { step: ConceptStep; color: string; onContinue: () => void }) {
+  const zh = /[\u4e00-\u9fff]/.test(step.title + step.body);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-1 flex-col justify-center py-8"
+    >
+      {step.kicker && (
+        <p className="mb-2 text-xs font-extrabold uppercase tracking-widest" style={{ color }}>
+          {step.kicker}
+        </p>
+      )}
+      <h2 className="mb-4 text-2xl font-extrabold leading-snug sm:text-3xl">{step.title}</h2>
+      <p className="whitespace-pre-line text-base leading-relaxed sm:text-lg">{step.body}</p>
+      {step.display && <DisplayCard text={step.display} className="mt-5" />}
+      {step.bullets && (
+        <ul className="mt-5 space-y-2.5">
+          {step.bullets.map((b, i) => (
+            <li key={i} className="flex gap-3 rounded-2xl border-2 border-[var(--border)] bg-[var(--card)] p-3.5 text-sm leading-relaxed sm:text-base">
+              <span className="font-extrabold" style={{ color }}>{i + 1}</span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {step.footer && <p className="mt-5 text-sm font-bold leading-relaxed text-[var(--muted-foreground)]">{step.footer}</p>}
+      <button
+        onClick={onContinue}
+        className="mt-8 w-full rounded-2xl border-b-4 py-4 text-lg font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2"
+        style={{ backgroundColor: color, borderColor: 'rgba(0,0,0,0.2)' }}
+      >
+        {zh ? '继续' : 'Continue'}
+      </button>
+    </motion.div>
+  );
+}
+
 /* ---------- 选择题 ---------- */
 
 function ChoiceView({
@@ -462,6 +533,7 @@ function ChoiceView({
       <p className="mb-1 text-sm font-bold text-[var(--muted-foreground)]">
         {/[\u4e00-\u9fff]/.test(ex.question) ? '选出正确答案' : 'Choose the correct answer'}
       </p>
+      {ex.display && <DisplayCard text={ex.display} className="mb-5" />}
       <h2 className="mb-6 text-xl font-extrabold sm:text-2xl">{ex.question}</h2>
       <div className="space-y-3">
         {ex.options.map((opt, i) => {
@@ -527,7 +599,7 @@ function TrueFalseView({
               onClick={() => pick(v)}
               className={`${optionClass(state)} text-center text-lg`}
             >
-              {/[^\x00-\x7F]/.test(ex.statement) ? (v ? '✅ 正确' : '❌ 错误') : v ? '✅ True' : '❌ False'}
+              {/[\u4e00-\u9fff]/.test(ex.statement) ? (v ? '✅ 正确' : '❌ 错误') : v ? '✅ True' : '❌ False'}
             </button>
           );
         })}

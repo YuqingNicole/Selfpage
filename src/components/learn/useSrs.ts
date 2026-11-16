@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { findLesson, type Exercise, type Lesson, type Unit } from '@/data/optionsCourse';
+import { findLesson, isClassicExercise, type Exercise, type Lesson, type Unit } from '@/data/optionsCourse';
 
 /**
  * 错题本 + 间隔重复（简化 Leitner 盒子）
@@ -56,8 +56,15 @@ function load(): SrsItems {
 /** 简单题的题号带 `s` 前缀（lessonId:s0），与进阶题（lessonId:0）区分，避免错题本串题。 */
 export const SIMPLE_KEY_PREFIX = 's';
 
-/** 按 key 的题号部分从课程里取题：`3` → exercises[3]，`s3` → simpleExercises[3] */
+/** 新版课程流的题号带 `f` 前缀（lessonId:f4 → steps[4]） */
+export const FLOW_KEY_PREFIX = 'f';
+
+/** 按 key 的题号部分从课程里取题：`3` → exercises[3]，`s3` → simpleExercises[3]，`f3` → steps[3]（仅经典题型入错题本） */
 export function exerciseForKey(lesson: Lesson, indexPart: string): Exercise | undefined {
+  if (indexPart.startsWith(FLOW_KEY_PREFIX)) {
+    const step = lesson.steps?.[Number(indexPart.slice(FLOW_KEY_PREFIX.length))];
+    return step && isClassicExercise(step) ? step : undefined;
+  }
   if (indexPart.startsWith(SIMPLE_KEY_PREFIX)) {
     return lesson.simpleExercises?.[Number(indexPart.slice(SIMPLE_KEY_PREFIX.length))];
   }
@@ -85,7 +92,7 @@ export function resolveKey(key: string): { exercise: Exercise; unit: Unit; lesso
 export function exerciseSummary(ex: Exercise): string {
   switch (ex.type) {
     case 'choice':
-      return ex.question;
+      return ex.display ? `${ex.display} — ${ex.question}` : ex.question;
     case 'tf':
       return ex.statement;
     case 'fill':
