@@ -4,17 +4,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   arbCourse,
-  arbLessonOrder,
-  arbTotalLessons,
   findLesson,
-  lessonOrder,
   optionsCourse,
-  totalLessons,
   type Lesson,
   type Unit,
 } from '@/data/optionsCourse';
 import { arbCourseEn, optionsCourseEn } from '@/data/optionsCourseEn';
-import { investCourse, investLessonOrder, investTotalLessons } from '@/data/investCourse';
+import { investCourse } from '@/data/investCourse';
 import { investCourseEn } from '@/data/investCourseEn';
 import { CASE_XP, DailyCase, loadCaseHistory, todayCase, todayCaseDone } from './DailyCase';
 import { INVEST_CASES, TAG_LABEL, type InvestCase } from '@/data/investCases';
@@ -25,7 +21,7 @@ import { Mascot } from './Mascot';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCourseProgress } from './useCourseProgress';
 import { LessonPlayer, ReviewSession, type SessionItem } from './LessonPlayer';
-import { exerciseSummary, useSrs } from './useSrs';
+import { exerciseForKey, exerciseSummary, SIMPLE_KEY_PREFIX, splitKey, useSrs } from './useSrs';
 import { StrategyLab } from './StrategyLab';
 import { ArbLab } from './ArbLab';
 import { SurvivalGame } from './SurvivalGame';
@@ -163,10 +159,12 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
       : effectiveLang === 'en'
         ? optionsCourseEn
         : optionsCourse;
-  const courseOrder = isInvest ? investLessonOrder : isArb ? arbLessonOrder : lessonOrder;
-  const courseTotal = isInvest ? investTotalLessons : isArb ? arbTotalLessons : totalLessons;
+  // 解锁顺序与总课数按当前语言的课程计算：英文版课程可能少于中文版，分母必须一致才能毕业。
+  const courseOrder = useMemo(() => course.flatMap((u) => u.lessons.map((l) => l.id)), [course]);
+  const courseTotal = courseOrder.length;
   // 投资学园提供一条更轻的入门路径，原题目仍保留为进阶版。
-  const displayCourse = isInvest && effectiveLang === 'zh' && simpleMode
+  const simpleOn = isInvest && effectiveLang === 'zh' && simpleMode;
+  const displayCourse = simpleOn
     ? course.map((unit) => ({
         ...unit,
         lessons: unit.lessons.map((lesson) => ({
@@ -192,6 +190,9 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
     return findLessonInCourse(displayCourse, activeLessonId) ?? (effectiveLang === 'en' ? findLessonInCourse(course, activeLessonId) : findLesson(activeLessonId));
   }, [activeLessonId, course, displayCourse, effectiveLang]);
   const completedCount = courseOrder.filter((id) => progress.completed.includes(id)).length;
+  const nextLessonId = courseOrder.find((id) => !progress.completed.includes(id)) ?? null;
+  const nextLesson = nextLessonId ? findLessonInCourse(displayCourse, nextLessonId) : null;
+  const completedInCourse = courseOrder.filter((id) => progress.completed.includes(id));
   const ui = effectiveLang === 'en'
     ? {
         title: 'Investing Academy',
@@ -432,7 +433,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
                   {daily.lesson ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Finish a lesson' : '学完一课'}
                 </span>
                 <span className={daily.review ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
-                  {daily.review ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Do a review' : '复习错题'}
+                  {daily.review ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Review mistakes or replay a lesson' : '复习错题 / 重温一课'}
                 </span>
                 <span className={daily.lab ? 'text-[#58a700]' : 'text-[var(--muted-foreground)]'}>
                   {daily.lab ? '✅' : '⬜'} {effectiveLang === 'en' ? 'Play a lab case' : '实验室跑一个案例'}
@@ -673,8 +674,8 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
             href: '/learn/options',
             zh: '🦉 期权篇',
             en: '🦉 Options Track',
-            zhDesc: '16 个单元的期权课：希腊字母、tastylive 机制、策略实验室与生存挑战。',
-            enDesc: '16 units of options: Greeks, tastylive mechanics, Strategy Lab and the Survival Challenge.',
+            zhDesc: `${optionsCourse.length} 个单元的期权课：希腊字母、tastylive 机制、技术面、策略实验室与生存挑战。`,
+            enDesc: `${optionsCourseEn.length} units of options: Greeks, tastylive mechanics, Strategy Lab and the Survival Challenge.`,
           },
           {
             key: 'arb',
@@ -757,8 +758,45 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
 
       {tab === 'review' && (
         <>
+      {/* 错题本为空：引导重温一课，仍可完成每日「复习」任务 */}
+      {loaded && srs.loaded && srsBook.length === 0 && (
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)]">
+          <div>
+            <p className="text-base font-extrabold">
+              📒 {effectiveLang === 'en' ? 'No mistakes to review' : '错题本是空的'}
+              {srs.masteredCount > 0 && (
+                <span className="ml-2 text-sm font-bold text-[#58a700]">
+                  {effectiveLang === 'en' ? `${srs.masteredCount} mastered` : `已掌握 ${srs.masteredCount} 道`}
+                </span>
+              )}
+            </p>
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+              {completedInCourse.length > 0
+                ? effectiveLang === 'en'
+                  ? 'Nice. Replaying any finished lesson also counts as today’s review.'
+                  : '干得漂亮。重温任意一节已学课程，同样算完成今天的复习任务。'
+                : effectiveLang === 'en'
+                  ? 'Finish your first lesson — missed questions will show up here.'
+                  : '先学完第一课，答错的题会自动收进这里。'}
+            </p>
+          </div>
+          {completedInCourse.length > 0 && (
+            <button
+              onClick={() => {
+                const id = completedInCourse[Math.floor(Math.random() * completedInCourse.length)];
+                track('review_replay_open', { lesson: id, variant });
+                setActiveLessonId(id);
+              }}
+              className="rounded-2xl border-b-4 border-[#c47f00] bg-[#f59f00] px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-[#ffab0f] active:translate-y-0.5 active:border-b-2"
+            >
+              {effectiveLang === 'en' ? 'Replay a lesson' : '随机重温一课'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* 错题本 · 间隔重复 */}
-      {loaded && srs.loaded && (srsBook.length > 0 || srs.masteredCount > 0) && (
+      {loaded && srs.loaded && srsBook.length > 0 && (
         <div className="mb-10 rounded-3xl border-2 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)] border-[#f59f00] bg-[var(--card)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -779,11 +817,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
             <button
               onClick={() => {
                 const pool = [...srsDue, ...srsBook.filter((t) => !srsDue.includes(t))].slice(0, 10);
-                const items = pool.map(({ key, exercise }) => {
-                  const sep = key.lastIndexOf(':');
-                  const found = findLessonInCourse(course, key.slice(0, sep));
-                  return { key, exercise: found?.lesson.exercises[Number(key.slice(sep + 1))] ?? exercise };
-                });
+                const items = pool.map(({ key, exercise }) => ({ key, exercise: localizedExercise(course, key) ?? exercise }));
                 setReviewItems(items);
               }}
               disabled={srsBook.length === 0}
@@ -809,11 +843,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
               </summary>
               <ul className="mt-2 space-y-2">
                 {srsBook.map((t) => {
-                  const sep = t.key.lastIndexOf(':');
-                  const localized =
-                    findLessonInCourse(course, t.key.slice(0, sep))?.lesson.exercises[
-                      Number(t.key.slice(sep + 1))
-                    ] ?? t.exercise;
+                  const localized = localizedExercise(course, t.key) ?? t.exercise;
                   return (
                     <li
                       key={t.key}
@@ -870,6 +900,43 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
               ✕
             </button>
           </div>
+        </div>
+      )}
+
+      {/* 继续学习：直达下一课，不用在长地图里找 */}
+      {loaded && nextLesson && completedCount > 0 && (
+        <div
+          className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-3xl border-2 bg-[var(--card)] p-5 shadow-[0_6px_24px_-10px_rgba(0,0,0,0.18)]"
+          style={{ borderColor: nextLesson.unit.color }}
+        >
+          <div className="min-w-0">
+            <p className="text-xs font-extrabold uppercase tracking-wide" style={{ color: nextLesson.unit.color }}>
+              {effectiveLang === 'en' ? 'Continue learning' : '继续学习'} · {completedCount}/{courseTotal}
+            </p>
+            <p className="mt-1 truncate text-base font-extrabold">
+              <span aria-hidden>{nextLesson.unit.icon}</span> {nextLesson.lesson.title}
+            </p>
+            <button
+              onClick={() =>
+                document
+                  .getElementById(`lesson-${nextLesson.lesson.id}`)
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }
+              className="mt-1 truncate text-left text-xs font-bold text-[var(--muted-foreground)] underline-offset-4 hover:underline"
+            >
+              {nextLesson.unit.title} · {effectiveLang === 'en' ? 'show on map ↓' : '在地图中定位 ↓'}
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              track('continue_click', { lesson: nextLesson.lesson.id, variant });
+              setActiveLessonId(nextLesson.lesson.id);
+            }}
+            className="rounded-2xl border-b-4 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-white transition hover:brightness-110 active:translate-y-0.5 active:border-b-2"
+            style={{ backgroundColor: nextLesson.unit.color, borderColor: nextLesson.unit.colorDark }}
+          >
+            {effectiveLang === 'en' ? 'Continue' : '继续'}
+          </button>
         </div>
       )}
 
@@ -1161,22 +1228,35 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
           developerMode={progress.developerMode}
           onExit={() => setActiveLessonId(null)}
           onComplete={(perfectRun) => {
+            const wasReplay = progress.completed.includes(active.lesson.id);
             const xp = completeLesson(active.lesson.id, perfectRun);
             track('lesson_complete', { lesson: active.lesson.id, perfect: perfectRun, variant });
             markDaily('lesson');
+            // 重温已学课程也算复习：错题本清空的用户同样能完成每日任务
+            if (wasReplay) markDaily('review');
             awardBadge('first_lesson');
             if (perfectRun) awardBadge('perfect_lesson');
             if (new Date().getHours() < 5) awardBadge('night_owl');
+            // 毕业只看当前这门课：三门课共用进度存储，不能用总完成数判断
+            if (courseOrder.every((id) => id === active.lesson.id || progress.completed.includes(id))) {
+              awardBadge('graduate');
+            }
             try {
               const p = JSON.parse(localStorage.getItem('options-course-progress-v1') ?? '{}');
               if ((p.streak ?? 0) >= 7) awardBadge('streak_7');
-              if ((p.completed?.length ?? 0) >= totalLessons) awardBadge('graduate');
             } catch {
               /* ignore */
             }
             return xp;
           }}
-          onExerciseResult={srs.recordResult}
+          onExerciseResult={
+            simpleOn && active.lesson.simpleExercises?.length
+              ? (key, correct) => {
+                  const parts = splitKey(key);
+                  srs.recordResult(parts ? `${parts.lessonId}:${SIMPLE_KEY_PREFIX}${parts.indexPart}` : key, correct);
+                }
+              : srs.recordResult
+          }
           onCritBonus={(bonus) => grantReward(bonus)}
         />
       )}
@@ -1328,6 +1408,14 @@ function ChestRevealOverlay({
   );
 }
 
+/** 按错题 key 从当前语言的课程中取题（含简单题 `s` 前缀） */
+function localizedExercise(course: Unit[], key: string) {
+  const parts = splitKey(key);
+  if (!parts) return undefined;
+  const found = findLessonInCourse(course, parts.lessonId);
+  return found ? exerciseForKey(found.lesson, parts.indexPart) : undefined;
+}
+
 function findLessonInCourse(course: Unit[], lessonId: string): { unit: Unit; lesson: Lesson; index: number } | null {
   for (const unit of course) {
     const index = unit.lessons.findIndex((lesson) => lesson.id === lessonId);
@@ -1432,7 +1520,8 @@ function LessonNode({
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: '-20px' }}
       transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-      className={`relative flex flex-col items-center transition-transform ${className}`}
+      id={`lesson-${lesson.id}`}
+      className={`relative flex scroll-mt-40 flex-col items-center transition-transform ${className}`}
     >
       {isNext && (
         <div

@@ -53,14 +53,30 @@ function load(): SrsItems {
   }
 }
 
-/** 题目 key（lessonId:题目序号）→ 题目与所属课程 */
-export function resolveKey(key: string): { exercise: Exercise; unit: Unit; lesson: Lesson } | null {
+/** 简单题的题号带 `s` 前缀（lessonId:s0），与进阶题（lessonId:0）区分，避免错题本串题。 */
+export const SIMPLE_KEY_PREFIX = 's';
+
+/** 按 key 的题号部分从课程里取题：`3` → exercises[3]，`s3` → simpleExercises[3] */
+export function exerciseForKey(lesson: Lesson, indexPart: string): Exercise | undefined {
+  if (indexPart.startsWith(SIMPLE_KEY_PREFIX)) {
+    return lesson.simpleExercises?.[Number(indexPart.slice(SIMPLE_KEY_PREFIX.length))];
+  }
+  return lesson.exercises[Number(indexPart)];
+}
+
+/** 拆分题目 key：lessonId + 题号部分 */
+export function splitKey(key: string): { lessonId: string; indexPart: string } | null {
   const sep = key.lastIndexOf(':');
   if (sep === -1) return null;
-  const lessonId = key.slice(0, sep);
-  const index = Number(key.slice(sep + 1));
-  const found = findLesson(lessonId);
-  const exercise = found?.lesson.exercises[index];
+  return { lessonId: key.slice(0, sep), indexPart: key.slice(sep + 1) };
+}
+
+/** 题目 key（lessonId:题目序号）→ 题目与所属课程 */
+export function resolveKey(key: string): { exercise: Exercise; unit: Unit; lesson: Lesson } | null {
+  const parts = splitKey(key);
+  if (!parts) return null;
+  const found = findLesson(parts.lessonId);
+  const exercise = found ? exerciseForKey(found.lesson, parts.indexPart) : undefined;
   if (!found || !exercise) return null;
   return { exercise, unit: found.unit, lesson: found.lesson };
 }
