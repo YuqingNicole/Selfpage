@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '微信文章（标题待核实）',
+    author: '作者待核实',
+    url: 'https://mp.weixin.qq.com/s/R3HWvNXA5Sum2eqk6Yzbdw',
+    description: '先保存原文链接；标题、作者和正文尚未核实，摘要待补。',
+  },
+  {
     title: '给字节跳动等公司的一点建议｜免费newsletter（085）',
     author: '方可成 / 新闻实验室',
     url: 'https://newsletter.newslab.info/to-tech-giants-of-china/',
