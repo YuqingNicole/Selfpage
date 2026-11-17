@@ -7,10 +7,10 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
-    title: '微信文章（标题待核实）',
+    title: 'AI 写的东西越来越难懂，Gemini 是怎么做到「说人话」的？｜Hao好聊趋势',
     author: '作者待核实',
     url: 'https://mp.weixin.qq.com/s/R3HWvNXA5Sum2eqk6Yzbdw',
-    description: '先保存原文链接；标题、作者和正文尚未核实，摘要待补。',
+    description: '标题由 Nicole 提供；先保存原文链接，作者和正文尚未核实，摘要待补。',
   },
   {
     title: '给字节跳动等公司的一点建议｜免费newsletter（085）',
