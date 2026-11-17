@@ -35,6 +35,18 @@ import { i11l3StepsEn } from './lesson-flows/i11l3';
 import { i12l1StepsEn } from './lesson-flows/i12l1';
 import { i12l2StepsEn } from './lesson-flows/i12l2';
 import { i12l3StepsEn } from './lesson-flows/i12l3';
+import { i13l1StepsEn } from './lesson-flows/i13l1';
+import { i13l2StepsEn } from './lesson-flows/i13l2';
+import { i13l3StepsEn } from './lesson-flows/i13l3';
+import { i14l1StepsEn } from './lesson-flows/i14l1';
+import { i14l2StepsEn } from './lesson-flows/i14l2';
+import { i14l3StepsEn } from './lesson-flows/i14l3';
+import { i15l1StepsEn } from './lesson-flows/i15l1';
+import { i15l2StepsEn } from './lesson-flows/i15l2';
+import { i15l3StepsEn } from './lesson-flows/i15l3';
+import { i16l1StepsEn } from './lesson-flows/i16l1';
+import { i16l2StepsEn } from './lesson-flows/i16l2';
+import { i16l3StepsEn } from './lesson-flows/i16l3';
 
 /** Investing Academy — Judgment track L1 (Market Language), English mirror of investCourse.ts */
 
@@ -1910,6 +1922,7 @@ investCourseEn.push(
       {
         id: 'i13l1',
         title: 'The filing map: what to read first',
+        steps: i13l1StepsEn,
         tips: [
           'Three documents, three jobs: the 10-K (annual, most complete), the 10-Q (quarterly, for marginal change), the 8-K (immediate disclosure — executive exits, M&A, guidance changes land here first).',
           'The 20-minute route: ① segment data (which business grows, which rots) → ② MD&A (diffed against last quarter) → ③ cash flow statement (reconciled against profit) → ④ footnotes (at minimum scan revenue recognition and debt).',
@@ -1955,6 +1968,7 @@ investCourseEn.push(
       {
         id: 'i13l2',
         title: 'MD&A and footnotes: where bodies are buried',
+        steps: i13l2StepsEn,
         tips: [
           'The MD&A is where management is legally required to explain the numbers — the move is not to read it once but to diff it against last quarter: which excuses appeared, which boasts vanished.',
           'Footnotes are the crime scene: revenue-recognition changes, off-balance-sheet liabilities, contingencies and related-party deals live here. Enron’s SPEs hid in the footnotes.',
@@ -2002,6 +2016,7 @@ investCourseEn.push(
       {
         id: 'i13l3',
         title: 'Cross-examining the three statements',
+        steps: i13l3StepsEn,
         tips: [
           'Three statements describe one company and must tell one story: the income statement claims profit → the cash flow statement should show collection → the balance sheet’s retained earnings should thicken. Mismatches are the finding.',
           'Classic lie-detector pair ①: net income rising for years while operating cash flow treads water → interrogate receivables and inventory (the reconciliation version of L1 cash + L2 red flags).',
@@ -2064,6 +2079,7 @@ investCourseEn.push(
       {
         id: 'i14l1',
         title: 'Anatomy of a one-sentence thesis',
+        steps: i14l1StepsEn,
         tips: [
           'A qualified thesis has four parts in one sentence: target + direction + core logic + time horizon. Example: "Over 2–3 years the market underprices Costco’s fee-hike headroom and renewal stickiness; it deserves an above-market multiple (long)."',
           '"Buy it because it will go up" is not a thesis — it is a tautology. "AI is the future" is not a thesis — it is a slogan: it cannot be refuted, so it cannot be verified.',
@@ -2116,6 +2132,7 @@ investCourseEn.push(
       {
         id: 'i14l2',
         title: 'Grading evidence: not all information is equal',
+        steps: i14l2StepsEn,
         tips: [
           'Evidence has ranks: primary data (filings, orders, channel checks, your own math) > management statements (interested party) > sell-side research (business relationships) > media/KOL sentiment (a sentiment gauge, not evidence).',
           'The three-independent-pieces rule: a thesis needs at least three mutually independent supports — "three KOLs are all bullish" is not three pieces, it is one sentiment echoed thrice.',
@@ -2166,6 +2183,7 @@ investCourseEn.push(
       {
         id: 'i14l3',
         title: 'Conviction and position size',
+        steps: i14l3StepsEn,
         tips: [
           'Position size is the price tag on conviction: stronger chains and better odds justify larger size; "just a small punt" usually means no thesis was written at all.',
           'Kelly intuition: bet bigger with bigger edges, but never bet everything — your estimate of the edge is itself uncertain. Professionals often run half-Kelly, then halve again.',
@@ -2228,6 +2246,7 @@ investCourseEn.push(
       {
         id: 'i15l1',
         title: 'Pre-commit the falsifier',
+        steps: i15l1StepsEn,
         tips: [
           'Before buying, write: "If ___ happens, my thesis is wrong, and I will ___." The more concrete the blanks, the less your future self gets hijacked by emotion.',
           'A qualified falsifier has three parts: specific (metric + threshold), observable (public data), deadlined. "Sell if fundamentals deteriorate" fails; "renewal rate below 90% for two straight quarters" qualifies (the Costco case).',
@@ -2280,6 +2299,7 @@ investCourseEn.push(
       {
         id: 'i15l2',
         title: 'Two kinds of stops',
+        steps: i15l2StepsEn,
         tips: [
           'The thesis stop: exit when the falsifier triggers, regardless of price — even in profit. It protects the integrity of your judgment system.',
           'The price stop: cut when losses hit a preset level, regardless of thesis — even if the story still looks fine. It protects survival (capital and psyche).',
@@ -2332,6 +2352,7 @@ investCourseEn.push(
       {
         id: 'i15l3',
         title: 'Self-defense against cognitive biases',
+        steps: i15l3StepsEn,
         tips: [
           'The four most expensive biases: sunk cost ("down too much to sell now"), anchoring (staring at your cost basis instead of the company’s value), the disposition effect (rushing to sell winners, entombing losers), and narrative self-reinforcement (the longer held, the more only positives register).',
           'Your cost basis is your private business — the market neither knows nor cares. The only correct question: "If I held cash today, would I buy this at this price with this information?" If not, sell.',
@@ -2392,6 +2413,7 @@ investCourseEn.push(
       {
         id: 'i16l1',
         title: 'Review the decision, not the outcome',
+        steps: i16l1StepsEn,
         tips: [
           'Outcome = decision quality × luck. Grading yourself by P&L alone makes luck your report card — poker players call it "resulting", the post-mortem’s enemy number one.',
           'The four quadrants: good decision/good outcome (deserved), good decision/bad outcome (bad luck — repeat the decision), bad decision/good outcome (the most dangerous — a fluke gets archived as skill), bad decision/bad outcome (deserved, but at least the lesson is clean).',
@@ -2444,6 +2466,7 @@ investCourseEn.push(
       {
         id: 'i16l2',
         title: 'The five-question template',
+        steps: i16l2StepsEn,
         tips: [
           'The five questions: ① what was the thesis (copy the original text — no paraphrasing) ② what actually happened ③ where was the expectations gap ④ which framework link failed (L3’s four-part diagnosis: expectations/ruler/margin/narrative — or L4’s: evidence/sizing/falsifier execution) ⑤ the specific fix for next time.',
           'Question ④ is the heart: a loss must be located to a specific link — misgraded evidence (KOL counted as primary)? Falsifier not executed? Size-conviction mismatch? "Bad luck" is not a qualified answer.',
@@ -2496,6 +2519,7 @@ investCourseEn.push(
       {
         id: 'i16l3',
         title: 'The cognition profile: graduation and beyond',
+        steps: i16l3StepsEn,
         tips: [
           'Single reviews see trees; the cognition profile sees the forest: aggregate your Daily Case accuracy, memo hit rate and reviews into data, and your judgment style emerges — where are you accurate? Systematically optimistic, or a consensus-hugger?',
           'Style bias is the most valuable self-knowledge: 80% accuracy on earnings cases but 40% on macro means macro judgments deserve systematically lower weight — concentrate ammunition in your hitting zone.',
