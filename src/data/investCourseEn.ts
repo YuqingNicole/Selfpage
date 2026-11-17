@@ -23,6 +23,18 @@ import { i7l3StepsEn } from './lesson-flows/i7l3';
 import { i8l1StepsEn } from './lesson-flows/i8l1';
 import { i8l2StepsEn } from './lesson-flows/i8l2';
 import { i8l3StepsEn } from './lesson-flows/i8l3';
+import { i9l1StepsEn } from './lesson-flows/i9l1';
+import { i9l2StepsEn } from './lesson-flows/i9l2';
+import { i9l3StepsEn } from './lesson-flows/i9l3';
+import { i10l1StepsEn } from './lesson-flows/i10l1';
+import { i10l2StepsEn } from './lesson-flows/i10l2';
+import { i10l3StepsEn } from './lesson-flows/i10l3';
+import { i11l1StepsEn } from './lesson-flows/i11l1';
+import { i11l2StepsEn } from './lesson-flows/i11l2';
+import { i11l3StepsEn } from './lesson-flows/i11l3';
+import { i12l1StepsEn } from './lesson-flows/i12l1';
+import { i12l2StepsEn } from './lesson-flows/i12l2';
+import { i12l3StepsEn } from './lesson-flows/i12l3';
 
 /** Investing Academy — Judgment track L1 (Market Language), English mirror of investCourse.ts */
 
@@ -1223,6 +1235,7 @@ investCourseEn.push(
       {
         id: 'i9l1',
         title: 'Priced in: good news that sells off',
+        steps: i9l1StepsEn,
         tips: [
           'A stock price is not a grade on reality — it is a quote on the expected future. Good news everyone anticipated is already in the price.',
           'Hence "beat and fall": the report beat the official estimate but missed the market’s private, higher bar (the whisper number).',
@@ -1270,6 +1283,7 @@ investCourseEn.push(
       {
         id: 'i9l2',
         title: 'The expectations gap: the market’s only fuel',
+        steps: i9l2StepsEn,
         tips: [
           'Prices are never moved by "good or bad" — only by the gap versus expectations. Terrible results above panic expectations rally; great results below euphoric expectations fall.',
           'Live case A: in mid-2022 many companies posted ugly quarters, but with recession already priced, "less bad than feared" itself became the bullish catalyst.',
@@ -1322,6 +1336,7 @@ investCourseEn.push(
       {
         id: 'i9l3',
         title: 'Reverse engineering: what does the price assume',
+        steps: i9l3StepsEn,
         tips: [
           'The advanced move is not predicting the future but reverse-engineering the assumptions in today’s price — then judging those assumptions.',
           'Rough demo: a stock at 50× earnings against a 20× market implies far-above-average profit growth for years. If your evidence says growth can’t carry that, you finally have grounds for a judgment.',
@@ -1384,6 +1399,7 @@ investCourseEn.push(
       {
         id: 'i10l1',
         title: 'The Davis double play',
+        steps: i10l1StepsEn,
         tips: [
           'Price = earnings (EPS) × multiple (P/E). Two engines that can fire — or stall — together.',
           'Davis double play: profits grow while the multiple the market will pay expands → the stock far outruns the profits. Microsoft 2013–2021: profit roughly 2×, P/E from ~10× to ~35×, stock ~10×.',
@@ -1436,6 +1452,7 @@ investCourseEn.push(
       {
         id: 'i10l2',
         title: 'Ruler-switch moments',
+        steps: i10l2StepsEn,
         tips: [
           'Different life stages get different rulers: unprofitable growth → P/S; stable earners → P/E; heavy-asset cyclicals → P/B; mature cash cows → FCF yield and dividends.',
           'The switch itself is the trade: 2020–21 priced growth on P/S and stories; after rates rose in 2022 the market switched back to FCF and earnings — same company, new ruler, -70%.',
@@ -1485,6 +1502,7 @@ investCourseEn.push(
       {
         id: 'i10l3',
         title: 'Anchors and contagion',
+        steps: i10l3StepsEn,
         tips: [
           'Markets price individual stocks against anchors: peer multiples, sector averages, the leader’s valuation. Move the anchor and the whole sector reprices.',
           'Contagion, live: the night of Nvidia’s 2023 guidance, AMD, Broadcom, TSMC and even Micron jumped without news of their own — the leader’s repricing lifted every anchor in the sector.',
@@ -1547,6 +1565,7 @@ investCourseEn.push(
       {
         id: 'i11l1',
         title: 'Second-derivative thinking',
+        steps: i11l1StepsEn,
         tips: [
           'Markets care far more about the direction of change than the level: 8% inflation falling beats 4% inflation accelerating.',
           'Live: November 2022, CPI came off the 9.1% peak to 7.7% — still dreadful, but the turn itself sent the Nasdaq up 7.4% in a day, its biggest session in two years.',
@@ -1599,6 +1618,7 @@ investCourseEn.push(
       {
         id: 'i11l2',
         title: 'Spotting turns: QoQ, inventory, guidance',
+        steps: i11l2StepsEn,
         tips: [
           'Turns hide in the sequential (QoQ) numbers: YoY still falling while QoQ improves for two straight quarters is often the earliest filed evidence of a cycle turn.',
           'Inventory-cycle turn signal (callback to L2): channel inventory peaking and rolling over + producer cuts done = the start of the next price upcycle. Memory chips ran exactly this script in late 2023.',
@@ -1651,6 +1671,7 @@ investCourseEn.push(
       {
         id: 'i11l3',
         title: 'Marginal pricing: who is trading right now',
+        steps: i11l3StepsEn,
         tips: [
           'Price is set by the marginal trader: not a vote of all holders, but the handful willing to buy or forced to sell right now.',
           'So positioning is the hidden short-term variable: when everyone bullish is already fully invested (a crowded trade), good news finds no incremental buyer; when every seller has sold, bad news stops working — the microstructure behind "priced in".',
@@ -1713,6 +1734,7 @@ investCourseEn.push(
       {
         id: 'i12l1',
         title: 'Narrative lifecycles and reflexivity',
+        steps: i12l1StepsEn,
         tips: [
           'Every big move rides a dominant narrative, and narratives have lifecycles: germination (a few researchers) → diffusion (media relay) → consensus (everyone knows) → mania (everything gets the label) → falsification or fulfillment.',
           'The AI narrative germinated late 2022 (ChatGPT), reached consensus in May 2023 (Nvidia night), then entered "everything is AI" diffusion. Locating your position on the curve beats debating whether the narrative is true.',
@@ -1767,6 +1789,7 @@ investCourseEn.push(
       {
         id: 'i12l2',
         title: 'Auditing the narrative with numbers',
+        steps: i12l2StepsEn,
         tips: [
           'Narratives explain why it rose; numbers verify whether it should have. Periodically reconciling story against filings is the only defense against being imprisoned by a story.',
           'The audit kit: story says demand explosion → check revenue and order growth; story says improving competitive structure → check gross margin and share; story says giant future → check whether capex/R&D money is real.',
@@ -1817,6 +1840,7 @@ investCourseEn.push(
       {
         id: 'i12l3',
         title: 'Full integration: reading the market once, properly',
+        steps: i12l3StepsEn,
         tips: [
           'Assemble L3 into one checklist. The four-part diagnosis of "great results, falling stock": ① expectations already full (priced in) ② multiple compressing (ruler/rates) ③ margin weakening (growth’s second derivative negative) ④ narrative rotating (the market changed its main story).',
           'The mirror — "terrible results, rising stock": ① panic expectations cleared ② a kinder ruler adopted ③ deterioration decelerating ④ a new narrative germinating. Both sides run the same framework.',

@@ -23,6 +23,18 @@ import { i7l3StepsZh } from './lesson-flows/i7l3';
 import { i8l1StepsZh } from './lesson-flows/i8l1';
 import { i8l2StepsZh } from './lesson-flows/i8l2';
 import { i8l3StepsZh } from './lesson-flows/i8l3';
+import { i9l1StepsZh } from './lesson-flows/i9l1';
+import { i9l2StepsZh } from './lesson-flows/i9l2';
+import { i9l3StepsZh } from './lesson-flows/i9l3';
+import { i10l1StepsZh } from './lesson-flows/i10l1';
+import { i10l2StepsZh } from './lesson-flows/i10l2';
+import { i10l3StepsZh } from './lesson-flows/i10l3';
+import { i11l1StepsZh } from './lesson-flows/i11l1';
+import { i11l2StepsZh } from './lesson-flows/i11l2';
+import { i11l3StepsZh } from './lesson-flows/i11l3';
+import { i12l1StepsZh } from './lesson-flows/i12l1';
+import { i12l2StepsZh } from './lesson-flows/i12l2';
+import { i12l3StepsZh } from './lesson-flows/i12l3';
 
 /**
  * 投资学园 — 判断框架主线（L1 看懂市场语言）
@@ -1227,6 +1239,7 @@ investCourse.push(
       {
         id: 'i9l1',
         title: 'Priced in：利好出尽是利空',
+        steps: i9l1StepsZh,
         tips: [
           '股价不是对现实的打分，是对「预期中的未来」的报价。已经被普遍预期的好消息，早就装进价格里了（priced in）。',
           '所以「业绩超预期还下跌」很常见：财报只是超过了官方预期，没超过市场私下的更高预期（whisper number，耳语数字）。',
@@ -1274,6 +1287,7 @@ investCourse.push(
       {
         id: 'i9l2',
         title: '预期差：行情的唯一燃料',
+        steps: i9l2StepsZh,
         tips: [
           '推动价格的从来不是「好坏」，而是「与预期的差」。烂业绩若好于恐慌预期照样大涨，好业绩不及乐观预期照样大跌。',
           '实景 A：2022 年 Q2 很多公司财报很差，但因为市场已提前定价衰退，「没那么差」本身成了利好，股价反弹。',
@@ -1326,6 +1340,7 @@ investCourse.push(
       {
         id: 'i9l3',
         title: '反推：从价格倒算市场的假设',
+        steps: i9l3StepsZh,
         tips: [
           '高级玩法不是预测未来，而是反推「当前价格隐含了什么假设」，再判断这个假设靠不靠谱。',
           '粗算示范：一家公司 50 倍 P/E、市场平均 20 倍，粗略说市场在假设它未来利润增速远超平均——若你判断增长撑不起这个假设，才有做出判断的立足点。',
@@ -1388,6 +1403,7 @@ investCourse.push(
       {
         id: 'i10l1',
         title: '戴维斯双击：利润与倍数的共振',
+        steps: i10l1StepsZh,
         tips: [
           '股价 = 利润（EPS）× 倍数（P/E）。两个引擎可以同时点火，也可以同时熄火。',
           '戴维斯双击：利润增长 + 市场愿付倍数抬升 → 股价涨幅远超利润涨幅。微软 2013-2021：利润约翻 2 倍，P/E 从约 10 倍升到 35 倍，股价十倍。',
@@ -1440,6 +1456,7 @@ investCourse.push(
       {
         id: 'i10l2',
         title: '换尺时刻：市场用哪把尺子量你',
+        steps: i10l2StepsZh,
         tips: [
           '不同阶段的公司用不同的尺：亏损高成长用 P/S（市销率），盈利稳定用 P/E，重资产周期用 P/B，成熟现金牛看 FCF 收益率和股息。',
           '「换尺」本身就是行情：2020-21 市场用 P/S 和「故事」给成长股定价；2022 年利率上行后集体换回「FCF 和盈利」的尺——同一家公司，换把尺子直接跌 70%。',
@@ -1489,6 +1506,7 @@ investCourse.push(
       {
         id: 'i10l3',
         title: '锚与传染：相对估值的引力场',
+        steps: i10l3StepsZh,
         tips: [
           '市场给个股定价时大量使用「锚」：同行倍数、板块均值、龙头的估值。锚变了，整个板块跟着重估。',
           '估值传染实景：2023 年英伟达指引之夜，AMD、博通、台积电乃至美光集体大涨——龙头重估瞬间抬高了全板块的锚。',
@@ -1551,6 +1569,7 @@ investCourse.push(
       {
         id: 'i11l1',
         title: '二阶导思维：恶化减速就是利好',
+        steps: i11l1StepsZh,
         tips: [
           '市场对「变化的方向」远比对「水平的高低」敏感：通胀 8% 但在回落，比通胀 4% 但在加速，对股市友好得多。',
           '实景：2022 年 11 月 CPI 从 9.1% 峰值回落到 7.7%——通胀仍然极高，但「拐头」本身让纳指单日暴涨 7.4%，创两年最大单日涨幅。',
@@ -1603,6 +1622,7 @@ investCourse.push(
       {
         id: 'i11l2',
         title: '拐点识别：环比、库存与指引',
+        steps: i11l2StepsZh,
         tips: [
           '拐点藏在环比（QoQ）里：同比还在下滑、环比已连续两季改善，往往就是周期拐点的最早财报证据。',
           '库存周期的拐点信号（回扣 L2）：渠道库存见顶回落 + 厂商减产到位 = 下一轮涨价的起点。存储芯片 2023 年底的反转就是这个剧本。',
@@ -1655,6 +1675,7 @@ investCourse.push(
       {
         id: 'i11l3',
         title: '边际定价：谁在此刻买卖',
+        steps: i11l3StepsZh,
         tips: [
           '价格由「边际交易者」决定：不是所有持有人投票，而是此刻愿意买/被迫卖的那一小撮人定价。',
           '所以仓位结构是短期行情的隐藏变量：当「该买的人都买满了」（拥挤交易），利好也无人接盘；当「该卖的人都卖光了」，利空也砸不动——这是「利好出尽/利空出尽」的微观结构解释。',
@@ -1717,6 +1738,7 @@ investCourse.push(
       {
         id: 'i12l1',
         title: '叙事的生命周期与反身性',
+        steps: i12l1StepsZh,
         tips: [
           '大行情几乎都伴随一个主导叙事，且叙事有生命周期：萌芽（少数人）→ 扩散（媒体接力）→ 共识（人人皆知）→ 狂热（万物皆可蹭）→ 证伪或兑现。',
           'AI 叙事 2022 年底萌芽（ChatGPT）、2023 年5 月共识化（英伟达之夜）、随后进入「万物皆 AI」的扩散期——识别自己身处哪一段，比判断叙事真假更实用。',
@@ -1771,6 +1793,7 @@ investCourse.push(
       {
         id: 'i12l2',
         title: '给叙事对账：数字是叙事的审计师',
+        steps: i12l2StepsZh,
         tips: [
           '叙事负责解释「为什么涨」，数字负责验证「该不该涨」。定期用财报给持仓的叙事对账，是防止被故事困住的唯一办法。',
           '对账三件套：叙事说需求爆发 → 查收入和订单增速；叙事说格局优化 → 查毛利率与份额；叙事说未来巨大 → 查投入（Capex/研发）是否真金白银。',
@@ -1821,6 +1844,7 @@ investCourse.push(
       {
         id: 'i12l3',
         title: '合体演练：完整读一次市场',
+        steps: i12l3StepsZh,
         tips: [
           '把 L3 四个单元合成一张检查单。「业绩很好但股价跌」的四联诊断：① 预期已满（priced in）② 倍数收缩（换尺/利率）③ 边际转弱（增速二阶导为负）④ 叙事切换（市场换了主线故事）。',
           '镜像「业绩很差但股价涨」：① 恐慌预期已出清 ② 换上了更宽容的尺 ③ 恶化在减速 ④ 新叙事萌芽。买卖双方用的是同一套框架的两面。',
