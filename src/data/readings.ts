@@ -7,6 +7,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: 'AI 写的东西越来越难懂，Gemini 是怎么做到「说人话」的？｜Hao好聊趋势',
+    author: '作者待核实',
+    url: 'https://mp.weixin.qq.com/s/R3HWvNXA5Sum2eqk6Yzbdw',
+    description: '标题由 Nicole 提供；先保存原文链接，作者和正文尚未核实，摘要待补。',
+  },
+  {
     title: '给字节跳动等公司的一点建议｜免费newsletter（085）',
     author: '方可成 / 新闻实验室',
     url: 'https://newsletter.newslab.info/to-tech-giants-of-china/',
