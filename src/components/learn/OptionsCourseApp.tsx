@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ChartTrail, JudgmentTicker, TRAIL_ROW, trailOffsets } from './ChartTrail';
 import {
   arbCourse,
   findLesson,
@@ -940,6 +941,17 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
         </div>
       )}
 
+      {/* 判断力指数（判断主线的走势图地图） */}
+      {isInvest && loaded && (
+        <JudgmentTicker
+          units={displayCourse}
+          completed={progress.completed}
+          perfect={progress.perfect}
+          streak={streakAlive ? progress.streak : 0}
+          lang={effectiveLang}
+        />
+      )}
+
       {/* 每日一案（判断主线） */}
       {dailyCaseCard}
 
@@ -1026,6 +1038,7 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
               isUnlocked={isUnlocked}
               onOpen={(id) => { track('lesson_start', { lesson: id, variant }); setActiveLessonId(id); }}
               lang={effectiveLang}
+              chart={isInvest}
             />
             {BOSSES.filter((b) => b.unitIds[b.unitIds.length - 1] === unit.id).map((b) => {
               const unlocked = chapterDone(b.unitIds);
@@ -1433,6 +1446,7 @@ function UnitSection({
   isUnlocked,
   onOpen,
   lang,
+  chart = false,
 }: {
   unit: Unit;
   completed: string[];
@@ -1440,6 +1454,8 @@ function UnitSection({
   isUnlocked: (id: string) => boolean;
   onOpen: (id: string) => void;
   lang: 'en' | 'zh';
+  /** 投资主线：关卡沿走势图小路排布 */
+  chart?: boolean;
 }) {
   const unitDone = unit.lessons.every((l) => completed.includes(l.id));
 
@@ -1468,7 +1484,32 @@ function UnitSection({
         </div>
       </div>
 
+      {/* 走势图小路（投资主线） */}
+      {chart && (
+        <div className="relative" style={{ height: unit.lessons.length * TRAIL_ROW }}>
+          <ChartTrail unit={unit} completed={completed} started={isUnlocked(unit.lessons[0].id)} />
+          {trailOffsets(unit).map((x, i) => {
+            const lesson = unit.lessons[i];
+            return (
+              <div key={lesson.id} className="absolute" style={{ top: i * TRAIL_ROW, left: `calc(50% + ${x}px)`, transform: 'translateX(-50%)' }}>
+                <LessonNode
+                  lesson={lesson}
+                  unit={unit}
+                  done={completed.includes(lesson.id)}
+                  isPerfect={perfect.includes(lesson.id)}
+                  unlocked={isUnlocked(lesson.id)}
+                  className=""
+                  onOpen={onOpen}
+                  lang={lang}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* 之字形关卡路径 */}
+      {!chart && (
       <div className="flex flex-col items-center gap-2">
         {unit.lessons.map((lesson, i) => {
           const done = completed.includes(lesson.id);
@@ -1490,6 +1531,7 @@ function UnitSection({
           );
         })}
       </div>
+      )}
     </motion.section>
   );
 }
