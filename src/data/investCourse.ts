@@ -35,6 +35,18 @@ import { i11l3StepsZh } from './lesson-flows/i11l3';
 import { i12l1StepsZh } from './lesson-flows/i12l1';
 import { i12l2StepsZh } from './lesson-flows/i12l2';
 import { i12l3StepsZh } from './lesson-flows/i12l3';
+import { i13l1StepsZh } from './lesson-flows/i13l1';
+import { i13l2StepsZh } from './lesson-flows/i13l2';
+import { i13l3StepsZh } from './lesson-flows/i13l3';
+import { i14l1StepsZh } from './lesson-flows/i14l1';
+import { i14l2StepsZh } from './lesson-flows/i14l2';
+import { i14l3StepsZh } from './lesson-flows/i14l3';
+import { i15l1StepsZh } from './lesson-flows/i15l1';
+import { i15l2StepsZh } from './lesson-flows/i15l2';
+import { i15l3StepsZh } from './lesson-flows/i15l3';
+import { i16l1StepsZh } from './lesson-flows/i16l1';
+import { i16l2StepsZh } from './lesson-flows/i16l2';
+import { i16l3StepsZh } from './lesson-flows/i16l3';
 
 /**
  * 投资学园 — 判断框架主线（L1 看懂市场语言）
@@ -1914,6 +1926,7 @@ investCourse.push(
       {
         id: 'i13l1',
         title: '财报地图：先读什么',
+        steps: i13l1StepsZh,
         tips: [
           '三种文件三种用途：10-K（年报，最全）、10-Q（季报，看边际变化）、8-K（重大事件即时披露——高管离职、并购、指引调整都在这）。',
           '20 分钟读法的次序：① 分部数据（哪块业务在长、哪块在烂）→ ② MD&A 管理层讨论（和上季对比措辞）→ ③ 现金流量表（和利润对账）→ ④ 脚注（时间不够也要扫收入确认和债务两条）。',
@@ -1959,6 +1972,7 @@ investCourse.push(
       {
         id: 'i13l2',
         title: 'MD&A 与脚注：尸体埋在哪',
+        steps: i13l2StepsZh,
         tips: [
           'MD&A（管理层讨论与分析）是管理层「必须解释数字」的法定环节——重点不是读一遍，是和上一季做 diff：新增了什么借口、删掉了什么自夸。',
           '脚注是财报的「案发现场」：收入确认方法变更、表外负债、或有事项、关联交易都埋在这里。安然的 SPE（特殊目的实体）当年就藏在脚注里。',
@@ -2006,6 +2020,7 @@ investCourse.push(
       {
         id: 'i13l3',
         title: '三表互验：让报表互相测谎',
+        steps: i13l3StepsZh,
         tips: [
           '三张表描述同一家公司，说的必须是同一个故事：利润表说赚了钱 → 现金流量表应该收到钱 → 资产负债表的留存收益应该增厚。对不上就是问题。',
           '经典测谎组合①：净利润连年增长 vs 经营现金流原地踏步 → 查应收账款和存货（L1 的现金流课 + L2 红旗的对账版）。',
@@ -2068,6 +2083,7 @@ investCourse.push(
       {
         id: 'i14l1',
         title: '一句话 Thesis 的解剖',
+        steps: i14l1StepsZh,
         tips: [
           '合格的 thesis 一句话四要素：标的 + 方向 + 核心逻辑 + 时间尺度。例：「未来 2-3 年，市场低估了 Costco 会员费的提价空间与续费黏性，值得高于市场的倍数（看多）。」',
           '「因为它会涨所以买」不是 thesis，是同义反复；「AI 是未来」也不是 thesis，是口号——它无法被反驳，因此也无法被验证。',
@@ -2120,6 +2136,7 @@ investCourse.push(
       {
         id: 'i14l2',
         title: '证据分级：不是所有信息都平等',
+        steps: i14l2StepsZh,
         tips: [
           '证据有等级：一手数据（财报、订单、渠道调研、你自己算的数）> 管理层说法（有立场）> 卖方研报（有生意关系）> 媒体/KOL 情绪（是情绪指标不是证据）。',
           '三条独立证据原则：支撑 thesis 至少要有三条互相独立的证据——「三个 KOL 都看多」不是三条证据，是一条情绪的三个回声。',
@@ -2170,6 +2187,7 @@ investCourse.push(
       {
         id: 'i14l3',
         title: '信念与仓位：确定性要标价',
+        steps: i14l3StepsZh,
         tips: [
           '仓位是信念的价格标签：证据链越强、赔率越好，仓位可以越大；「随便买点试试」的仓位背后往往是没写 thesis 的裸奔。',
           '凯利公式的直觉版：优势越大下注越大，但永远不押全部——因为你对「优势」的估计本身会错。职业玩家常用「半凯利」再打对折。',
@@ -2232,6 +2250,7 @@ investCourse.push(
       {
         id: 'i15l1',
         title: '预先写下证伪条件',
+        steps: i15l1StepsZh,
         tips: [
           '买入前写下：「如果 ___ 发生，我的 thesis 就错了，我会 ___。」空格填得越具体，未来的你越不会被情绪接管。',
           '合格证伪条件三要素：具体（指标+阈值）、可观察（公开数据能查）、有死线。「基本面恶化就卖」不合格；「会员续费率连续两季跌破 90%」合格（回扣 Costco 案例）。',
@@ -2284,6 +2303,7 @@ investCourse.push(
       {
         id: 'i15l2',
         title: '两种止损：论点止损与价格止损',
+        steps: i15l2StepsZh,
         tips: [
           '论点止损：证伪条件触发就走，与股价无关——哪怕还在赚钱。它保护的是你判断体系的完整性。',
           '价格止损：亏到预设幅度就减仓，与论点无关——哪怕 thesis 看起来还成立。它保护的是你的生存（本金和心态）。',
@@ -2336,6 +2356,7 @@ investCourse.push(
       {
         id: 'i15l3',
         title: '认知偏误防身术',
+        steps: i15l3StepsZh,
         tips: [
           '四个最贵的偏误：沉没成本（「都亏这么多了不能卖」）、锚定（盯着自己的成本价而非公司价值）、处置效应（急着卖赚钱的、死扛亏钱的）、叙事自我强化（越持有越只看得见利好）。',
           '成本价是你的私事，市场根本不知道也不关心。决策的唯一正确问句：「假如今天空仓，按现在的信息我会买它吗？」——不会买，就该卖。',
@@ -2396,6 +2417,7 @@ investCourse.push(
       {
         id: 'i16l1',
         title: '复盘决策，不是复盘结果',
+        steps: i16l1StepsZh,
         tips: [
           '结果 = 决策质量 × 运气。只用赚亏打分，等于把运气当成绩单——扑克圈叫 resulting（唯结果论），是复盘的头号大敌。',
           '四象限：好决策好结果（实至名归）、好决策坏结果（运气背，决策该重复）、坏决策好结果（最危险！侥幸会被误存为经验）、坏决策坏结果（活该，但至少教训清晰）。',
@@ -2448,6 +2470,7 @@ investCourse.push(
       {
         id: 'i16l2',
         title: '复盘模板：五问定位失灵环节',
+        steps: i16l2StepsZh,
         tips: [
           '复盘五问：① 当时的 thesis 是什么（抄原文，禁止转述）② 实际发生了什么 ③ 预期差出现在哪 ④ 框架哪一环失灵（L3 四联诊断：预期/尺子/边际/叙事，或 L4：证据/仓位/证伪执行）⑤ 下次的具体改法。',
           '第④问是复盘的心脏：亏损必须定位到具体环节——是证据分级错了（把 KOL 当一手数据）？证伪条件没执行？还是仓位与信念错配？「运气不好」不是合格答案。',
@@ -2500,6 +2523,7 @@ investCourse.push(
       {
         id: 'i16l3',
         title: '认知档案：毕业与下一步',
+        steps: i16l3StepsZh,
         tips: [
           '单笔复盘看树，认知档案看林：把每日一案正确率、memo 命中率、复盘记录汇总成数据，你的「判断风格画像」会浮现——对哪类判断最准？系统性偏乐观还是偏共识？',
           '风格偏差是最值钱的自我认知：有人财报案例 80% 正确但宏观只有 40%——那就该在宏观判断上系统性降低仓位权重，把弹药集中在自己的击球区。',
