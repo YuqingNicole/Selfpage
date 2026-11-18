@@ -47,6 +47,18 @@ import { i15l3StepsEn } from './lesson-flows/i15l3';
 import { i16l1StepsEn } from './lesson-flows/i16l1';
 import { i16l2StepsEn } from './lesson-flows/i16l2';
 import { i16l3StepsEn } from './lesson-flows/i16l3';
+import { i17l1StepsEn } from './lesson-flows/i17l1';
+import { i17l2StepsEn } from './lesson-flows/i17l2';
+import { i17l3StepsEn } from './lesson-flows/i17l3';
+import { i18l1StepsEn } from './lesson-flows/i18l1';
+import { i18l2StepsEn } from './lesson-flows/i18l2';
+import { i18l3StepsEn } from './lesson-flows/i18l3';
+import { i19l1StepsEn } from './lesson-flows/i19l1';
+import { i19l2StepsEn } from './lesson-flows/i19l2';
+import { i19l3StepsEn } from './lesson-flows/i19l3';
+import { i20l1StepsEn } from './lesson-flows/i20l1';
+import { i20l2StepsEn } from './lesson-flows/i20l2';
+import { i20l3StepsEn } from './lesson-flows/i20l3';
 
 /** Investing Academy — Judgment track L1 (Market Language), English mirror of investCourse.ts */
 
@@ -2589,6 +2601,7 @@ investCourseEn.push(
       {
         id: 'i17l1',
         title: 'The five-step causal map',
+        steps: i17l1StepsEn,
         tips: [
           'Industry analysis has a skeleton: ① demand (who pays, how fast) → ② the chain (which links the money flows through) → ③ the bottleneck (which link is short) → ④ profit (the bottleneck takes the excess) → ⑤ price (the market prices the profit and expectations).',
           'The AI walkthrough: hyperscalers spend $200B+ a year (demand) → chips/fabs/memory/servers/power (chain) → leading-edge capacity short (bottleneck) → Nvidia at 75% gross margin (profit) → $3T+ market cap (price).',
@@ -2645,6 +2658,7 @@ investCourseEn.push(
       {
         id: 'i17l2',
         title: 'Cutting the cake: where profit flows',
+        steps: i17l2StepsEn,
         tips: [
           'The same chain pays its links wildly differently. Three variables cut the cake: replaceability (can you be swapped out), bargaining power (who needs whom), and capital intensity (how much profit must be reinvested).',
           'The textbook contrast: of an iPhone’s profit, Apple keeps the bulk (brand + ecosystem, ~37% gross margin) while assembly earns single digits — irreplaceability sets the slice.',
@@ -2697,6 +2711,7 @@ investCourseEn.push(
       {
         id: 'i17l3',
         title: 'Bottlenecks migrate: follow the pricing power',
+        steps: i17l3StepsEn,
         tips: [
           'Bottlenecks are not permanent: capacity gets built, the bottleneck dissolves, excess profit evaporates — while a new bottleneck forms elsewhere on the chain.',
           'The AI migration, live: 2023 short of GPUs → 2024 GPU supply catches up and the squeeze moves to HBM memory and CoWoS advanced packaging → next, data-center power becomes the debate.',
@@ -2759,6 +2774,7 @@ investCourseEn.push(
       {
         id: 'i18l1',
         title: 'Start from demand: who pays',
+        steps: i18l1StepsEn,
         tips: [
           'AI demand splits by payer: training demand (hyperscalers buying clusters — a bet on the future) and inference demand (compute burned per call, scaling with real usage). One is capex willingness; the other is genuine consumption.',
           'Sourcing the demand (recall the Nvidia-2018 mining lesson): Microsoft/Google/Meta/Amazon are cash-flow giants buying with their own profits for their core business — buyer quality far beyond the coin-levered miners of 2018.',
@@ -2811,6 +2827,7 @@ investCourseEn.push(
       {
         id: 'i18l2',
         title: 'The chain map: chips to power',
+        steps: i18l2StepsEn,
         tips: [
           'The AI hardware trunk: chip design (Nvidia/AMD/Broadcom custom silicon) → fabrication (TSMC, effectively sole leading-edge) → memory (HBM: SK Hynix/Samsung/Micron) → packaging (CoWoS, TSMC capacity is king) → servers (Foxconn/Quanta/SMCI) → data centers and power.',
           'Structure per link sets profit: design near-monopoly (the CUDA ecosystem), fabrication effectively sole-source, HBM a three-player race with Hynix ahead, server assembly brutally competitive — the more concentrated, the fatter (recall i17l2).',
@@ -2865,6 +2882,7 @@ investCourseEn.push(
       {
         id: 'i18l3',
         title: 'Who keeps the money: judging the phase',
+        steps: i18l3StepsEn,
         tips: [
           'A technology wave hands profit down in phases: infrastructure (shovel-sellers: chips/equipment/power) → platform (cloud and tools) → application (companies using the new tools on end users). The internet’s order: Cisco/Lucent → Microsoft/Google → Amazon/Meta/Netflix.',
           'In 2023–24 AI sits squarely in the infrastructure phase: profits concentrate in shovel-sellers (Nvidia, TSMC, HBM); application revenue grows but is dwarfed by the spend.',
@@ -2931,6 +2949,7 @@ investCourseEn.push(
       {
         id: 'i19l1',
         title: 'Oil: the living fossil of cycle language',
+        steps: i19l1StepsEn,
         tips: [
           'Oil prices set at the margin, with both blades slow: demand swings with the economy; supply answers in 6–12 months for shale and years for conventional fields — slow supply × fast shocks = violent swings.',
           'One full cycle on record: April 2020, demand collapse plus storage running out sent WTI futures to an unprecedented -$37; two years later, war-constrained supply pushed Brent through $120. Same commodity, same framework.',
@@ -2983,6 +3002,7 @@ investCourseEn.push(
       {
         id: 'i19l2',
         title: 'The EV chain: batteries, lithium, price wars',
+        steps: i19l2StepsEn,
         tips: [
           'Cost structure sets chain power: the battery is 30–40% of an EV’s cost, the largest single link — so the profit tug-of-war between automakers, battery makers and lithium miners is the chain’s main plot.',
           'Lithium’s full cycle on record: carbonate from ~¥40k/ton in 2020 to nearly ¥600k by late 2022 (exploding demand, slow mines), then back below ¥100k within two years as expansions landed — a textbook commodity cycle (i7 and the oil lesson applied directly).',
@@ -3035,6 +3055,7 @@ investCourseEn.push(
       {
         id: 'i19l3',
         title: 'Capital flows and the policy variable',
+        steps: i19l3StepsEn,
         tips: [
           'Old and new energy mirror each other in capital behavior: oil & gas run low multiples + little expansion + big payouts (managing themselves as sunset cash cows); new energy runs heavy capex + equity raises (managing themselves as growth). Two different kinds of money inside one "energy" bucket (recall i3/i10).',
           'Policy is this chain’s biggest exogenous variable: the US IRA’s hundreds of billions redrew the battery and clean-manufacturing map; conversely every subsidy rollback (China 2019, Europe 2024) triggered a shakeout.',
@@ -3097,6 +3118,7 @@ investCourseEn.push(
       {
         id: 'i20l1',
         title: 'Consumer stratification',
+        steps: i20l1StepsEn,
         tips: [
           'First cut for consumer stocks: staples versus discretionary. Staples (food, household) have rigid, cycle-numb demand; discretionary (luxury, travel, premium liquor) rides income expectations and wealth effects — under recession fears the two often move as mirrors.',
           'Trading down and up coexist: through 2020–23 PDD doubled its users on value-for-money and briefly passed Alibaba in market cap, while Hermès and Ferrari kept printing highs — the middle (brands neither premium nor cheap) got crushed. The barbell eats both ends.',
@@ -3149,6 +3171,7 @@ investCourseEn.push(
       {
         id: 'i20l2',
         title: 'Pharma’s peculiar clock',
+        steps: i20l2StepsEn,
         tips: [
           'Pharma runs on a unique clock: a drug = a time-limited monopoly. Ten years of R&D + ~20 years of patent (often 8–12 effective after launch) → at the patent cliff generics swarm and originator revenue collapses.',
           'A pipeline is an options portfolio: Phase III outcomes are near-binary (success scales, failure zeroes) — one asset is a bet; the portfolio and platform are the business. Hence biotech’s violent valuation swings.',
@@ -3201,6 +3224,7 @@ investCourseEn.push(
       {
         id: 'i20l3',
         title: 'Graduation drill: a stranger industry, step by step',
+        steps: i20l3StepsEn,
         tips: [
           'The standard drill for any unfamiliar industry: ① draw the causal map (who pays → the chain → the bottleneck) ② locate the key metrics (what numbers this industry runs on, i7) ③ judge cycle versus structure (where in the arc are we) ④ find the competitive structure and replaceability (where profit flows) ⑤ enter the L4 pipeline (thesis → evidence → falsifier → size).',
           'Every step stands on an earlier lesson — these five steps are not new knowledge but the final assembly of every tool in L1–L5.',
