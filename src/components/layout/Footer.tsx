@@ -132,6 +132,9 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
               © {currentYear} {photographerInfo.name}
+              <span className="ml-3 opacity-70" title="构建版本">
+                {process.env.NEXT_PUBLIC_APP_VERSION} · {process.env.NEXT_PUBLIC_BUILD_SHA}
+              </span>
             </p>
 
             <div className="flex items-center gap-3">
