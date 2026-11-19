@@ -7,6 +7,11 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '幻觉工程师的一条 X 帖子',
+    author: '幻觉工程师（@hocyzon）',
+    url: 'https://x.com/hocyzon/status/2123289962728833347',
+  },
+  {
     title: 'AI 写的东西越来越难懂，Gemini 是怎么做到「说人话」的？｜Hao好聊趋势',
     author: '作者待核实',
     url: 'https://mp.weixin.qq.com/s/R3HWvNXA5Sum2eqk6Yzbdw',
