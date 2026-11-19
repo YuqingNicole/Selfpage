@@ -26,16 +26,6 @@ export interface XBookmark {
 
 export const xBookmarks: XBookmark[] = [
   {
-    title: '幻觉工程师的一条 X 帖子',
-    author: '幻觉工程师',
-    handle: '@hocyzon',
-    url: 'https://x.com/hocyzon/status/2123289962728833347',
-    category: 'To Review',
-    note: '先收藏原帖链接，正文待核实。',
-    next: '阅读原帖后再补主题和摘要。',
-    status: 'Review',
-  },
-  {
     title: '55 open-source AI video skills',
     author: '雪踏乌云',
     handle: '@Pluvio9yte',
