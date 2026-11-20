@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChartTrail, JudgmentTicker, TRAIL_ROW, trailOffsets } from './ChartTrail';
+import { ChartBoss, ChartTrail, JudgmentTicker, TRAIL_ROW, trailOffsets } from './ChartTrail';
 import {
   arbCourse,
   findLesson,
@@ -949,6 +949,8 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
           perfect={progress.perfect}
           streak={streakAlive ? progress.streak : 0}
           lang={effectiveLang}
+          bossUnits={BOSSES.filter((b) => bossWins[b.id]).map((b) => b.unitIds[b.unitIds.length - 1])}
+          bossCount={BOSSES.filter((b) => b.unitIds[0].startsWith('i')).length}
         />
       )}
 
@@ -1043,6 +1045,18 @@ export function OptionsCourseApp({ variant = 'options', forceLang }: { variant?:
             {BOSSES.filter((b) => b.unitIds[b.unitIds.length - 1] === unit.id).map((b) => {
               const unlocked = chapterDone(b.unitIds);
               const won = bossWins[b.id];
+              if (isInvest) {
+                return (
+                  <ChartBoss
+                    key={b.id}
+                    boss={b}
+                    unlocked={unlocked}
+                    won={won}
+                    lang={effectiveLang}
+                    onChallenge={() => setActiveBoss(b)}
+                  />
+                );
+              }
               return (
                 <div
                   key={b.id}

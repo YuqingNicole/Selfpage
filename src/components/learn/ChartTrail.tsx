@@ -91,9 +91,12 @@ export function ChartTrail({ unit, completed, started }: { unit: Unit; completed
   );
 }
 
-/** 判断力指数：1,000 点起步，每通关一课 +30，完美通关再 +10 */
-export function judgmentIndex(units: Unit[], completed: string[], perfect: string[], upTo = units.length): number {
+/** 判断力指数：1,000 点起步，每通关一课 +30，完美通关再 +10，击败一个阶段 Boss 再 +100（bossUnits：已击败 Boss 所在的末尾单元） */
+export function judgmentIndex(units: Unit[], completed: string[], perfect: string[], upTo = units.length, bossUnits: string[] = []): number {
   let v = 1000;
+  units.slice(0, upTo).forEach((u) => {
+    if (bossUnits.includes(u.id)) v += 100;
+  });
   units.slice(0, upTo).forEach((u) =>
     u.lessons.forEach((l) => {
       if (completed.includes(l.id)) v += 30;
@@ -109,16 +112,22 @@ export function JudgmentTicker({
   perfect,
   streak,
   lang,
+  bossUnits = [],
+  bossCount = 0,
 }: {
   units: Unit[];
   completed: string[];
   perfect: string[];
   streak: number;
   lang: 'en' | 'zh';
+  /** 已击败的 Boss 所在的末尾单元 id */
+  bossUnits?: string[];
+  /** 这条主线的 Boss 总数（算满分用） */
+  bossCount?: number;
 }) {
-  const series = [1000, ...units.map((_, i) => judgmentIndex(units, completed, perfect, i + 1))];
+  const series = [1000, ...units.map((_, i) => judgmentIndex(units, completed, perfect, i + 1, bossUnits))];
   const now = series[series.length - 1];
-  const max = 1000 + units.reduce((s, u) => s + u.lessons.length * 40, 0);
+  const max = 1000 + units.reduce((s, u) => s + u.lessons.length * 40, 0) + bossCount * 100;
   // 走到哪一个单元为止有进展：之后的部分画成虚线
   let last = 0;
   series.forEach((v, i) => {
@@ -159,6 +168,111 @@ export function JudgmentTicker({
         {last > 0 && <polyline points={solid} fill="none" stroke="#16a34a" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />}
         <circle cx={px(last)} cy={py(series[last])} r={3.5} fill={last > 0 ? '#16a34a' : 'var(--muted-foreground)'} />
       </svg>
+    </div>
+  );
+}
+
+/* ---------- Boss：走势图上的回撤低点 ---------- */
+
+const BOSS_H = 232;
+const DIP_X = -96;
+const DIP_Y = 104;
+
+/**
+ * 每个阶段结尾，走势线向左下探出一个「回撤低点」，Boss 就站在那里。
+ * 还没走到：整段虚线；走到了：下探段用 Boss 主色；击败 Boss 后，回升段变成绿色实线并标上「创新高」。
+ */
+export function ChartBoss({
+  boss,
+  unlocked,
+  won,
+  lang,
+  onChallenge,
+}: {
+  boss: { id: string; emoji: string; zh: string; en: string; zhTaunt: string; enTaunt: string; color: string; colorDark: string };
+  unlocked: boolean;
+  won?: string;
+  lang: 'en' | 'zh';
+  onChallenge: () => void;
+}) {
+  const en = lang === 'en';
+  const rand = seeded(`${boss.id}-dip`);
+  const down = jagged(rand, 0, 0, DIP_X, DIP_Y, 8);
+  const up = jagged(rand, DIP_X, DIP_Y, 0, BOSS_H, 8);
+  const solid = (points: string, color: string) => (
+    <g>
+      <polyline points={points} fill="none" stroke={color} strokeWidth={10} strokeLinejoin="round" strokeLinecap="round" opacity={0.18} />
+      <polyline points={points} fill="none" stroke={color} strokeWidth={3.5} strokeLinejoin="round" strokeLinecap="round" />
+    </g>
+  );
+  const dashed = (points: string) => (
+    <polyline points={points} fill="none" stroke="var(--muted-foreground)" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" strokeDasharray="3 7" opacity={0.45} />
+  );
+
+  return (
+    <div className="relative" style={{ height: BOSS_H }} data-boss={boss.id}>
+      <svg aria-hidden className="pointer-events-none absolute left-1/2 top-0 overflow-visible" width={1} height={BOSS_H}>
+        {Array.from({ length: Math.floor(BOSS_H / 32) + 1 }, (_, k) => (
+          <line key={k} x1={-150} x2={150} y1={k * 32} y2={k * 32} stroke="var(--border)" strokeWidth={1} strokeDasharray="2 6" opacity={0.7} />
+        ))}
+        {/* 回撤低点的水平参考线 */}
+        <line x1={DIP_X - 40} x2={150} y1={DIP_Y} y2={DIP_Y} stroke={unlocked ? boss.color : 'var(--muted-foreground)'} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
+        {unlocked ? solid(down, boss.color) : dashed(down)}
+        {won ? solid(up, '#16a34a') : dashed(up)}
+      </svg>
+
+      {/* Boss 站在低点 */}
+      <div className="absolute flex flex-col items-center" style={{ top: DIP_Y - 44, left: `calc(50% + ${DIP_X}px)`, transform: 'translateX(-50%)' }}>
+        <span className="mb-1 rounded-md px-1.5 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-wider" style={{ color: unlocked ? boss.color : 'var(--muted-foreground)', backgroundColor: 'var(--card)' }}>
+          {en ? '📉 Drawdown' : '📉 回撤低点'}
+        </span>
+        <button
+          onClick={() => unlocked && onChallenge()}
+          disabled={!unlocked}
+          aria-label={`${en ? 'Chapter Boss' : '篇章 Boss'}: ${en ? boss.en : boss.zh}`}
+          className={`flex h-[72px] w-[72px] items-center justify-center rounded-full border-b-8 text-3xl transition ${unlocked ? 'cursor-pointer hover:scale-105 active:translate-y-1 active:border-b-4' : 'cursor-not-allowed grayscale'}`}
+          style={
+            unlocked
+              ? { background: `radial-gradient(circle at 30% 25%, ${boss.color}f0, ${boss.colorDark})`, borderColor: boss.colorDark, boxShadow: `0 8px 22px -6px ${boss.color}aa` }
+              : { backgroundColor: 'var(--muted)', borderColor: 'var(--border)', opacity: 0.7 }
+          }
+        >
+          {won ? '👑' : boss.emoji}
+        </button>
+      </div>
+
+      {/* 说明卡 */}
+      <div
+        className="absolute right-0 rounded-2xl border-2 bg-[var(--card)] px-3 py-2.5"
+        style={{ top: DIP_Y - 54, left: 'calc(50% - 28px)', borderColor: unlocked ? boss.color : 'var(--border)' }}
+      >
+        <p className="text-sm font-extrabold leading-snug">
+          {en ? 'Boss: ' : 'Boss：'}
+          {en ? boss.en : boss.zh}
+        </p>
+        <p className="mt-0.5 text-[11px] italic leading-snug text-[var(--muted-foreground)]">「{en ? boss.enTaunt : boss.zhTaunt}」</p>
+        {unlocked ? (
+          <button
+            onClick={onChallenge}
+            className="mt-2 rounded-xl border-b-4 px-3 py-1.5 text-xs font-extrabold uppercase tracking-wide text-white transition active:translate-y-0.5 active:border-b-2"
+            style={{ backgroundColor: boss.color, borderColor: boss.colorDark }}
+          >
+            ⚔️ {won ? (en ? 'Rematch' : '再战') : en ? 'Challenge' : '挑战'}
+          </button>
+        ) : (
+          <p className="mt-1 text-[10px] font-bold text-[var(--muted-foreground)]">🔒 {en ? 'Finish this stage to challenge' : '修完这一阶段的课程后解锁'}</p>
+        )}
+      </div>
+
+      {/* 击败后：创新高 */}
+      {won && (
+        <span
+          className="absolute rounded-md bg-[#16a34a] px-1.5 py-0.5 font-mono text-[10px] font-extrabold uppercase tracking-wider text-white"
+          style={{ top: BOSS_H - 36, left: 'calc(50% + 14px)' }}
+        >
+          {en ? '📈 New high' : '📈 创新高'}
+        </span>
+      )}
     </div>
   );
 }

@@ -55,6 +55,31 @@ export const BOSSES: BossDef[] = [
     unitIds: ['u15', 'u16', 'u17', 'u18', 'u19'],
     color: '#627eea', colorDark: '#4c63bb',
   },
+  // 投资主线 L1–L4 各一个阶段 Boss，L5 结尾是总 Boss「市场先生」
+  {
+    id: 'boss_inv_l1', emoji: '📢', zh: '噪音小丑', en: 'Noise Jester',
+    zhTaunt: '热搜、口号、大数字……你分得清哪句是信息吗？', enTaunt: 'Headlines, slogans, giant numbers… can you tell which one is information?',
+    unitIds: ['i1', 'i2', 'i3', 'i4'],
+    color: '#1cb0f6', colorDark: '#1899d6',
+  },
+  {
+    id: 'boss_inv_l2', emoji: '💄', zh: '财报化妆师', en: 'Earnings Makeup Artist',
+    zhTaunt: '『调整后』的利润，总是更好看一点。', enTaunt: '“Adjusted” earnings always look a little prettier.',
+    unitIds: ['i5', 'i6', 'i7', 'i8'],
+    color: '#e5484d', colorDark: '#b93a3e',
+  },
+  {
+    id: 'boss_inv_l3', emoji: '👻', zh: '已计价幽灵', en: 'Priced-In Phantom',
+    zhTaunt: '你刚听到的好消息，我上个月就买完了。', enTaunt: 'The good news you just heard? I bought it all last month.',
+    unitIds: ['i9', 'i10', 'i11', 'i12'],
+    color: '#8b5cf6', colorDark: '#6d46c9',
+  },
+  {
+    id: 'boss_inv_l4', emoji: '🪞', zh: '后视镜先生', en: 'Mr. Hindsight',
+    zhTaunt: '你早就知道会这样，对吧？', enTaunt: 'You knew it all along, didn’t you?',
+    unitIds: ['i13', 'i14', 'i15', 'i16'],
+    color: '#0d9488', colorDark: '#0a7568',
+  },
   {
     id: 'boss_market', emoji: '🎩', zh: '市场先生', en: 'Mr. Market',
     zhTaunt: '我每天上门报价，只为试探你的情绪——你敢按自己的判断出价吗？',
