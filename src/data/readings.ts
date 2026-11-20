@@ -7,6 +7,11 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: '微信文章（标题待核实）',
+    author: '作者待核实',
+    url: 'https://mp.weixin.qq.com/s/3yHAmhVNO5a4h69ibaRtwg',
+  },
+  {
     title: '幻觉工程师的一条 X 帖子',
     author: '幻觉工程师（@hocyzon）',
     url: 'https://x.com/hocyzon/status/2123289962728833347',
