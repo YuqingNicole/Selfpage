@@ -36,13 +36,31 @@ export default function BookPage() {
           <p className={styles.eyebrow}>写在前面</p>
           <h2>答案越来越容易，<br />自己的问题仍值得慢慢写。</h2>
           <p>从普通年轻人的处境出发，写一个周末、一笔报价、一次没有想清楚的选择。技术和时代怎样改变生活，也要到这些小事里去看。</p>
-          <p>目录按四部重新组织，每篇可独立阅读。下面的篇名是写作计划，不代表正文已完成；现有五章审阅稿完整保留，供阅读和后续修订。</p>
-          {first && <Link href={`/book/${first.slug}`} className={styles.open}>翻开第一章 <ArrowRight size={18} aria-hidden="true" /></Link>}
+          <p>这是一本还在写的书。你可以读目前的审阅稿，也可以看看接下来想写什么。</p>
+          <div className={styles.introActions}>
+            {first && <a href="#drafts" className={styles.open}>选择一章读 <ArrowRight size={18} aria-hidden="true" /></a>}
+            <Link href="/book/continue" className={styles.authorEntry}>作者 · 继续写</Link>
+          </div>
         </div>
       </section>
-      <section id="contents" className={styles.catalogue} aria-labelledby="contents-title">
-        <div className={styles.catalogueHead}><h2 id="contents-title">目录</h2><span>四部 · 篇目拟定中</span></div>
-        <p className={styles.directoryNote}>不必从头读到尾。可以从一个问题进入，再读另一个人的处境。篇幅由故事决定，不要求每篇都给出一套方法。</p>
+      <section id="drafts" className={styles.catalogue} aria-labelledby="drafts-title">
+        <div className={styles.catalogueHead}><h2 id="drafts-title">现在可以读</h2><span>{chapters.length} 章 · 审阅稿</span></div>
+        <p className={styles.directoryNote}>可以挑一章直接读。这些是现有审阅稿，下面的四部写作计划尚未拆成正文。</p>
+        <ol className={styles.contents}>
+          {chapters.map((chapter) => <li key={chapter.slug}>
+            <Link href={`/book/${chapter.slug}`}>
+              <span className={styles.number}>{chapter.number}</span>
+              <div><h3 className={styles.chapterTitle}>{chapter.title}</h3>
+                <p className={styles.chapterDescription}>{chapter.description}</p>
+                <p className={styles.chapterStatus}>{chapter.status}</p></div>
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+          </li>)}
+        </ol>
+      </section>
+      <section id="contents" className={`${styles.catalogue} ${styles.plan}`} aria-labelledby="contents-title">
+        <div className={styles.catalogueHead}><h2 id="contents-title">写作计划</h2><span>四部 · 篇目拟定中</span></div>
+        <p className={styles.directoryNote}>四部的篇名暂定，下面也保留了对应的审阅稿。</p>
         <nav className={styles.partNav} aria-label="四部目录">
           {directory.map((part) => <a key={part.id} href={`#${part.id}`}>{part.number} · {part.title}</a>)}
         </nav>
@@ -65,26 +83,11 @@ export default function BookPage() {
         </section>)}
         <p className={styles.directoryNote}>传记札记关注一个具体决定：当时知道什么、误判了什么、机会来自哪里、后来付了什么代价。不以成功结局倒推一套秘诀，也不将第三方经历写成作者亲历。</p>
       </section>
-      <section className={`${styles.catalogue} ${styles.drafts}`} aria-labelledby="drafts-title">
-        <div className={styles.catalogueHead}><h2 id="drafts-title">现有审阅稿</h2><span>{chapters.length} 章 · 保留原链接</span></div>
-        <p className={styles.directoryNote}>以下仍按原五章顺序阅读，正文尚未按新目录拆分。新目录中的篇目完成后，再逐篇补上阅读入口。</p>
-        <ol className={styles.contents}>
-          {chapters.map((chapter) => <li key={chapter.slug}>
-            <Link href={`/book/${chapter.slug}`}>
-              <span className={styles.number}>{chapter.number}</span>
-              <div><h3 className={styles.chapterTitle}>{chapter.title}</h3>
-                <p className={styles.chapterDescription}>{chapter.description}</p>
-                <p className={styles.chapterStatus}>{chapter.status}</p></div>
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </Link>
-          </li>)}
-        </ol>
-      </section>
       <details className={styles.working}>
         <summary>关于书稿与作者工作台</summary>
         <p>本书讨论的是在真实处境中看见、选择并承担后果。章节中的设想、研究、公开报道和作者判断保留各自边界，书稿随核实与审阅持续更新。</p>
-        <nav aria-label="书稿编辑"><a href={bookEditLinks.createChapter} target="_blank" rel="noreferrer">新建章节</a>
-          <a href={bookEditLinks.editChapterTemplateFolder} target="_blank" rel="noreferrer">编辑章节目录</a>
+        <nav aria-label="书稿编辑">
+          <a href={bookEditLinks.editDirectory} target="_blank" rel="noreferrer">在 GitHub 编辑写作目录</a>
           <a href={bookEditLinks.editBookHome} target="_blank" rel="noreferrer">编辑书页说明</a></nav>
       </details>
     </div>
