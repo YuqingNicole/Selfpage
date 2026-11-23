@@ -139,22 +139,34 @@ export default function Home() {
                   {tr.aboutTitle}
                 </h2>
                 <p className="text-lg font-light leading-relaxed text-muted-foreground">{tr.biography}</p>
-                <div className="pt-5 border-t border-border space-y-2">
-                  <h3 className="text-lg font-medium">
-                    {lang === 'zh' ? '播客：创新磁场' : 'Podcast: InnovateMagnet'}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {lang === 'zh'
-                      ? '和做产品、创业、做社区的人聊聊，他们的点子是怎么落地的。'
-                      : 'Conversations with people building products, businesses, and communities about how they put their ideas into practice.'}
-                  </p>
-                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-                    <a className="underline underline-offset-4" href="https://www.xiaoyuzhoufm.com/podcast/6690ef48f0e0f244ed4a172b">
-                      {lang === 'zh' ? '小宇宙' : 'Xiaoyuzhou'}
-                    </a>
-                    <a className="underline underline-offset-4" href="https://podcasts.apple.com/us/podcast/id1760664714">
-                      {lang === 'zh' ? 'Apple 播客' : 'Apple Podcasts'}
-                    </a>
+                <div className="flex items-start gap-4 rounded-3xl border border-border bg-background p-4 sm:gap-5 sm:p-6"
+                  style={{ backgroundImage: 'linear-gradient(135deg, var(--accent-warm-muted), transparent 80%)' }}
+                >
+                  <div className="shrink-0 -rotate-6 rounded-2xl bg-background p-2.5 shadow-sm">
+                    <svg aria-hidden="true" width="42" height="42" viewBox="0 0 44 44" fill="none">
+                      <path d="M10 10v13a12 12 0 0 0 24 0V10" stroke="#c76c61" strokeWidth="8" strokeLinecap="round" />
+                      <path d="M10 10v5m24-5v5" stroke="#82a39c" strokeWidth="8" strokeLinecap="round" />
+                      <path d="m22 8 1.4 3.6L27 13l-3.6 1.4L22 18l-1.4-3.6L17 13l3.6-1.4L22 8Z" fill="#c58c3d" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <p className="text-xs tracking-widest uppercase text-muted-foreground">{lang === 'zh' ? '我的播客' : 'My podcast'}</p>
+                    <h3 className="break-words text-xl font-medium">
+                      {lang === 'zh' ? '创新磁场' : 'InnovateMagnet'}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {lang === 'zh'
+                        ? '和做产品、创业、做社区的人聊聊，他们的点子是怎么落地的。'
+                        : 'Conversations with people building products, businesses, and communities about how they put their ideas into practice.'}
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1 text-sm">
+                      <a className="inline-flex min-h-10 items-center rounded-full border border-border bg-background px-3 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href="https://www.xiaoyuzhoufm.com/podcast/6690ef48f0e0f244ed4a172b">
+                        {lang === 'zh' ? '小宇宙' : 'Xiaoyuzhou'}
+                      </a>
+                      <a className="inline-flex min-h-10 items-center rounded-full border border-border bg-background px-3 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href="https://podcasts.apple.com/us/podcast/id1760664714">
+                        {lang === 'zh' ? 'Apple 播客' : 'Apple Podcasts'}
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
