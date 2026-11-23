@@ -23,6 +23,12 @@ export interface Reading {
 
 export const readings: Reading[] = [
   {
+    title: 'Agent大评测指南：一门纯粹的实践学科',
+    author: '作者待核实',
+    url: 'https://mp.weixin.qq.com/s/u7hRTnh3OZd_UWHy13WHZg',
+    topics: ['ai'],
+  },
+  {
     title: '微信文章（标题待核实）',
     author: '作者待核实',
     url: 'https://mp.weixin.qq.com/s/3yHAmhVNO5a4h69ibaRtwg',
