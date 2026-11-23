@@ -15,12 +15,10 @@ export type BookChapter = {
 
 const chaptersDir = path.join(process.cwd(), 'content/book/chapters');
 const repoEditBase = 'https://github.com/YuqingNicole/Selfpage/edit/main';
-const repoNewBase = 'https://github.com/YuqingNicole/Selfpage/new/main';
 
 export const bookEditLinks = {
   editBookHome: `${repoEditBase}/src/app/book/page.tsx`,
-  editChapterTemplateFolder: `${repoEditBase}/content/book/chapters`,
-  createChapter: `${repoNewBase}?filename=content/book/chapters/chapter-6.md`,
+  editDirectory: `${repoEditBase}/content/book/directory.json`,
 };
 
 function readChapterFile(fileName: string): BookChapter {
