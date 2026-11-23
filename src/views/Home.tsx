@@ -139,6 +139,24 @@ export default function Home() {
                   {tr.aboutTitle}
                 </h2>
                 <p className="text-lg font-light leading-relaxed text-muted-foreground">{tr.biography}</p>
+                <div className="pt-5 border-t border-border space-y-2">
+                  <h3 className="text-lg font-medium">
+                    {lang === 'zh' ? '播客：创新磁场' : 'Podcast: InnovateMagnet'}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {lang === 'zh'
+                      ? '和做产品、创业、做社区的人聊聊，他们的点子是怎么落地的。'
+                      : 'Conversations with people building products, businesses, and communities about how they put their ideas into practice.'}
+                  </p>
+                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                    <a className="underline underline-offset-4" href="https://www.xiaoyuzhoufm.com/podcast/6690ef48f0e0f244ed4a172b">
+                      {lang === 'zh' ? '小宇宙' : 'Xiaoyuzhou'}
+                    </a>
+                    <a className="underline underline-offset-4" href="https://podcasts.apple.com/us/podcast/id1760664714">
+                      {lang === 'zh' ? 'Apple 播客' : 'Apple Podcasts'}
+                    </a>
+                  </div>
+                </div>
               </div>
             </ScrollReveal>
           </div>
